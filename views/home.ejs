@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUST Animation</title>
+    <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+    <div class="animation-wrapper">
+        <div class="bg-overlay" id="bgOverlay"></div>  
+        <div class="letters-wrapper" id="lettersWrapper">
+            <div class="letter letter-H" id="letterH">H</div>
+            <div class="letter letter-U" id="letterU">U</div>
+            <div class="letter letter-S" id="letterS">S</div>
+            <div class="letter letter-T" id="letterT">T</div>
+        </div>
+    </div>
+    
+    <header class="header" id="header">
+        <div class="header-logo">HUST</div>
+        <nav class="nav-links">
+            <a href="#" class="nav-link">Home</a>
+            <a href="#" class="nav-link">About</a>
+            <a href="#" class="nav-link">Programs</a>
+            <a href="#" class="nav-link">Research</a>
+            <a href="#" class="nav-link">Contact</a>
+        </nav>
+    </header>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const letterH = document.getElementById('letterH');
+            const letterU = document.getElementById('letterU');
+            const letterS = document.getElementById('letterS');
+            const letterT = document.getElementById('letterT');
+            const bgOverlay = document.getElementById('bgOverlay');
+            const lettersWrapper = document.getElementById('lettersWrapper');
+            const header = document.getElementById('header');
+            
+            function revealLetter(letter, delay) {
+                setTimeout(() => {
+                    letter.style.opacity = '1';
+                    letter.style.filter = 'blur(2px)';
+                    setTimeout(() => {
+                        letter.style.filter = 'blur(1px)';
+                        setTimeout(() => {
+                            letter.style.filter = 'blur(0)';
+                        }, 500);
+                    }, 500);
+                }, delay);
+            }
+            
+            // Start animation sequence
+            revealLetter(letterH, 500);
+            revealLetter(letterS, 900);
+            revealLetter(letterU, 1500);
+            revealLetter(letterT, 1700);
+            
+            // Stage 2: Letters align to center
+            setTimeout(() => {
+                letterH.style.transform = 'translateX(0)';
+                letterU.style.transform = 'translateX(0)';
+                letterS.style.transform = 'translateX(0)';
+                letterT.style.transform = 'translateX(0)';
+            }, 3600);
+            
+            // Stage 3: Background appears around HUST and letters change color
+            setTimeout(() => {
+                bgOverlay.style.opacity = '1';
+                
+                letterH.style.color = 'white';
+                letterU.style.color = 'white';
+                letterS.style.color = 'white';
+                letterT.style.color = 'white';
+            }, 3800);
+            
+            // Stage 4: HUST moves to top and becomes smaller, background expands
+            setTimeout(() => {
+                lettersWrapper.style.top = '1.5rem';
+                lettersWrapper.style.transform = 'translate(-50%, 0)';
+                
+                letterH.style.fontSize = '2rem';
+                letterU.style.fontSize = '2rem';
+                letterS.style.fontSize = '2rem';
+                letterT.style.fontSize = '2rem';
+                
+                // Expand background evenly from center
+                bgOverlay.style.width = '100%';
+                bgOverlay.style.height = '100%';
+                bgOverlay.style.borderRadius = '0';
+            }, 5500);
+            
+            // Stage 5: Show final state with header
+            setTimeout(() => {
+                letterH.style.opacity = '0';
+                letterU.style.opacity = '0';
+                letterS.style.opacity = '0';
+                letterT.style.opacity = '0';
+                
+                header.style.opacity = '1';
+            }, 6500);
+        });
+    </script>
+</body>
+</html>
