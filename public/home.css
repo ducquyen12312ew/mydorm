@@ -166,27 +166,6 @@ body {
     transition: transform 0.5s ease;
 }
 
-.header-logo::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-    transform: translateX(-100%);
-    opacity: 0;
-    transition: all 0.5s ease;
-}
-
-.header-logo:hover img {
-    transform: scale(1.05);
-}
-
-.header-logo:hover::after {
-    transform: translateX(0);
-    opacity: 1;
-}
 
 .nav-container {
     display: flex;
