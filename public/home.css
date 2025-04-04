@@ -1,0 +1,106 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Times New Roman', serif;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    background-color: #f8f3ef;
+}
+
+.animation-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.letters-wrapper {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    transition: top 2s ease, transform 2s ease;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+}
+
+.letter {
+    font-size: 8rem;
+    font-weight: normal;
+    opacity: 0;
+    color: #e61a1a;
+    transition: opacity 1.5s ease, transform 1.5s ease, color 1.5s ease, font-size 2s ease, filter 1.5s ease;
+    filter: blur(100px);
+}
+
+.letter-H { transform: translateX(-180px); }
+.letter-U { transform: translateX(-60px); }
+.letter-S { transform: translateX(60px); }
+.letter-T { transform: translateX(180px); }
+
+.bg-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 500px;
+    height: 500px;
+    transform: translate(-50%, -50%);
+    background: url('image/background.png');
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 2s ease, width 2s ease, height 2s ease, border-radius 2s ease;
+    z-index: 1;
+    border-radius: 10px;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: transparent;
+    opacity: 0;
+    transition: opacity 1s ease;
+    z-index: 100;
+}
+
+.header-logo {
+    font-size: 2rem;
+    color: white;
+    letter-spacing: 2px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-link {
+    color: white;
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: border-bottom 0.3s ease;
+    padding-bottom: 5px;
+    border-bottom: 1px solid transparent;
+}
+
+.nav-link:hover {
+    border-bottom: 1px solid white;
+}
