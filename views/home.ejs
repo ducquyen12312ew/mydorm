@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HUST Animation</title>
-    <link rel="stylesheet" href="home.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="home.css">
 </head>
 <body>
     <div class="animation-wrapper">
@@ -16,16 +19,25 @@
             <div class="letter letter-T" id="letterT">T</div>
         </div>
     </div>
-    
     <header class="header" id="header">
-        <div class="header-logo">HUST</div>
-        <nav class="nav-links">
-            <a href="#" class="nav-link">Home</a>
-            <a href="#" class="nav-link">About</a>
-            <a href="#" class="nav-link">Programs</a>
-            <a href="#" class="nav-link">Research</a>
-            <a href="#" class="nav-link">Contact</a>
-        </nav>
+        <div class="header-logo">
+            <img src="image/logo.png" alt="HUST Logo" id="hustLogo">
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-container" id="navContainer">
+            <nav class="nav-links">
+                <a href="#" class="nav-link">Home</a>
+                <a href="#" class="nav-link">About</a>
+                <a href="#" class="nav-link">Programs</a>
+                <a href="#" class="nav-link">Research</a>
+                <a href="#" class="nav-link">Contact</a>
+            </nav>
+            <a href="/login" class="login-btn">Login</a>
+        </div>
     </header>
     
     <script>
@@ -37,6 +49,69 @@
             const bgOverlay = document.getElementById('bgOverlay');
             const lettersWrapper = document.getElementById('lettersWrapper');
             const header = document.getElementById('header');
+            const menuToggle = document.getElementById('menuToggle');
+            const navContainer = document.getElementById('navContainer');
+            
+            menuToggle.addEventListener('click', function() {
+                navContainer.classList.toggle('active');
+                
+                const spans = this.querySelectorAll('span');
+                if (navContainer.classList.contains('active')) {
+                    spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+                    spans[1].style.opacity = '0';
+                    spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+                } else {
+                    spans[0].style.transform = '';
+                    spans[1].style.opacity = '';
+                    spans[2].style.transform = '';
+                }
+            });
+            
+            document.addEventListener('click', function(event) {
+                if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
+                    navContainer.classList.remove('active');
+                    // Reset hamburger icon
+                    const spans = menuToggle.querySelectorAll('span');
+                    spans[0].style.transform = '';
+                    spans[1].style.opacity = '';
+                    spans[2].style.transform = '';
+                }
+            });
+            
+            window.addEventListener('resize', function() {
+                // Reset mobile menu if window is resized to desktop view
+                if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
+                    navContainer.classList.remove('active');
+                    const spans = menuToggle.querySelectorAll('span');
+                    spans.forEach(span => span.classList.remove('active'));
+                }
+                
+                adjustAnimation();
+            });
+            
+            function adjustAnimation() {
+                const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+
+                if (vw <= 576) {
+                    lettersWrapper.style.top = '1rem';
+                    letterH.style.fontSize = '1.5rem';
+                    letterU.style.fontSize = '1.5rem';
+                    letterS.style.fontSize = '1.5rem';
+                    letterT.style.fontSize = '1.5rem';
+                } else if (vw <= 768) {
+                    lettersWrapper.style.top = '1.2rem';
+                    letterH.style.fontSize = '1.8rem';
+                    letterU.style.fontSize = '1.8rem';
+                    letterS.style.fontSize = '1.8rem';
+                    letterT.style.fontSize = '1.8rem';
+                } else {
+                    lettersWrapper.style.top = '1.5rem';
+                    letterH.style.fontSize = '2rem';
+                    letterU.style.fontSize = '2rem';
+                    letterS.style.fontSize = '2rem';
+                    letterT.style.fontSize = '2rem';
+                }
+            }
             
             function revealLetter(letter, delay) {
                 setTimeout(() => {
@@ -50,14 +125,12 @@
                     }, 500);
                 }, delay);
             }
-            
-            // Start animation sequence
+
             revealLetter(letterH, 500);
             revealLetter(letterS, 900);
             revealLetter(letterU, 1500);
             revealLetter(letterT, 1700);
-            
-            // Stage 2: Letters align to center
+
             setTimeout(() => {
                 letterH.style.transform = 'translateX(0)';
                 letterU.style.transform = 'translateX(0)';
@@ -80,10 +153,8 @@
                 lettersWrapper.style.top = '1.5rem';
                 lettersWrapper.style.transform = 'translate(-50%, 0)';
                 
-                letterH.style.fontSize = '2rem';
-                letterU.style.fontSize = '2rem';
-                letterS.style.fontSize = '2rem';
-                letterT.style.fontSize = '2rem';
+                // Adjust sizes based on screen width
+                adjustAnimation();
                 
                 // Expand background evenly from center
                 bgOverlay.style.width = '100%';
@@ -91,15 +162,32 @@
                 bgOverlay.style.borderRadius = '0';
             }, 5500);
             
-            // Stage 5: Show final state with header
+            // Stage 5: HUST letters disappear and menu appears
             setTimeout(() => {
                 letterH.style.opacity = '0';
                 letterU.style.opacity = '0';
                 letterS.style.opacity = '0';
                 letterT.style.opacity = '0';
                 
-                header.style.opacity = '1';
-            }, 6500);
+                // Show the menu after letters disappear
+                setTimeout(() => {
+                    header.style.opacity = '1';
+                    header.classList.add('visible');
+                    document.getElementById('header').style.zIndex = '1000';
+                    
+                    // Add active class to first nav link
+                    document.querySelector('.nav-link').classList.add('active-link');
+                    
+                    // Animate nav links one by one
+                    const navLinks = document.querySelectorAll('.nav-link');
+                    navLinks.forEach((link, index) => {
+                        setTimeout(() => {
+                            link.style.transform = 'translateY(0)';
+                            link.style.opacity = '1';
+                        }, 100 * index);
+                    });
+                }, 300);
+            }, 7000);
         });
     </script>
 </body>
