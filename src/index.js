@@ -35,6 +35,10 @@ app.get("/signup", (req, res) => {
     res.render("signup");
 });
 
+app.get("/map", (req, res) => {
+    res.render("map");
+});
+
 app.post("/signup", async (req, res) => {
     const data = {
         name: req.body.username,
