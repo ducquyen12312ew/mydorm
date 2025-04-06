@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ Ký túc xá Đại học Bách Khoa Hà Nội - Leaflet</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .header-bar {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 8px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .search-container {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+        }
+        .search-icon {
+            color: #e91e63;
+            font-size: 24px;
+            margin-right: 15px;
+        }
+        #search-input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            padding: 8px 0;
+        }
+        .filter-container {
+            display: flex;
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+            overflow-x: auto;
+            padding: 8px 10px;
+        }
+        .filter-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin-right: 10px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .filter-btn.active {
+            background: #e91e63;
+            color: white;
+            border-color: #e91e63;
+        }
+        .custom-popup {
+            max-width: 300px;
+        }
+        .custom-popup h3 {
+            color: #e91e63;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .custom-popup .image {
+            width: 100%;
+            height: 150px;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: #666;
+        }
+        .custom-popup p {
+            margin: 5px 0;
+        }
+        .custom-popup .action-btns {
+            display: flex;
+            margin-top: 15px;
+        }
+        .custom-popup button {
+            flex: 1;
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .custom-popup button:last-child {
+            margin-right: 0;
+            background: #2196F3;
+        }
+        .legend {
+            position: absolute;
+            bottom: 30px;
+            right: 20px;
+            z-index: 999;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .control-btn:last-child {
+            border-bottom: none;
+        }
+        .control-btn:hover {
+            background: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="search-container">
+            <div class="search-icon">🏢</div>
+            <input id="search-input" type="text" placeholder="Tìm ký túc xá quanh Đại học Bách Khoa...">
+        </div>
+        <div class="filter-container">
+            <div class="filter-btn" data-filter="all">Tất cả</div>
+            <div class="filter-btn" data-filter="cheap">Giá rẻ</div>
+            <div class="filter-btn" data-filter="medium">Giá trung bình</div>
+            <div class="filter-btn" data-filter="premium">Cao cấp</div>
+            <div class="filter-btn" data-filter="wifi">Có Wifi</div>
+            <div class="filter-btn" data-filter="gym">Có phòng tập</div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #3388ff;"></div>
+            <span>Đại học Bách Khoa</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #e91e63;"></div>
+            <span>Ký túc xá trường</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #ff9800;"></div>
+            <span>Ký túc xá tư nhân</span>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <div class="control-btn" id="locate-me" title="Vị trí của tôi">📍</div>
+        <div class="control-btn" id="zoom-in" title="Phóng to">➕</div>
+        <div class="control-btn" id="zoom-out" title="Thu nhỏ">➖</div>
+        <div class="control-btn" id="reset-view" title="Khôi phục view">🏠</div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tạo bản đồ
+            const map = L.map('map').setView([21.007119, 105.843220], 15);
+
+            // Thêm OpenStreetMap layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            // Dữ liệu ký túc xá
+            const dormitories = [
+                {
+                    name: "KTX Đại học Bách Khoa - Khu B1",
+                    position: [21.005827, 105.845566],
+                    address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+                    phone: "024.3869.2008",
+                    capacity: "500 sinh viên",
+                    amenities: ["WiFi", "phòng giặt", "căn tin"],
+                    price: "300.000 - 500.000 VNĐ/tháng",
+                    priceCategory: "cheap",
+                    type: "school"
+                },
+                {
+                    name: "KTX Đại học Bách Khoa - Khu B2",
+                    position: [21.007123, 105.847213],
+                    address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+                    phone: "024.3869.2009",
+                    capacity: "450 sinh viên",
+                    amenities: ["WiFi", "phòng giặt", "căn tin", "phòng tập"],
+                    price: "350.000 - 550.000 VNĐ/tháng",
+                    priceCategory: "cheap",
+                    type: "school"
+                },
+                {
+                    name: "KTX Đại học Bách Khoa - Khu B3",
+                    position: [21.006512, 105.846123],
+                    address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+                    phone: "024.3869.2010",
+                    capacity: "600 sinh viên",
+                    amenities: ["WiFi", "phòng giặt", "căn tin", "sân thể thao"],
+                    price: "320.000 - 520.000 VNĐ/tháng",
+                    priceCategory: "cheap",
+                    type: "school"
+                },
+                {
+                    name: "KTX Pháp Vân",
+                    position: [20.979464, 105.835612],
+                    address: "Ngõ 562 Nguyễn Văn Cừ, Long Biên, Hà Nội",
+                    phone: "024.3825.1937",
+                    capacity: "2000 sinh viên",
+                    amenities: ["WiFi", "căn tin", "phòng tự học", "sân thể thao"],
+                    price: "250.000 - 450.000 VNĐ/tháng",
+                    priceCategory: "cheap",
+                    type: "school"
+                },
+                {
+                    name: "KTX Tư nhân Mỹ Đình",
+                    position: [21.023519, 105.771455],
+                    address: "Khu đô thị Mỹ Đình, Nam Từ Liêm, Hà Nội",
+                    phone: "024.7109.2468",
+                    capacity: "300 sinh viên",
+                    amenities: ["WiFi tốc độ cao", "máy lạnh", "giặt ủi", "bếp chung"],
+                    price: "1.200.000 - 1.800.000 VNĐ/tháng",
+                    priceCategory: "medium",
+                    type: "private"
+                },
+                {
+                    name: "KTX Sinh viên Bách Khoa Town",
+                    position: [21.009325, 105.842156],
+                    address: "Phố Tạ Quang Bửu, Hai Bà Trưng, Hà Nội",
+                    phone: "024.3623.1578",
+                    capacity: "420 sinh viên",
+                    amenities: ["WiFi tốc độ cao", "điều hòa", "phòng gym", "bảo vệ 24/7"],
+                    price: "1.800.000 - 2.500.000 VNĐ/tháng",
+                    priceCategory: "premium",
+                    type: "private"
+                },
+                {
+                    name: "Ký túc xá Xã Đàn",
+                    position: [21.011023, 105.836892],
+                    address: "Phố Xã Đàn, Đống Đa, Hà Nội",
+                    phone: "024.6275.8912",
+                    capacity: "150 sinh viên",
+                    amenities: ["WiFi", "giặt ủi", "bếp chung"],
+                    price: "900.000 - 1.300.000 VNĐ/tháng",
+                    priceCategory: "medium",
+                    type: "private"
+                },
+                {
+                    name: "Khu KTX Cao cấp The Dormy",
+                    position: [21.003654, 105.850732],
+                    address: "Phố Trần Đại Nghĩa, Hai Bà Trưng, Hà Nội",
+                    phone: "024.7302.5489",
+                    capacity: "200 sinh viên",
+                    amenities: ["WiFi tốc độ cao", "điều hòa", "phòng gym", "phòng học chung", "nhà hàng", "bảo vệ 24/7"],
+                    price: "2.500.000 - 3.500.000 VNĐ/tháng",
+                    priceCategory: "premium",
+                    type: "private"
+                }
+            ];
+
+            // Thêm marker cho trường Đại học Bách Khoa
+            const university = L.marker([21.007119, 105.843220], {
+                icon: L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div style="background-color: #3388ff; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+                    iconSize: [25, 25],
+                    iconAnchor: [12, 12]
+                })
+            }).addTo(map);
+
+            university.bindPopup(`
+                <div class="custom-popup">
+                    <h3>Đại học Bách Khoa Hà Nội</h3>
+                    <div class="image">Hình ảnh trường</div>
+                    <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
+                    <p><strong>Website:</strong> <a href="#" onclick="alert('Chuyển hướng đến trang web ĐHBKHN')">hust.edu.vn</a></p>
+                    <div class="action-btns">
+                        <button onclick="alert('Xem thông tin trường')">Thông tin</button>
+                        <button onclick="alert('Chỉ đường đến trường')">Chỉ đường</button>
+                    </div>
+                </div>
+            `);
+
+            // Tạo các markers cho các ký túc xá
+            const dormMarkers = [];
+            
+            dormitories.forEach(dorm => {
+                // Tạo màu dựa trên loại ký túc xá
+                const markerColor = dorm.type === 'school' ? '#e91e63' : '#ff9800';
+                
+                const marker = L.marker(dorm.position, {
+                    icon: L.divIcon({
+                        className: 'custom-div-icon',
+                        html: `<div style="background-color: ${markerColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+                        iconSize: [25, 25],
+                        iconAnchor: [12, 12]
+                    })
+                }).addTo(map);
+
+                // Tạo danh sách tiện ích
+                const amenitiesList = dorm.amenities.join(", ");
+                
+                // Popup khi click vào marker
+                marker.bindPopup(`
+                    <div class="custom-popup">
+                        <h3>${dorm.name}</h3>
+                        <div class="image">Hình ảnh ký túc xá</div>
+                        <p><strong>Địa chỉ:</strong> ${dorm.address}</p>
+                        <p><strong>Liên hệ:</strong> ${dorm.phone}</p>
+                        <p><strong>Sức chứa:</strong> ${dorm.capacity}</p>
+                        <p><strong>Tiện ích:</strong> ${amenitiesList}</p>
+                        <p><strong>Giá phòng:</strong> ${dorm.price}</p>
+                        <div class="action-btns">
+                            <button onclick="alert('Đăng ký ký túc xá ${dorm.name}')">Đăng ký</button>
+                            <button onclick="alert('Chỉ đường đến ${dorm.name}')">Chỉ đường</button>
+                        </div>
+                    </div>
+                `);
+
+                // Lưu marker vào mảng kèm thông tin để lọc sau này
+                dormMarkers.push({
+                    marker: marker,
+                    data: dorm
+                });
+            });
+
+            // Xử lý tìm kiếm
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', function() {
+                const searchText = this.value.toLowerCase();
+                if (searchText.length < 2) return;
+                
+                dormitories.forEach((dorm, index) => {
+                    if (dorm.name.toLowerCase().includes(searchText) || 
+                        dorm.address.toLowerCase().includes(searchText)) {
+                        map.setView(dorm.position, 17);
+                        dormMarkers[index].marker.openPopup();
+                    }
+                });
+            });
+
+            // Xử lý lọc
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Bỏ active trạng thái trước đó
+                    document.querySelector('.filter-btn.active')?.classList.remove('active');
+                    
+                    // Thêm active cho nút hiện tại
+                    this.classList.add('active');
+                    
+                    const filter = this.getAttribute('data-filter');
+                    
+                    // Lọc markers dựa trên bộ lọc
+                    dormMarkers.forEach(item => {
+                        const dorm = item.data;
+                        const marker = item.marker;
+                        
+                        if (filter === 'all') {
+                            marker.addTo(map);
+                        } else if (filter === 'cheap' && dorm.priceCategory === 'cheap') {
+                            marker.addTo(map);
+                        } else if (filter === 'medium' && dorm.priceCategory === 'medium') {
+                            marker.addTo(map);
+                        } else if (filter === 'premium' && dorm.priceCategory === 'premium') {
+                            marker.addTo(map);
+                        } else if (filter === 'wifi' && dorm.amenities.some(a => a.toLowerCase().includes('wifi'))) {
+                            marker.addTo(map);
+                        } else if (filter === 'gym' && dorm.amenities.some(a => a.toLowerCase().includes('tập') || a.toLowerCase().includes('gym'))) {
+                            marker.addTo(map);
+                        } else {
+                            map.removeLayer(marker);
+                        }
+                    });
+                });
+            });
+            
+            // Set active cho filter đầu tiên
+            filterButtons[0].classList.add('active');
+
+            // Xử lý các nút điều khiển
+            document.getElementById('locate-me').addEventListener('click', function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            const userLocation = [position.coords.latitude, position.coords.longitude];
+                            map.setView(userLocation, 15);
+                            
+                            // Tạo marker cho vị trí của người dùng
+                            L.marker(userLocation, {
+                                icon: L.divIcon({
+                                    className: 'custom-div-icon',
+                                    html: `<div style="background-color: #4CAF50; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
+                                    iconSize: [25, 25],
+                                    iconAnchor: [12, 12]
+                                })
+                            }).addTo(map)
+                              .bindPopup("Bạn đang ở đây!")
+                              .openPopup();
+                        },
+                        error => {
+                            alert("Không thể xác định vị trí của bạn: " + error.message);
+                        }
+                    );
+                } else {
+                    alert("Trình duyệt của bạn không hỗ trợ định vị");
+                }
+            });
+
+            document.getElementById('zoom-in').addEventListener('click', function() {
+                map.zoomIn();
+            });
+
+            document.getElementById('zoom-out').addEventListener('click', function() {
+                map.zoomOut();
+            });
+
+            document.getElementById('reset-view').addEventListener('click', function() {
+                map.setView([21.007119, 105.843220], 15);
+            });
+        });
+    </script>
+</body>
+</html>
