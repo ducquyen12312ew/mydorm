@@ -3,134 +3,649 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bản đồ Ký túc xá Đại học Bách Khoa Hà Nội - Leaflet</title>
+    <title>Bản đồ Ký túc xá Đại học Bách Khoa Hà Nội</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css" />   
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Quicksand', Arial, sans-serif;
+            overflow-x: hidden;
         }
-        #map {
+        
+        /* Header và Menu */
+/* Header và Menu */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    z-index: 2000;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    transition: opacity 1s ease, transform 0.5s ease;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-logo img {
+    max-height: 2.5rem;
+    width: auto;
+    transition: transform 0.5s ease;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-grow: 1;
+    margin-left: 4rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 3rem;
+}
+
+.nav-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 0.8rem 0;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0.5rem;
+    left: -100%;
+    background: linear-gradient(90deg, transparent, #e61a1a, transparent);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: -1;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #e61a1a;
+    bottom: 0.4rem;
+    left: 50%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-link:hover {
+    color: #e61a1a;
+    transform: translateY(-2px);
+    text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
+}
+
+.nav-link:hover::before {
+    left: 0;
+}
+
+.nav-link:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.nav-link.active-link {
+    color: #e61a1a;
+}
+
+.nav-link.active-link::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.login-btn {
+    padding: 0.7rem 1.8rem;
+    background-color: transparent;
+    color: #e61a1a;
+    border: 2px solid #e61a1a;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.login-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: #e61a1a;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: -1;
+    transition: width 0.5s ease, height 0.5s ease;
+}
+
+.login-btn:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+}
+
+.login-btn:hover::before {
+    width: 200%;
+    height: 200%;
+}
+
+.login-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(230, 26, 26, 0.3);
+}
+
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+.menu-toggle span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: #e61a1a;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+/* Responsive header adjustments */
+@media (max-width: 992px) {
+    .nav-container {
+        margin-left: 2rem;
+    }
+    
+    .nav-links {
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .nav-container {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: white;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 5rem 2rem 2rem;
+        transition: right 0.3s ease;
+        margin-left: 0;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1999;
+    }
+    
+    .nav-container.active {
+        right: 0;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+    
+    .login-btn {
+        align-self: flex-start;
+    }
+}
+        
+        .login-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
+        
+        /* CSS cho Swiper và tính năng hover để chuyển slide */
+.showcase {
+    padding-top: 80px; /* Để không bị che bởi header */
+    height: 100vh;
+    background-color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.swiper-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.swiper-wrapper {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+/* Cập nhật CSS để giảm kích thước slide và tăng khoảng cách */
+.swiper-slide {
+    width: 50%; /* Giảm độ rộng của slide chính */
+    height: 65%; /* Giảm chiều cao slide chính */
+    background-position: center;
+    background-size: cover;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.5s ease;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) scale(1);
+    opacity: 0;
+    z-index: 1;
+}
+
+.swiper-slide-prev {
+    transform: translateX(-130%) scale(0.7); /* Tăng khoảng cách */
+    opacity: 0.4; /* Giảm độ mờ để tăng khoảng cách cảm nhận */
+    z-index: 0;
+}
+
+.swiper-slide-active {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    z-index: 2;
+}
+
+.swiper-slide-next {
+    transform: translateX(30%) scale(0.7); /* Tăng khoảng cách */
+    opacity: 0.4; /* Giảm độ mờ để tăng khoảng cách cảm nhận */
+    z-index: 0;
+}
+
+/* Vùng hover để chuyển slide */
+.navigation-hover-area {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 15%;
+    z-index: 10;
+    cursor: pointer;
+}
+
+.navigation-hover-left {
+    left: 0;
+}
+
+.navigation-hover-right {
+    right: 0;
+}
+
+/* Mũi tên chỉ hướng khi hover */
+.navigation-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 3rem;
+    color: white;
+    background-color: rgba(231, 76, 60, 0.7);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 11;
+}
+
+.navigation-arrow-left {
+    left: 20px;
+}
+
+.navigation-arrow-right {
+    right: 20px;
+}
+
+.navigation-hover-left:hover .navigation-arrow-left,
+.navigation-hover-area:hover + .navigation-arrow {
+    opacity: 1;
+}
+
+.navigation-hover-right:hover .navigation-arrow-right {
+    opacity: 1;
+}
+
+.slide-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2rem;
+    color: white;
+    text-align: left;
+}
+
+.slide-title {
+    font-family: 'Anton', sans-serif;
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.slide-subtitle {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    opacity: 0.9;
+}
+
+.slide-features {
+    list-style: none;
+    margin-bottom: 1.5rem;
+}
+
+.slide-features li {
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.slide-features li::before {
+    content: "•";
+    color: #e74c3c;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.slide-cta {
+    background-color: #e74c3c;
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 2rem;
+    border-radius: 4px;
+    font-weight: 600;
+    display: inline-block;
+    transition: background-color 0.3s;
+    margin-bottom: 1rem;
+    width: fit-content;
+}
+
+.slide-cta:hover {
+    background-color: #c0392b;
+}
+
+/* Điều chỉnh pagination */
+.swiper-pagination {
+    position: absolute;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.swiper-pagination-bullet {
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    opacity: 0.5;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.swiper-pagination-bullet-active {
+    background-color: #e74c3c;
+    opacity: 1;
+    transform: scale(1.2);
+}
+
+.price-tag {
+    position: absolute;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: #e74c3c;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .swiper-slide {
+        width: 70%;
+    }
+    
+    .slide-title {
+        font-size: 2.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .swiper-slide {
+        width: 85%;
+    }
+    
+    .slide-title {
+        font-size: 2rem;
+    }
+    
+    .slide-features li {
+        font-size: 0.9rem;
+    }
+    
+    .navigation-arrow {
+        font-size: 2rem;
+        width: 40px;
+        height: 40px;
+    }
+}
+
+@media (max-width: 576px) {
+    .swiper-slide {
+        width: 95%;
+    }
+    
+    .slide-title {
+        font-size: 1.8rem;
+    }
+    
+    .slide-subtitle {
+        font-size: 1rem;
+    }
+    
+    .slide-features {
+        margin-bottom: 1rem;
+    }
+    
+    .slide-features li {
+        font-size: 0.8rem;
+    }
+    
+    .slide-cta {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+    
+    .navigation-arrow {
+        font-size: 1.5rem;
+        width: 30px;
+        height: 30px;
+    }
+}
+        
+        /* Map section */
+        #map-section {
             height: 100vh;
+            position: relative;
+        }
+        
+        #map {
+            height: 100%;
             width: 100%;
         }
+        
         .header-bar {
             position: absolute;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
+            left: 20px;
             z-index: 1000;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 8px;
+            width: 350px;
+            border-radius: 15px;
             box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
             overflow: hidden;
         }
+        
         .search-container {
             background-color: white;
             display: flex;
             align-items: center;
-            padding: 12px 20px;
+            padding: 15px 20px;
+            border-radius: 15px;
         }
+        
         .search-icon {
-            color: #e91e63;
-            font-size: 24px;
             margin-right: 15px;
+            color: #e74c3c;
         }
+        
         #search-input {
             flex-grow: 1;
             border: none;
             outline: none;
-            font-size: 16px;
-            padding: 8px 0;
+            font-size: 18px;
+            color: #333;
         }
-        .filter-container {
-            display: flex;
-            background-color: #f8f8f8;
-            border-top: 1px solid #eee;
-            overflow-x: auto;
-            padding: 8px 10px;
-        }
-        .filter-btn {
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            padding: 5px 15px;
-            margin-right: 10px;
-            font-size: 14px;
-            white-space: nowrap;
+        
+        .dropdown-icon {
+            margin-left: 15px;
             cursor: pointer;
         }
-        .filter-btn.active {
-            background: #e91e63;
-            color: white;
-            border-color: #e91e63;
-        }
-        .custom-popup {
-            max-width: 300px;
-        }
-        .custom-popup h3 {
-            color: #e91e63;
-            margin-top: 0;
-            margin-bottom: 10px;
-        }
-        .custom-popup .image {
-            width: 100%;
-            height: 150px;
-            background-color: #f0f0f0;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-style: italic;
-            color: #666;
-        }
-        .custom-popup p {
-            margin: 5px 0;
-        }
-        .custom-popup .action-btns {
-            display: flex;
-            margin-top: 15px;
-        }
-        .custom-popup button {
-            flex: 1;
-            background: #e91e63;
-            color: white;
-            border: none;
-            padding: 8px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            margin-right: 8px;
-        }
-        .custom-popup button:last-child {
-            margin-right: 0;
-            background: #2196F3;
-        }
-        .legend {
+        
+        .dropdown-menu {
             position: absolute;
-            bottom: 30px;
-            right: 20px;
-            z-index: 999;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 1001;
         }
-        .legend-item {
+    
+        .dropdown-menu.active {
+            max-height: 400px;
+        }
+    
+        .dropdown-section {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+    
+        .dropdown-section h4 {
+            margin-bottom: 10px;
+            color: #e74c3c;
+        }
+    
+        .dropdown-options {
             display: flex;
-            align-items: center;
-            margin-bottom: 5px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
-        .legend-color {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            margin-right: 10px;
+        
+        .dropdown-option {
+            background-color: #f4f4f4;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
         }
+    
+        .dropdown-option:hover {
+            background-color: #e74c3c;
+            color: white;
+        }
+    
+        .dropdown-option.selected {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
         .control-panel {
             position: absolute;
             top: 20px;
@@ -141,6 +656,7 @@
             box-shadow: 0 1px 5px rgba(0,0,0,0.2);
             overflow: hidden;
         }
+        
         .control-btn {
             width: 40px;
             height: 40px;
@@ -150,320 +666,887 @@
             cursor: pointer;
             border-bottom: 1px solid #eee;
         }
+        
         .control-btn:last-child {
             border-bottom: none;
         }
+        
         .control-btn:hover {
             background: #f5f5f5;
+        }
+        
+        .custom-popup {
+            max-width: 300px;
+        }
+        
+        .custom-popup h3 {
+            color: #e74c3c;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        
+        .custom-popup .image {
+            width: 100%;
+            height: 150px;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: #666;
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .custom-popup p {
+            margin: 5px 0;
+        }
+        
+        .custom-popup .action-btns {
+            display: flex;
+            margin-top: 15px;
+        }
+        
+        .custom-popup button {
+            flex: 1;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        
+        .custom-popup button:last-child {
+            margin-right: 0;
+            background: #3498db;
+        }
+        
+        /* Ẩn nút zoom mặc định của Leaflet */
+        .leaflet-control-zoom {
+            display: none !important;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 992px) {
+            .slide-title {
+                font-size: 3rem;
+            }
+            
+            .slide-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.5rem 1rem;
+            }
+            
+            .nav-container {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                width: 100%;
+                background-color: rgba(0, 0, 0, 0.9);
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 1rem;
+                clip-path: circle(0px at top right);
+                transition: clip-path 0.5s ease;
+            }
+            
+            .nav-container.active {
+                clip-path: circle(1500px at top right);
+            }
+            
+            .nav-link {
+                margin: 0.5rem 0;
+            }
+            
+            .login-area {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .slide-title {
+                font-size: 2.5rem;
+            }
+            
+            .slide-subtitle {
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .slide-title {
+                font-size: 2rem;
+            }
+            
+            .header-bar {
+                width: 300px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="header-bar">
-        <div class="search-container">
-            <div class="search-icon">🏢</div>
-            <input id="search-input" type="text" placeholder="Tìm ký túc xá quanh Đại học Bách Khoa...">
+    <header class="header" id="header">
+        <div class="header-logo">
+            <img src="image/logo.png" alt="HUST Logo" id="hustLogo">
         </div>
-        <div class="filter-container">
-            <div class="filter-btn" data-filter="all">Tất cả</div>
-            <div class="filter-btn" data-filter="cheap">Giá rẻ</div>
-            <div class="filter-btn" data-filter="medium">Giá trung bình</div>
-            <div class="filter-btn" data-filter="premium">Cao cấp</div>
-            <div class="filter-btn" data-filter="wifi">Có Wifi</div>
-            <div class="filter-btn" data-filter="gym">Có phòng tập</div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
         </div>
-    </div>
+        <div class="nav-container" id="navContainer">
+            <nav class="nav-links">
+                <a href="#" class="nav-link">TRANG CHỦ</a>
+                <a href="#" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="#" class="nav-link">THÔNG BÁO</a>
+            </nav>
+            <a href="/login" class="login-btn">ĐĂNG NHẬP</a>
+        </div>
+    </header>
 
-    <div id="map"></div>
-
-    <div class="legend">
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #3388ff;"></div>
-            <span>Đại học Bách Khoa</span>
+    <!-- Showcase section -->
+<section class="showcase">
+    <div class="swiper-container">
+        <div class="swiper-wrapper">
+            <!-- Slides sẽ được tạo tự động từ database -->
         </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #e91e63;"></div>
-            <span>Ký túc xá trường</span>
-        </div>
-        <div class="legend-item">
-            <div class="legend-color" style="background-color: #ff9800;"></div>
-            <span>Ký túc xá tư nhân</span>
-        </div>
+        
+        <!-- Định nghĩa vùng hover để chuyển slide -->
+        <div class="navigation-hover-area navigation-hover-left"></div>
+        <div class="navigation-hover-area navigation-hover-right"></div>
+        
+        <!-- Add Pagination -->
+        <div class="swiper-pagination"></div>
     </div>
+</section>
 
-    <div class="control-panel">
-        <div class="control-btn" id="locate-me" title="Vị trí của tôi">📍</div>
-        <div class="control-btn" id="zoom-in" title="Phóng to">➕</div>
-        <div class="control-btn" id="zoom-out" title="Thu nhỏ">➖</div>
-        <div class="control-btn" id="reset-view" title="Khôi phục view">🏠</div>
-    </div>
+    <!-- Map section -->
+    <section id="map-section">
+        <div class="header-bar">
+            <div class="search-container">
+                <svg width="30" height="30" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                
+                <input id="search-input" type="text" placeholder="Tìm ký túc xá...">
+                
+                <svg width="20" height="20" class="dropdown-icon" id="dropdown-toggle" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"></path>
+                </svg>
+            </div>
+            
+            <div class="dropdown-menu" id="dropdown-menu">
+                <div class="dropdown-section">
+                    <h4>Phân loại khu</h4>
+                    <div class="dropdown-options">
+                        <div class="dropdown-option" data-category="basic">Khu cơ bản</div>
+                        <div class="dropdown-option" data-category="premium">Khu cao cấp</div>
+                        <div class="dropdown-option" data-category="international">Khu du học sinh</div>
+                    </div>
+                </div>
+                <div class="dropdown-section">
+                    <h4>Loại phòng</h4>
+                    <div class="dropdown-options">
+                        <div class="dropdown-option" data-room="8-person">Phòng 8 sinh viên</div>
+                        <div class="dropdown-option" data-room="4-person-service">Phòng dịch vụ 4 sinh viên</div>
+                        <div class="dropdown-option" data-room="5-person">Phòng 5 sinh viên</div>
+                        <div class="dropdown-option" data-room="10-person">Phòng 10 sinh viên</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="map"></div>
+
+        <div class="control-panel">
+            <div class="control-btn" id="locate-me" title="Vị trí của tôi">📍</div>
+            <div class="control-btn" id="zoom-in" title="Phóng to">➕</div>
+            <div class="control-btn" id="zoom-out" title="Thu nhỏ">➖</div>
+            <div class="control-btn" id="reset-view" title="Khôi phục view">🏠</div>
+        </div>
+    </section>
 
     <!-- Leaflet JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tạo bản đồ
-            const map = L.map('map').setView([21.007119, 105.843220], 15);
+  // Biến toàn cục để lưu trữ tham chiếu đến map và markers
+let map;
+let dormMarkers = [];
+let currentSlide = 0;
+let slides;
+let totalSlides;
 
-            // Thêm OpenStreetMap layer
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+// Đảm bảo DOM đã được tải hoàn toàn trước khi thực thi
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý menu toggle
+    handleMenuToggle();
+    
+    // Xử lý dropdown menu bản đồ
+    handleDropdownMenu();
+    
+    // Khởi tạo bản đồ
+    initializeMap();
+    
+    // Fetch dữ liệu ký túc xá cho slideshow
+    fetchFeaturedDormitories();
+    
+    // Các nút điều khiển bản đồ
+    setupMapControls();
+});
 
-            // Dữ liệu ký túc xá
-            const dormitories = [
-                {
-                    name: "KTX Đại học Bách Khoa - Khu B1",
-                    position: [21.005827, 105.845566],
-                    address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
-                    phone: "024.3869.2008",
-                    capacity: "500 sinh viên",
-                    amenities: ["WiFi", "phòng giặt", "căn tin"],
-                    price: "300.000 - 500.000 VNĐ/tháng",
-                    priceCategory: "cheap",
-                    type: "school"
-                },
-                {
-                    name: "KTX Đại học Bách Khoa - Khu B2",
-                    position: [21.007123, 105.847213],
-                    address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
-                    phone: "024.3869.2009",
-                    capacity: "450 sinh viên",
-                    amenities: ["WiFi", "phòng giặt", "căn tin", "phòng tập"],
-                    price: "350.000 - 550.000 VNĐ/tháng",
-                    priceCategory: "cheap",
-                    type: "school"
-                },
-                {
-                    name: "KTX Đại học Bách Khoa - Khu B3",
-                    position: [21.006512, 105.846123],
-                    address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
-                    phone: "024.3869.2010",
-                    capacity: "600 sinh viên",
-                    amenities: ["WiFi", "phòng giặt", "căn tin", "sân thể thao"],
-                    price: "320.000 - 520.000 VNĐ/tháng",
-                    priceCategory: "cheap",
-                    type: "school"
-                },
-                {
-                    name: "KTX Pháp Vân",
-                    position: [20.979464, 105.835612],
-                    address: "Ngõ 562 Nguyễn Văn Cừ, Long Biên, Hà Nội",
-                    phone: "024.3825.1937",
-                    capacity: "2000 sinh viên",
-                    amenities: ["WiFi", "căn tin", "phòng tự học", "sân thể thao"],
-                    price: "250.000 - 450.000 VNĐ/tháng",
-                    priceCategory: "cheap",
-                    type: "school"
-                },
-                {
-                    name: "KTX Tư nhân Mỹ Đình",
-                    position: [21.023519, 105.771455],
-                    address: "Khu đô thị Mỹ Đình, Nam Từ Liêm, Hà Nội",
-                    phone: "024.7109.2468",
-                    capacity: "300 sinh viên",
-                    amenities: ["WiFi tốc độ cao", "máy lạnh", "giặt ủi", "bếp chung"],
-                    price: "1.200.000 - 1.800.000 VNĐ/tháng",
-                    priceCategory: "medium",
-                    type: "private"
-                },
-                {
-                    name: "KTX Sinh viên Bách Khoa Town",
-                    position: [21.009325, 105.842156],
-                    address: "Phố Tạ Quang Bửu, Hai Bà Trưng, Hà Nội",
-                    phone: "024.3623.1578",
-                    capacity: "420 sinh viên",
-                    amenities: ["WiFi tốc độ cao", "điều hòa", "phòng gym", "bảo vệ 24/7"],
-                    price: "1.800.000 - 2.500.000 VNĐ/tháng",
-                    priceCategory: "premium",
-                    type: "private"
-                },
-                {
-                    name: "Ký túc xá Xã Đàn",
-                    position: [21.011023, 105.836892],
-                    address: "Phố Xã Đàn, Đống Đa, Hà Nội",
-                    phone: "024.6275.8912",
-                    capacity: "150 sinh viên",
-                    amenities: ["WiFi", "giặt ủi", "bếp chung"],
-                    price: "900.000 - 1.300.000 VNĐ/tháng",
-                    priceCategory: "medium",
-                    type: "private"
-                },
-                {
-                    name: "Khu KTX Cao cấp The Dormy",
-                    position: [21.003654, 105.850732],
-                    address: "Phố Trần Đại Nghĩa, Hai Bà Trưng, Hà Nội",
-                    phone: "024.7302.5489",
-                    capacity: "200 sinh viên",
-                    amenities: ["WiFi tốc độ cao", "điều hòa", "phòng gym", "phòng học chung", "nhà hàng", "bảo vệ 24/7"],
-                    price: "2.500.000 - 3.500.000 VNĐ/tháng",
-                    priceCategory: "premium",
-                    type: "private"
+// Hàm xử lý menu toggle
+function handleMenuToggle() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navContainer = document.getElementById('navContainer');
+    
+    if (menuToggle && navContainer) {
+        menuToggle.addEventListener('click', function() {
+            navContainer.classList.toggle('active');
+            
+            const spans = this.querySelectorAll('span');
+            if (navContainer.classList.contains('active')) {
+                spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+            } else {
+                spans[0].style.transform = '';
+                spans[1].style.opacity = '';
+                spans[2].style.transform = '';
+            }
+        });
+    }
+    
+    // Đóng menu khi click bên ngoài
+    document.addEventListener('click', function(event) {
+        if (navContainer && menuToggle && 
+            !navContainer.contains(event.target) && 
+            !menuToggle.contains(event.target) && 
+            navContainer.classList.contains('active')) {
+            navContainer.classList.remove('active');
+            
+            const spans = menuToggle.querySelectorAll('span');
+            spans[0].style.transform = '';
+            spans[1].style.opacity = '';
+            spans[2].style.transform = '';
+        }
+    });
+}
+
+// Hàm xử lý dropdown menu bản đồ
+function handleDropdownMenu() {
+    const dropdownIcon = document.getElementById('dropdown-toggle');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    if (dropdownIcon && dropdownMenu) {
+        dropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('active');
+        });
+    }
+    
+    // Đóng dropdown khi click bên ngoài
+    document.addEventListener('click', function(event) {
+        if (dropdownMenu && !event.target.closest('.header-bar') && dropdownMenu.classList.contains('active')) {
+            dropdownMenu.classList.remove('active');
+        }
+    });
+    
+    // Xử lý chọn option trong dropdown
+    const categoryOptions = document.querySelectorAll('[data-category]');
+    const roomOptions = document.querySelectorAll('[data-room]');
+    
+    handleOptionSelect(categoryOptions);
+    handleOptionSelect(roomOptions);
+}
+
+// Hàm xử lý option selection trong dropdown
+function handleOptionSelect(options) {
+    options.forEach(option => {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation(); // Ngăn việc click lan tỏa
+            
+            // Bỏ selected cho các option khác trong cùng nhóm
+            options.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Thực hiện tìm kiếm với category hoặc room được chọn
+            const selectedValue = this.getAttribute('data-category') || this.getAttribute('data-room');
+            
+            // Lấy dữ liệu lọc từ API
+            if (this.hasAttribute('data-category')) {
+                fetchFilteredDormitories('category', selectedValue);
+            } else if (this.hasAttribute('data-room')) {
+                fetchFilteredDormitories('roomType', selectedValue);
+            }
+        });
+    });
+}
+
+// Hàm khởi tạo bản đồ
+function initializeMap() {
+    map = L.map('map', {
+        zoomControl: false  // Tắt nút zoom mặc định
+    }).setView([21.007119, 105.843220], 15);
+
+    // Thêm OpenStreetMap layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Tạo các icon
+    const universityIcon = L.icon({
+        iconUrl: '/image/university.png',
+        iconSize: [60, 60],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
+    // Thêm marker cho trường Đại học Bách Khoa
+    const university = L.marker([21.007119, 105.843220], {
+        icon: universityIcon
+    }).addTo(map);
+
+    university.bindPopup(`
+        <div class="custom-popup">
+            <h3>Đại học Bách Khoa Hà Nội</h3>
+            <div class="image">Hình ảnh trường</div>
+            <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
+            <p><strong>Website:</strong> <a href="https://hust.edu.vn" target="_blank">hust.edu.vn</a></p>
+            <div class="action-btns">
+                <button onclick="window.open('https://hust.edu.vn/thong-tin')">Thông tin</button>
+                <button onclick="showDirections(21.007119, 105.843220)">Chỉ đường</button>
+            </div>
+        </div>
+    `);
+
+    // Lấy dữ liệu ký túc xá từ API
+    fetchDormitories();
+    
+    // Xử lý tìm kiếm bằng thanh search
+    setupSearchInput();
+}
+
+// Hàm lấy dữ liệu ký túc xá nổi bật cho slideshow
+function fetchFeaturedDormitories() {
+    fetch('/api/map-data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(dormitories => {
+            if (dormitories && dormitories.length > 0) {
+                // Tạo slides từ dữ liệu
+                createSlidesFromDormitories(dormitories);
+                
+                // Khởi tạo slideshow
+                initializeSlideshow();
+            } else {
+                console.log("Không có dữ liệu ký túc xá để hiển thị trong slideshow");
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching featured dormitories:', error);
+        });
+}
+
+// Hàm tạo slides từ dữ liệu ký túc xá
+function createSlidesFromDormitories(dormitories) {
+    const slidesWrapper = document.querySelector('.swiper-wrapper');
+    
+    if (!slidesWrapper) {
+        console.error("Không tìm thấy phần tử swiper-wrapper");
+        return;
+    }
+    
+    // Xóa tất cả slides hiện tại
+    slidesWrapper.innerHTML = '';
+    
+    // Tạo slide mới cho mỗi ký túc xá
+    dormitories.forEach(dorm => {
+        const slide = document.createElement('div');
+        slide.className = 'swiper-slide';
+        
+        // Lấy hình ảnh từ dữ liệu hoặc dùng ảnh mặc định
+        const backgroundImage = dorm.imageUrl || '/image/camp1.png';
+        slide.style.backgroundImage = `url('${backgroundImage}')`;
+        
+        // Lấy thông tin phân loại
+        let categoryText = "Khu tiêu chuẩn";
+        let roomTypeText = "Phòng tiêu chuẩn";
+        
+        if (dorm.details) {
+            // Phân loại khu
+            if (dorm.details.category) {
+                switch(dorm.details.category) {
+                    case 'basic': categoryText = 'Khu cơ bản'; break;
+                    case 'premium': categoryText = 'Khu cao cấp'; break;
+                    case 'international': categoryText = 'Khu du học sinh'; break;
                 }
-            ];
+            }
+            
+            // Loại phòng
+            if (dorm.details.roomType) {
+                switch(dorm.details.roomType) {
+                    case '8-person': roomTypeText = 'Phòng 8 sinh viên'; break;
+                    case '4-person-service': roomTypeText = 'Phòng dịch vụ 4 sinh viên'; break;
+                    case '5-person': roomTypeText = 'Phòng 5 sinh viên'; break;
+                    case '10-person': roomTypeText = 'Phòng 10 sinh viên'; break;
+                }
+            }
+        }
+        
+        // Tạo danh sách tiện ích (tối đa 3 mục)
+        let amenitiesHTML = '';
+        if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
+            const amenities = dorm.details.amenities.slice(0, 3);
+            amenitiesHTML = amenities.map(amenity => `<li>${amenity}</li>`).join('');
+        } else {
+            amenitiesHTML = '<li>Chưa có thông tin tiện ích</li>';
+        }
+        
+        // Tạo thông tin giá
+        let priceText = 'Liên hệ để biết giá';
+        if (dorm.details && dorm.details.priceRange) {
+            priceText = `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNĐ/tháng`;
+        }
+        
+        // Tạo nội dung HTML cho slide
+        slide.innerHTML = `
+            <div class="slide-overlay">
+                <h2 class="slide-title">${dorm.name}</h2>
+                <p class="slide-subtitle">${categoryText} - ${roomTypeText}</p>
+                <ul class="slide-features">
+                    ${dorm.details && dorm.details.capacity ? 
+                      `<li>Sức chứa ${dorm.details.capacity} sinh viên</li>` : ''}
+                    ${amenitiesHTML}
+                </ul>
+                <a href="#" class="slide-cta" onclick="registerDorm('${dorm._id}')">ĐĂNG KÝ NGAY</a>
+                <div class="price-tag">${priceText}</div>
+            </div>
+        `;
+        
+        slidesWrapper.appendChild(slide);
+    });
+}
 
-            // Thêm marker cho trường Đại học Bách Khoa
-            const university = L.marker([21.007119, 105.843220], {
-                icon: L.divIcon({
-                    className: 'custom-div-icon',
-                    html: `<div style="background-color: #3388ff; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
-                    iconSize: [25, 25],
-                    iconAnchor: [12, 12]
-                })
+// Hàm xử lý search input
+function setupSearchInput() {
+    const searchInput = document.getElementById('search-input');
+    let searchTimeout;
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const searchText = this.value.toLowerCase();
+            clearTimeout(searchTimeout);
+            
+            if (searchText.length < 2) {
+                return;
+            }
+            
+            // Thêm debounce để tránh gọi API quá nhiều
+            searchTimeout = setTimeout(() => {
+                fetchSearchResults(searchText);
+            }, 300);
+        });
+    }
+}
+
+// Hàm thiết lập các nút điều khiển bản đồ
+function setupMapControls() {
+    // Nút định vị
+    const locateMe = document.getElementById('locate-me');
+    if (locateMe) {
+        locateMe.addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        const userLocation = [position.coords.latitude, position.coords.longitude];
+                        map.setView(userLocation, 15);
+                        
+                        // Tạo marker cho vị trí của người dùng
+                        L.marker(userLocation, {
+                            icon: L.icon({
+                                iconUrl: '/image/user-location.png',
+                                iconSize: [32, 32],
+                                iconAnchor: [16, 32],
+                                popupAnchor: [0, -32]
+                            })
+                        }).addTo(map)
+                          .bindPopup("Bạn đang ở đây!")
+                          .openPopup();
+                    },
+                    error => {
+                        alert("Không thể xác định vị trí của bạn: " + error.message);
+                    }
+                );
+            } else {
+                alert("Trình duyệt của bạn không hỗ trợ định vị");
+            }
+        });
+    }
+
+    // Nút zoom in
+    const zoomIn = document.getElementById('zoom-in');
+    if (zoomIn) {
+        zoomIn.addEventListener('click', function() {
+            map.zoomIn();
+        });
+    }
+
+    // Nút zoom out
+    const zoomOut = document.getElementById('zoom-out');
+    if (zoomOut) {
+        zoomOut.addEventListener('click', function() {
+            map.zoomOut();
+        });
+    }
+
+    // Nút reset view
+    const resetView = document.getElementById('reset-view');
+    if (resetView) {
+        resetView.addEventListener('click', function() {
+            map.setView([21.007119, 105.843220], 15);
+        });
+    }
+}
+
+// Hàm khởi tạo slideshow
+function initializeSlideshow() {
+    // Lấy danh sách slide
+    slides = document.querySelectorAll('.swiper-slide');
+    totalSlides = slides.length;
+    
+    console.log("Số slide tìm thấy:", totalSlides);
+    
+    if (totalSlides > 0) {
+        // Tạo pagination
+        createPagination();
+        
+        // Khởi tạo các slide ban đầu
+        initializeSlides();
+        
+        // Thêm các sự kiện điều hướng
+        setupSlideNavigation();
+        
+        // Tự động chuyển slide
+        setInterval(nextSlide, 5000);
+    }
+}
+
+// Hàm tạo pagination
+function createPagination() {
+    const pagination = document.querySelector('.swiper-pagination');
+    
+    if (pagination) {
+        // Xóa tất cả bullets hiện tại
+        pagination.innerHTML = '';
+        
+        // Tạo bullets mới
+        for (let i = 0; i < totalSlides; i++) {
+            const bullet = document.createElement('span');
+            bullet.className = 'swiper-pagination-bullet';
+            if (i === 0) bullet.classList.add('swiper-pagination-bullet-active');
+            
+            bullet.addEventListener('click', () => goToSlide(i));
+            pagination.appendChild(bullet);
+        }
+    }
+}
+
+// Thiết lập điều hướng slide
+function setupSlideNavigation() {
+    const leftNav = document.querySelector('.navigation-hover-left');
+    const rightNav = document.querySelector('.navigation-hover-right');
+    
+    if (leftNav && rightNav) {
+        // Thêm mũi tên nếu cần
+        if (!document.querySelector('.navigation-arrow-left')) {
+            const leftArrow = document.createElement('div');
+            leftArrow.className = 'navigation-arrow navigation-arrow-left';
+            leftArrow.innerHTML = '&lt;';
+            leftNav.appendChild(leftArrow);
+            
+            const rightArrow = document.createElement('div');
+            rightArrow.className = 'navigation-arrow navigation-arrow-right';
+            rightArrow.innerHTML = '&gt;';
+            rightNav.appendChild(rightArrow);
+        }
+        
+        // Sự kiện hover
+        leftNav.addEventListener('mouseenter', () => {
+            const arrow = leftNav.querySelector('.navigation-arrow-left');
+            if (arrow) arrow.style.opacity = '1';
+        });
+        
+        leftNav.addEventListener('mouseleave', () => {
+            const arrow = leftNav.querySelector('.navigation-arrow-left');
+            if (arrow) arrow.style.opacity = '0';
+        });
+        
+        rightNav.addEventListener('mouseenter', () => {
+            const arrow = rightNav.querySelector('.navigation-arrow-right');
+            if (arrow) arrow.style.opacity = '1';
+        });
+        
+        rightNav.addEventListener('mouseleave', () => {
+            const arrow = rightNav.querySelector('.navigation-arrow-right');
+            if (arrow) arrow.style.opacity = '0';
+        });
+        
+        // Sự kiện click
+        leftNav.addEventListener('click', prevSlide);
+        rightNav.addEventListener('click', nextSlide);
+    }
+}
+
+// Hàm khởi tạo vị trí các slide
+function initializeSlides() {
+    if (!slides || slides.length === 0) return;
+    
+    slides.forEach((slide, index) => {
+        // Reset tất cả
+        slide.classList.remove('swiper-slide-prev', 'swiper-slide-active', 'swiper-slide-next');
+        
+        if (index === currentSlide) {
+            slide.classList.add('swiper-slide-active');
+            slide.style.opacity = '1';
+            slide.style.transform = 'translateX(-50%) scale(1)';
+            slide.style.zIndex = '2';
+        } else if (index === (currentSlide - 1 + totalSlides) % totalSlides) {
+            slide.classList.add('swiper-slide-prev');
+            slide.style.opacity = '0.5';
+            slide.style.transform = 'translateX(-120%) scale(0.8)';
+            slide.style.zIndex = '1';
+        } else if (index === (currentSlide + 1) % totalSlides) {
+            slide.classList.add('swiper-slide-next');
+            slide.style.opacity = '0.5';
+            slide.style.transform = 'translateX(20%) scale(0.8)';
+            slide.style.zIndex = '1';
+        } else {
+            slide.style.opacity = '0';
+            slide.style.zIndex = '0';
+        }
+    });
+    
+    // Cập nhật bullets
+    updatePaginationBullets();
+}
+
+// Cập nhật bullets pagination
+function updatePaginationBullets() {
+    const bullets = document.querySelectorAll('.swiper-pagination-bullet');
+    bullets.forEach((bullet, index) => {
+        if (index === currentSlide) {
+            bullet.classList.add('swiper-pagination-bullet-active');
+        } else {
+            bullet.classList.remove('swiper-pagination-bullet-active');
+        }
+    });
+}
+
+// Hàm chuyển đến slide trước
+function prevSlide() {
+    currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+    initializeSlides();
+}
+
+// Hàm chuyển đến slide tiếp theo
+function nextSlide() {
+    currentSlide = (currentSlide + 1) % totalSlides;
+    initializeSlides();
+}
+
+// Hàm chuyển đến slide cụ thể
+function goToSlide(index) {
+    currentSlide = index;
+    initializeSlides();
+}
+
+// Hàm lấy tất cả ký túc xá
+function fetchDormitories() {
+    fetch('/api/map-data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(dormitories => {
+            if (dormitories && dormitories.length > 0) {
+                addDormsToMap(dormitories);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching dormitories:', error);
+        });
+}
+
+// Hàm lấy ký túc xá theo bộ lọc
+function fetchFilteredDormitories(filterType, value) {
+    fetch(`/api/dormitories/filter?${filterType}=${value}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                // Xóa markers cũ
+                clearMarkers();
+                
+                // Thêm markers mới
+                addDormsToMap(data.data, true);
+                
+                // Zoom vào kết quả đầu tiên
+                if (data.data[0].location && data.data[0].location.coordinates) {
+                    const coordinates = [data.data[0].location.coordinates[1], data.data[0].location.coordinates[0]];
+                    map.setView(coordinates, 17);
+                }
+            } else {
+                console.log("No dormitories found with filter:", filterType, value);
+            }
+            
+            // Đóng dropdown
+            const dropdownMenu = document.getElementById('dropdown-menu');
+            if (dropdownMenu) dropdownMenu.classList.remove('active');
+        })
+        .catch(error => {
+            console.error('Error fetching filtered dormitories:', error);
+        });
+}
+
+// Hàm tìm kiếm ký túc xá theo text
+function fetchSearchResults(searchText) {
+    fetch(`/api/dormitories/search?query=${encodeURIComponent(searchText)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                // Xóa markers cũ
+                clearMarkers();
+                
+                // Thêm markers mới
+                addDormsToMap(data.data, true);
+                
+                // Zoom vào kết quả đầu tiên
+                if (data.data[0].location && data.data[0].location.coordinates) {
+                    const coordinates = [data.data[0].location.coordinates[1], data.data[0].location.coordinates[0]];
+                    map.setView(coordinates, 17);
+                }
+            } else {
+                console.log("No dormitories found with search:", searchText);
+            }
+        })
+        .catch(error => {
+            console.error('Error searching dormitories:', error);
+        });
+}
+
+// Hàm để thêm các ký túc xá vào bản đồ
+function addDormsToMap(dorms, openPopup = false) {
+    dorms.forEach(dorm => {
+        if (dorm.location && dorm.location.coordinates && dorm.location.coordinates.length === 2) {
+            // Leaflet sử dụng [latitude, longitude] nhưng MongoDB lưu [longitude, latitude]
+            const coordinates = [dorm.location.coordinates[1], dorm.location.coordinates[0]];
+            
+            // Xác định icon dựa trên loại ký túc xá
+            const markerIcon = L.icon({
+                iconUrl: '/image/location.png',
+                iconSize: [60, 60],
+                iconAnchor: [16, 32],
+                popupAnchor: [0, -32]
+            });
+            
+            const marker = L.marker(coordinates, {
+                icon: markerIcon
             }).addTo(map);
-
-            university.bindPopup(`
+            
+            // Tạo danh sách tiện ích nếu có
+            let amenitiesList = 'Không có thông tin';
+            if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
+                amenitiesList = dorm.details.amenities.join(", ");
+            }
+            
+            // Tạo popup với thông tin chi tiết
+            const popupContent = `
                 <div class="custom-popup">
-                    <h3>Đại học Bách Khoa Hà Nội</h3>
-                    <div class="image">Hình ảnh trường</div>
-                    <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
-                    <p><strong>Website:</strong> <a href="#" onclick="alert('Chuyển hướng đến trang web ĐHBKHN')">hust.edu.vn</a></p>
+                    <h3>${dorm.name}</h3>
+                    <div class="image" ${dorm.imageUrl ? `style="background-image: url('${dorm.imageUrl}')"` : ''}>
+                        ${!dorm.imageUrl ? 'Chưa có hình ảnh' : ''}
+                    </div>
+                    <p><strong>Địa chỉ:</strong> ${dorm.address}</p>
+                    <p><strong>Liên hệ:</strong> ${dorm.contact && dorm.contact.phone ? dorm.contact.phone : 'Chưa cập nhật'}</p>
+                    ${dorm.details ? `
+                        <p><strong>Sức chứa:</strong> ${dorm.details.capacity || 'Chưa cập nhật'} sinh viên</p>
+                        <p><strong>Tiện ích:</strong> ${amenitiesList}</p>
+                        <p><strong>Giá phòng:</strong> ${dorm.details.priceRange ? `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNĐ/tháng` : 'Chưa cập nhật'}</p>
+                        <p><strong>Trạng thái:</strong> ${dorm.details.available ? '<span style="color: green">Còn chỗ</span>' : '<span style="color: red">Hết chỗ</span>'}</p>
+                    ` : ''}
                     <div class="action-btns">
-                        <button onclick="alert('Xem thông tin trường')">Thông tin</button>
-                        <button onclick="alert('Chỉ đường đến trường')">Chỉ đường</button>
+                        <button onclick="registerDorm('${dorm._id}')">Đăng ký</button>
+                        <button onclick="showDirections(${coordinates[0]}, ${coordinates[1]})">Chỉ đường</button>
                     </div>
                 </div>
-            `);
-
-            // Tạo các markers cho các ký túc xá
-            const dormMarkers = [];
+            `;
             
-            dormitories.forEach(dorm => {
-                // Tạo màu dựa trên loại ký túc xá
-                const markerColor = dorm.type === 'school' ? '#e91e63' : '#ff9800';
-                
-                const marker = L.marker(dorm.position, {
-                    icon: L.divIcon({
-                        className: 'custom-div-icon',
-                        html: `<div style="background-color: ${markerColor}; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
-                        iconSize: [25, 25],
-                        iconAnchor: [12, 12]
-                    })
-                }).addTo(map);
-
-                // Tạo danh sách tiện ích
-                const amenitiesList = dorm.amenities.join(", ");
-                
-                // Popup khi click vào marker
-                marker.bindPopup(`
-                    <div class="custom-popup">
-                        <h3>${dorm.name}</h3>
-                        <div class="image">Hình ảnh ký túc xá</div>
-                        <p><strong>Địa chỉ:</strong> ${dorm.address}</p>
-                        <p><strong>Liên hệ:</strong> ${dorm.phone}</p>
-                        <p><strong>Sức chứa:</strong> ${dorm.capacity}</p>
-                        <p><strong>Tiện ích:</strong> ${amenitiesList}</p>
-                        <p><strong>Giá phòng:</strong> ${dorm.price}</p>
-                        <div class="action-btns">
-                            <button onclick="alert('Đăng ký ký túc xá ${dorm.name}')">Đăng ký</button>
-                            <button onclick="alert('Chỉ đường đến ${dorm.name}')">Chỉ đường</button>
-                        </div>
-                    </div>
-                `);
-
-                // Lưu marker vào mảng kèm thông tin để lọc sau này
-                dormMarkers.push({
-                    marker: marker,
-                    data: dorm
-                });
-            });
-
-            // Xử lý tìm kiếm
-            const searchInput = document.getElementById('search-input');
-            searchInput.addEventListener('input', function() {
-                const searchText = this.value.toLowerCase();
-                if (searchText.length < 2) return;
-                
-                dormitories.forEach((dorm, index) => {
-                    if (dorm.name.toLowerCase().includes(searchText) || 
-                        dorm.address.toLowerCase().includes(searchText)) {
-                        map.setView(dorm.position, 17);
-                        dormMarkers[index].marker.openPopup();
-                    }
-                });
-            });
-
-            // Xử lý lọc
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    // Bỏ active trạng thái trước đó
-                    document.querySelector('.filter-btn.active')?.classList.remove('active');
-                    
-                    // Thêm active cho nút hiện tại
-                    this.classList.add('active');
-                    
-                    const filter = this.getAttribute('data-filter');
-                    
-                    // Lọc markers dựa trên bộ lọc
-                    dormMarkers.forEach(item => {
-                        const dorm = item.data;
-                        const marker = item.marker;
-                        
-                        if (filter === 'all') {
-                            marker.addTo(map);
-                        } else if (filter === 'cheap' && dorm.priceCategory === 'cheap') {
-                            marker.addTo(map);
-                        } else if (filter === 'medium' && dorm.priceCategory === 'medium') {
-                            marker.addTo(map);
-                        } else if (filter === 'premium' && dorm.priceCategory === 'premium') {
-                            marker.addTo(map);
-                        } else if (filter === 'wifi' && dorm.amenities.some(a => a.toLowerCase().includes('wifi'))) {
-                            marker.addTo(map);
-                        } else if (filter === 'gym' && dorm.amenities.some(a => a.toLowerCase().includes('tập') || a.toLowerCase().includes('gym'))) {
-                            marker.addTo(map);
-                        } else {
-                            map.removeLayer(marker);
-                        }
-                    });
-                });
-            });
+            marker.bindPopup(popupContent);
             
-            // Set active cho filter đầu tiên
-            filterButtons[0].classList.add('active');
-
-            // Xử lý các nút điều khiển
-            document.getElementById('locate-me').addEventListener('click', function() {
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(
-                        position => {
-                            const userLocation = [position.coords.latitude, position.coords.longitude];
-                            map.setView(userLocation, 15);
-                            
-                            // Tạo marker cho vị trí của người dùng
-                            L.marker(userLocation, {
-                                icon: L.divIcon({
-                                    className: 'custom-div-icon',
-                                    html: `<div style="background-color: #4CAF50; width: 20px; height: 20px; border-radius: 50%; border: 2px solid white;"></div>`,
-                                    iconSize: [25, 25],
-                                    iconAnchor: [12, 12]
-                                })
-                            }).addTo(map)
-                              .bindPopup("Bạn đang ở đây!")
-                              .openPopup();
-                        },
-                        error => {
-                            alert("Không thể xác định vị trí của bạn: " + error.message);
-                        }
-                    );
-                } else {
-                    alert("Trình duyệt của bạn không hỗ trợ định vị");
-                }
+            if (openPopup) {
+                marker.openPopup();
+            }
+            
+            // Lưu marker để có thể xóa sau này
+            dormMarkers.push({
+                marker: marker,
+                data: dorm
             });
+        }
+    });
+}
 
-            document.getElementById('zoom-in').addEventListener('click', function() {
-                map.zoomIn();
-            });
+// Hàm xóa tất cả marker hiện tại
+function clearMarkers() {
+    for (let i = 0; i < dormMarkers.length; i++) {
+        map.removeLayer(dormMarkers[i].marker);
+    }
+    dormMarkers = [];
+}
 
-            document.getElementById('zoom-out').addEventListener('click', function() {
-                map.zoomOut();
-            });
+// Hàm mở form đăng ký
+function registerDorm(dormId) {
+    // Chuyển hướng đến trang đăng ký với ID ký túc xá
+    alert(`Chuyển hướng đến trang đăng ký cho ký túc xá ID: ${dormId}`);
+    // window.location.href = `/register-dorm/${dormId}`;
+}
 
-            document.getElementById('reset-view').addEventListener('click', function() {
-                map.setView([21.007119, 105.843220], 15);
-            });
-        });
+// Hàm hiển thị chỉ đường (có thể sử dụng Google Maps hoặc dịch vụ khác)
+function showDirections(lat, lng) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+}
+
     </script>
 </body>
 </html>

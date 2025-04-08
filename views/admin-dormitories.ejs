@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Ký túc xá - Admin</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <style>
+        .action-btn {
+            margin-right: 5px;
+        }
+        .category-badge, .type-badge, .roomtype-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .category-basic {
+            background-color: #e8f4f8;
+            color: #2196F3;
+        }
+        .category-premium {
+            background-color: #f8e8f8;
+            color: #9C27B0;
+        }
+        .category-international {
+            background-color: #f8f4e8;
+            color: #FF9800;
+        }
+        .type-school {
+            background-color: #e8f8e8;
+            color: #4CAF50;
+        }
+        .type-private {
+            background-color: #f8e8e8;
+            color: #F44336;
+        }
+        .admin-header {
+            background-color: #f8f9fa;
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header class="admin-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h1>Quản lý Ký túc xá</h1>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span class="me-3">Xin chào, <strong><%= user.name %></strong></span>
+                    <a href="/logout" class="btn btn-outline-secondary btn-sm">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h3 class="card-title">Danh sách Ký túc xá</h3>
+                            <a href="/admin/dormitories/add" class="btn btn-primary">
+                                <i class="bi bi-plus-circle"></i> Thêm mới
+                            </a>
+                        </div>
+                        
+                        <% if (dormitories && dormitories.length > 0) { %>
+                            <div class="table-responsive">
+                                <table id="dormitoriesTable" class="table table-striped table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Tên</th>
+                                            <th>Địa chỉ</th>
+                                            <th>Loại</th>
+                                            <th>Danh mục</th>
+                                            <th>Loại phòng</th>
+                                            <th>Giá (VNĐ)</th>
+                                            <th>Trạng thái</th>
+                                            <th>Thao tác</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% dormitories.forEach(function(dorm) { %>
+                                            <tr>
+                                                <td><%= dorm.name %></td>
+                                                <td><%= dorm.address %></td>
+                                                <td>
+                                                    <% if (dorm.details && dorm.details.type) { %>
+                                                        <span class="type-badge type-<%= dorm.details.type %>">
+                                                            <%= dorm.details.type === 'school' ? 'Trường học' : 'Tư nhân' %>
+                                                        </span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (dorm.details && dorm.details.category) { %>
+                                                        <span class="category-badge category-<%= dorm.details.category %>">
+                                                            <% 
+                                                            let categoryLabel = '';
+                                                            switch(dorm.details.category) {
+                                                                case 'basic': categoryLabel = 'Cơ bản'; break;
+                                                                case 'premium': categoryLabel = 'Cao cấp'; break;
+                                                                case 'international': categoryLabel = 'Du học sinh'; break;
+                                                                default: categoryLabel = dorm.details.category;
+                                                            }
+                                                            %>
+                                                            <%= categoryLabel %>
+                                                        </span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (dorm.details && dorm.details.roomType) { %>
+                                                        <% 
+                                                        let roomTypeLabel = '';
+                                                        switch(dorm.details.roomType) {
+                                                            case '8-person': roomTypeLabel = '8 người'; break;
+                                                            case '4-person-service': roomTypeLabel = '4 người (dịch vụ)'; break;
+                                                            case '5-person': roomTypeLabel = '5 người'; break;
+                                                            case '10-person': roomTypeLabel = '10 người'; break;
+                                                            default: roomTypeLabel = dorm.details.roomType;
+                                                        }
+                                                        %>
+                                                        <%= roomTypeLabel %>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (dorm.details && dorm.details.priceRange) { %>
+                                                        <%= dorm.details.priceRange.min.toLocaleString() %> - <%= dorm.details.priceRange.max.toLocaleString() %>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <% if (dorm.details) { %>
+                                                        <span class="badge <%= dorm.details.available ? 'bg-success' : 'bg-danger' %>">
+                                                            <%= dorm.details.available ? 'Còn chỗ' : 'Hết chỗ' %>
+                                                        </span>
+                                                    <% } %>
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group">
+                                                        <a href="/admin/dormitories/edit/<%= dorm._id %>" class="btn btn-sm btn-outline-primary action-btn">Sửa</a>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger action-btn delete-btn" data-id="<%= dorm._id %>" data-name="<%= dorm.name %>">Xóa</button>
+                                                        <a href="/admin/dormitories/view/<%= dorm._id %>" class="btn btn-sm btn-outline-info action-btn">Xem</a>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                <p class="mb-0">Chưa có dữ liệu ký túc xá. Hãy thêm mới ký túc xá!</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa ký túc xá "<span id="dormName"></span>"?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Khởi tạo DataTable
+            $('#dormitoriesTable').DataTable({
+                language: {
+                    search: "Tìm kiếm:",
+                    lengthMenu: "Hiển thị _MENU_ mục",
+                    info: "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
+                    infoEmpty: "Hiển thị 0 đến 0 trong tổng số 0 mục",
+                    infoFiltered: "(lọc từ _MAX_ mục)",
+                    zeroRecords: "Không tìm thấy dữ liệu phù hợp",
+                    paginate: {
+                        first: "Đầu",
+                        last: "Cuối",
+                        next: "Sau",
+                        previous: "Trước"
+                    }
+                },
+                order: [[0, 'asc']]
+            });
+            
+            // Xử lý hiển thị modal xác nhận xóa
+            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            let dormIdToDelete = null;
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const dormId = this.getAttribute('data-id');
+                    const dormName = this.getAttribute('data-name');
+                    
+                    document.getElementById('dormName').textContent = dormName;
+                    dormIdToDelete = dormId;
+                    
+                    deleteModal.show();
+                });
+            });
+            
+            // Xử lý xác nhận xóa
+            document.getElementById('confirmDelete').addEventListener('click', function() {
+                if (dormIdToDelete) {
+                    fetch(`/api/dormitories/${dormIdToDelete}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            deleteModal.hide();
+                            alert('Xóa ký túc xá thành công!');
+                            window.location.reload();
+                        } else {
+                            alert('Lỗi khi xóa: ' + (data.message || 'Không thể xóa dữ liệu'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi xóa dữ liệu!');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

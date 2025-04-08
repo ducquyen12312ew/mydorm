@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bản đồ Ký túc xá Đại học Bách Khoa Hà Nội - Leaflet</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        .header-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            width: 350px;
+            border-radius: 15px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        .search-container {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-radius: 15px;
+        }
+        .search-icon {
+            margin-right: 15px;
+            color: #e91e63;
+        }
+        #search-input {
+            flex-grow: 1;
+            border: none;
+            outline: none;
+            font-size: 18px;
+            color: #333;
+        }
+        .dropdown-icon {
+            margin-left: 15px;
+            cursor: pointer;
+        }
+        .filter-container {
+            display: flex;
+            background-color: #f8f8f8;
+            border-top: 1px solid #eee;
+            overflow-x: auto;
+            padding: 8px 10px;
+        }
+        .filter-btn {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin-right: 10px;
+            font-size: 14px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .filter-btn.active {
+            background: #e91e63;
+            color: white;
+            border-color: #e91e63;
+        }
+        .custom-popup {
+            max-width: 300px;
+        }
+        .custom-popup h3 {
+            color: #e91e63;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .custom-popup .image {
+            width: 100%;
+            height: 150px;
+            background-color: #f0f0f0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-style: italic;
+            color: #666;
+            background-size: cover;
+            background-position: center;
+        }
+        .custom-popup p {
+            margin: 5px 0;
+        }
+        .custom-popup .action-btns {
+            display: flex;
+            margin-top: 15px;
+        }
+        .custom-popup button {
+            flex: 1;
+            background: #e91e63;
+            color: white;
+            border: none;
+            padding: 8px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 8px;
+        }
+        .custom-popup button:last-child {
+            margin-right: 0;
+            background: #2196F3;
+        }
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-bottom: 1px solid #eee;
+        }
+        .control-btn:last-child {
+            border-bottom: none;
+        }
+        .control-btn:hover {
+            background: #f5f5f5;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            z-index: 1001;
+        }
+    
+        .dropdown-menu.active {
+            max-height: 400px;
+        }
+    
+        .dropdown-section {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+    
+        .dropdown-section h4 {
+            margin-bottom: 10px;
+            color: #e91e63;
+        }
+    
+        .dropdown-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .dropdown-option {
+            background-color: #f4f4f4;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+    
+        .dropdown-option:hover {
+            background-color: #e91e63;
+            color: white;
+        }
+    
+        .dropdown-option.selected {
+            background-color: #e91e63;
+            color: white;
+        }
+        
+        /* Ẩn nút zoom mặc định của Leaflet */
+        .leaflet-control-zoom {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-bar">
+        <div class="search-container">
+            <svg width="30" height="30" class="search-icon" viewBox="0 0 24 24" fill="none" stroke="#e91e63" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            
+            <input id="search-input" type="text" placeholder="Tìm ký túc xá...">
+            
+            <svg width="20" height="20" class="dropdown-icon" id="dropdown-toggle" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
+                <path d="M6 9l6 6 6-6"></path>
+            </svg>
+        </div>
+        
+        <div class="dropdown-menu" id="dropdown-menu">
+            <div class="dropdown-section">
+                <h4>Phân loại khu</h4>
+                <div class="dropdown-options">
+                    <div class="dropdown-option" data-category="basic">Khu cơ bản</div>
+                    <div class="dropdown-option" data-category="premium">Khu cao cấp</div>
+                    <div class="dropdown-option" data-category="international">Khu du học sinh</div>
+                </div>
+            </div>
+            <div class="dropdown-section">
+                <h4>Loại phòng</h4>
+                <div class="dropdown-options">
+                    <div class="dropdown-option" data-room="8-person">Phòng 8 sinh viên</div>
+                    <div class="dropdown-option" data-room="4-person-service">Phòng dịch vụ 4 sinh viên</div>
+                    <div class="dropdown-option" data-room="5-person">Phòng 5 sinh viên</div>
+                    <div class="dropdown-option" data-room="10-person">Phòng 10 sinh viên</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="map"></div>
+
+    
+
+    <div class="control-panel">
+        <div class="control-btn" id="locate-me" title="Vị trí của tôi">📍</div>
+        <div class="control-btn" id="zoom-in" title="Phóng to">➕</div>
+        <div class="control-btn" id="zoom-out" title="Thu nhỏ">➖</div>
+        <div class="control-btn" id="reset-view" title="Khôi phục view">🏠</div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    
+    <script>
+        // Biến toàn cục để lưu trữ tham chiếu đến map và markers
+// Biến toàn cục để lưu trữ tham chiếu đến map và markers
+let map;
+let dormMarkers = [];
+
+// Đảm bảo DOM đã được tải hoàn toàn trước khi thực thi
+document.addEventListener('DOMContentLoaded', function() {
+    // Xử lý dropdown menu trước khi khởi tạo bản đồ
+    const dropdownIcon = document.getElementById('dropdown-toggle');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    
+    if (dropdownIcon && dropdownMenu) {
+        console.log("Dropdown elements found");
+        dropdownIcon.addEventListener('click', function(e) {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('active');
+            console.log("Dropdown clicked, active:", dropdownMenu.classList.contains('active'));
+        });
+    }
+    
+    // Đóng dropdown khi click bên ngoài
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.header-bar') && dropdownMenu.classList.contains('active')) {
+            dropdownMenu.classList.remove('active');
+        }
+    });
+    
+    // Tạo bản đồ
+    map = L.map('map', {
+        zoomControl: false  // Tắt nút zoom mặc định
+    }).setView([21.007119, 105.843220], 15);
+
+    // Thêm OpenStreetMap layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Tạo các icon từ hình ảnh
+    const universityIcon = L.icon({
+        iconUrl: '/image/university.png', // Đường dẫn đến hình ảnh đại học
+        iconSize: [60, 60],      // Kích thước icon
+        iconAnchor: [16, 32],    // Điểm neo của icon
+        popupAnchor: [0, -32]    // Điểm neo của popup
+    });
+
+    const dormSchoolIcon = L.icon({
+        iconUrl: '/image/location.png',  // Hình ảnh ký túc xá trường
+        iconSize: [60, 60],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
+    const dormPrivateIcon = L.icon({
+        iconUrl: '/image/location.png',  // Hình ảnh ký túc xá tư nhân
+        iconSize: [60, 60],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
+    // Thêm marker cho trường Đại học Bách Khoa
+    const university = L.marker([21.007119, 105.843220], {
+        icon: universityIcon
+    }).addTo(map);
+
+    university.bindPopup(`
+        <div class="custom-popup">
+            <h3>Đại học Bách Khoa Hà Nội</h3>
+            <div class="image">Hình ảnh trường</div>
+            <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
+            <p><strong>Website:</strong> <a href="https://hust.edu.vn" target="_blank">hust.edu.vn</a></p>
+            <div class="action-btns">
+                <button onclick="window.open('https://hust.edu.vn/thong-tin')">Thông tin</button>
+                <button onclick="showDirections(21.007119, 105.843220)">Chỉ đường</button>
+            </div>
+        </div>
+    `);
+
+    // Lấy dữ liệu ký túc xá từ API
+    fetchDormitories();
+    
+    // Xử lý chọn option trong dropdown
+    const categoryOptions = document.querySelectorAll('[data-category]');
+    const roomOptions = document.querySelectorAll('[data-room]');
+    
+    function handleOptionSelect(options) {
+        options.forEach(option => {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation(); // Ngăn việc click lan tỏa
+                
+                // Bỏ selected cho các option khác trong cùng nhóm
+                options.forEach(opt => opt.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                // Thực hiện tìm kiếm với category hoặc room được chọn
+                const selectedValue = this.getAttribute('data-category') || this.getAttribute('data-room');
+                console.log("Selected option:", selectedValue);
+                
+                // Lấy dữ liệu lọc từ API thay vì lọc ở client
+                if (this.hasAttribute('data-category')) {
+                    fetchFilteredDormitories('category', selectedValue);
+                } else if (this.hasAttribute('data-room')) {
+                    fetchFilteredDormitories('roomType', selectedValue);
+                }
+            });
+        });
+    }
+    
+    // Gắn sự kiện cho các option
+    handleOptionSelect(categoryOptions);
+    handleOptionSelect(roomOptions);
+
+    // Xử lý tìm kiếm bằng thanh search
+    const searchInput = document.getElementById('search-input');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        const searchText = this.value.toLowerCase();
+        clearTimeout(searchTimeout);
+        
+        if (searchText.length < 2) {
+            return;
+        }
+        
+        // Thêm debounce để tránh gọi API quá nhiều
+        searchTimeout = setTimeout(() => {
+            fetchSearchResults(searchText);
+        }, 300);
+    });
+
+    // Các phần xử lý nút điều khiển
+    document.getElementById('locate-me').addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const userLocation = [position.coords.latitude, position.coords.longitude];
+                    map.setView(userLocation, 15);
+                    
+                    // Tạo marker cho vị trí của người dùng
+                    L.marker(userLocation, {
+                        icon: L.icon({
+                            iconUrl: '/image/user-location.png',  // Icon vị trí người dùng
+                            iconSize: [32, 32],
+                            iconAnchor: [16, 32],
+                            popupAnchor: [0, -32]
+                        })
+                    }).addTo(map)
+                      .bindPopup("Bạn đang ở đây!")
+                      .openPopup();
+                },
+                error => {
+                    alert("Không thể xác định vị trí của bạn: " + error.message);
+                }
+            );
+        } else {
+            alert("Trình duyệt của bạn không hỗ trợ định vị");
+        }
+    });
+
+    document.getElementById('zoom-in').addEventListener('click', function() {
+        map.zoomIn();
+    });
+
+    document.getElementById('zoom-out').addEventListener('click', function() {
+        map.zoomOut();
+    });
+
+    document.getElementById('reset-view').addEventListener('click', function() {
+        map.setView([21.007119, 105.843220], 15);
+    });
+});
+
+// Hàm lấy tất cả ký túc xá
+function fetchDormitories() {
+    fetch('/api/map-data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(dormitories => {
+            console.log("Fetched dormitories:", dormitories);
+            if (dormitories && dormitories.length > 0) {
+                addDormsToMap(dormitories);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching dormitories:', error);
+        });
+}
+
+// Hàm lấy ký túc xá theo bộ lọc
+function fetchFilteredDormitories(filterType, value) {
+    fetch(`/api/dormitories/filter?${filterType}=${value}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                // Xóa markers cũ
+                clearMarkers();
+                
+                // Thêm markers mới
+                addDormsToMap(data.data, true);
+                
+                // Zoom vào kết quả đầu tiên
+                if (data.data[0].location && data.data[0].location.coordinates) {
+                    const coordinates = [data.data[0].location.coordinates[1], data.data[0].location.coordinates[0]];
+                    map.setView(coordinates, 17);
+                }
+            } else {
+                console.log("No dormitories found with filter:", filterType, value);
+            }
+            
+            // Đóng dropdown
+            document.getElementById('dropdown-menu').classList.remove('active');
+        })
+        .catch(error => {
+            console.error('Error fetching filtered dormitories:', error);
+        });
+}
+
+// Hàm tìm kiếm ký túc xá theo text
+function fetchSearchResults(searchText) {
+    fetch(`/api/dormitories/search?query=${encodeURIComponent(searchText)}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success && data.data.length > 0) {
+                // Xóa markers cũ
+                clearMarkers();
+                
+                // Thêm markers mới
+                addDormsToMap(data.data, true);
+                
+                // Zoom vào kết quả đầu tiên
+                if (data.data[0].location && data.data[0].location.coordinates) {
+                    const coordinates = [data.data[0].location.coordinates[1], data.data[0].location.coordinates[0]];
+                    map.setView(coordinates, 17);
+                }
+            } else {
+                console.log("No dormitories found with search:", searchText);
+            }
+        })
+        .catch(error => {
+            console.error('Error searching dormitories:', error);
+        });
+}
+
+// Hàm để thêm các ký túc xá vào bản đồ
+function addDormsToMap(dorms, openPopup = false) {
+    dorms.forEach(dorm => {
+        if (dorm.location && dorm.location.coordinates && dorm.location.coordinates.length === 2) {
+            // Leaflet sử dụng [latitude, longitude] nhưng MongoDB lưu [longitude, latitude]
+            const coordinates = [dorm.location.coordinates[1], dorm.location.coordinates[0]];
+            
+            // Xác định icon dựa trên loại ký túc xá
+            const markerIcon = dorm.details && dorm.details.type === 'school' ? 
+                L.icon({
+                    iconUrl: '/image/location.png',  // Hình ảnh ký túc xá trường
+                    iconSize: [60, 60],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                }) : 
+                L.icon({
+                    iconUrl: '/image/location.png',  // Hình ảnh ký túc xá tư nhân
+                    iconSize: [60, 60],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                });
+            
+            const marker = L.marker(coordinates, {
+                icon: markerIcon
+            }).addTo(map);
+            
+            // Tạo danh sách tiện ích nếu có
+            let amenitiesList = 'Không có thông tin';
+            if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
+                amenitiesList = dorm.details.amenities.join(", ");
+            }
+            
+            // Tạo popup với thông tin chi tiết
+            const popupContent = `
+                <div class="custom-popup">
+                    <h3>${dorm.name}</h3>
+                    <div class="image" ${dorm.imageUrl ? `style="background-image: url('${dorm.imageUrl}')"` : ''}>
+                        ${!dorm.imageUrl ? 'Chưa có hình ảnh' : ''}
+                    </div>
+                    ${dorm.details ? `
+                        <p><strong>Trạng thái:</strong> ${dorm.details.available ? '<span style="color: green">Còn chỗ</span>' : '<span style="color: red">Hết chỗ</span>'}</p>
+                    ` : ''}
+                    <div class="action-btns">
+                        <button onclick="registerDorm('${dorm._id}')">Đăng ký</button>
+                        <button onclick="showDirections(${coordinates[0]}, ${coordinates[1]})">Chỉ đường</button>
+                    </div>
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+            
+            if (openPopup) {
+                marker.openPopup();
+            }
+            
+            // Lưu marker để có thể xóa sau này
+            dormMarkers.push({
+                marker: marker,
+                data: dorm
+            });
+        }
+    });
+}
+
+// Hàm xóa tất cả marker hiện tại
+function clearMarkers() {
+    for (let i = 0; i < dormMarkers.length; i++) {
+        map.removeLayer(dormMarkers[i].marker);
+    }
+    dormMarkers = [];
+}
+
+// Hàm mở form đăng ký
+function registerDorm(dormId) {
+    // Chuyển hướng đến trang đăng ký với ID ký túc xá
+    alert(`Chuyển hướng đến trang đăng ký cho ký túc xá ID: ${dormId}`);
+    // window.location.href = `/register-dorm/${dormId}`;
+}
+
+// Hàm hiển thị chỉ đường (có thể sử dụng Google Maps hoặc dịch vụ khác)
+function showDirections(lat, lng) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    window.open(url, '_blank');
+}
+    </script>
+</body>
+</html>

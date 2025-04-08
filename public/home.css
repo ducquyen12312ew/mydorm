@@ -10,6 +10,7 @@
     --text-color: #333;
     --bg-color: #f8f3ef;
     --menu-bg: white;
+    --accent-red: #ff2b2b;
 }
 
 html {
@@ -116,6 +117,16 @@ body {
     .letter-T { transform: translateX(180px); }
 }
 
+/* Backgrounds container for morphing effect */
+.bg-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
 .bg-overlay {
     position: absolute;
     top: 50%;
@@ -130,6 +141,225 @@ body {
     transition: opacity 2s ease, width 2s ease, height 2s ease, border-radius 2s ease;
     z-index: 1;
     border-radius: 10px;
+}
+
+.bg-overlay-campus1, .bg-overlay-campus2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.6s ease; /* Faster transition for morphing */
+    z-index: 2;
+}
+
+.bg-overlay-campus1 {
+    background-image: url('image/camp1.png');
+}
+
+.bg-overlay-campus2 {
+    background-image: url('image/camp2.png');
+}
+
+/* Big text overlay styling - left-aligned with thicker text */
+.big-text-overlay {
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+    z-index: 5;
+    opacity: 0;
+    text-align: left;
+    width: 60%;
+    max-width: 800px;
+    transition: opacity 0.8s ease;
+}
+
+.big-text-line {
+    color: white;
+    font-size: 3.8rem;
+    font-weight: 900;
+    line-height: 1.1;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    letter-spacing: -1px;
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+.subtitle {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 500;
+    margin-top: 1.5rem;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+    font-family: 'Roboto Condensed', sans-serif;
+}
+
+/* Campus options styling - centered on page */
+.campus-options-container {
+    position: absolute;
+    bottom: 15%;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+.campus-options {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    width: 100%;
+}
+
+.campus-option {
+    position: relative;
+    padding: 0.8rem 1.5rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 1.1rem;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    font-family: 'Roboto Condensed', sans-serif;
+    z-index: 1;
+    text-align: center;
+}
+
+.campus-option:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.campus-option::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.campus-option:hover::before {
+    opacity: 1;
+}
+
+.tooltip {
+    position: absolute;
+    bottom: calc(100% + 15px);
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    background-color: white;
+    color: var(--text-color);
+    padding: 0.7rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 500;
+    pointer-events: none;
+}
+
+.tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: white transparent transparent transparent;
+}
+
+.campus-option:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 992px) {
+    .big-text-line {
+        font-size: 4rem;
+    }
+    
+    .subtitle {
+        font-size: 1.3rem;
+        margin-top: 1.2rem;
+    }
+    
+    .campus-option {
+        font-size: 1rem;
+        padding: 0.7rem 1.3rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .big-text-overlay {
+        left: 2rem;
+        width: 80%;
+    }
+    
+    .big-text-line {
+        font-size: 3rem;
+    }
+    
+    .subtitle {
+        font-size: 1.1rem;
+        margin-top: 1rem;
+    }
+    
+    .campus-options {
+        gap: 1rem;
+    }
+    
+    .campus-option {
+        font-size: 0.9rem;
+        padding: 0.6rem 1.1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .big-text-overlay {
+        left: 1.5rem;
+    }
+    
+    .big-text-line {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem;
+        margin-top: 0.8rem;
+    }
+    
+    .campus-options {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+    
+    .campus-option {
+        font-size: 0.9rem;
+        padding: 0.6rem 1rem;
+    }
 }
 
 .header {
@@ -366,4 +596,16 @@ body {
     .login-btn {
         align-self: flex-start;
     }
+}
+.login-area {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Tăng khoảng cách giữa logo và nút đăng nhập */
+    position: relative;
+}
+
+.domisys-logo {
+    height: 24px; /* Làm logo to hơn */
+    position: relative;
+    top: -2px; /* Dịch logo lên cao hơn một chút */
 }
