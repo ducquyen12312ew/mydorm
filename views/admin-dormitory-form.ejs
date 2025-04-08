@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= action === 'add' ? 'Thêm' : 'Cập nhật' %> Ký túc xá</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    <style>
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .amenity-checkbox {
+            margin-right: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1><%= action === 'add' ? 'Thêm mới' : 'Cập nhật' %> Ký túc xá</h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/admin/dormitories">Quản lý Ký túc xá</a></li>
+                        <li class="breadcrumb-item active"><%= action === 'add' ? 'Thêm mới' : 'Cập nhật' %></li>
+                    </ol>
+                </nav>
+                
+                <form id="dormitoryForm" method="POST" action="/api/dormitories<%= action === 'edit' && dormitory ? '/' + dormitory._id : '' %>">
+                    <input type="hidden" name="_method" value="<%= action === 'edit' ? 'PUT' : 'POST' %>">
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Thông tin cơ bản</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Tên ký túc xá*</label>
+                                        <input type="text" class="form-control" id="name" name="name" required
+                                            value="<%= dormitory ? dormitory.name : '' %>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="address" class="form-label">Địa chỉ*</label>
+                                        <input type="text" class="form-control" id="address" name="address" required
+                                            value="<%= dormitory ? dormitory.address : '' %>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phone" class="form-label">Số điện thoại liên hệ</label>
+                                        <input type="text" class="form-control" id="phone" name="contact[phone]"
+                                            value="<%= dormitory && dormitory.contact ? dormitory.contact.phone : '' %>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email liên hệ</label>
+                                        <input type="email" class="form-control" id="email" name="contact[email]"
+                                            value="<%= dormitory && dormitory.contact ? dormitory.contact.email : '' %>">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="imageUrl" class="form-label">URL hình ảnh</label>
+                                        <input type="text" class="form-control" id="imageUrl" name="imageUrl"
+                                            value="<%= dormitory ? dormitory.imageUrl : '' %>">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Thông tin chi tiết</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="type" class="form-label">Loại ký túc xá*</label>
+                                        <select class="form-select" id="type" name="details[type]" required>
+                                            <option value="">-- Chọn loại --</option>
+                                            <option value="school" <%= dormitory && dormitory.details && dormitory.details.type === 'school' ? 'selected' : '' %>>Trường học</option>
+                                            <option value="private" <%= dormitory && dormitory.details && dormitory.details.type === 'private' ? 'selected' : '' %>>Tư nhân</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">Danh mục*</label>
+                                        <select class="form-select" id="category" name="details[category]" required>
+                                            <option value="">-- Chọn danh mục --</option>
+                                            <option value="basic" <%= dormitory && dormitory.details && dormitory.details.category === 'basic' ? 'selected' : '' %>>Cơ bản</option>
+                                            <option value="premium" <%= dormitory && dormitory.details && dormitory.details.category === 'premium' ? 'selected' : '' %>>Cao cấp</option>
+                                            <option value="international" <%= dormitory && dormitory.details && dormitory.details.category === 'international' ? 'selected' : '' %>>Du học sinh</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="roomType" class="form-label">Loại phòng*</label>
+                                        <select class="form-select" id="roomType" name="details[roomType]" required>
+                                            <option value="">-- Chọn loại phòng --</option>
+                                            <option value="8-person" <%= dormitory && dormitory.details && dormitory.details.roomType === '8-person' ? 'selected' : '' %>>Phòng 8 sinh viên</option>
+                                            <option value="4-person-service" <%= dormitory && dormitory.details && dormitory.details.roomType === '4-person-service' ? 'selected' : '' %>>Phòng dịch vụ 4 sinh viên</option>
+                                            <option value="5-person" <%= dormitory && dormitory.details && dormitory.details.roomType === '5-person' ? 'selected' : '' %>>Phòng 5 sinh viên</option>
+                                            <option value="10-person" <%= dormitory && dormitory.details && dormitory.details.roomType === '10-person' ? 'selected' : '' %>>Phòng 10 sinh viên</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="capacity" class="form-label">Sức chứa (người)*</label>
+                                        <input type="number" class="form-control" id="capacity" name="details[capacity]" min="1" required
+                                            value="<%= dormitory && dormitory.details ? dormitory.details.capacity : '' %>">
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="priceMin" class="form-label">Giá thấp nhất (VNĐ)*</label>
+                                            <input type="number" class="form-control" id="priceMin" name="details[priceRange][min]" min="0" required
+                                                value="<%= dormitory && dormitory.details && dormitory.details.priceRange ? dormitory.details.priceRange.min : '' %>">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="priceMax" class="form-label">Giá cao nhất (VNĐ)*</label>
+                                            <input type="number" class="form-control" id="priceMax" name="details[priceRange][max]" min="0" required
+                                                value="<%= dormitory && dormitory.details && dormitory.details.priceRange ? dormitory.details.priceRange.max : '' %>">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Còn phòng trống</label>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="available" name="details[available]" value="true"
+                                                <%= dormitory && dormitory.details && dormitory.details.available ? 'checked' : '' %>>
+                                            <label class="form-check-label" for="available">
+                                                Còn chỗ trống
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>Tiện ích</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <% 
+                                        const amenities = ['Wifi', 'Điều hòa', 'Tủ lạnh', 'Bếp chung', 'Phòng giặt', 'Bảo vệ 24/7', 'Căng tin', 'Phòng học', 'TV chung'];
+                                        let existingAmenities = [];
+                                        if (dormitory && dormitory.details && dormitory.details.amenities) {
+                                            existingAmenities = dormitory.details.amenities;
+                                        }
+                                        %>
+                                        
+                                        <% amenities.forEach((amenity, index) => { %>
+                                            <div class="col-md-4 mb-2">
+                                                <div class="form-check amenity-checkbox">
+                                                    <input class="form-check-input" type="checkbox" id="amenity<%= index %>" 
+                                                        name="details[amenities][]" value="<%= amenity %>"
+                                                        <%= existingAmenities.includes(amenity) ? 'checked' : '' %>>
+                                                    <label class="form-check-label" for="amenity<%= index %>">
+                                                        <%= amenity %>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        <% }); %>  
+                                        <div class="mt-2">
+                                            <label for="otherAmenity" class="form-label">Tiện ích khác</label>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="otherAmenity" placeholder="Nhập tiện ích khác">
+                                                <button class="btn btn-outline-primary" type="button" id="addAmenityBtn">Thêm</button>
+                                            </div>
+                                        </div>
+                                        <div id="customAmenities" class="mt-2">
+                                            <!-- Các tiện ích tùy chỉnh sẽ được thêm vào đây -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card">
+                                    <div class="card-header">
+                                        <h5>Vị trí trên bản đồ</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted mb-2">Di chuyển marker hoặc click vào bản đồ để chọn vị trí ký túc xá</p>
+                                        <div id="map"></div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="longitude" class="form-label">Kinh độ (Longitude)</label>
+                                                    <input type="text" class="form-control" id="longitude" name="location[coordinates][0]" required
+                                                        value="<%= dormitory && dormitory.location && dormitory.location.coordinates ? dormitory.location.coordinates[0] : '105.843220' %>">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label for="latitude" class="form-label">Vĩ độ (Latitude)</label>
+                                                    <input type="text" class="form-control" id="latitude" name="location[coordinates][1]" required
+                                                        value="<%= dormitory && dormitory.location && dormitory.location.coordinates ? dormitory.location.coordinates[1] : '21.007119' %>">
+                                                </div>
+                                            </div>
+                                            <input type="hidden" name="location[type]" value="Point">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12 text-end">
+                                <a href="/admin/dormitories" class="btn btn-secondary me-2">Hủy</a>
+                                <button type="submit" class="btn btn-primary"><%= action === 'add' ? 'Thêm mới' : 'Cập nhật' %></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Bootstrap JS -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Leaflet JS -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Khởi tạo bản đồ
+                const longitude = parseFloat(document.getElementById('longitude').value) || 105.843220;
+                const latitude = parseFloat(document.getElementById('latitude').value) || 21.007119;
+                
+                const map = L.map('map').setView([latitude, longitude], 15);
+                
+                // Thêm OpenStreetMap layer
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                }).addTo(map);
+                
+                // Thêm marker có thể kéo
+                const marker = L.marker([latitude, longitude], {
+                    draggable: true
+                }).addTo(map);
+                
+                // Cập nhật tọa độ khi kéo marker
+                marker.on('dragend', function(event) {
+                    const position = marker.getLatLng();
+                    document.getElementById('latitude').value = position.lat.toFixed(6);
+                    document.getElementById('longitude').value = position.lng.toFixed(6);
+                });
+                
+                // Cập nhật vị trí marker khi click vào bản đồ
+                map.on('click', function(e) {
+                    marker.setLatLng(e.latlng);
+                    document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
+                    document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
+                });
+                
+                // Cập nhật lại bản đồ khi thay đổi tọa độ trong input
+                document.getElementById('latitude').addEventListener('change', updateMapFromInputs);
+                document.getElementById('longitude').addEventListener('change', updateMapFromInputs);
+                
+                function updateMapFromInputs() {
+                    const lat = parseFloat(document.getElementById('latitude').value);
+                    const lng = parseFloat(document.getElementById('longitude').value);
+                    
+                    if (!isNaN(lat) && !isNaN(lng)) {
+                        marker.setLatLng([lat, lng]);
+                        map.setView([lat, lng], 15);
+                    }
+                }
+                
+                // Xử lý thêm tiện ích tùy chỉnh
+                document.getElementById('addAmenityBtn').addEventListener('click', function() {
+                    const amenityInput = document.getElementById('otherAmenity');
+                    const amenityValue = amenityInput.value.trim();
+                    
+                    if (amenityValue) {
+                        // Tạo container cho tiện ích tùy chỉnh
+                        const customAmenityContainer = document.createElement('div');
+                        customAmenityContainer.className = 'custom-amenity badge bg-primary me-2 mb-2 p-2';
+                        
+                        // Tạo input hidden để gửi giá trị lên server
+                        const hiddenInput = document.createElement('input');
+                        hiddenInput.type = 'hidden';
+                        hiddenInput.name = 'details[amenities][]';
+                        hiddenInput.value = amenityValue;
+                        
+                        // Tạo label hiển thị
+                        const amenityLabel = document.createElement('span');
+                        amenityLabel.textContent = amenityValue;
+                        
+                        // Tạo nút xóa
+                        const removeBtn = document.createElement('button');
+                        removeBtn.type = 'button';
+                        removeBtn.className = 'btn-close btn-close-white ms-2';
+                        removeBtn.style.fontSize = '0.5rem';
+                        removeBtn.addEventListener('click', function() {
+                            customAmenityContainer.remove();
+                        });
+                        
+                        // Thêm các phần tử vào container
+                        customAmenityContainer.appendChild(hiddenInput);
+                        customAmenityContainer.appendChild(amenityLabel);
+                        customAmenityContainer.appendChild(removeBtn);
+                        
+                        // Thêm vào danh sách tiện ích
+                        document.getElementById('customAmenities').appendChild(customAmenityContainer);
+                        
+                        // Reset input
+                        amenityInput.value = '';
+                        amenityInput.focus();
+                    }
+                });
+                
+                // Xử lý form submit
+                document.getElementById('dormitoryForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Tạo object cơ bản
+                    const formObject = {
+                        name: document.getElementById('name').value,
+                        address: document.getElementById('address').value,
+                        location: {
+                            type: 'Point',
+                            coordinates: [
+                                parseFloat(document.getElementById('longitude').value),
+                                parseFloat(document.getElementById('latitude').value)
+                            ]
+                        },
+                        contact: {
+                            phone: document.getElementById('phone').value,
+                            email: document.getElementById('email').value
+                        },
+                        imageUrl: document.getElementById('imageUrl').value,
+                        details: {
+                            type: document.getElementById('type').value,
+                            category: document.getElementById('category').value,
+                            roomType: document.getElementById('roomType').value,
+                            capacity: parseInt(document.getElementById('capacity').value),
+                            priceRange: {
+                                min: parseInt(document.getElementById('priceMin').value),
+                                max: parseInt(document.getElementById('priceMax').value)
+                            },
+                            available: document.getElementById('available').checked,
+                            amenities: []
+                        }
+                    };
+                    
+                    // Thu thập các tiện ích đã chọn
+                    const amenityCheckboxes = document.querySelectorAll('input[name="details[amenities][]"]:checked');
+                    amenityCheckboxes.forEach(checkbox => {
+                        formObject.details.amenities.push(checkbox.value);
+                    });
+                    
+                    // Thu thập các tiện ích tùy chỉnh
+                    const customAmenities = document.querySelectorAll('#customAmenities input[type="hidden"]');
+                    customAmenities.forEach(input => {
+                        formObject.details.amenities.push(input.value);
+                    });
+                    
+                    // Gửi request API
+                    const method = document.querySelector('input[name="_method"]').value;
+                    const url = this.getAttribute('action');
+                    
+                    console.log('Dữ liệu gửi lên:', formObject);
+                    
+                    fetch(url, {
+                        method: method === 'PUT' ? 'PUT' : 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formObject),
+                        credentials: 'same-origin'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert((method === 'PUT' ? 'Cập nhật' : 'Thêm mới') + ' ký túc xá thành công!');
+                            window.location.href = '/admin/dormitories';
+                        } else {
+                            alert('Lỗi: ' + (data.message || 'Không thể lưu dữ liệu'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Đã xảy ra lỗi khi gửi dữ liệu!');
+                    });
+                });
+            });
+        </script>
+    </body>
+    </html>
