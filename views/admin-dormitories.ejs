@@ -6,163 +6,649 @@
     <title>Quản lý Ký túc xá - Admin</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .action-btn {
-            margin-right: 5px;
+/* Header và Menu */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    z-index: 2000;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    transition: opacity 1s ease, transform 0.5s ease;
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-logo img {
+    max-height: 2.5rem;
+    width: auto;
+    transition: transform 0.5s ease;
+}
+
+.logo-text {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+    color: #e61a1a;
+}
+
+.nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-grow: 1;
+    margin-left: 1rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+    margin-right: 2rem;
+}
+
+.nav-link {
+    color: #333;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 0.8rem 0;
+    position: relative;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.nav-link::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 2px;
+    bottom: 0.5rem;
+    left: -100%;
+    background: linear-gradient(90deg, transparent, #e61a1a, transparent);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: -1;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #e61a1a;
+    bottom: 0.4rem;
+    left: 50%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.nav-link:hover {
+    color: #e61a1a;
+    transform: translateY(-2px);
+    text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
+}
+
+.nav-link:hover::before {
+    left: 0;
+}
+
+.nav-link:hover::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.nav-link.active-link {
+    color: #e61a1a;
+}
+
+.nav-link.active-link::after {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: #f8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e61a1a;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.user-name {
+    font-size: 0.9rem;
+    color: #333;
+    white-space: nowrap;
+}
+
+.logout-btn {
+    padding: 0.6rem 1.5rem;
+    background-color: transparent;
+    color: #e61a1a;
+    border: 2px solid #e61a1a;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-decoration: none;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.logout-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background-color: #e61a1a;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    z-index: -1;
+    transition: width 0.5s ease, height 0.5s ease;
+}
+
+.logout-btn:hover {
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+}
+
+.logout-btn:hover::before {
+    width: 200%;
+    height: 200%;
+}
+
+.logout-btn:active {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(230, 26, 26, 0.3);
+}
+
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    cursor: pointer;
+    z-index: 2001;
+}
+
+.menu-toggle span {
+    display: block;
+    height: 3px;
+    width: 100%;
+    background-color: #e61a1a;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+}
+
+.content-container {
+    padding-top: 80px;
+}
+
+/* Responsive header adjustments */
+@media (max-width: 1100px) {
+    .nav-links {
+        gap: 1.5rem;
+    }
+    
+    .logo-text {
+        font-size: 1.1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .user-name {
+        display: none;
+    }
+}
+
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .nav-container {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: white;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 5rem 2rem 2rem;
+        transition: right 0.3s ease;
+        margin-left: 0;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1999;
+    }
+    
+    .nav-container.active {
+        right: 0;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+        margin-bottom: 2rem;
+        margin-right: 0;
+    }
+    
+    .user-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .user-name {
+        display: block;
+    }
+}
+        
+        /* Thêm màu đỏ cho các phần tử khác */
+        .btn-primary {
+            background-color: #e61a1a;
+            border-color: #e61a1a;
         }
-        .category-badge, .type-badge, .roomtype-badge {
-            padding: 5px 10px;
+        
+        .btn-primary:hover {
+            background-color: #c0392b;
+            border-color: #c0392b;
+        }
+        
+        .dorm-title {
+            color: #e61a1a;
+        }
+        
+        .stat-value {
+            color: #e61a1a;
+        }
+        
+        .occupancy-fill {
+            background-color: #e61a1a;
+        }
+
+        .dorm-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .dorm-card:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-3px);
+        }
+        .dorm-header {
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .dorm-body {
+            padding: 15px;
+        }
+        .dorm-title {
+            margin: 0;
+            font-weight: 600;
+            color: #0d6efd;
+            cursor: pointer;
+        }
+        .dorm-title:hover {
+            text-decoration: underline;
+        }
+        .type-badge, .category-badge {
+            padding: 4px 8px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 500;
         }
-        .category-basic {
-            background-color: #e8f4f8;
-            color: #2196F3;
-        }
-        .category-premium {
-            background-color: #f8e8f8;
-            color: #9C27B0;
-        }
-        .category-international {
-            background-color: #f8f4e8;
-            color: #FF9800;
-        }
         .type-school {
             background-color: #e8f8e8;
-            color: #4CAF50;
+            color: #198754;
         }
         .type-private {
             background-color: #f8e8e8;
-            color: #F44336;
+            color: #dc3545;
         }
-        .admin-header {
+        .category-basic {
+            background-color: #e8f4f8;
+            color: #0d6efd;
+        }
+        .category-premium {
+            background-color: #f8e8f8;
+            color: #6f42c1;
+        }
+        .category-international {
+            background-color: #f8f4e8;
+            color: #fd7e14;
+        }
+        .stat-box {
             background-color: #f8f9fa;
-            padding: 15px 0;
-            margin-bottom: 30px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0d6efd;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        .occupancy-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+        .occupancy-fill {
+            height: 100%;
+            background-color: #198754;
+        }
+        .room-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .room-box {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: white;
+            font-weight: 600;
+        }
+        .room-empty {
+            background-color: #198754;
+        }
+        .room-partial {
+            background-color: #ffc107;
+        }
+        .room-full {
+            background-color: #dc3545;
         }
     </style>
 </head>
 <body>
-    <header class="admin-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1>Quản lý Ký túc xá</h1>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <span class="me-3">Xin chào, <strong><%= user.name %></strong></span>
-                    <a href="/logout" class="btn btn-outline-secondary btn-sm">Đăng xuất</a>
+    <header class="header">
+        <div class="header-logo">
+            <img src="/image/logo.png" alt="KTX Logo">
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-container" id="navContainer">
+            <nav class="nav-links">
+                <a href="/admin/dashboard" class="nav-link active-link">DANH SÁCH</a>
+                <a href="/admin/dormitories" class="nav-link">ĐƠN SINH VIÊN</a>
+            </nav>
+            <div class="user-info">
+                <div class="user-avatar">
+                    <%= user.name.charAt(0).toUpperCase() %>
                 </div>
             </div>
         </div>
     </header>
-
-    <div class="container">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <h3 class="card-title">Danh sách Ký túc xá</h3>
-                            <a href="/admin/dormitories/add" class="btn btn-primary">
-                                <i class="bi bi-plus-circle"></i> Thêm mới
-                            </a>
-                        </div>
-                        
-                        <% if (dormitories && dormitories.length > 0) { %>
-                            <div class="table-responsive">
-                                <table id="dormitoriesTable" class="table table-striped table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Tên</th>
-                                            <th>Địa chỉ</th>
-                                            <th>Loại</th>
-                                            <th>Danh mục</th>
-                                            <th>Loại phòng</th>
-                                            <th>Giá (VNĐ)</th>
-                                            <th>Trạng thái</th>
-                                            <th>Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% dormitories.forEach(function(dorm) { %>
-                                            <tr>
-                                                <td><%= dorm.name %></td>
-                                                <td><%= dorm.address %></td>
-                                                <td>
-                                                    <% if (dorm.details && dorm.details.type) { %>
-                                                        <span class="type-badge type-<%= dorm.details.type %>">
-                                                            <%= dorm.details.type === 'school' ? 'Trường học' : 'Tư nhân' %>
-                                                        </span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (dorm.details && dorm.details.category) { %>
-                                                        <span class="category-badge category-<%= dorm.details.category %>">
-                                                            <% 
-                                                            let categoryLabel = '';
-                                                            switch(dorm.details.category) {
-                                                                case 'basic': categoryLabel = 'Cơ bản'; break;
-                                                                case 'premium': categoryLabel = 'Cao cấp'; break;
-                                                                case 'international': categoryLabel = 'Du học sinh'; break;
-                                                                default: categoryLabel = dorm.details.category;
-                                                            }
-                                                            %>
-                                                            <%= categoryLabel %>
-                                                        </span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (dorm.details && dorm.details.roomType) { %>
-                                                        <% 
-                                                        let roomTypeLabel = '';
-                                                        switch(dorm.details.roomType) {
-                                                            case '8-person': roomTypeLabel = '8 người'; break;
-                                                            case '4-person-service': roomTypeLabel = '4 người (dịch vụ)'; break;
-                                                            case '5-person': roomTypeLabel = '5 người'; break;
-                                                            case '10-person': roomTypeLabel = '10 người'; break;
-                                                            default: roomTypeLabel = dorm.details.roomType;
-                                                        }
-                                                        %>
-                                                        <%= roomTypeLabel %>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (dorm.details && dorm.details.priceRange) { %>
-                                                        <%= dorm.details.priceRange.min.toLocaleString() %> - <%= dorm.details.priceRange.max.toLocaleString() %>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <% if (dorm.details) { %>
-                                                        <span class="badge <%= dorm.details.available ? 'bg-success' : 'bg-danger' %>">
-                                                            <%= dorm.details.available ? 'Còn chỗ' : 'Hết chỗ' %>
-                                                        </span>
-                                                    <% } %>
-                                                </td>
-                                                <td>
-                                                    <div class="btn-group">
-                                                        <a href="/admin/dormitories/edit/<%= dorm._id %>" class="btn btn-sm btn-outline-primary action-btn">Sửa</a>
-                                                        <button type="button" class="btn btn-sm btn-outline-danger action-btn delete-btn" data-id="<%= dorm._id %>" data-name="<%= dorm.name %>">Xóa</button>
-                                                        <a href="/admin/dormitories/view/<%= dorm._id %>" class="btn btn-sm btn-outline-info action-btn">Xem</a>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <% }); %>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <% } else { %>
-                            <div class="alert alert-info">
-                                <p class="mb-0">Chưa có dữ liệu ký túc xá. Hãy thêm mới ký túc xá!</p>
-                            </div>
-                        <% } %>
-                    </div>
-                </div>
+    
+    <div class="content-container">
+        <!-- Nội dung trang sẽ bắt đầu từ đây -->
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3>Danh sách Ký túc xá</h3>
+                <a href="/admin/dormitories/add" class="btn btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Thêm ký túc xá mới
+                </a>
             </div>
-        </div>
+            
+            <!-- Phần còn lại của nội dung -->
+        
+        <% if (dormitories && dormitories.length > 0) { %>
+            <div class="row">
+                <% dormitories.forEach(function(dorm) { %>
+                    <div class="col-md-6 mb-4">
+                        <div class="dorm-card">
+                            <div class="dorm-header d-flex justify-content-between align-items-center">
+                                <h5 class="dorm-title" onclick="window.location.href='/admin/dormitories/view/<%= dorm._id %>'">
+                                    <%= dorm.name %>
+                                </h5>
+                                <div>
+                                    <% if (dorm.details && dorm.details.type) { %>
+                                        <span class="type-badge type-<%= dorm.details.type %>">
+                                            <%= dorm.details.type === 'school' ? 'Trường học' : 'Tư nhân' %>
+                                        </span>
+                                    <% } %>
+                                    
+                                    <% if (dorm.details && dorm.details.category) { %>
+                                        <span class="category-badge category-<%= dorm.details.category %>">
+                                            <% 
+                                            let categoryLabel = '';
+                                            switch(dorm.details.category) {
+                                                case 'basic': categoryLabel = 'Cơ bản'; break;
+                                                case 'premium': categoryLabel = 'Cao cấp'; break;
+                                                case 'international': categoryLabel = 'Du học sinh'; break;
+                                                default: categoryLabel = dorm.details.category;
+                                            }
+                                            %>
+                                            <%= categoryLabel %>
+                                        </span>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <div class="dorm-body">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <% if (dorm.imageUrl) { %>
+                                            <img src="<%= dorm.imageUrl %>" alt="<%= dorm.name %>" class="img-fluid rounded mb-2">
+                                        <% } else { %>
+                                            <div class="bg-light rounded d-flex justify-content-center align-items-center mb-2" style="height: 120px;">
+                                                <i class="fas fa-building fa-3x text-muted"></i>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <p class="mb-1"><i class="fas fa-map-marker-alt text-danger me-1"></i> <%= dorm.address %></p>
+                                        
+                                        <% if (dorm.details && dorm.details.priceRange) { %>
+                                            <p class="mb-1">
+                                                <i class="fas fa-money-bill-wave text-success me-1"></i>
+                                                <%= dorm.details.priceRange.min.toLocaleString() %> - <%= dorm.details.priceRange.max.toLocaleString() %> VNĐ/tháng
+                                            </p>
+                                        <% } %>
+                                    </div>
+                                    
+                                    <div class="col-md-7">
+                                        <div class="row mb-3">
+                                            <% 
+                                            // Tính toán thông tin ký túc xá
+                                            let totalFloors = 0;
+                                            let totalRooms = 0;
+                                            let totalCapacity = 0;
+                                            let totalOccupants = 0;
+                                            
+                                            if (dorm.floors && dorm.floors.length > 0) {
+                                                totalFloors = dorm.floors.length;
+                                                
+                                                for (const floor of dorm.floors) {
+                                                    if (floor.rooms && floor.rooms.length > 0) {
+                                                        totalRooms += floor.rooms.length;
+                                                        
+                                                        for (const room of floor.rooms) {
+                                                            totalCapacity += room.maxCapacity || 0;
+                                                            
+                                                            if (room.occupants && Array.isArray(room.occupants)) {
+                                                                totalOccupants += room.occupants.filter(o => o.active).length;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            
+                                            // Tính tỷ lệ lấp đầy
+                                            const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupants / totalCapacity) * 100) : 0;
+                                            %>
+                                            
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <div class="stat-value"><%= totalFloors %></div>
+                                                    <div class="stat-label">Tầng</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <div class="stat-value"><%= totalRooms %></div>
+                                                    <div class="stat-label">Phòng</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="stat-box">
+                                                    <div class="stat-value"><%= totalOccupants %>/<%= totalCapacity %></div>
+                                                    <div class="stat-label">Sinh viên</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Xem trước phòng -->
+                                        <div class="room-preview">
+                                            <% 
+                                            // Tạo xem trước phòng (tối đa 8 phòng)
+                                            let previewRooms = [];
+                                            let roomCount = 0;
+                                            
+                                            if (dorm.floors && dorm.floors.length > 0) {
+                                                for (const floor of dorm.floors) {
+                                                    if (floor.rooms && floor.rooms.length > 0) {
+                                                        for (const room of floor.rooms) {
+                                                            if (roomCount < 8) {
+                                                                let occupantCount = 0;
+                                                                if (room.occupants && Array.isArray(room.occupants)) {
+                                                                    occupantCount = room.occupants.filter(o => o.active).length;
+                                                                }
+                                                                
+                                                                let status = 'empty';
+                                                                if (occupantCount === 0) {
+                                                                    status = 'empty';
+                                                                } else if (occupantCount === room.maxCapacity) {
+                                                                    status = 'full';
+                                                                } else {
+                                                                    status = 'partial';
+                                                                }
+                                                                
+                                                                previewRooms.push({
+                                                                    number: room.roomNumber,
+                                                                    status: status
+                                                                });
+                                                                
+                                                                roomCount++;
+                                                            } else {
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                    
+                                                    if (roomCount >= 8) {
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            %>
+                                            
+                                            <% previewRooms.forEach(room => { %>
+                                                <div class="room-box room-<%= room.status %>" 
+                                                     title="<%= room.number %> - <%= room.status === 'empty' ? 'Trống' : (room.status === 'full' ? 'Đầy' : 'Còn chỗ') %>">
+                                                    <%= room.number.substring(1) %>
+                                                </div>
+                                            <% }); %>
+                                            
+                                            <% if (totalRooms > 8) { %>
+                                                <div class="room-box" style="background-color: #6c757d;">
+                                                    +<%= totalRooms - 8 %>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                        
+                                        <!-- Thanh tiến trình lấp đầy -->
+                                        <div class="occupancy-bar">
+                                            <div class="occupancy-fill" style="width: <%= occupancyRate %>%;"></div>
+                                        </div>
+                                        <small class="text-muted mb-3 d-block">Tỷ lệ lấp đầy: <%= occupancyRate %>%</small>
+                                        
+                                        <!-- Nút hành động -->
+                                        <div class="d-flex mt-3">
+                                            <a href="/admin/dormitories/view/<%= dorm._id %>" class="btn btn-primary btn-sm me-2">
+                                                <i class="fas fa-door-open me-1"></i> Quản lý phòng
+                                            </a>
+                                            <a href="/admin/dormitories/edit/<%= dorm._id %>" class="btn btn-outline-secondary btn-sm me-2">
+                                                <i class="fas fa-edit me-1"></i> Sửa
+                                            </a>
+                                            <button type="button" class="btn btn-outline-danger btn-sm delete-btn" 
+                                                    data-id="<%= dorm._id %>" 
+                                                    data-name="<%= dorm.name %>"
+                                                    data-bs-toggle="modal" 
+                                                    data-bs-target="#deleteModal">
+                                                <i class="fas fa-trash-alt me-1"></i> Xóa
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } else { %>
+            <div class="alert alert-info">
+                <p class="mb-0">Chưa có dữ liệu ký túc xá. Hãy thêm mới ký túc xá!</p>
+            </div>
+        <% } %>
     </div>
 
     <!-- Modal xác nhận xóa -->
@@ -174,7 +660,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    Bạn có chắc chắn muốn xóa ký túc xá "<span id="dormName"></span>"?
+                    <p>Bạn có chắc chắn muốn xóa ký túc xá "<span id="dormName"></span>"?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Cảnh báo:</strong> Thao tác này sẽ xóa toàn bộ dữ liệu về phòng, tầng và sinh viên trong ký túc xá này.
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
@@ -186,73 +676,47 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Khởi tạo DataTable
-            $('#dormitoriesTable').DataTable({
-                language: {
-                    search: "Tìm kiếm:",
-                    lengthMenu: "Hiển thị _MENU_ mục",
-                    info: "Hiển thị _START_ đến _END_ trong tổng số _TOTAL_ mục",
-                    infoEmpty: "Hiển thị 0 đến 0 trong tổng số 0 mục",
-                    infoFiltered: "(lọc từ _MAX_ mục)",
-                    zeroRecords: "Không tìm thấy dữ liệu phù hợp",
-                    paginate: {
-                        first: "Đầu",
-                        last: "Cuối",
-                        next: "Sau",
-                        previous: "Trước"
-                    }
-                },
-                order: [[0, 'asc']]
-            });
+            // Xử lý hiển thị modal xóa
+            const deleteModal = document.getElementById('deleteModal');
             
-            // Xử lý hiển thị modal xác nhận xóa
-            const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
-            let dormIdToDelete = null;
-            
-            document.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const dormId = this.getAttribute('data-id');
-                    const dormName = this.getAttribute('data-name');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const dormId = button.getAttribute('data-id');
+                    const dormName = button.getAttribute('data-name');
                     
                     document.getElementById('dormName').textContent = dormName;
-                    dormIdToDelete = dormId;
-                    
-                    deleteModal.show();
+                    document.getElementById('confirmDelete').setAttribute('data-id', dormId);
                 });
-            });
+            }
             
             // Xử lý xác nhận xóa
             document.getElementById('confirmDelete').addEventListener('click', function() {
-                if (dormIdToDelete) {
-                    fetch(`/api/dormitories/${dormIdToDelete}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            deleteModal.hide();
-                            alert('Xóa ký túc xá thành công!');
-                            window.location.reload();
-                        } else {
-                            alert('Lỗi khi xóa: ' + (data.message || 'Không thể xóa dữ liệu'));
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Đã xảy ra lỗi khi xóa dữ liệu!');
-                    });
-                }
+                const dormId = this.getAttribute('data-id');
+                
+                fetch(`/api/dormitories/${dormId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Lỗi: ' + data.error);
+                    } else {
+                        const bsModal = bootstrap.Modal.getInstance(deleteModal);
+                        bsModal.hide();
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Đã xảy ra lỗi khi xóa ký túc xá!');
+                });
             });
         });
     </script>

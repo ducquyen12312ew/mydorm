@@ -1,157 +1,319 @@
-// Tạo các route cho dormitory
 const express = require('express');
 const router = express.Router();
 const { DormitoryCollection } = require('./config');
 
 // Middleware kiểm tra quyền admin
 const isAdmin = (req, res, next) => {
-    if (req.session && req.session.name && req.session.role === 'admin') {
-        next();
-    } else {
-        res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện thao tác này!' });
+    if (req.session && req.session.role === 'admin') {
+        return next();
     }
+    res.status(403).json({ error: 'Không có quyền truy cập' });
 };
 
-// Lấy tất cả ký túc xá
+// API lấy danh sách ký túc xá
 router.get('/dormitories', async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find();
-        res.json({ success: true, data: dormitories });
+        res.json(dormitories);
     } catch (error) {
         console.error('Error fetching dormitories:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
+        res.status(500).json({ error: 'Không thể lấy dữ liệu ký túc xá' });
     }
 });
 
-// Lấy thông tin chi tiết của một ký túc xá
+// API lấy chi tiết ký túc xá
 router.get('/dormitories/:id', async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);
         if (!dormitory) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy ký túc xá' });
+            return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
         }
-        res.json({ success: true, data: dormitory });
+        res.json(dormitory);
     } catch (error) {
-        console.error('Error fetching dormitory details:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
+        console.error('Error fetching dormitory:', error);
+        res.status(500).json({ error: 'Không thể lấy dữ liệu ký túc xá' });
     }
 });
 
-// Tìm kiếm ký túc xá theo tên hoặc địa chỉ
-router.get('/dormitories/search', async (req, res) => {
-    try {
-        const { query } = req.query;
-        if (!query) {
-            return res.status(400).json({ success: false, message: 'Vui lòng cung cấp từ khóa tìm kiếm' });
-        }
-
-        const dormitories = await DormitoryCollection.find({
-            $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { address: { $regex: query, $options: 'i' } }
-            ]
-        });
-
-        res.json({ success: true, data: dormitories });
-    } catch (error) {
-        console.error('Error searching dormitories:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
-    }
-});
-
-// Lọc ký túc xá theo loại hoặc danh mục
-router.get('/dormitories/filter', async (req, res) => {
-    try {
-        const { category, roomType, type } = req.query;
-        const filter = {};
-
-        if (category) filter['details.category'] = category;
-        if (roomType) filter['details.roomType'] = roomType;
-        if (type) filter['details.type'] = type;
-
-        const dormitories = await DormitoryCollection.find(filter);
-        res.json({ success: true, data: dormitories });
-    } catch (error) {
-        console.error('Error filtering dormitories:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
-    }
-});
-
-// Tìm ký túc xá gần một vị trí
-router.get('/dormitories/nearby', async (req, res) => {
-    try {
-        const { lng, lat, maxDistance = 2000 } = req.query; // maxDistance mặc định 2km
-        
-        if (!lng || !lat) {
-            return res.status(400).json({ success: false, message: 'Vui lòng cung cấp tọa độ' });
-        }
-
-        const dormitories = await DormitoryCollection.find({
-            location: {
-                $near: {
-                    $geometry: {
-                        type: 'Point',
-                        coordinates: [parseFloat(lng), parseFloat(lat)]
-                    },
-                    $maxDistance: parseInt(maxDistance)
-                }
-            }
-        });
-
-        res.json({ success: true, data: dormitories });
-    } catch (error) {
-        console.error('Error finding nearby dormitories:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
-    }
-});
-
-// Thêm ký túc xá mới (chỉ admin)
+// API tạo ký túc xá mới (chỉ admin)
 router.post('/dormitories', isAdmin, async (req, res) => {
     try {
-        console.log('Body nhận được:', req.body);
-        console.log('User session:', req.session);
-        const newDormitory = new DormitoryCollection(req.body);
-        const savedDormitory = await newDormitory.save();
-        res.status(201).json({ success: true, data: savedDormitory });
+        // In dữ liệu nhận được để debug
+        console.log("Received data:", JSON.stringify(req.body, null, 2));
+
+        // Kiểm tra ký túc xá đã tồn tại chưa
+        const existingDorm = await DormitoryCollection.findOne({ name: req.body.name });
+        if (existingDorm) {
+            return res.status(400).json({ error: 'Ký túc xá với tên này đã tồn tại' });
+        }
+
+        // Xử lý tọa độ với giá trị mặc định
+        let coordinates = [105.84322, 21.007119]; // Tọa độ mặc định
+        
+        if (req.body.location && req.body.location.coordinates) {
+            if (Array.isArray(req.body.location.coordinates)) {
+                coordinates = [
+                    parseFloat(req.body.location.coordinates[0]),
+                    parseFloat(req.body.location.coordinates[1])
+                ];
+            }
+        }
+
+        // Thiết lập giá trị mặc định cho priceRange
+        const defaultMinPrice = 500000;
+        const defaultMaxPrice = 1500000;
+        
+        let minPrice = defaultMinPrice;
+        let maxPrice = defaultMaxPrice;
+        
+        if (req.body.details && req.body.details.priceRange) {
+            if (req.body.details.priceRange.min) {
+                minPrice = parseInt(req.body.details.priceRange.min);
+            }
+            if (req.body.details.priceRange.max) {
+                maxPrice = parseInt(req.body.details.priceRange.max);
+            }
+        }
+
+        const floors = [];
+        
+        // Sử dụng cấu hình phòng từ client nếu có
+        if (req.body.floorRoomConfigs && Array.isArray(req.body.floorRoomConfigs)) {
+            for (const floorConfig of req.body.floorRoomConfigs) {
+                const floorNumber = floorConfig.floorNumber;
+                const rooms = [];
+                
+                for (const roomConfig of floorConfig.rooms) {
+                    // Xác định maxCapacity dựa trên loại phòng
+                    let maxCapacity;
+                    switch (roomConfig.roomType) {
+                        case '8-person': maxCapacity = 8; break;
+                        case '4-person-service': maxCapacity = 4; break;
+                        case '5-person': maxCapacity = 5; break;
+                        case '10-person': maxCapacity = 10; break;
+                        default: maxCapacity = 4;
+                    }
+                    
+                    rooms.push({
+                        roomNumber: roomConfig.roomNumber,
+                        roomType: roomConfig.roomType,
+                        maxCapacity: maxCapacity,
+                        floor: floorNumber,
+                        pricePerMonth: minPrice, // Sử dụng minPrice đã được thiết lập trước đó
+                        occupants: []
+                    });
+                }
+                
+                floors.push({
+                    floorNumber: floorNumber,
+                    rooms: rooms
+                });
+            }
+        } else {
+            // Sử dụng cấu hình mặc định nếu không có dữ liệu từ client
+            const totalFloors = parseInt(req.body.details && req.body.details.totalFloors ? req.body.details.totalFloors : 1);
+            const roomsPerFloor = parseInt(req.body.details && req.body.details.roomsPerFloor ? req.body.details.roomsPerFloor : 5);
+            const defaultRoomType = req.body.details && req.body.details.roomType ? req.body.details.roomType : '4-person-service';
+            
+            // Xác định maxCapacity dựa trên loại phòng
+            let defaultMaxCapacity;
+            switch (defaultRoomType) {
+                case '8-person': defaultMaxCapacity = 8; break;
+                case '4-person-service': defaultMaxCapacity = 4; break;
+                case '5-person': defaultMaxCapacity = 5; break;
+                case '10-person': defaultMaxCapacity = 10; break;
+                default: defaultMaxCapacity = 4;
+            }
+            
+            for (let i = 1; i <= totalFloors; i++) {
+                const rooms = [];
+                
+                for (let j = 1; j <= roomsPerFloor; j++) {
+                    // Tạo mã phòng: P + số tầng + số phòng
+                    const roomNumber = `P${i}${j.toString().padStart(2, '0')}`;
+                    
+                    rooms.push({
+                        roomNumber,
+                        roomType: defaultRoomType,
+                        maxCapacity: defaultMaxCapacity,
+                        floor: i,
+                        pricePerMonth: minPrice, // Sử dụng minPrice đã được thiết lập trước đó
+                        occupants: []
+                    });
+                }
+                
+                floors.push({
+                    floorNumber: i,
+                    rooms
+                });
+            }
+        }
+        
+        // Tạo ký túc xá mới với cấu trúc tầng và phòng
+        const dormitoryData = {
+            name: req.body.name,
+            address: req.body.address,
+            location: {
+                type: 'Point', 
+                coordinates: coordinates
+            },
+            contact: req.body.contact || {},
+            details: {
+                type: req.body.details && req.body.details.type ? req.body.details.type : 'school',
+                category: req.body.details && req.body.details.category ? req.body.details.category : 'basic',
+                totalFloors: req.body.details && req.body.details.totalFloors ? parseInt(req.body.details.totalFloors) : 1,
+                amenities: req.body.details && req.body.details.amenities ? req.body.details.amenities : [],
+                priceRange: {
+                    min: minPrice,
+                    max: maxPrice
+                },
+                available: req.body.details && req.body.details.available === 'true' ? true : false
+            },
+            floors: floors,
+            imageUrl: req.body.imageUrl || ''
+        };
+        
+        console.log("Creating dormitory with data:", JSON.stringify(dormitoryData, null, 2));
+        
+        const newDormitory = await DormitoryCollection.create(dormitoryData);
+        res.status(201).json({ success: true, dormitory: newDormitory });
     } catch (error) {
         console.error('Error creating dormitory:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+        res.status(500).json({ 
+            success: false, 
+            error: 'Không thể tạo ký túc xá mới', 
+            details: error.message 
+        });
     }
 });
 
-// Cập nhật thông tin ký túc xá (chỉ admin)
+// API cập nhật ký túc xá (chỉ admin)
 router.put('/dormitories/:id', isAdmin, async (req, res) => {
     try {
+        // Không cho phép cập nhật cấu trúc tầng và phòng
+        const { floors, ...updateData } = req.body;
+        
         const updatedDormitory = await DormitoryCollection.findByIdAndUpdate(
             req.params.id,
-            req.body,
-            { new: true, runValidators: true }
+            updateData,
+            { new: true }
         );
         
         if (!updatedDormitory) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy ký túc xá' });
+            return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
         }
         
-        res.json({ success: true, data: updatedDormitory });
+        res.json({ success: true, dormitory: updatedDormitory });
     } catch (error) {
         console.error('Error updating dormitory:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server', error: error.message });
+        res.status(500).json({ success: false, error: 'Không thể cập nhật ký túc xá' });
     }
 });
 
-// Xóa ký túc xá (chỉ admin)
+// API xóa ký túc xá (chỉ admin)
 router.delete('/dormitories/:id', isAdmin, async (req, res) => {
     try {
         const deletedDormitory = await DormitoryCollection.findByIdAndDelete(req.params.id);
         
         if (!deletedDormitory) {
-            return res.status(404).json({ success: false, message: 'Không tìm thấy ký túc xá' });
+            return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
         }
         
-        res.json({ success: true, message: 'Đã xóa ký túc xá thành công' });
+        res.json({ success: true, message: 'Xóa ký túc xá thành công' });
     } catch (error) {
         console.error('Error deleting dormitory:', error);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
+        res.status(500).json({ success: false, error: 'Không thể xóa ký túc xá' });
+    }
+});
+
+// API toggle trạng thái người ở (thêm/xóa)
+router.post('/dormitories/:dormId/floors/:floorNum/rooms/:roomNum/toggle-spot/:spotIndex', isAdmin, async (req, res) => {
+    try {
+        const { dormId } = req.params;
+        const floorNum = parseInt(req.params.floorNum);
+        const roomNum = req.params.roomNum;
+        const spotIndex = parseInt(req.params.spotIndex);
+        
+        const dormitory = await DormitoryCollection.findById(dormId);
+        if (!dormitory) {
+            return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
+        }
+        
+        const floor = dormitory.floors.find(f => f.floorNumber === floorNum);
+        if (!floor) {
+            return res.status(404).json({ error: 'Không tìm thấy tầng' });
+        }
+        
+        const room = floor.rooms.find(r => r.roomNumber === roomNum);
+        if (!room) {
+            return res.status(404).json({ error: 'Không tìm thấy phòng' });
+        }
+        
+        // Kiểm tra vị trí hợp lệ
+        if (spotIndex < 0 || spotIndex >= room.maxCapacity) {
+            return res.status(400).json({ error: 'Vị trí không hợp lệ' });
+        }
+        
+        // Lấy người ở đang active
+        const activeOccupants = room.occupants.filter(o => o.active);
+        
+        // Nếu đã có người ở vị trí này
+        if (activeOccupants.length > spotIndex) {
+            room.occupants[spotIndex].active = false;
+        } else {
+            // Thêm người ở mới
+            const newOccupant = {
+                studentId: req.body.studentId || `SV-${Date.now()}`,
+                name: req.body.name || 'Sinh viên mới',
+                phone: req.body.phone || '',
+                email: req.body.email || '',
+                checkInDate: new Date(),
+                active: true
+            };
+            
+            room.occupants.push(newOccupant);
+        }
+        
+        await dormitory.save();
+        
+        res.json({ success: true, room });
+    } catch (error) {
+        console.error('Error toggling occupant:', error);
+        res.status(500).json({ 
+            error: 'Không thể thay đổi trạng thái người ở', 
+            details: error.message 
+        });
+    }
+});
+
+// API lấy trạng thái phòng của ký túc xá
+router.get('/dormitories/:id/room-status', async (req, res) => {
+    try {
+        const dormitory = await DormitoryCollection.findById(req.params.id);
+        if (!dormitory) {
+            return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
+        }
+        
+        const result = dormitory.floors.map(floor => {
+            return {
+                floorNumber: floor.floorNumber,
+                rooms: floor.rooms.map(room => {
+                    const activeOccupants = room.occupants.filter(o => o.active).length;
+                    return {
+                        roomNumber: room.roomNumber,
+                        maxCapacity: room.maxCapacity,
+                        currentOccupants: activeOccupants,
+                        available: activeOccupants < room.maxCapacity,
+                        roomType: room.roomType
+                    };
+                })
+            };
+        });
+        
+        res.json(result);
+    } catch (error) {
+        console.error('Error fetching room status:', error);
+        res.status(500).json({ error: 'Không thể lấy trạng thái phòng' });
     }
 });
 
