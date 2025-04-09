@@ -25,6 +25,33 @@ const Loginschema = new mongoose.Schema({
     }
 });
 
+// Schema cho người ở trong phòng
+const OccupantSchema = new mongoose.Schema({
+    studentId: {
+        type: String,
+        required: true
+    },
+    name: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String
+    },
+    email: {
+        type: String
+    },
+    checkInDate: {
+        type: Date,
+        default: Date.now
+    },
+    active: {
+        type: Boolean,
+        default: true
+    }
+});
+
+// Schema cho thông tin phòng
 const RoomSchema = new mongoose.Schema({
     roomNumber: {
         type: String,
@@ -41,22 +68,13 @@ const RoomSchema = new mongoose.Schema({
         required: true,
         min: 1
     },
-    currentOccupants: {
-        type: Number,
-        default: 0,
-        min: 0
-    },
-    pricePerMonth: {
-        type: Number,
-        required: true
-    },
     floor: {
         type: Number,
         required: true
     },
-    available: {
-        type: Boolean,
-        default: true
+    pricePerMonth: {
+        type: Number,
+        required: true
     },
     amenities: {
         type: [String],
@@ -69,15 +87,39 @@ const RoomSchema = new mongoose.Schema({
     imageUrl: {
         type: String,
         default: ''
+    },
+    occupants: {
+        type: [OccupantSchema],
+        default: []
     }
 });
 
-// Schema cho thông tin ký túc xá
+// Virtual để tính số người ở hiện tại
+RoomSchema.virtual('currentOccupants').get(function() {
+    return this.occupants ? this.occupants.filter(o => o.active).length : 0;
+});
+
+// Virtual để kiểm tra phòng còn chỗ không
+RoomSchema.virtual('available').get(function() {
+    return this.occupants.filter(o => o.active).length < this.maxCapacity;
+});
+
+// Schema cho tầng
+const FloorSchema = new mongoose.Schema({
+    floorNumber: {
+        type: Number,
+        required: true
+    },
+    rooms: [RoomSchema]
+});
+
+// Schema cho ký túc xá
 const DormitorySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
-        trim: true
+        trim: true,
+        unique: true
     },
     address: {
         type: String,
@@ -116,9 +158,10 @@ const DormitorySchema = new mongoose.Schema({
             enum: ['basic', 'premium', 'international'],
             required: true
         },
-        totalCapacity: {
+        totalFloors: {
             type: Number,
-            default: 0
+            required: true,
+            min: 1
         },
         amenities: {
             type: [String],
@@ -139,7 +182,7 @@ const DormitorySchema = new mongoose.Schema({
             default: true
         }
     },
-    rooms: [RoomSchema], // Mảng các phòng trong ký túc xá
+    floors: [FloorSchema],
     imageUrl: {
         type: String,
         default: ''
@@ -154,31 +197,37 @@ const DormitorySchema = new mongoose.Schema({
     }
 });
 
-// Tạo index cho tọa độ vị trí để tìm kiếm dựa trên vị trí
+// Geo index
 DormitorySchema.index({ location: '2dsphere' });
+DormitorySchema.index({ name: 1 }, { unique: true });
 
-// Middleware để cập nhật thời gian khi cập nhật dữ liệu
+// Update middleware
 DormitorySchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     
-    // Tính toán lại tổng sức chứa từ các phòng
-    if (this.rooms && this.rooms.length > 0) {
-        this.details.totalCapacity = this.rooms.reduce((total, room) => total + room.maxCapacity, 0);
+    // Calculate price range
+    let prices = [];
+    
+    if (this.floors && this.floors.length > 0) {
+        this.floors.forEach(floor => {
+            if (floor.rooms && floor.rooms.length > 0) {
+                floor.rooms.forEach(room => {
+                    prices.push(room.pricePerMonth);
+                });
+            }
+        });
     }
     
-    // Cập nhật lại giá min/max dựa trên giá phòng
-    if (this.rooms && this.rooms.length > 0) {
-        const prices = this.rooms.map(room => room.pricePerMonth);
+    if (prices.length > 0) {
         this.details.priceRange.min = Math.min(...prices);
         this.details.priceRange.max = Math.max(...prices);
     }
     
     next();
 });
-// Model cho thông tin đăng nhập
-const UserCollection = mongoose.model("users", Loginschema);
 
-// Model cho thông tin ký túc xá
+// Models
+const UserCollection = mongoose.model("users", Loginschema);
 const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
 
 module.exports = { UserCollection, DormitoryCollection };

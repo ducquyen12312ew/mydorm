@@ -270,6 +270,26 @@
             transition: all 0.3s;
         }
         
+
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
+
+        .header-text {
+            font-family: 'Inter', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8E8E8E;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .main-text {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 64px;
+            color: #FF6B6B;
+            line-height: 1.2;
+        }
         /* CSS cho Swiper và tính năng hover để chuyển slide */
 .showcase {
     padding-top: 80px; /* Để không bị che bởi header */
@@ -278,7 +298,18 @@
     position: relative;
     overflow: hidden;
 }
-
+.showcase-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('image/camp1.png');
+    background-size: cover; /* Ảnh bao phủ toàn bộ phần tử */
+    backdrop-filter: blur(10px); /* Làm mờ nền */
+    opacity: 0.6; /* Đặt độ mờ 60% */
+    z-index: 1; /* Đảm bảo thứ tự hiển thị */
+}
 .swiper-container {
     width: 100%;
     height: 100%;
@@ -793,6 +824,7 @@
                 width: 300px;
             }
         }
+    
     </style>
 </head>
 <body>
@@ -816,21 +848,31 @@
     </header>
 
     <!-- Showcase section -->
-<section class="showcase">
-    <div class="swiper-container">
-        <div class="swiper-wrapper">
-            <!-- Slides sẽ được tạo tự động từ database -->
-        </div>
-        
-        <!-- Định nghĩa vùng hover để chuyển slide -->
-        <div class="navigation-hover-area navigation-hover-left"></div>
-        <div class="navigation-hover-area navigation-hover-right"></div>
-        
-        <!-- Add Pagination -->
-        <div class="swiper-pagination"></div>
-    </div>
-</section>
 
+    <section class="showcase">
+        <!-- Thêm div background mờ -->
+        <div class="showcase-background"></div>
+        
+        <div class="swiper-container">
+            <div class="swiper-wrapper">
+                <!-- Slides sẽ được tạo tự động từ database -->
+            </div>
+            
+            <!-- Định nghĩa vùng hover để chuyển slide -->
+            <div class="navigation-hover-area navigation-hover-left"></div>
+            <div class="navigation-hover-area navigation-hover-right"></div>
+            
+            <!-- Add Pagination -->
+            <div class="swiper-pagination"></div>
+        </div>
+    </section>
+
+    <div>
+        <div class="header-text"></div>
+        <div class="main-text">Bản Đồ Ký Túc Xá</div>
+        <div class="header-text"></div>
+    </div>
+    
     <!-- Map section -->
     <section id="map-section">
         <div class="header-bar">
