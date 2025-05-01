@@ -4,9 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TRANG CHỦ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
     * {
     margin: 0;
@@ -17,6 +19,8 @@
 
 :root {
     --primary-color: #e61a1a;
+    --primary-dark: #c01616;
+    --primary-light: #ff3a3a;
     --text-color: #333;
     --bg-color: #f8f3ef;
     --menu-bg: white;
@@ -25,6 +29,7 @@
 
 html {
     font-size: 16px;
+    scroll-behavior: smooth;
 }
 
 @media (max-width: 1200px) {
@@ -52,21 +57,30 @@ html {
 }
 
 body {
-    height: 100vh;
-    overflow: hidden;
-    background-color: var(--bg-color);
+    overflow-y: auto !important; /* Ghi đè bất kỳ thuộc tính overflow:hidden nào */
+    overflow-x: hidden;
+    height: auto !important; /* Đảm bảo body không bị giới hạn chiều cao */
 }
 
 .animation-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
+    position: relative; /* Thay đổi từ fixed sang relative */
     width: 100%;
-    height: 100%;
+    height: 100vh; /* Chiều cao đúng bằng viewport */
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 10; /* Giảm z-index xuống */
+    overflow: visible; /* Cho phép nội dung bên ngoài hiển thị */
+    transform-origin: center bottom;
+    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1), 
+                opacity 0.8s ease, 
+                filter 0.8s ease;
+}
+
+body.scrolling-to-stats .animation-wrapper {
+    transform: scale(0.9) translateY(-5vh); /* Thu nhỏ và đẩy lên trên */
+    opacity: 0.8;
+    filter: blur(5px) brightness(0.7);
 }
 
 .letters-wrapper {
@@ -83,25 +97,26 @@ body {
 }
 
 .letter {
-    font-size: 8rem;
+    font-size: 10rem; /* Increased size */
     font-weight: bold;
     opacity: 0;
     color: var(--primary-color);
     transition: opacity 1.5s ease, transform 1.5s ease, color 1.5s ease, font-size 2s ease, filter 1.5s ease;
     filter: blur(100px);
     font-family: 'Anton', sans-serif;
+    text-shadow: 0 0 20px rgba(230, 26, 26, 0.3);
 }
 
 /* Responsive letter sizing */
 @media (max-width: 768px) {
     .letter {
-        font-size: 6rem;
+        font-size: 8rem;
     }
 }
 
 @media (max-width: 576px) {
     .letter {
-        font-size: 4rem;
+        font-size: 6rem;
     }
 }
 
@@ -121,10 +136,10 @@ body {
 }
 
 @media (min-width: 769px) {
-    .letter-H { transform: translateX(-180px); }
-    .letter-U { transform: translateX(-60px); }
-    .letter-S { transform: translateX(60px); }
-    .letter-T { transform: translateX(180px); }
+    .letter-H { transform: translateX(-200px); } /* Increased spacing */
+    .letter-U { transform: translateX(-70px); }
+    .letter-S { transform: translateX(70px); }
+    .letter-T { transform: translateX(200px); }
 }
 
 /* Backgrounds container for morphing effect */
@@ -141,8 +156,8 @@ body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 500px;
-    height: 500px;
+    width: 700px; /* Increased size */
+    height: 700px; /* Increased size */
     transform: translate(-50%, -50%);
     background-image: url('image/background.png');
     background-size: cover;
@@ -150,7 +165,8 @@ body {
     opacity: 0;
     transition: opacity 2s ease, width 2s ease, height 2s ease, border-radius 2s ease;
     z-index: 1;
-    border-radius: 10px;
+    border-radius: 15px; /* More rounded corners */
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
 }
 
 .bg-overlay-campus1, .bg-overlay-campus2 {
@@ -178,40 +194,44 @@ body {
 .big-text-overlay {
     position: absolute;
     top: 50%;
-    left: 5%;
+    left: 8%; /* Moved further to the left */
     transform: translateY(-50%);
     z-index: 5;
     opacity: 0;
     text-align: left;
     width: 60%;
     max-width: 800px;
-    transition: opacity 0.8s ease;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    transform: translateY(-30px); /* Initial position for animation */
 }
 
 .big-text-line {
     color: white;
-    font-size: 3.8rem;
+    font-size: 4.5rem; /* Increased size */
     font-weight: 900;
     line-height: 1.1;
     text-transform: uppercase;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+    text-shadow: 2px 5px 15px rgba(0, 0, 0, 0.4); /* Enhanced shadow */
     letter-spacing: -1px;
-    font-family: 'Roboto Condensed', sans-serif;
+    font-family: 'Montserrat', sans-serif; /* Changed font */
+    margin-bottom: 0.5rem;
 }
 
 .subtitle {
     color: white;
-    font-size: 1.8rem;
+    font-size: 2rem; /* Increased size */
     font-weight: 500;
-    margin-top: 1.5rem;
-    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-    font-family: 'Roboto Condensed', sans-serif;
+    margin-top: 2rem;
+    text-shadow: 1px 3px 8px rgba(0, 0, 0, 0.4); /* Enhanced shadow */
+    font-family: 'Quicksand', sans-serif;
+    line-height: 1.4;
+    max-width: 90%;
 }
 
 /* Campus options styling - centered on page */
 .campus-options-container {
     position: absolute;
-    bottom: 15%;
+    bottom: 20%; /* Moved higher up */
     left: 0;
     width: 100%;
     display: flex;
@@ -219,37 +239,41 @@ body {
     align-items: center;
     z-index: 5;
     opacity: 0;
-    transition: opacity 0.8s ease;
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    transform: translateY(30px); /* Initial position for animation */
 }
 
 .campus-options {
     display: flex;
     justify-content: center;
-    gap: 2rem;
+    gap: 3rem; /* Increased gap */
     width: 100%;
 }
 
 .campus-option {
     position: relative;
-    padding: 0.8rem 1.5rem;
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 8px;
+    padding: 1.2rem 2.5rem; /* Larger padding */
+    background-color: rgba(255, 255, 255, 0.15); /* Slightly more opaque */
+    border: 2px solid rgba(255, 255, 255, 0.4); /* More visible border */
+    border-radius: 12px; /* More rounded corners */
     color: white;
-    font-weight: 600;
-    font-size: 1.1rem;
+    font-weight: 700; /* Bolder text */
+    font-size: 1.3rem; /* Larger font */
     cursor: pointer;
     overflow: hidden;
-    transition: all 0.3s ease;
-    font-family: 'Roboto Condensed', sans-serif;
+    transition: all 0.4s ease; /* Faster transition */
+    font-family: 'Montserrat', sans-serif;
     z-index: 1;
     text-align: center;
+    letter-spacing: 1px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Added shadow */
 }
 
 .campus-option:hover {
-    background-color: rgba(255, 255, 255, 0.2);
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    background-color: var(--primary-color);
+    transform: translateY(-8px) scale(1.05); /* Larger lift and slight scale */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
+    border-color: var(--primary-color);
 }
 
 .campus-option::before {
@@ -306,78 +330,13 @@ body {
     transform: translateX(-50%) translateY(0);
 }
 
-@media (max-width: 992px) {
-    .big-text-line {
-        font-size: 4rem;
-    }
-    
-    .subtitle {
-        font-size: 1.3rem;
-        margin-top: 1.2rem;
-    }
-    
-    .campus-option {
-        font-size: 1rem;
-        padding: 0.7rem 1.3rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .big-text-overlay {
-        left: 2rem;
-        width: 80%;
-    }
-    
-    .big-text-line {
-        font-size: 3rem;
-    }
-    
-    .subtitle {
-        font-size: 1.1rem;
-        margin-top: 1rem;
-    }
-    
-    .campus-options {
-        gap: 1rem;
-    }
-    
-    .campus-option {
-        font-size: 0.9rem;
-        padding: 0.6rem 1.1rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .big-text-overlay {
-        left: 1.5rem;
-    }
-    
-    .big-text-line {
-        font-size: 2rem;
-    }
-    
-    .subtitle {
-        font-size: 0.9rem;
-        margin-top: 0.8rem;
-    }
-    
-    .campus-options {
-        flex-direction: column;
-        gap: 0.8rem;
-    }
-    
-    .campus-option {
-        font-size: 0.9rem;
-        padding: 0.6rem 1rem;
-    }
-}
-
+/* Enhanced Header Styling */
 .header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    padding: 0.8rem 2rem;
+    padding: 1.2rem 2.5rem; /* Increased padding */
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -385,7 +344,7 @@ body {
     opacity: 0;
     transition: opacity 1s ease, transform 0.5s ease;
     z-index: 2000;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Subtle shadow */
     transform: translateY(-10px);
 }
 
@@ -401,23 +360,22 @@ body {
 }
 
 .header-logo img {
-    max-height: 2.5rem;
+    max-height: 3rem; /* Larger logo */
     width: auto;
     transition: transform 0.5s ease;
 }
-
 
 .nav-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-grow: 1;
-    margin-left: 4rem;
+    margin-left: 5rem; /* Increased margin */
 }
 
 .nav-links {
     display: flex;
-    gap: 3rem;
+    gap: 3.5rem; /* Increased gap */
 }
 
 .nav-links .nav-link {
@@ -429,8 +387,8 @@ body {
 .nav-link {
     color: var(--text-color);
     text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 600;
+    font-size: 1.2rem; /* Larger font */
+    font-weight: 700; /* Bolder text */
     transition: all 0.3s ease;
     padding: 0.8rem 0;
     position: relative;
@@ -438,13 +396,14 @@ body {
     letter-spacing: 0.5px;
     white-space: nowrap;
     overflow: hidden;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .nav-link::before {
     content: '';
     position: absolute;
     width: 100%;
-    height: 2px;
+    height: 3px; /* Thicker line */
     bottom: 0.5rem;
     left: -100%;
     background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
@@ -455,8 +414,8 @@ body {
 .nav-link::after {
     content: '';
     position: absolute;
-    width: 4px;
-    height: 4px;
+    width: 6px; /* Larger dot */
+    height: 6px; /* Larger dot */
     border-radius: 50%;
     background-color: var(--primary-color);
     bottom: 0.4rem;
@@ -468,7 +427,7 @@ body {
 
 .nav-link:hover {
     color: var(--primary-color);
-    transform: translateY(-2px);
+    transform: translateY(-3px); /* Increased lift */
     text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
 }
 
@@ -491,13 +450,13 @@ body {
 }
 
 .login-btn {
-    padding: 0.7rem 1.8rem;
+    padding: 1rem 2.5rem; /* Larger padding */
     background-color: transparent;
     color: var(--primary-color);
-    border: 2px solid var(--primary-color);
+    border: 2.5px solid var(--primary-color); /* Thicker border */
     border-radius: 50px;
-    font-weight: 600;
-    font-size: 0.9rem;
+    font-weight: 700; /* Bolder text */
+    font-size: 1.1rem; /* Larger font */
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     text-decoration: none;
@@ -508,6 +467,8 @@ body {
     position: relative;
     overflow: hidden;
     z-index: 1;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: 0 4px 15px rgba(230, 26, 26, 0.15); /* Added shadow */
 }
 
 .login-btn::before {
@@ -526,119 +487,568 @@ body {
 
 .login-btn:hover {
     color: white;
-    transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+    transform: translateY(-5px); /* Increased lift */
+    box-shadow: 0 8px 25px rgba(230, 26, 26, 0.3); /* Enhanced shadow */
 }
 
 .login-btn:hover::before {
-    width: 200%;
-    height: 200%;
+    width: 300%; /* Increased to ensure full coverage */
+    height: 300%;
 }
 
 .login-btn:active {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(230, 26, 26, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(230, 26, 26, 0.3);
 }
 
 .menu-toggle {
     display: none;
     flex-direction: column;
     justify-content: space-between;
-    width: 30px;
-    height: 21px;
+    width: 35px; /* Larger toggle */
+    height: 25px; /* Larger toggle */
     cursor: pointer;
     z-index: 2001;
 }
 
 .menu-toggle span {
     display: block;
-    height: 3px;
+    height: 4px; /* Thicker lines */
     width: 100%;
     background-color: var(--primary-color);
-    border-radius: 3px;
+    border-radius: 4px;
     transition: all 0.3s ease;
 }
 
-/* Responsive header adjustments */
-@media (max-width: 992px) {
-    .nav-container {
-        margin-left: 2rem;
+.stats-section {
+    position: relative;
+    padding: 6rem 0;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    overflow: hidden;
+    z-index: 5;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1), 
+                opacity 1s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.stats-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.stats-section::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to bottom, rgba(255,255,255,0), white);
+    z-index: 2;
+}
+
+.main-content {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+}
+
+.stats-container {
+    position: relative;
+    z-index: 2;
+}
+
+.section-title {
+    position: relative;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 800;
+    text-align: center;
+    margin-bottom: 2.5rem;
+    color: #333;
+    text-transform: uppercase;
+    padding-bottom: 15px;
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: #e61a1a;
+    border-radius: 2px;
+}
+
+.section-subtitle {
+    text-align: center;
+    font-size: 1.3rem;
+    color: #666;
+    margin-bottom: 4rem;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.stats-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
+    perspective: 1000px; /* Thêm phối cảnh 3D */
+}
+
+.stat-item {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    position: relative;
+    overflow: hidden;
+    flex: 1;
+    min-width: 220px;
+    max-width: 280px;
+    transform-origin: center bottom;
+    transform: perspective(1000px) rotateX(20deg) translateY(100px) scale(0.9);
+    opacity: 0;
+    backface-visibility: hidden;
+    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
+                opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
+                box-shadow 0.3s ease;
+}
+
+.stat-item.animated {
+    transform: perspective(1000px) rotateX(0) translateY(0) scale(1);
+    opacity: 1;
+}
+
+.stat-item::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #e61a1a, #ff6666);
+    top: 0;
+    left: 0;
+}
+
+.stat-item::after {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(230, 26, 26, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    top: -50%;
+    left: -50%;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-15px) scale(1.05);
+    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+}
+
+.stat-item:hover::after {
+    opacity: 1;
+}
+
+.stat-item:nth-child(1) {
+    transition-delay: 0.1s;
+}
+
+.stat-item:nth-child(2) {
+    transition-delay: 0.3s;
+}
+
+.stat-item:nth-child(3) {
+    transition-delay: 0.5s;
+}
+
+.stat-item:nth-child(4) {
+    transition-delay: 0.7s;
+}
+
+.stat-icon-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.stat-icon {
+    position: relative;
+    font-size: 3rem;
+    color: #e61a1a;
+    z-index: 2;
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stat-icon::after {
+    content: '';
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(230, 26, 26, 0.1);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: -1;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-icon::after {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(230, 26, 26, 0.2);
+}
+
+.stat-number {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #e61a1a, #ff6b6b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+    transition: all 0.3s ease;
+}
+
+.stat-label {
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.stat-item:hover .stat-label {
+    color: #333;
+}
+
+/* HUST Logo and Featured Amenities */
+.hust-logo-section {
+    display: none; /* Ẩn phần HUST giữa hai mục */
+}
+
+.features-section {
+    position: relative;
+    opacity: 0;
+    transform: translateY(100px);
+    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), 
+                opacity 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+.features-section.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+.features-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 cột bằng nhau */
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Wave effect for section transitions */
+.wave-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.wave-top svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 70px;
+}
+
+.wave-top .shape-fill {
+    fill: #FFFFFF;
+}
+
+.feature-item {
+    background-color: white;
+    border-radius: 15px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
+    position: relative;
+    overflow: hidden;
+    min-height: 250px;
+    margin-bottom: 30px;
+    border-top: 5px solid #e61a1a;
+    opacity: 0;
+    transform-origin: center center;
+    transform: perspective(1000px) rotateY(-10deg) translateZ(-100px);
+    opacity: 0;
+    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.4s ease;
+    will-change: transform, opacity;
+}
+.feature-item:hover {
+    transform: scale(1.05) translateY(-10px);
+    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
+}
+
+.feature-icon-wrapper {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.feature-icon {
+    position: relative;
+    font-size: 3rem;
+    color: #e61a1a;
+    z-index: 1;
+}
+
+.feature-icon-bg {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background-color: rgba(230, 26, 26, 0.1);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover .feature-icon-bg {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(230, 26, 26, 0.2);
+}
+
+.feature-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.feature-item:hover .feature-title {
+    color: #e61a1a;
+}
+
+.feature-description {
+    font-size: 1.1rem;
+    color: #666;
+    line-height: 1.6;
+}
+.feature-item.animated {
+    transform: perspective(1000px) rotateY(0) translateZ(0);
+    opacity: 1;
+}
+.feature-item::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, transparent, rgba(230, 26, 26, 0.2), transparent);
+    border-radius: 20px;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+.feature-item:hover::before {
+    opacity: 1;
+}
+.feature-item:hover .feature-icon {
+    transform: translateY(-10px) scale(1.2);
+    color: var(--primary-color);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+}
+
+/* Tạo hiệu ứng xuất hiện lần lượt */
+.feature-item:nth-child(1) { transition-delay: 0.1s; }
+.feature-item:nth-child(2) { transition-delay: 0.2s; }
+.feature-item:nth-child(3) { transition-delay: 0.3s; }
+.feature-item:nth-child(4) { transition-delay: 0.4s; }
+.feature-item:nth-child(5) { transition-delay: 0.5s; }
+.feature-item:nth-child(6) { transition-delay: 0.6s; }
+/* Scroll down indicator */
+.scroll-down {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+    opacity: 0; /* Bắt đầu ẩn */
+    transition: opacity 0.5s ease, transform 0.3s ease;
+}
+
+.scroll-down.visible {
+    opacity: 1;
+}
+
+.scroll-down:hover {
+    transform: translateX(-50%) translateY(5px);
+}
+
+.scroll-down-text {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.scroll-down-icon {
+    position: relative;
+    color: white;
+    font-size: 30px;
+    animation: scrollBounce 2s infinite;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+/* Enhanced Background Bubbles */
+.section-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+    pointer-events: none; /* Ensure it doesn't interfere with clicks */
+}
+
+/* Enhanced bubble styling */
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(230, 26, 26, 0.08) 0%, rgba(255, 107, 107, 0.03) 100%);
+    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5), 0 0 15px rgba(230, 26, 26, 0.05);
+    backdrop-filter: blur(2px);
+    animation: float 20s infinite ease-in-out;
+    opacity: 0.8;
+    transition: all 0.5s ease;
+    border: 1px solid rgba(230, 26, 26, 0.05);
+}
+
+/* More bubbles with varied sizes */
+.circle-1 {
+    width: 350px;
+    height: 350px;
+    top: -150px;
+    left: -100px;
+    animation-delay: 0s;
+}
+
+.circle-2 {
+    width: 250px;
+    height: 250px;
+    top: 45%;
+    right: -80px;
+    animation-delay: 5s;
+    border: 1px solid rgba(230, 26, 26, 0.03);
+}
+
+.circle-3 {
+    width: 180px;
+    height: 180px;
+    bottom: -75px;
+    left: 30%;
+    animation-delay: 10s;
+    border: 1px solid rgba(230, 26, 26, 0.04);
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0) translateX(0);
     }
-    
-    .nav-links {
-        gap: 1.5rem;
+    25% {
+        transform: translateY(-20px) translateX(20px);
+    }
+    50% {
+        transform: translateY(0) translateX(40px);
+    }
+    75% {
+        transform: translateY(20px) translateX(20px);
+    }
+    100% {
+        transform: translateY(0) translateX(0);
+    }
+}
+@keyframes scrollBounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
     }
 }
 
 @media (max-width: 768px) {
-    .menu-toggle {
-        display: flex;
+    .section-title {
+        font-size: 2rem;
     }
     
-    .nav-container {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 80%;
-        max-width: 300px;
-        height: 100vh;
-        background-color: var(--menu-bg);
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 5rem 2rem 2rem;
-        transition: right 0.3s ease;
-        margin-left: 0;
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-        z-index: 1999;
+    .section-subtitle {
+        font-size: 1.1rem;
     }
     
-    .nav-container.active {
-        right: 0;
+    .stat-item {
+        min-width: 150px;
+        margin-bottom: 20px;
     }
     
-    .nav-links {
-        flex-direction: column;
-        gap: 1rem;
-        width: 100%;
-        margin-bottom: 2rem;
+    .stat-number {
+        font-size: 2.8rem;
     }
-    
-    .login-btn {
-        align-self: flex-start;
+}
+
+@media (max-width: 576px) {
+    .stat-item {
+        min-width: 100%;
+    }
+}
+@media (max-width: 992px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 cột cho tablet */
+    }
+}
+
+@media (max-width: 576px) {
+    .features-grid {
+        grid-template-columns: 1fr; /* 1 cột cho mobile */
     }
 }
     </style>
 </head>
 <body>
-    <div class="animation-wrapper">
-        <div class="bg-container" id="bgContainer">
-            <div class="bg-overlay" id="bgOverlay"></div>
-            <div class="bg-overlay-campus1" id="bgOverlayCampus1"></div>
-            <div class="bg-overlay-campus2" id="bgOverlayCampus2"></div>
-        </div>
-        <div class="big-text-overlay" id="bigTextOverlay">
-            <div class="big-text-line">KÝ TÚC XÁ</div>
-            <div class="big-text-line">ĐẠI HỌC BÁCH KHOA</div>
-            <div class="subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá</div>
-        </div>
-        <div class="campus-options-container" id="campusOptionsContainer">
-            <div class="campus-options">
-                <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
-                    CƠ SỞ HÀ NỘI
-                </div>
-                
-                <div class="campus-option" id="campus2">
-                    CƠ SỞ HƯNG YÊN
-                </div>
-            </div>
-        </div>
-        <div class="letters-wrapper" id="lettersWrapper">
-            <div class="letter letter-H" id="letterH">H</div>
-            <div class="letter letter-U" id="letterU">U</div>
-            <div class="letter letter-S" id="letterS">S</div>
-            <div class="letter letter-T" id="letterT">T</div>
-        </div>
-    </div>
     <header class="header" id="header">
         <div class="header-logo">
             <img src="image/logo.png" alt="HUST Logo" id="hustLogo">
@@ -651,13 +1061,194 @@ body {
         <div class="nav-container" id="navContainer">
             <nav class="nav-links">
                 <a href="#" class="nav-link">TRANG CHỦ</a>
+                <a href="#stats" class="nav-link">THỐNG KÊ</a>
+                <a href="#features" class="nav-link">TIỆN ÍCH</a>
                 <a href="#" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-                <a href="#" class="nav-link">THÔNG BÁO</a>
             </nav>
             <a href="/login" class="login-btn">ĐĂNG NHẬP</a>
         </div>
     </header>
+    <div class="animation-wrapper">
+        <div class="bg-container" id="bgContainer">
+            <div class="bg-overlay" id="bgOverlay"></div>
+            <div class="bg-overlay-campus1" id="bgOverlayCampus1"></div>
+            <div class="bg-overlay-campus2" id="bgOverlayCampus2"></div>
+        </div>
+        <div class="big-text-overlay" id="bigTextOverlay">
+            <div class="big-text-line">KÝ TÚC XÁ</div>
+            <div class="big-text-line">ĐẠI HỌC BÁCH KHOA</div>
+            <div class="subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá - Không gian sống tiện nghi, hiện đại</div>
+        </div>
+        <div class="campus-options-container" id="campusOptionsContainer">
+            <div class="campus-options">
+                <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
+                    <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
+                </div>
+                
+                <div class="campus-option" id="campus2">
+                    <i class="fas fa-school"></i> CƠ SỞ HƯNG YÊN
+                </div>
+            </div>           
+        </div>
+        <div class="letters-wrapper" id="lettersWrapper">
+            <div class="letter letter-H" id="letterH">H</div>
+            <div class="letter letter-U" id="letterU">U</div>
+            <div class="letter letter-S" id="letterS">S</div>
+            <div class="letter letter-T" id="letterT">T</div>
+        </div>
+        
+        <!-- Thêm mũi tên cuộn xuống -->
+        <div class="scroll-down" id="scrollDown">
+            <div class="scroll-down-text">Cuộn xuống</div>
+            <div class="scroll-down-icon">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
     
+    <div class="main-content">
+
+       <!-- Phần thống kê với hiệu ứng xuất hiện -->
+<section class="stats-section" id="stats">
+    <!-- Hình nền động -->
+    <div class="section-background">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+    
+    <!-- Gợn sóng trên đầu -->
+    <div class="wave-top">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
+    </div>
+    
+    <div class="stats-container">
+        <h2 class="section-title">THỐNG KÊ CỦA CHÚNG TÔI</h2>
+        <p class="section-subtitle">Hệ thống quản lý ký túc xá đạt chuẩn hàng đầu với cơ sở vật chất hiện đại</p>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-icon-container">
+                    <i class="fas fa-building stat-icon"></i>
+                    <div class="stat-icon-bg"></div>
+                </div>
+                <div class="stat-number" data-count="12">0</div>
+                <div class="stat-label">Tòa nhà</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-container">
+                    <i class="fas fa-door-open stat-icon"></i>
+                    <div class="stat-icon-bg"></div>
+                </div>
+                <div class="stat-number" data-count="450">0</div>
+                <div class="stat-label">Phòng ở</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-container">
+                    <i class="fas fa-user-graduate stat-icon"></i>
+                    <div class="stat-icon-bg"></div>
+                </div>
+                <div class="stat-number" data-count="3500">0</div>
+                <div class="stat-label">Sinh viên</div>
+            </div>
+            
+            <div class="stat-item">
+                <div class="stat-icon-container">
+                    <i class="fas fa-clipboard-check stat-icon"></i>
+                    <div class="stat-icon-bg"></div>
+                </div>
+                <div class="stat-number" data-count="98">0</div>
+                <div class="stat-label">Tỷ lệ hài lòng (%)</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Phần tiện ích nổi bật -->
+<section class="features-section" id="features">
+    <!-- Hình nền động -->
+    <div class="section-background">
+        <div class="circle circle-1"></div>
+        <div class="circle circle-2"></div>
+        <div class="circle circle-3"></div>
+    </div>
+    
+    <!-- Gợn sóng trên đầu -->
+    <div class="wave-top">
+        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
+        </svg>
+    </div>
+    
+    <div class="stats-container">
+        <h2 class="section-title" data-aos="fade-up">TIỆN ÍCH NỔI BẬT</h2>
+        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="200" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-wifi feature-icon"></i>
+                    <div class="feature-icon-bg"></div>
+                </div>
+                <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
+                <p class="feature-description">Hệ thống wifi phủ sóng toàn bộ khu ký túc xá với tốc độ cao, đảm bảo nhu cầu học tập trực tuyến và giải trí.</p>
+            </div>
+            
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="300" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-shield-alt feature-icon"></i>
+                    <div class="feature-icon-bg"></div>
+                </div>
+                <h3 class="feature-title">An Ninh 24/7</h3>
+                <p class="feature-description">Hệ thống an ninh với camera giám sát và nhân viên bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
+            </div>
+            
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="400" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-utensils feature-icon"></i>
+                    <div class="feature-icon-bg"></div>
+                </div>
+                <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
+                <p class="feature-description">Căng tin đa dạng món ăn với giá sinh viên, đảm bảo dinh dưỡng và tiết kiệm thời gian cho sinh viên.</p>
+            </div>
+            
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="500" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-dumbbell feature-icon"></i>
+                    <div class="feature-icon-bg"></div>
+                </div>
+                <h3 class="feature-title">Phòng Tập Thể Dục</h3>
+                <p class="feature-description">Phòng tập gym hiện đại với đầy đủ thiết bị, giúp sinh viên rèn luyện sức khỏe sau giờ học tập.</p>
+            </div>
+            
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="600" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-book feature-icon"></i>
+                    <div class="feature-icon-bg"></div>
+                </div>
+                <h3 class="feature-title">Phòng Tự Học</h3>
+                <p class="feature-description">Phòng tự học yên tĩnh, máy lạnh và ánh sáng tốt, tạo môi trường học tập hiệu quả cho sinh viên.</p>
+            </div>
+            
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="700" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+                <div class="feature-icon-wrapper">
+                    <i class="fas fa-tshirt feature-icon"></i>
+                    <div class="feature-icon-bg"></div>
+                </div>
+                <h3 class="feature-title">Khu Giặt Ủi</h3>
+                <p class="feature-description">Khu vực giặt ủi tự động hiện đại, giúp sinh viên tiết kiệm thời gian và công sức chăm sóc quần áo.</p>
+            </div>
+      
+        </div>
+    </div>
+</section>
+</div><!-- Kết thúc main-content -->
+    
+<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const letterH = document.getElementById('letterH');
@@ -699,9 +1290,9 @@ body {
                 
                 const spans = this.querySelectorAll('span');
                 if (navContainer.classList.contains('active')) {
-                    spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+                    spans[0].style.transform = 'translateY(11px) rotate(45deg)';
                     spans[1].style.opacity = '0';
-                    spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+                    spans[2].style.transform = 'translateY(-11px) rotate(-45deg)';
                 } else {
                     spans[0].style.transform = '';
                     spans[1].style.opacity = '';
@@ -816,20 +1407,326 @@ body {
                     // Show header, text overlay, and campus options all at once
                     header.style.opacity = '1';
                     header.classList.add('visible');
+                    
+                    // Animate text and options with a slide-in effect
                     bigTextOverlay.style.opacity = '1';
+                    bigTextOverlay.style.transform = 'translateY(-50%)';
+                    
                     campusOptionsContainer.style.opacity = '1';
+                    campusOptionsContainer.style.transform = 'translateY(0)';
                     
                     // Add active class to first nav link
                     navLinks[0].classList.add('active-link');
                     
-                    // Show nav links
-                    navLinks.forEach(link => {
-                        link.style.opacity = '1';
-                        link.style.transform = 'translateY(0)';
+                    // Show nav links with staggered animation
+                    navLinks.forEach((link, index) => {
+                        setTimeout(() => {
+                            link.style.opacity = '1';
+                            link.style.transform = 'translateY(0)';
+                        }, index * 150);
                     });
                 }, 300);
             }, 7000);
         });
     </script>
+    <script>
+        
+        document.body.classList.add('locked-scroll');
+        document.addEventListener('DOMContentLoaded', function() {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out',
+                once: false,
+                mirror: false,
+                offset: 100
+            });
+        });
+        
+        // Biến để theo dõi trạng thái animation
+        let animationCompleted = false;
+        const ANIMATION_COMPLETE_TIME = 7000; // Thời gian khi animation hoàn tất (ms) - phù hợp với timeline của bạn
+        document.body.style.overflow = 'hidden';
+        // Hàm mở khóa cuộn trang sau khi animation hoàn tất
+        setTimeout(function() {
+            document.body.classList.remove('locked-scroll');
+            animationCompleted = true;
+            setTimeout(function() {
+                document.body.style.overflow = 'auto';
+                animationCompleted = true;
+                
+                // Hiện mũi tên
+                const scrollDownBtn = document.getElementById('scrollDown');
+                if (scrollDownBtn) {
+                    scrollDownBtn.classList.add('visible');
+                }
+            }, ANIMATION_COMPLETE_TIME);
+            // Hiển thị mũi tên cuộn xuống
+            const scrollDownBtn = document.getElementById('scrollDown');
+            if (scrollDownBtn) {
+                scrollDownBtn.classList.add('visible');
+            }
+            
+            // Kiểm tra vị trí ban đầu
+            checkScrollPosition();
+        }, ANIMATION_COMPLETE_TIME);
+        document.getElementById('scrollDown').addEventListener('click', function() {
+            if (!animationCompleted) return;
+            
+            // Thêm class cho animation-wrapper
+            document.body.classList.add('scrolling-to-stats');
+            
+            // Cuộn đến phần thống kê
+            const statsSection = document.getElementById('stats');
+            if (statsSection) {
+                statsSection.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+        function isElementInViewport(el) {
+            if (!el) return false;
+            const rect = el.getBoundingClientRect();
+            return (
+                rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
+                rect.bottom >= 0
+            );
+        }
+        
+        
+        // Khởi tạo biến để theo dõi trạng thái đếm
+        let counterActive = false;
+        
+        // Hàm bắt đầu đếm
+        function startCounting() {
+            if (counterActive || !animationCompleted) return;
+            
+            counterActive = true;
+            const statNumbers = document.querySelectorAll('.stat-number');
+            
+            statNumbers.forEach((statNumber, index) => {
+                const targetCount = parseInt(statNumber.getAttribute('data-count'));
+                const duration = 2500; // Kéo dài thêm
+                const startTime = Date.now();
+                
+                // Thêm delay tăng dần cho từng mục
+                setTimeout(() => {
+                    // Thêm hiệu ứng rung nhẹ
+                    statNumber.classList.add('counting');
+                    
+                    function updateCounter() {
+                        const now = Date.now();
+                        const progress = Math.min((now - startTime) / duration, 1);
+                        
+                        // Sử dụng hàm easing để tạo hiệu ứng tăng tốc
+                        const easedProgress = 1 - Math.pow(1 - progress, 3);
+                        const currentCount = Math.floor(easedProgress * targetCount);
+                        
+                        statNumber.textContent = currentCount;
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            statNumber.textContent = targetCount;
+                            statNumber.classList.add('completed');
+                            statNumber.classList.remove('counting');
+                        }
+                    }
+                    
+                    requestAnimationFrame(updateCounter);
+                }, index * 150);
+            });
+        }
+        function addCountingStyles() {
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes counting-pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+                
+                .stat-number.counting {
+                    animation: counting-pulse 0.5s infinite;
+                }
+                
+                .stat-number.completed {
+                    animation: completed-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                }
+                
+                @keyframes completed-bounce {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.2); }
+                    100% { transform: scale(1); }
+                }
+                
+                .transitioning-to-features .stats-section {
+                    transform: scale(0.95) translateY(-20px);
+                    opacity: 0.8;
+                    transition: transform 0.8s ease, opacity 0.8s ease;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        // Hàm reset số đếm
+        function resetCounters() {
+            if (!counterActive) return;
+            
+            counterActive = false;
+            const statNumbers = document.querySelectorAll('.stat-number');
+            
+            statNumbers.forEach(statNumber => {
+                statNumber.textContent = '0';
+            });
+        }
+        let statsVisible = false;
+        // Hàm kiểm tra vị trí cuộn và bắt đầu/reset đếm
+        function checkScrollPosition() {
+            if (!animationCompleted) return;
+            
+            const statsSection = document.getElementById('stats');
+            
+            if (statsSection && isElementInViewport(statsSection)) {
+                // Khi stats section vào khung nhìn
+                if (!statsVisible) {
+                    statsVisible = true;
+                    statsSection.classList.add('visible');
+                    
+                    // Thêm animation cho stat-item sau một khoảng thời gian
+                    setTimeout(() => {
+                        document.querySelectorAll('.stat-item').forEach(item => {
+                            item.classList.add('animated');
+                        });
+                        
+                        // Bắt đầu đếm số
+                        startCounting();
+                    }, 300);
+                }
+            } else {
+                // Khi stats section ra khỏi khung nhìn
+                if (statsVisible) {
+                    statsVisible = false;
+                    statsSection.classList.remove('visible');
+                    document.querySelectorAll('.stat-item').forEach(item => {
+                        item.classList.remove('animated');
+                    });
+                    resetCounters();
+                }
+                
+                // Xóa class scrolling-to-stats khi cuộn lên lại phần trên
+                if (statsSection && statsSection.getBoundingClientRect().top > window.innerHeight) {
+                    document.body.classList.remove('scrolling-to-stats');
+                }
+            }
+        }
+        
+        // Thêm hiệu ứng làm mờ khi cuộn
+        let isScrolling;
+        window.addEventListener('scroll', function() {
+            if (!animationCompleted) return;
+            
+            // Kiểm tra vị trí để hiệu ứng đếm
+            checkScrollPosition();
+            
+            // Thêm class khi cuộn
+            document.body.classList.add('scrolling');
+            
+            // Xóa class sau khi dừng cuộn
+            clearTimeout(isScrolling);
+            isScrolling = setTimeout(function() {
+                document.body.classList.remove('scrolling');
+            }, 100);
+        });
+        
+        // Thêm chức năng cuộn xuống khi click vào mũi tên scroll down
+        const scrollDownBtn = document.getElementById('scrollDown');
+        if (scrollDownBtn) {
+            scrollDownBtn.addEventListener('click', function() {
+                if (!animationCompleted) return;
+                
+                const statsSection = document.getElementById('stats');
+                if (statsSection) {
+                    statsSection.scrollIntoView({ 
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        }
+        // Thêm đoạn này vào phần JavaScript của bạn
+let featuresVisible = false;
+
+// Hàm kiểm tra xem người dùng đã cuộn qua hết phần thống kê chưa
+function checkFeaturesSection() {
+    if (!animationCompleted) return;
+    
+    const statsSection = document.getElementById('stats');
+    const featuresSection = document.getElementById('features');
+    
+    if (!statsSection || !featuresSection) return;
+    
+    // Lấy vị trí và kích thước của phần thống kê
+    const statsRect = statsSection.getBoundingClientRect();
+    
+    // Kiểm tra xem đã cuộn qua hết phần thống kê chưa
+    if (statsRect.bottom < window.innerHeight * 0.7) {
+        if (!featuresVisible) {
+            featuresVisible = true;
+            
+            // Thêm hiệu ứng đặc biệt trước khi hiển thị
+            document.body.classList.add('transitioning-to-features');
+            
+            setTimeout(() => {
+                featuresSection.classList.add('visible');
+                
+                // Kích hoạt animation cho từng feature item với delay tăng dần
+                document.querySelectorAll('.feature-item').forEach((item, index) => {
+                    setTimeout(() => {
+                        item.classList.add('animated');
+                    }, 100 * index);
+                });
+                
+                // Hiệu ứng hoàn tất
+                setTimeout(() => {
+                    document.body.classList.remove('transitioning-to-features');
+                }, 1000);
+            }, 300);
+        }
+    } else {
+        // Ẩn mượt mà khi cuộn lên
+        if (featuresVisible && statsRect.bottom > window.innerHeight) {
+            featuresVisible = false;
+            featuresSection.classList.remove('visible');
+            
+            document.querySelectorAll('.feature-item').forEach(item => {
+                item.classList.remove('animated');
+            });
+        }
+    }
+}
+
+// Thêm hàm kiểm tra vào event listener cuộn
+window.addEventListener('scroll', function() {
+    // Các hàm xử lý cuộn hiện tại của bạn
+    checkScrollPosition(); // Hàm hiện có cho phần thống kê
+    
+    // Thêm kiểm tra cho phần tiện ích
+    checkFeaturesSection();
+});
+        window.addEventListener('scroll', function() {
+            checkScrollPosition();
+        });
+        
+        // Xử lý sự kiện resize
+        window.addEventListener('resize', checkScrollPosition);
+        
+        // Kiểm tra ban đầu khi trang tải xong
+        document.addEventListener('DOMContentLoaded', function() {
+            if (animationCompleted) {
+                checkScrollPosition();
+            }
+        });
+        
+        </script>
 </body>
 </html>
