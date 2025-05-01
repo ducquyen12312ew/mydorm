@@ -981,7 +981,92 @@ body.scrolling-to-stats .animation-wrapper {
     animation-delay: 10s;
     border: 1px solid rgba(230, 26, 26, 0.04);
 }
+.animation-wrapper {
+    cursor: none; /* Ẩn con trỏ mặc định */
+    overflow: hidden; /* Đảm bảo các bong bóng không tràn ra ngoài */
+}
 
+/* Con trỏ chính */
+.custom-cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 
+                inset 0 0 10px rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 3000;
+    filter: drop-shadow(0 0 6px rgba(230, 26, 26, 0.5));
+    transition: transform 0.1s ease-out;
+}
+
+/* Con trỏ thứ hai (theo sau con trỏ chính với độ trễ) */
+.cursor-follower {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(230, 26, 26, 0.2);
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    z-index: 2999;
+    transition: transform 0.3s ease, width 0.2s ease, height 0.2s ease;
+    backdrop-filter: blur(2px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Lớp bong bóng sẽ được tạo động bằng JavaScript */
+.water-drop {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    z-index: 2500;
+    transform: translate(-50%, -50%);
+    animation: ripple 1.5s linear forwards;
+    backdrop-filter: blur(1px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Animation cho bong bóng/giọt nước */
+@keyframes ripple {
+    0% {
+        opacity: 0.8;
+        width: 10px;
+        height: 10px;
+    }
+    50% {
+        opacity: 0.4;
+    }
+    100% {
+        opacity: 0;
+        width: 80px;
+        height: 80px;
+    }
+}
+
+/* Hiệu ứng khi hover */
+.custom-cursor.hover {
+    transform: translate(-50%, -50%) scale(0.5);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.cursor-follower.hover {
+    width: 60px;
+    height: 60px;
+    background-color: rgba(230, 26, 26, 0.4);
+}
+
+/* Hiệu ứng khi click */
+.custom-cursor.click {
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+.cursor-follower.click {
+    transform: translate(-50%, -50%) scale(0.8);
+}
 @keyframes float {
     0% {
         transform: translateY(0) translateX(0);
@@ -1104,6 +1189,9 @@ body.scrolling-to-stats .animation-wrapper {
                 <i class="fas fa-chevron-down"></i>
             </div>
         </div>
+        
+        <div class="cursor-follower" id="cursorFollower"></div>
+        <div class="custom-cursor" id="customCursor"></div>
     </div>
     
     <div class="main-content">
@@ -1188,61 +1276,60 @@ body.scrolling-to-stats .animation-wrapper {
         <h2 class="section-title" data-aos="fade-up">TIỆN ÍCH NỔI BẬT</h2>
         <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
         
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 30px;">
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="200" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1200px; margin: 0 auto;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="200" style="height: 280px; min-width: auto;">
                 <div class="feature-icon-wrapper">
                     <i class="fas fa-wifi feature-icon"></i>
                     <div class="feature-icon-bg"></div>
                 </div>
                 <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
-                <p class="feature-description">Hệ thống wifi phủ sóng toàn bộ khu ký túc xá với tốc độ cao, đảm bảo nhu cầu học tập trực tuyến và giải trí.</p>
+                <p class="feature-description" style="font-size: 0.95rem;">Phủ sóng toàn bộ khu KTX, đảm bảo kết nối ổn định cho học tập và giải trí.</p>
             </div>
             
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="300" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="300" style="height: 280px; min-width: auto;">
                 <div class="feature-icon-wrapper">
                     <i class="fas fa-shield-alt feature-icon"></i>
                     <div class="feature-icon-bg"></div>
                 </div>
                 <h3 class="feature-title">An Ninh 24/7</h3>
-                <p class="feature-description">Hệ thống an ninh với camera giám sát và nhân viên bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
+                <p class="feature-description" style="font-size: 0.95rem;">Hệ thống camera giám sát và bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
             </div>
             
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="400" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="400" style="height: 280px; min-width: auto;">
                 <div class="feature-icon-wrapper">
                     <i class="fas fa-utensils feature-icon"></i>
                     <div class="feature-icon-bg"></div>
                 </div>
                 <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
-                <p class="feature-description">Căng tin đa dạng món ăn với giá sinh viên, đảm bảo dinh dưỡng và tiết kiệm thời gian cho sinh viên.</p>
+                <p class="feature-description" style="font-size: 0.95rem;">Đa dạng món ăn với giá sinh viên, tiết kiệm thời gian cho sinh viên.</p>
             </div>
             
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="500" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="500" style="height: 280px; min-width: auto;">
                 <div class="feature-icon-wrapper">
                     <i class="fas fa-dumbbell feature-icon"></i>
                     <div class="feature-icon-bg"></div>
                 </div>
                 <h3 class="feature-title">Phòng Tập Thể Dục</h3>
-                <p class="feature-description">Phòng tập gym hiện đại với đầy đủ thiết bị, giúp sinh viên rèn luyện sức khỏe sau giờ học tập.</p>
+                <p class="feature-description" style="font-size: 0.95rem;">Trang bị đầy đủ thiết bị, hỗ trợ sinh viên rèn luyện sức khỏe sau giờ học.</p>
             </div>
             
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="600" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="600" style="height: 280px; min-width: auto;">
                 <div class="feature-icon-wrapper">
                     <i class="fas fa-book feature-icon"></i>
                     <div class="feature-icon-bg"></div>
                 </div>
                 <h3 class="feature-title">Phòng Tự Học</h3>
-                <p class="feature-description">Phòng tự học yên tĩnh, máy lạnh và ánh sáng tốt, tạo môi trường học tập hiệu quả cho sinh viên.</p>
+                <p class="feature-description" style="font-size: 0.95rem;">Không gian yên tĩnh với máy lạnh, tạo môi trường học tập hiệu quả.</p>
             </div>
             
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="700" style="flex: 0 1 calc(33.333% - 30px); min-width: 300px;">
+            <div class="feature-item" data-aos="fade-up" data-aos-delay="700" style="height: 280px; min-width: auto;">
                 <div class="feature-icon-wrapper">
                     <i class="fas fa-tshirt feature-icon"></i>
                     <div class="feature-icon-bg"></div>
                 </div>
                 <h3 class="feature-title">Khu Giặt Ủi</h3>
-                <p class="feature-description">Khu vực giặt ủi tự động hiện đại, giúp sinh viên tiết kiệm thời gian và công sức chăm sóc quần áo.</p>
+                <p class="feature-description" style="font-size: 0.95rem;">Khu vực giặt ủi tự động, giúp sinh viên tiết kiệm thời gian chăm sóc quần áo.</p>
             </div>
-      
         </div>
     </div>
 </section>
@@ -1728,5 +1815,134 @@ window.addEventListener('scroll', function() {
         });
         
         </script>
+        <script>
+            // Thêm vào phần script của bạn
+            document.addEventListener('DOMContentLoaded', function() {
+                const cursor = document.getElementById('customCursor');
+                const follower = document.getElementById('cursorFollower');
+                const animWrapper = document.querySelector('.animation-wrapper');
+                
+                if (cursor && follower && animWrapper) {
+                    let mouseX = 0;
+                    let mouseY = 0;
+                    let followerX = 0;
+                    let followerY = 0;
+                    let drops = []; // Mảng lưu trữ các giọt nước
+                    let lastDropTime = 0; // Thời gian tạo giọt nước cuối cùng
+                    
+                    // Hiển thị con trỏ khi chuột ở trong animation-wrapper
+                    animWrapper.addEventListener('mouseenter', () => {
+                        cursor.style.display = 'block';
+                        follower.style.display = 'block';
+                    });
+                    
+                    animWrapper.addEventListener('mouseleave', () => {
+                        cursor.style.display = 'none';
+                        follower.style.display = 'none';
+                    });
+                    
+                    // Cập nhật vị trí chuột
+                    document.addEventListener('mousemove', (e) => {
+                        mouseX = e.clientX;
+                        mouseY = e.clientY;
+                        
+                        // Di chuyển con trỏ chính ngay lập tức
+                        cursor.style.left = mouseX + 'px';
+                        cursor.style.top = mouseY + 'px';
+                        
+                        // Tạo hiệu ứng giọt nước khi di chuyển nhanh
+                        const now = Date.now();
+                        const distance = Math.sqrt(
+                            Math.pow(mouseX - followerX, 2) + 
+                            Math.pow(mouseY - followerY, 2)
+                        );
+                        
+                        // Nếu di chuyển đủ xa và không quá nhiều giọt nước
+                        if (distance > 60 && now - lastDropTime > 100 && drops.length < 10) {
+                            createWaterDrop(mouseX, mouseY);
+                            lastDropTime = now;
+                        }
+                    });
+                    
+                    // Hiệu ứng hover cho các phần tử có thể click
+                    const clickableElements = animWrapper.querySelectorAll('a, button, .campus-option, .scroll-down, [onclick]');
+                    clickableElements.forEach(element => {
+                        element.addEventListener('mouseenter', () => {
+                            cursor.classList.add('hover');
+                            follower.classList.add('hover');
+                        });
+                        
+                        element.addEventListener('mouseleave', () => {
+                            cursor.classList.remove('hover');
+                            follower.classList.remove('hover');
+                        });
+                    });
+                    
+                    // Hiệu ứng click
+                    document.addEventListener('mousedown', () => {
+                        cursor.classList.add('click');
+                        follower.classList.add('click');
+                        // Tạo nhiều giọt nước khi click
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                createWaterDrop(mouseX, mouseY, true);
+                            }, i * 50);
+                        }
+                    });
+                    
+                    document.addEventListener('mouseup', () => {
+                        cursor.classList.remove('click');
+                        follower.classList.remove('click');
+                    });
+                    
+                    // Hàm tạo giọt nước/bong bóng
+                    function createWaterDrop(x, y, isClick = false) {
+                        const drop = document.createElement('div');
+                        drop.className = 'water-drop';
+                        
+                        // Nếu là click, tạo giọt nước lớn hơn
+                        if (isClick) {
+                            drop.style.backgroundColor = 'rgba(230, 26, 26, 0.3)';
+                            drop.style.border = '1px solid rgba(255, 255, 255, 0.4)';
+                        }
+                        
+                        // Thêm một chút ngẫu nhiên cho vị trí
+                        const randomOffsetX = (Math.random() - 0.5) * 20;
+                        const randomOffsetY = (Math.random() - 0.5) * 20;
+                        
+                        drop.style.left = (x + randomOffsetX) + 'px';
+                        drop.style.top = (y + randomOffsetY) + 'px';
+                        
+                        animWrapper.appendChild(drop);
+                        drops.push(drop);
+                        
+                        // Xóa giọt nước sau khi animation kết thúc
+                        setTimeout(() => {
+                            if (drop.parentNode === animWrapper) {
+                                animWrapper.removeChild(drop);
+                            }
+                            drops = drops.filter(d => d !== drop);
+                        }, 1500);
+                    }
+                    
+                    // Animation loop cho follower (hiệu ứng mượt hơn)
+                    function animate() {
+                        // Cập nhật vị trí follower với hiệu ứng trễ
+                        let distX = mouseX - followerX;
+                        let distY = mouseY - followerY;
+                        
+                        followerX += distX * 0.1;
+                        followerY += distY * 0.1;
+                        
+                        follower.style.left = followerX + 'px';
+                        follower.style.top = followerY + 'px';
+                        
+                        requestAnimationFrame(animate);
+                    }
+                    
+                    animate();
+                }
+            });
+            </script>
 </body>
 </html>
