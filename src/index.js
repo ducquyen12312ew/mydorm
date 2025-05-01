@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const app = express();
 const session = require('express-session');
 const dormitoryRoutes = require('./dormitory-routes');
+const registrationRoutes = require('./registration-routes');
 
 app.use(session({
     secret: 'your-secret-key', 
@@ -13,7 +14,6 @@ app.use(session({
     cookie: { secure: false },
     name: 'dormitory_session'
 }));
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
@@ -23,7 +23,7 @@ app.set("view engine", "ejs");
 
 // API routes
 app.use('/api', dormitoryRoutes);
-
+app.use('/api', registrationRoutes);
 // Middleware to add user info to all views
 app.use((req, res, next) => {
     res.locals.user = {
@@ -47,7 +47,10 @@ app.get("/login", (req, res) => {
 app.get("/signup", (req, res) => {
     res.render("signup");
 });
-
+// Registration page
+app.get("/register", (req, res) => {
+    res.render("register");
+});
 // Create default admin account
 async function createDefaultAdmin() {
     try {
@@ -105,6 +108,7 @@ app.get("/admin/dormitories", async (req, res) => {
         });
     }
 });
+
 
 // Add dormitory page
 app.get("/admin/dormitories/add", (req, res) => {

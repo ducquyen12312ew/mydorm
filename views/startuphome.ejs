@@ -9,6 +9,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Add these lines to the <head> section of your HTML -->
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+
+<!-- Leaflet JavaScript (add before the closing </body> tag) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <style>
     * {
     margin: 0;
@@ -555,6 +561,8 @@ body.scrolling-to-stats .animation-wrapper {
 }
 
 .stats-container {
+    flex: 1;
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     position: relative;
     z-index: 2;
 }
@@ -594,11 +602,9 @@ body.scrolling-to-stats .animation-wrapper {
 }
 
 .stats-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 30px;
-    perspective: 1000px; /* Thêm phối cảnh 3D */
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
 }
 
 .stat-item {
@@ -954,7 +960,275 @@ body.scrolling-to-stats .animation-wrapper {
     transition: all 0.5s ease;
     border: 1px solid rgba(230, 26, 26, 0.05);
 }
+.two-column-wrapper {
+    position: relative;
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+    position: relative;
+    z-index: 5;
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
 
+
+/* Map styling - Right column */
+.map-container {
+    flex: 1.5;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #e61a1a;
+    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 2;
+    transform-origin: center;
+}
+/* Hiệu ứng hover cực mạnh cho map container */
+.map-container:hover,
+.map-container.active {
+    flex: 4; /* Phóng to gấp 4 lần khi hover */
+    transform: translateY(-15px) scale(1.1);
+    box-shadow: 0 25px 50px rgba(230, 26, 26, 0.2);
+    z-index: 10;
+    position: relative;
+}
+
+/* Hiệu ứng cho stats container khi hover vào map */
+.map-container:hover ~ .stats-container,
+.two-column-wrapper:has(.map-container:hover) .stats-container,
+.map-container.active ~ .stats-container,
+.two-column-wrapper:has(.map-container.active) .stats-container {
+    flex: 0.3; /* Thu nhỏ còn rất nhỏ (chỉ còn 0.3) khi map được hover */
+    opacity: 0.6;
+    transform: scale(0.85) translateX(-30px);
+    filter: blur(1px);
+}
+
+/* Hiệu ứng trước khi hover vào map */
+.map-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(230, 26, 26, 0.05) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.map-container:hover::before,
+.map-container.active::before {
+    opacity: 1;
+}
+/* Hiệu ứng viền xung quanh map khi hover */
+.map-container:hover::after,
+.map-container.active::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 14px;
+    background: linear-gradient(45deg, rgba(230, 26, 26, 0.3), transparent, rgba(230, 26, 26, 0.3));
+    z-index: -1;
+    animation: border-glow 2s ease-in-out infinite;
+}
+
+/* Hiệu ứng cho các phần tử bên trong */
+.map-container:hover .map-header h3,
+.map-container.active .map-header h3 {
+    color: #e61a1a;
+    transform: scale(1.05);
+    font-weight: 800;
+}
+.map-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    transition: all 0.4s ease;
+}
+.map-container:hover #dormitory-map {
+    height: 380px;
+}
+.map-header h3 {
+    margin: 0;
+    font-weight: 700;
+    color: #333;
+    font-size: 1.5rem;
+    transition: all 0.4s ease;
+}
+/* Tăng chiều cao rất nhiều cho map khi hover */
+.map-container:hover #dormitory-map,
+.map-container.active #dormitory-map {
+    height: 500px; /* Tăng chiều cao rất lớn khi hover */
+}
+#dormitory-map {
+    width: 100%;
+    height: 330px;
+    background-color: #f5f5f5;
+    border-radius: 0 0 8px 8px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Hiệu ứng "gợi ý" hover cho người dùng */
+.map-hover-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.85);
+    padding: 0.8rem 1.2rem;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    color: #333;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    z-index: 100;
+}
+
+.map-container:not(:hover):not(.active) .map-hover-hint {
+    opacity: 1;
+}
+
+/* Hiệu ứng ánh sáng xung quanh */
+@keyframes border-glow {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Hiệu ứng nhấp nháy cho marker trên bản đồ */
+@keyframes marker-pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.5); opacity: 1; } 
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
+/* Hiệu ứng thu nhỏ cho các số thống kê khi hover vào map */
+.map-container:hover ~ .stats-container .stat-item,
+.two-column-wrapper:has(.map-container:hover) .stat-item {
+    transform: scale(0.95);
+}
+
+/* Hiệu ứng phóng to cho stat-item khi hover vào chính nó */
+.stat-item:hover {
+    transform: translateY(-15px) scale(1.1) !important;
+    z-index: 4;
+    opacity: 1 !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .two-column-wrapper {
+        flex-direction: column;
+    }
+    
+    .stats-container, .map-container {
+        width: 100%;
+    }
+    
+    .map-container:hover {
+        flex: 1;
+        transform: translateY(-5px) scale(1.03);
+    }
+    
+    .map-container:hover ~ .stats-container,
+    .two-column-wrapper:has(.map-container:hover) .stats-container {
+        flex: 1;
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .map-container:hover #dormitory-map {
+        height: 330px;
+    }
+    
+    #dormitory-map {
+        height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .map-container:hover #dormitory-map {
+        height: 280px;
+    }
+    
+    #dormitory-map {
+        height: 250px;
+    }
+}
+.custom-popup {
+    max-width: 250px;
+    padding: 5px;
+}
+
+.custom-popup h3 {
+    color: #e61a1a;
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 5px;
+}
+
+.custom-popup .image {
+    width: 100%;
+    height: 120px;
+    background-color: #f0f0f0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-style: italic;
+    color: #666;
+    background-size: cover;
+    background-position: center;
+    border-radius: 5px;
+}
+
+.custom-popup p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+
+.custom-popup button {
+    background: #e61a1a;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.3s;
+}
+
+.custom-popup button:hover {
+    background: #c01616;
+}
+
+/* Make sure Leaflet controls don't interfere with our custom controls */
+.leaflet-control-container .leaflet-top.leaflet-right {
+    display: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #dormitory-map {
+        height: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    #dormitory-map {
+        height: 250px;
+    }
+}
 /* More bubbles with varied sizes */
 .circle-1 {
     width: 350px;
@@ -1131,6 +1405,25 @@ body.scrolling-to-stats .animation-wrapper {
         grid-template-columns: 1fr; /* 1 cột cho mobile */
     }
 }
+@media (max-width: 992px) {
+    .two-column-wrapper {
+        flex-direction: column;
+    }
+    
+    .stats-container, .map-container {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #dormitory-map {
+        height: 300px;
+    }
+}
     </style>
 </head>
 <body>
@@ -1146,9 +1439,8 @@ body.scrolling-to-stats .animation-wrapper {
         <div class="nav-container" id="navContainer">
             <nav class="nav-links">
                 <a href="#" class="nav-link">TRANG CHỦ</a>
-                <a href="#stats" class="nav-link">THỐNG KÊ</a>
-                <a href="#features" class="nav-link">TIỆN ÍCH</a>
                 <a href="#" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="#" class="nav-link">THÔNG BÁO</a>
             </nav>
             <a href="/login" class="login-btn">ĐĂNG NHẬP</a>
         </div>
@@ -1197,6 +1489,7 @@ body.scrolling-to-stats .animation-wrapper {
     <div class="main-content">
 
        <!-- Phần thống kê với hiệu ứng xuất hiện -->
+<!-- Cấu trúc mới cho phần Stats và Map -->
 <section class="stats-section" id="stats">
     <!-- Hình nền động -->
     <div class="section-background">
@@ -1212,46 +1505,57 @@ body.scrolling-to-stats .animation-wrapper {
         </svg>
     </div>
     
-    <div class="stats-container">
-        <h2 class="section-title">THỐNG KÊ CỦA CHÚNG TÔI</h2>
-        <p class="section-subtitle">Hệ thống quản lý ký túc xá đạt chuẩn hàng đầu với cơ sở vật chất hiện đại</p>
+    <h2 class="section-title">THÔNG TIN KÝ TÚC XÁ</h2>
+    <p class="section-subtitle">Hệ thống ký túc xá đại học Bách Khoa Hà Nội với cơ sở vật chất hiện đại</p>
+    
+    <div class="two-column-wrapper">
+        <!-- Left column: Stats -->
+        <div class="stats-container">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon-container">
+                        <i class="fas fa-building stat-icon"></i>
+                        <div class="stat-icon-bg"></div>
+                    </div>
+                    <div class="stat-number" data-count="12">0</div>
+                    <div class="stat-label">Tòa nhà</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon-container">
+                        <i class="fas fa-door-open stat-icon"></i>
+                        <div class="stat-icon-bg"></div>
+                    </div>
+                    <div class="stat-number" data-count="450">0</div>
+                    <div class="stat-label">Phòng ở</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon-container">
+                        <i class="fas fa-user-graduate stat-icon"></i>
+                        <div class="stat-icon-bg"></div>
+                    </div>
+                    <div class="stat-number" data-count="3500">0</div>
+                    <div class="stat-label">Sinh viên</div>
+                </div>
+                
+                <div class="stat-item">
+                    <div class="stat-icon-container">
+                        <i class="fas fa-clipboard-check stat-icon"></i>
+                        <div class="stat-icon-bg"></div>
+                    </div>
+                    <div class="stat-number" data-count="98">0</div>
+                    <div class="stat-label">Tỷ lệ hài lòng (%)</div>
+                </div>
+            </div>
+        </div>
         
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-icon-container">
-                    <i class="fas fa-building stat-icon"></i>
-                    <div class="stat-icon-bg"></div>
-                </div>
-                <div class="stat-number" data-count="12">0</div>
-                <div class="stat-label">Tòa nhà</div>
+        <!-- Right column: Map -->
+        <div class="map-container">
+            <div class="map-header">
+                <h3>Bản đồ Ký túc xá</h3>
             </div>
-            
-            <div class="stat-item">
-                <div class="stat-icon-container">
-                    <i class="fas fa-door-open stat-icon"></i>
-                    <div class="stat-icon-bg"></div>
-                </div>
-                <div class="stat-number" data-count="450">0</div>
-                <div class="stat-label">Phòng ở</div>
-            </div>
-            
-            <div class="stat-item">
-                <div class="stat-icon-container">
-                    <i class="fas fa-user-graduate stat-icon"></i>
-                    <div class="stat-icon-bg"></div>
-                </div>
-                <div class="stat-number" data-count="3500">0</div>
-                <div class="stat-label">Sinh viên</div>
-            </div>
-            
-            <div class="stat-item">
-                <div class="stat-icon-container">
-                    <i class="fas fa-clipboard-check stat-icon"></i>
-                    <div class="stat-icon-bg"></div>
-                </div>
-                <div class="stat-number" data-count="98">0</div>
-                <div class="stat-label">Tỷ lệ hài lòng (%)</div>
-            </div>
+            <div id="dormitory-map"></div>
         </div>
     </div>
 </section>
@@ -1943,6 +2247,457 @@ window.addEventListener('scroll', function() {
                     animate();
                 }
             });
+            </script>
+            <script>
+                // Initialize the dormitory map when the page is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Make sure the stats section is visible before initializing the map
+    const statsSection = document.getElementById('stats');
+    if (statsSection && document.getElementById('dormitory-map')) {
+        initializeMap();
+    }
+});
+
+// Function to initialize the map
+function initializeMap() {
+    // Create the map centered at HUST coordinates
+    const map = L.map('dormitory-map', {
+        zoomControl: false  // Turn off default zoom controls
+    }).setView([21.007119, 105.843220], 15);
+
+    // Add OpenStreetMap tile layer
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Create custom icons
+    const universityIcon = L.icon({
+        iconUrl: '/image/university.png',
+        iconSize: [40, 40],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
+    const dormIcon = L.icon({
+        iconUrl: '/image/location.png',
+        iconSize: [40, 40],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+    });
+
+    // Add HUST marker
+    const university = L.marker([21.007119, 105.843220], {
+        icon: universityIcon
+    }).addTo(map);
+
+    university.bindPopup(`
+        <div class="custom-popup">
+            <h3>Đại học Bách Khoa Hà Nội</h3>
+            <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
+        </div>
+    `);
+
+    // Fetch dormitory data from API
+    fetchDormitories(map, dormIcon);
+
+    // Add custom zoom controls
+    addMapControls(map);
+}
+
+// Function to fetch dormitory data
+function fetchDormitories(map, dormIcon) {
+    fetch('/api/map-data')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(dormitories => {
+            if (dormitories && dormitories.length > 0) {
+                addDormsToMap(map, dormitories, dormIcon);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching dormitories:', error);
+            // Add sample dormitories for demonstration if fetch fails
+            addSampleDormsToMap(map, dormIcon);
+        });
+}
+
+// Function to add dormitories to map
+function addDormsToMap(map, dorms, dormIcon) {
+    dorms.forEach(dorm => {
+        if (dorm.location && dorm.location.coordinates && dorm.location.coordinates.length === 2) {
+            // Convert MongoDB coordinates [long, lat] to Leaflet coordinates [lat, long]
+            const coordinates = [dorm.location.coordinates[1], dorm.location.coordinates[0]];
+            
+            const marker = L.marker(coordinates, {
+                icon: dormIcon
+            }).addTo(map);
+            
+            // Create popup content
+            const popupContent = `
+                <div class="custom-popup">
+                    <h3>${dorm.name}</h3>
+                    ${dorm.imageUrl ? `<div class="image" style="background-image: url('${dorm.imageUrl}')"></div>` : ''}
+                    <p><strong>Địa chỉ:</strong> ${dorm.address || 'Không có thông tin'}</p>
+                    ${dorm.details ? `
+                        <p><strong>Giá phòng:</strong> ${dorm.details.priceRange ? 
+                            `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNĐ/tháng` : 
+                            'Không có thông tin'}</p>
+                    ` : ''}
+                </div>
+            `;
+            
+            marker.bindPopup(popupContent);
+        }
+    });
+}
+
+// Function to add sample dormitories if fetch fails
+function addSampleDormsToMap(map, dormIcon) {
+    const sampleDorms = [
+        {
+            name: "KTX Bách Khoa",
+            coordinates: [21.004987, 105.847273],
+            address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+            priceRange: {min: 500000, max: 1500000}
+        },
+        {
+            name: "KTX Pháp Vân",
+            coordinates: [20.973632, 105.834873],
+            address: "Hoàng Mai, Hà Nội",
+            priceRange: {min: 300000, max: 800000}
+        },
+        {
+            name: "KTX Mỹ Đình",
+            coordinates: [21.032876, 105.765347],
+            address: "Nam Từ Liêm, Hà Nội",
+            priceRange: {min: 600000, max: 1800000}
+        }
+    ];
+    
+    sampleDorms.forEach(dorm => {
+        const marker = L.marker(dorm.coordinates, {
+            icon: dormIcon
+        }).addTo(map);
+        
+        const popupContent = `
+            <div class="custom-popup">
+                <h3>${dorm.name}</h3>
+                <p><strong>Địa chỉ:</strong> ${dorm.address}</p>
+                <p><strong>Giá phòng:</strong> ${dorm.priceRange.min.toLocaleString()} - ${dorm.priceRange.max.toLocaleString()} VNĐ/tháng</p>
+            </div>
+        `;
+        
+        marker.bindPopup(popupContent);
+    });
+}
+
+// Function to add custom map controls
+function addMapControls(map) {
+    // Create a container for custom controls if they don't exist already
+    if (!document.querySelector('.map-controls')) {
+        const controlContainer = document.createElement('div');
+        controlContainer.className = 'map-controls';
+        controlContainer.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+        `;
+        document.getElementById('dormitory-map').appendChild(controlContainer);
+        
+        // Zoom in button
+        const zoomInBtn = document.createElement('div');
+        zoomInBtn.className = 'map-control-btn';
+        zoomInBtn.innerHTML = '➕';
+        zoomInBtn.style.cssText = `
+            background: white;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+            margin-bottom: 5px;
+        `;
+        zoomInBtn.onclick = function() { map.zoomIn(); };
+        controlContainer.appendChild(zoomInBtn);
+        
+        // Zoom out button
+        const zoomOutBtn = document.createElement('div');
+        zoomOutBtn.className = 'map-control-btn';
+        zoomOutBtn.innerHTML = '➖';
+        zoomOutBtn.style.cssText = `
+            background: white;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            line-height: 30px;
+            border-radius: 4px;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+            cursor: pointer;
+        `;
+        zoomOutBtn.onclick = function() { map.zoomOut(); };
+        controlContainer.appendChild(zoomOutBtn);
+    }
+}
+            </script>
+            <script> 
+                // JavaScript để tăng cường hiệu ứng hover cho bản đồ
+document.addEventListener('DOMContentLoaded', function() {
+    // Đợi trang tải xong và stats section hiển thị
+    const checkMapExistence = setInterval(() => {
+        const mapContainer = document.querySelector('.map-container');
+        const statsContainer = document.querySelector('.stats-container');
+        const dormitoryMap = document.getElementById('dormitory-map');
+        
+        if (mapContainer && statsContainer && dormitoryMap) {
+            clearInterval(checkMapExistence);
+            setupMapHoverEffects(mapContainer, statsContainer, dormitoryMap);
+        }
+    }, 500);
+});
+
+// Thiết lập hiệu ứng hover cho bản đồ
+function setupMapHoverEffects(mapContainer, statsContainer, dormitoryMap) {
+    // Thêm phần tử gợi ý hover
+    const hoverHint = document.createElement('div');
+    hoverHint.className = 'map-hover-hint';
+    hoverHint.textContent = 'Di chuột vào để phóng to bản đồ';
+    mapContainer.appendChild(hoverHint);
+    
+    // Hiển thị hint sau một khoảng thời gian
+    setTimeout(() => {
+        hoverHint.style.opacity = '1';
+        // Ẩn hint sau 3 giây
+        setTimeout(() => {
+            hoverHint.style.opacity = '0';
+        }, 3000);
+    }, 1500);
+    
+    // Thêm hiệu ứng particles khi hover
+    mapContainer.addEventListener('mouseenter', () => {
+        // Thông báo cho Leaflet map để cập nhật kích thước khi container thay đổi
+        if (window.map) {
+            setTimeout(() => {
+                window.map.invalidateSize();
+            }, 400); // Đợi animation hoàn tất
+        }
+        
+        // Tạo hiệu ứng particle
+        createParticleEffect(mapContainer);
+        
+        // Ẩn hint khi đã hover
+        hoverHint.style.opacity = '0';
+    });
+    
+    // Thêm lắng nghe sự kiện khi click vào bản đồ
+    dormitoryMap.addEventListener('click', () => {
+        // Thêm hiệu ứng ripple
+        createRippleEffect(event, dormitoryMap);
+    });
+}
+
+// Tạo hiệu ứng particle xung quanh map khi hover
+function createParticleEffect(container) {
+    // Số lượng particle
+    const particleCount = 10;
+    
+    // Tạo các particle
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'map-particle';
+        
+        // Styling cho particle
+        particle.style.cssText = `
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: rgba(230, 26, 26, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0;
+            box-shadow: 0 0 10px rgba(230, 26, 26, 0.3);
+        `;
+        
+        // Vị trí ngẫu nhiên xung quanh container
+        const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+        const percentPosition = Math.random() * 100;
+        
+        switch(side) {
+            case 0: // top
+                particle.style.top = '-10px';
+                particle.style.left = percentPosition + '%';
+                break;
+            case 1: // right
+                particle.style.top = percentPosition + '%';
+                particle.style.right = '-10px';
+                break;
+            case 2: // bottom
+                particle.style.bottom = '-10px';
+                particle.style.left = percentPosition + '%';
+                break;
+            case 3: // left
+                particle.style.top = percentPosition + '%';
+                particle.style.left = '-10px';
+                break;
+        }
+        
+        // Thêm vào container
+        container.appendChild(particle);
+        
+        // Animation cho particle
+        setTimeout(() => {
+            particle.style.transition = `all ${Math.random() * 2 + 1}s ease-out`;
+            particle.style.opacity = '1';
+            
+            // Di chuyển particle
+            const xMove = (Math.random() - 0.5) * 50;
+            const yMove = (Math.random() - 0.5) * 50;
+            
+            if (side === 0 || side === 2) {
+                particle.style.transform = `translateY(${yMove}px) scale(${Math.random() + 0.5})`;
+            } else {
+                particle.style.transform = `translateX(${xMove}px) scale(${Math.random() + 0.5})`;
+            }
+            
+            // Xóa particle sau khi animation hoàn tất
+            setTimeout(() => {
+                particle.style.opacity = '0';
+                setTimeout(() => {
+                    if (particle.parentNode === container) {
+                        container.removeChild(particle);
+                    }
+                }, 1000);
+            }, 2000);
+        }, Math.random() * 500);
+    }
+}
+
+// Tạo hiệu ứng ripple khi click vào map
+function createRippleEffect(event, element) {
+    // Tạo phần tử ripple
+    const ripple = document.createElement('div');
+    ripple.className = 'map-ripple';
+    
+    // Styling cho ripple
+    ripple.style.cssText = `
+        position: absolute;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.4);
+        transform: scale(0);
+        animation: ripple-animation 0.8s ease-out;
+        pointer-events: none;
+        z-index: 100;
+    `;
+    
+    // Thêm keyframe animation
+    if (!document.querySelector('#ripple-animation')) {
+        const style = document.createElement('style');
+        style.id = 'ripple-animation';
+        style.textContent = `
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Tính toán vị trí của ripple
+    const rect = element.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    ripple.style.top = y + 'px';
+    ripple.style.left = x + 'px';
+    ripple.style.width = '10px';
+    ripple.style.height = '10px';
+    
+    // Thêm ripple vào element
+    element.appendChild(ripple);
+    
+    // Xóa ripple sau khi animation hoàn tất
+    setTimeout(() => {
+        if (ripple.parentNode === element) {
+            element.removeChild(ripple);
+        }
+    }, 800);
+}
+
+// Cải thiện hiệu ứng khi khởi tạo Leaflet map
+function enhanceMapInitialization() {
+    // Lưu reference của map trong window object để có thể truy cập từ các hàm khác
+    const originalInitializeMap = window.initializeMap;
+    
+    window.initializeMap = function() {
+        const mapResult = originalInitializeMap();
+        
+        // Lưu map reference
+        window.map = mapResult || map;
+        
+        // Thêm hiệu ứng fade-in cho map tiles
+        const mapContainer = document.querySelector('.map-container');
+        if (mapContainer) {
+            mapContainer.style.opacity = '0';
+            setTimeout(() => {
+                mapContainer.style.transition = 'opacity 1s ease';
+                mapContainer.style.opacity = '1';
+            }, 300);
+        }
+        
+        return window.map;
+    };
+}
+
+// Thêm animation cho Leaflet controls
+function enhanceMapControls() {
+    // Kiểm tra nếu Leaflet đã được tải
+    if (typeof L !== 'undefined') {
+        // Lưu reference đến phương thức addMapControls gốc
+        const originalAddMapControls = window.addMapControls;
+        
+        window.addMapControls = function(map) {
+            // Gọi hàm gốc
+            originalAddMapControls(map);
+            
+            // Tăng cường hiệu ứng cho controls
+            const controlBtns = document.querySelectorAll('.map-control-btn');
+            controlBtns.forEach(btn => {
+                // Thêm hiệu ứng hover
+                btn.addEventListener('mouseenter', () => {
+                    btn.style.transform = 'scale(1.1)';
+                    btn.style.boxShadow = '0 5px 15px rgba(230, 26, 26, 0.3)';
+                });
+                
+                btn.addEventListener('mouseleave', () => {
+                    btn.style.transform = 'scale(1)';
+                    btn.style.boxShadow = '0 1px 5px rgba(0,0,0,0.2)';
+                });
+                
+                // Thêm hiệu ứng khi click
+                btn.addEventListener('mousedown', () => {
+                    btn.style.transform = 'scale(0.95)';
+                });
+                
+                btn.addEventListener('mouseup', () => {
+                    btn.style.transform = 'scale(1.1)';
+                });
+            });
+        };
+    }
+}
+
+// Thực hiện cải thiện các hàm gốc
+enhanceMapInitialization();
+enhanceMapControls();
             </script>
 </body>
 </html>
