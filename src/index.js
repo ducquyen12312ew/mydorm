@@ -22,8 +22,8 @@ app.use(express.static("public"));
 app.set("view engine", "ejs");
 
 // API routes
-app.use('/api', dormitoryRoutes);
 app.use('/api', registrationRoutes);
+app.use('/api', dormitoryRoutes);
 // Middleware to add user info to all views
 app.use((req, res, next) => {
     res.locals.user = {

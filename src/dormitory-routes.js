@@ -21,7 +21,115 @@ router.get('/dormitories', async (req, res) => {
     }
 });
 
-// API lấy chi tiết ký túc xá
+// API lọc và tìm kiếm ký túc xá theo filter hoặc text
+router.get('/dormitories/filter', async (req, res) => {
+    try {
+        const { category, roomType, query } = req.query;
+        let filter = {};
+        
+        if (category) {
+            filter['details.category'] = category;
+        }
+        
+        if (roomType) {
+            // Tìm các ký túc xá có ít nhất một phòng thuộc loại được chỉ định
+            filter['floors.rooms.roomType'] = roomType;
+        }
+        
+        if (query) {
+            // Tìm kiếm theo tên hoặc địa chỉ
+            filter['$or'] = [
+                { name: { $regex: query, $options: 'i' } },
+                { address: { $regex: query, $options: 'i' } }
+            ];
+        }
+        
+        const dormitories = await DormitoryCollection.find(filter);
+        res.json({ success: true, data: dormitories });
+    } catch (error) {
+        console.error('Error filtering dormitories:', error);
+        res.status(500).json({ success: false, error: 'Không thể lọc dữ liệu ký túc xá' });
+    }
+});
+
+// API tìm kiếm ký túc xá theo text
+router.get('/dormitories/search', async (req, res) => {
+    try {
+        const { query } = req.query;
+        
+        if (!query) {
+            return res.status(400).json({ success: false, error: 'Thiếu từ khóa tìm kiếm' });
+        }
+        
+        // Tìm kiếm theo tên, địa chỉ hoặc loại
+        const dormitories = await DormitoryCollection.find({
+            $or: [
+                { name: { $regex: query, $options: 'i' } },
+                { address: { $regex: query, $options: 'i' } },
+                { 'details.type': { $regex: query, $options: 'i' } },
+                { 'details.category': { $regex: query, $options: 'i' } }
+            ]
+        });
+        
+        res.json({ success: true, data: dormitories });
+    } catch (error) {
+        console.error('Error searching dormitories:', error);
+        res.status(500).json({ success: false, error: 'Không thể tìm kiếm ký túc xá' });
+    }
+});
+
+// Endpoint to get all dormitories for registration
+router.get('/dormitories/registration', async (req, res) => {
+    try {
+        const { showAll } = req.query;
+        
+        // Get all dormitories with basic info
+        const dormitories = await DormitoryCollection.find({}, {
+            name: 1,
+            address: 1,
+            'details.type': 1,
+            'details.category': 1,
+            'details.available': 1,
+            imageUrl: 1
+        });
+        
+        // Nếu showAll=true thì trả về tất cả, ngược lại chỉ trả về những cái available
+        const result = showAll === 'true' 
+            ? dormitories 
+            : dormitories.filter(dorm => dorm.details && dorm.details.available === true);
+        
+        res.status(200).json(result);
+    } catch (error) {
+        console.error('Error fetching dormitories for registration:', error);
+        res.status(500).json({ error: 'Không thể lấy dữ liệu ký túc xá' });
+    }
+});
+
+// API lấy thông tin ký túc xá cho map
+router.get('/map-data', async (req, res) => {
+    try {
+        // Chỉ lấy các thông tin cần thiết cho map
+        const dormitories = await DormitoryCollection.find({}, {
+            name: 1,
+            address: 1,
+            location: 1,
+            imageUrl: 1,
+            'details.available': 1,
+            'details.priceRange': 1,
+            'details.type': 1,
+            'details.category': 1,
+            'details.amenities': 1,
+            'contact': 1
+        });
+        
+        res.json(dormitories);
+    } catch (error) {
+        console.error('Error fetching map data:', error);
+        res.status(500).json({ error: 'Không thể lấy dữ liệu bản đồ' });
+    }
+});
+
+// API lấy chi tiết ký túc xá theo ID
 router.get('/dormitories/:id', async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);
@@ -137,7 +245,7 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                         roomType: defaultRoomType,
                         maxCapacity: defaultMaxCapacity,
                         floor: i,
-                        pricePerMonth: minPrice, // Sử dụng minPrice đã được thiết lập trước đó
+                        pricePerMonth: minPrice,
                         occupants: []
                     });
                 }
@@ -304,7 +412,8 @@ router.get('/dormitories/:id/room-status', async (req, res) => {
                         maxCapacity: room.maxCapacity,
                         currentOccupants: activeOccupants,
                         available: activeOccupants < room.maxCapacity,
-                        roomType: room.roomType
+                        roomType: room.roomType,
+                        pricePerMonth: room.pricePerMonth
                     };
                 })
             };
