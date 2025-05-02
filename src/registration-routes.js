@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { UserCollection, DormitoryCollection } = require('./config');
+const { DormitoryCollection } = require('./config');
 
 // Endpoint to get all dormitories for registration
 router.get('/dormitories/registration', async (req, res) => {
@@ -19,6 +19,9 @@ router.get('/dormitories/registration', async (req, res) => {
         const availableDormitories = dormitories.filter(dorm => 
             dorm.details && dorm.details.available === true
         );
+        
+        // Log for debugging
+        console.log(`Fetched ${availableDormitories.length} available dormitories for registration`);
         
         res.status(200).json(availableDormitories);
     } catch (error) {

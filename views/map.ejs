@@ -1589,7 +1589,14 @@ function clearMarkers() {
 
 // Hàm mở form đăng ký
 function registerDorm(dormId) {
-    // Chuyển hướng đến trang đăng ký với ID ký túc xá
+    // Check if dormId is defined
+    if (!dormId) {
+        console.error("Invalid dormitory ID");
+        alert("Không thể đăng ký: ID ký túc xá không hợp lệ");
+        return;
+    }
+    
+    // Redirect to registration page with dormitory ID parameter
     window.location.href = `/register?dormId=${dormId}`;
 }
 
