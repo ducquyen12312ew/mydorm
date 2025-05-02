@@ -24,57 +24,88 @@ router.get('/dormitories', async (req, res) => {
 // API lọc và tìm kiếm ký túc xá theo filter hoặc text
 router.get('/dormitories/filter', async (req, res) => {
     try {
-        const { category, roomType, query } = req.query;
-        let filter = {};
+        const filter = {};
         
-        if (category) {
-            filter['details.category'] = category;
+        // Check for category filter
+        if (req.query.category) {
+            filter['details.category'] = req.query.category;
         }
         
-        if (roomType) {
-            // Tìm các ký túc xá có ít nhất một phòng thuộc loại được chỉ định
-            filter['floors.rooms.roomType'] = roomType;
+        // Check for room type filter (this needs to be handled differently since room type is nested in floors/rooms)
+        const roomTypeFilter = req.query.roomType;
+        
+        // Other possible filters
+        if (req.query.available === 'true') {
+            filter['details.available'] = true;
         }
         
-        if (query) {
-            // Tìm kiếm theo tên hoặc địa chỉ
-            filter['$or'] = [
-                { name: { $regex: query, $options: 'i' } },
-                { address: { $regex: query, $options: 'i' } }
-            ];
+        // Get basic dormitory data
+        let dormitories = await DormitoryCollection.find(filter);
+        
+        // Apply room type filter if needed
+        if (roomTypeFilter) {
+            dormitories = dormitories.filter(dorm => {
+                if (!dorm.floors || dorm.floors.length === 0) return false;
+                
+                // Check if any room in any floor has the requested room type
+                return dorm.floors.some(floor => {
+                    if (!floor.rooms || floor.rooms.length === 0) return false;
+                    return floor.rooms.some(room => room.roomType === roomTypeFilter);
+                });
+            });
         }
         
-        const dormitories = await DormitoryCollection.find(filter);
-        res.json({ success: true, data: dormitories });
+        // Log for debugging
+        console.log(`Found ${dormitories.length} dormitories matching filters`);
+        
+        res.status(200).json({
+            success: true,
+            data: dormitories
+        });
     } catch (error) {
         console.error('Error filtering dormitories:', error);
-        res.status(500).json({ success: false, error: 'Không thể lọc dữ liệu ký túc xá' });
+        res.status(500).json({
+            success: false,
+            error: 'Không thể lọc dữ liệu ký túc xá'
+        });
     }
 });
-
-// API tìm kiếm ký túc xá theo text
+// API for searching dormitories
 router.get('/dormitories/search', async (req, res) => {
     try {
-        const { query } = req.query;
+        const searchQuery = req.query.query;
         
-        if (!query) {
-            return res.status(400).json({ success: false, error: 'Thiếu từ khóa tìm kiếm' });
+        if (!searchQuery) {
+            return res.status(400).json({
+                success: false,
+                error: 'Thiếu từ khóa tìm kiếm'
+            });
         }
         
-        // Tìm kiếm theo tên, địa chỉ hoặc loại
+        // Create regex pattern for search (case insensitive)
+        const searchPattern = new RegExp(searchQuery, 'i');
+        
+        // Search in name, address, and other relevant fields
         const dormitories = await DormitoryCollection.find({
             $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { address: { $regex: query, $options: 'i' } },
-                { 'details.type': { $regex: query, $options: 'i' } },
-                { 'details.category': { $regex: query, $options: 'i' } }
+                { name: searchPattern },
+                { address: searchPattern }
             ]
         });
         
-        res.json({ success: true, data: dormitories });
+        // Log for debugging
+        console.log(`Found ${dormitories.length} dormitories matching search query: ${searchQuery}`);
+        
+        res.status(200).json({
+            success: true,
+            data: dormitories
+        });
     } catch (error) {
         console.error('Error searching dormitories:', error);
-        res.status(500).json({ success: false, error: 'Không thể tìm kiếm ký túc xá' });
+        res.status(500).json({
+            success: false,
+            error: 'Không thể tìm kiếm ký túc xá'
+        });
     }
 });
 
