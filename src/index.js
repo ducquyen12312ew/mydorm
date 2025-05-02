@@ -6,6 +6,7 @@ const app = express();
 const session = require('express-session');
 const dormitoryRoutes = require('./dormitory-routes');
 const registrationRoutes = require('./registration-routes');
+const adminApplicationRoutes = require('./admin-application-routes');
 
 app.use(session({
     secret: 'your-secret-key', 
@@ -24,6 +25,8 @@ app.set("view engine", "ejs");
 // API routes
 app.use('/api', registrationRoutes);
 app.use('/api', dormitoryRoutes);
+app.use('/api', adminApplicationRoutes);
+
 // Middleware to add user info to all views
 app.use((req, res, next) => {
     res.locals.user = {
@@ -108,8 +111,39 @@ app.get("/admin/dormitories", async (req, res) => {
         });
     }
 });
-
-
+// Admin applications page
+app.get("/admin/applications", async (req, res) => {
+    // Check admin rights
+    if (req.session.role !== 'admin') {
+        return res.redirect('/login');
+    }
+    
+    try {
+        res.render("admin-applications", { 
+            user: { name: req.session.name, role: req.session.role } 
+        });
+    } catch (error) {
+        console.error("Error rendering applications page:", error);
+        res.status(500).send("Internal server error");
+    }
+});
+// Admin application details page
+app.get("/admin/applications/:id", async (req, res) => {
+    // Check admin rights
+    if (req.session.role !== 'admin') {
+        return res.redirect('/login');
+    }
+    
+    try {
+        res.render("admin-application-detail", { 
+            applicationId: req.params.id,
+            user: { name: req.session.name, role: req.session.role } 
+        });
+    } catch (error) {
+        console.error("Error rendering application detail page:", error);
+        res.status(500).send("Internal server error");
+    }
+});
 // Add dormitory page
 app.get("/admin/dormitories/add", (req, res) => {
     // Check admin rights

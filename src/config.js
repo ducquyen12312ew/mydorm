@@ -228,5 +228,60 @@ DormitorySchema.pre('save', function(next) {
 // Models
 const UserCollection = mongoose.model("users", Loginschema);
 const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
+const PendingApplicationSchema = new mongoose.Schema({
+    studentId: {
+        type: String,
+        required: true
+    },
+    fullName: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    faculty: {
+        type: String
+    },
+    academicYear: {
+        type: String
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female']
+    },
+    dormitoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'dormitories',
+        required: true
+    },
+    roomNumber: {
+        type: String,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'approved', 'rejected'],
+        default: 'pending'
+    },
+    comments: {
+        type: String
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
 
-module.exports = { UserCollection, DormitoryCollection };
+// Create the model
+const PendingApplicationCollection = mongoose.model("pendingApplications", PendingApplicationSchema);
+module.exports = { 
+    UserCollection, 
+    DormitoryCollection,
+    PendingApplicationCollection 
+};
