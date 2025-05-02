@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { DormitoryCollection } = require('./config');
+const { DormitoryCollection, PendingApplicationCollection } = require('./config');
 
 // Endpoint to get all dormitories for registration
 router.get('/dormitories/registration', async (req, res) => {
@@ -63,7 +63,7 @@ router.get('/dormitories/:id/room-status', async (req, res) => {
     }
 });
 
-// Endpoint to register for a dormitory room
+// Endpoint to submit registration (creates a pending application)
 router.post('/registration', async (req, res) => {
     try {
         // Extract data from request body
@@ -84,62 +84,70 @@ router.post('/registration', async (req, res) => {
             return res.status(400).json({ success: false, error: 'Thiếu thông tin bắt buộc' });
         }
         
-        // Find dormitory
+        // Find dormitory to verify it exists
         const dormitory = await DormitoryCollection.findById(dormitoryId);
         if (!dormitory) {
             return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
         }
         
-        // Find floor and room
-        let targetFloor = null;
-        let targetRoom = null;
+        // Check if room exists and has capacity
+        let roomExists = false;
+        let roomIsFull = true;
         
         // Loop through floors to find room
         for (const floor of dormitory.floors) {
             const room = floor.rooms.find(r => r.roomNumber === roomNumber);
             if (room) {
-                targetFloor = floor;
-                targetRoom = room;
+                roomExists = true;
+                const activeOccupants = room.occupants.filter(o => o.active).length;
+                roomIsFull = activeOccupants >= room.maxCapacity;
                 break;
             }
         }
         
-        if (!targetRoom) {
+        if (!roomExists) {
             return res.status(404).json({ success: false, error: 'Không tìm thấy phòng' });
         }
         
-        // Check if room is full
-        const activeOccupants = targetRoom.occupants.filter(o => o.active).length;
-        if (activeOccupants >= targetRoom.maxCapacity) {
+        if (roomIsFull) {
             return res.status(400).json({ success: false, error: 'Phòng đã đầy' });
         }
         
-        // Check if student has already registered
-        const existingRegistration = targetRoom.occupants.find(o => o.studentId === studentId && o.active);
-        if (existingRegistration) {
-            return res.status(400).json({ success: false, error: 'Sinh viên đã đăng ký phòng này' });
+        // Check if student has already registered for this room
+        const existingPendingApplication = await PendingApplicationCollection.findOne({
+            studentId: studentId,
+            dormitoryId: dormitoryId,
+            roomNumber: roomNumber,
+            status: 'pending'
+        });
+        
+        if (existingPendingApplication) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Bạn đã đăng ký phòng này và đang chờ xét duyệt' 
+            });
         }
         
-        // Create new occupant
-        const newOccupant = {
-            studentId: studentId,
-            name: fullName,
-            phone: phone,
-            email: email,
-            checkInDate: new Date(),
-            active: true
-        };
-        
-        // Add occupant to room
-        targetRoom.occupants.push(newOccupant);
-        
-        // Save dormitory
-        await dormitory.save();
+        // Create a new pending application
+        const newApplication = await PendingApplicationCollection.create({
+            studentId,
+            fullName,
+            email,
+            phone,
+            faculty,
+            academicYear,
+            gender,
+            dormitoryId,
+            roomNumber,
+            status: 'pending',
+            createdAt: new Date()
+        });
         
         // Return success response
         res.status(200).json({ 
             success: true, 
-            message: 'Đăng ký thành công',
+            message: 'Đăng ký thành công! Đơn của bạn đang chờ xét duyệt.',
+            applicationId: newApplication._id,
             registrationData: {
                 studentId,
                 fullName,
@@ -149,7 +157,45 @@ router.post('/registration', async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('Error registering for dormitory room:', error);
+        console.error('Error submitting registration:', error);
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
+});
+// Endpoint to check application status
+router.get('/registration/status/:studentId', async (req, res) => {
+    try {
+        const applications = await PendingApplicationCollection.find({
+            studentId: req.params.studentId
+        }).sort({ createdAt: -1 });
+        
+        if (applications.length === 0) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Không tìm thấy đơn đăng ký nào' 
+            });
+        }
+        
+        // Get dormitory details for each application
+        const applicationData = await Promise.all(applications.map(async (app) => {
+            const dormitory = await DormitoryCollection.findById(app.dormitoryId);
+            return {
+                _id: app._id,
+                studentId: app.studentId,
+                fullName: app.fullName,
+                dormitoryName: dormitory ? dormitory.name : 'Không xác định',
+                roomNumber: app.roomNumber,
+                status: app.status,
+                createdAt: app.createdAt,
+                comments: app.comments
+            };
+        }));
+        
+        res.status(200).json({ 
+            success: true, 
+            applications: applicationData 
+        });
+    } catch (error) {
+        console.error('Error checking application status:', error);
         res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
     }
 });
