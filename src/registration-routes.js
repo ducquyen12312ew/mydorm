@@ -2,10 +2,8 @@ const express = require('express');
 const router = express.Router();
 const { DormitoryCollection, PendingApplicationCollection } = require('./config');
 
-// Endpoint to get all dormitories for registration
 router.get('/dormitories/registration', async (req, res) => {
     try {
-        // Get all dormitories with basic info
         const dormitories = await DormitoryCollection.find({}, {
             name: 1,
             address: 1,
@@ -14,13 +12,10 @@ router.get('/dormitories/registration', async (req, res) => {
             'details.available': 1,
             imageUrl: 1
         });
-        
-        // Filter available dormitories
         const availableDormitories = dormitories.filter(dorm => 
             dorm.details && dorm.details.available === true
         );
-        
-        // Log for debugging
+
         console.log(`Fetched ${availableDormitories.length} available dormitories for registration`);
         
         res.status(200).json(availableDormitories);
@@ -30,15 +25,13 @@ router.get('/dormitories/registration', async (req, res) => {
     }
 });
 
-// Endpoint to get room status for a specific dormitory
 router.get('/dormitories/:id/room-status', async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);
         if (!dormitory) {
             return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
         }
-        
-        // Process floors and rooms to get occupancy status
+
         const result = dormitory.floors.map(floor => {
             return {
                 floorNumber: floor.floorNumber,
@@ -63,10 +56,8 @@ router.get('/dormitories/:id/room-status', async (req, res) => {
     }
 });
 
-// Endpoint to submit registration (creates a pending application)
 router.post('/registration', async (req, res) => {
     try {
-        // Extract data from request body
         const {
             studentId,
             fullName,
@@ -78,23 +69,17 @@ router.post('/registration', async (req, res) => {
             dormitoryId,
             roomNumber
         } = req.body;
-        
-        // Validate required fields
         if (!studentId || !fullName || !email || !phone || !dormitoryId || !roomNumber) {
             return res.status(400).json({ success: false, error: 'Thiếu thông tin bắt buộc' });
         }
-        
-        // Find dormitory to verify it exists
         const dormitory = await DormitoryCollection.findById(dormitoryId);
         if (!dormitory) {
             return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
         }
-        
-        // Check if room exists and has capacity
+
         let roomExists = false;
         let roomIsFull = true;
-        
-        // Loop through floors to find room
+
         for (const floor of dormitory.floors) {
             const room = floor.rooms.find(r => r.roomNumber === roomNumber);
             if (room) {
@@ -112,8 +97,7 @@ router.post('/registration', async (req, res) => {
         if (roomIsFull) {
             return res.status(400).json({ success: false, error: 'Phòng đã đầy' });
         }
-        
-        // Check if student has already registered for this room
+
         const existingPendingApplication = await PendingApplicationCollection.findOne({
             studentId: studentId,
             dormitoryId: dormitoryId,
@@ -127,8 +111,7 @@ router.post('/registration', async (req, res) => {
                 error: 'Bạn đã đăng ký phòng này và đang chờ xét duyệt' 
             });
         }
-        
-        // Create a new pending application
+ 
         const newApplication = await PendingApplicationCollection.create({
             studentId,
             fullName,
@@ -142,8 +125,7 @@ router.post('/registration', async (req, res) => {
             status: 'pending',
             createdAt: new Date()
         });
-        
-        // Return success response
+
         res.status(200).json({ 
             success: true, 
             message: 'Đăng ký thành công! Đơn của bạn đang chờ xét duyệt.',
@@ -161,7 +143,7 @@ router.post('/registration', async (req, res) => {
         res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
     }
 });
-// Endpoint to check application status
+
 router.get('/registration/status/:studentId', async (req, res) => {
     try {
         const applications = await PendingApplicationCollection.find({
@@ -174,8 +156,7 @@ router.get('/registration/status/:studentId', async (req, res) => {
                 error: 'Không tìm thấy đơn đăng ký nào' 
             });
         }
-        
-        // Get dormitory details for each application
+
         const applicationData = await Promise.all(applications.map(async (app) => {
             const dormitory = await DormitoryCollection.findById(app.dormitoryId);
             return {

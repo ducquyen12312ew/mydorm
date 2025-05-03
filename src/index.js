@@ -15,11 +15,12 @@ app.use(session({
     cookie: { secure: false },
     name: 'dormitory_session'
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
-// Use EJS as the view engine
+
 app.set("view engine", "ejs");
 
 // API routes
@@ -27,7 +28,6 @@ app.use('/api', registrationRoutes);
 app.use('/api', dormitoryRoutes);
 app.use('/api', adminApplicationRoutes);
 
-// Middleware to add user info to all views
 app.use((req, res, next) => {
     res.locals.user = {
         name: req.session.name || null,
@@ -36,25 +36,22 @@ app.use((req, res, next) => {
     next();
 });
 
-// Home page
 app.get("/", (req, res) => {
     res.render("startuphome");
 });
 
-// Login page
 app.get("/login", (req, res) => {
     res.render("login");
 });
 
-// Signup page
 app.get("/signup", (req, res) => {
     res.render("signup");
 });
-// Registration page
+
 app.get("/register", (req, res) => {
     res.render("register");
 });
-// Create default admin account
+
 async function createDefaultAdmin() {
     try {
         const adminExists = await UserCollection.findOne({ role: 'admin' });
@@ -75,10 +72,10 @@ async function createDefaultAdmin() {
     }
 }
 
-// Call create admin function
+
 createDefaultAdmin();
 
-// Map page
+
 app.get("/map", async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find();
@@ -89,7 +86,6 @@ app.get("/map", async (req, res) => {
     }
 });
 
-// Admin dormitories list
 app.get("/admin/dormitories", async (req, res) => {
     // Check admin rights
     if (req.session.role !== 'admin') {
@@ -111,25 +107,22 @@ app.get("/admin/dormitories", async (req, res) => {
         });
     }
 });
-// Admin applications page
-app.get("/admin/applications", async (req, res) => {
-    // Check admin rights
+
+app.get("/admin/application", async (req, res) => {
     if (req.session.role !== 'admin') {
         return res.redirect('/login');
     }
-    
     try {
-        res.render("admin-applications", { 
+        res.render("admin-application", { 
             user: { name: req.session.name, role: req.session.role } 
         });
     } catch (error) {
-        console.error("Error rendering applications page:", error);
+        console.error("Error rendering application page:", error);
         res.status(500).send("Internal server error");
     }
 });
-// Admin application details page
-app.get("/admin/applications/:id", async (req, res) => {
-    // Check admin rights
+
+app.get("/admin/application/:id", async (req, res) => {
     if (req.session.role !== 'admin') {
         return res.redirect('/login');
     }
@@ -144,9 +137,8 @@ app.get("/admin/applications/:id", async (req, res) => {
         res.status(500).send("Internal server error");
     }
 });
-// Add dormitory page
+
 app.get("/admin/dormitories/add", (req, res) => {
-    // Check admin rights
     if (req.session.role !== 'admin') {
         return res.redirect('/login');
     }
@@ -158,9 +150,7 @@ app.get("/admin/dormitories/add", (req, res) => {
     });
 });
 
-// Edit dormitory page
 app.get("/admin/dormitories/edit/:id", async (req, res) => {
-    // Check admin rights
     if (req.session.role !== 'admin') {
         return res.redirect('/login');
     }
@@ -181,9 +171,7 @@ app.get("/admin/dormitories/edit/:id", async (req, res) => {
     }
 });
 
-// View dormitory details with rooms
 app.get("/admin/dormitories/view/:id", async (req, res) => {
-    // Check admin rights
     if (req.session.role !== 'admin') {
         return res.redirect('/login');
     }
@@ -203,7 +191,6 @@ app.get("/admin/dormitories/view/:id", async (req, res) => {
     }
 });
 
-// API for featured dormitories
 app.get("/api/featured-dormitories", async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find().limit(5);
@@ -214,7 +201,6 @@ app.get("/api/featured-dormitories", async (req, res) => {
     }
 });
 
-// Signup process
 app.post("/signup", async (req, res) => {
     const data = {
         name: req.body.username,
@@ -237,7 +223,6 @@ app.post("/signup", async (req, res) => {
     }
 });
 
-// Login process
 app.post("/home", async (req, res) => {
     try {
         const user = await UserCollection.findOne({ name: req.body.username });
@@ -250,7 +235,6 @@ app.post("/home", async (req, res) => {
             req.session.name = user.name;
             req.session.role = user.role;
 
-            // Redirect based on role
             if (user.role === "admin") {
                 return res.redirect("/admin/dormitories");
             }
@@ -265,7 +249,6 @@ app.post("/home", async (req, res) => {
     }
 });
 
-// API for map data
 app.get("/api/map-data", async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find();
@@ -276,7 +259,6 @@ app.get("/api/map-data", async (req, res) => {
     }
 });
 
-// Check session endpoint
 app.get('/check-session', (req, res) => {
     res.json({
         sessionExists: !!req.session,
@@ -284,13 +266,11 @@ app.get('/check-session', (req, res) => {
     });
 });
 
-// Logout
 app.get('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/login');
 });
 
-// Start server
 const port = 5000;
 app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
