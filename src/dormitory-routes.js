@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { DormitoryCollection } = require('./config');
-
-// Middleware kiểm tra quyền admin
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
         return next();
@@ -10,7 +8,6 @@ const isAdmin = (req, res, next) => {
     res.status(403).json({ error: 'Không có quyền truy cập' });
 };
 
-// API lấy danh sách ký túc xá
 router.get('/dormitories', async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find();
@@ -21,43 +18,27 @@ router.get('/dormitories', async (req, res) => {
     }
 });
 
-// API lọc và tìm kiếm ký túc xá theo filter hoặc text
 router.get('/dormitories/filter', async (req, res) => {
     try {
         const filter = {};
-        
-        // Check for category filter
         if (req.query.category) {
             filter['details.category'] = req.query.category;
         }
-        
-        // Check for room type filter (this needs to be handled differently since room type is nested in floors/rooms)
         const roomTypeFilter = req.query.roomType;
-        
-        // Other possible filters
         if (req.query.available === 'true') {
             filter['details.available'] = true;
         }
-        
-        // Get basic dormitory data
         let dormitories = await DormitoryCollection.find(filter);
-        
-        // Apply room type filter if needed
         if (roomTypeFilter) {
             dormitories = dormitories.filter(dorm => {
                 if (!dorm.floors || dorm.floors.length === 0) return false;
-                
-                // Check if any room in any floor has the requested room type
                 return dorm.floors.some(floor => {
                     if (!floor.rooms || floor.rooms.length === 0) return false;
                     return floor.rooms.some(room => room.roomType === roomTypeFilter);
                 });
             });
         }
-        
-        // Log for debugging
-        console.log(`Found ${dormitories.length} dormitories matching filters`);
-        
+        console.log(`Found ${dormitories.length} dormitories matching filters`); 
         res.status(200).json({
             success: true,
             data: dormitories
@@ -70,32 +51,24 @@ router.get('/dormitories/filter', async (req, res) => {
         });
     }
 });
-// API for searching dormitories
+
 router.get('/dormitories/search', async (req, res) => {
     try {
-        const searchQuery = req.query.query;
-        
+        const searchQuery = req.query.query;       
         if (!searchQuery) {
             return res.status(400).json({
                 success: false,
                 error: 'Thiếu từ khóa tìm kiếm'
             });
         }
-        
-        // Create regex pattern for search (case insensitive)
         const searchPattern = new RegExp(searchQuery, 'i');
-        
-        // Search in name, address, and other relevant fields
         const dormitories = await DormitoryCollection.find({
             $or: [
                 { name: searchPattern },
                 { address: searchPattern }
             ]
         });
-        
-        // Log for debugging
         console.log(`Found ${dormitories.length} dormitories matching search query: ${searchQuery}`);
-        
         res.status(200).json({
             success: true,
             data: dormitories
@@ -109,12 +82,9 @@ router.get('/dormitories/search', async (req, res) => {
     }
 });
 
-// Endpoint to get all dormitories for registration
 router.get('/dormitories/registration', async (req, res) => {
     try {
         const { showAll } = req.query;
-        
-        // Get all dormitories with basic info
         const dormitories = await DormitoryCollection.find({}, {
             name: 1,
             address: 1,
@@ -123,8 +93,6 @@ router.get('/dormitories/registration', async (req, res) => {
             'details.available': 1,
             imageUrl: 1
         });
-        
-        // Nếu showAll=true thì trả về tất cả, ngược lại chỉ trả về những cái available
         const result = showAll === 'true' 
             ? dormitories 
             : dormitories.filter(dorm => dorm.details && dorm.details.available === true);
@@ -136,10 +104,8 @@ router.get('/dormitories/registration', async (req, res) => {
     }
 });
 
-// API lấy thông tin ký túc xá cho map
 router.get('/map-data', async (req, res) => {
     try {
-        // Chỉ lấy các thông tin cần thiết cho map
         const dormitories = await DormitoryCollection.find({}, {
             name: 1,
             address: 1,
@@ -159,8 +125,6 @@ router.get('/map-data', async (req, res) => {
         res.status(500).json({ error: 'Không thể lấy dữ liệu bản đồ' });
     }
 });
-
-// API lấy chi tiết ký túc xá theo ID
 router.get('/dormitories/:id', async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);
@@ -174,20 +138,14 @@ router.get('/dormitories/:id', async (req, res) => {
     }
 });
 
-// API tạo ký túc xá mới (chỉ admin)
 router.post('/dormitories', isAdmin, async (req, res) => {
     try {
-        // In dữ liệu nhận được để debug
         console.log("Received data:", JSON.stringify(req.body, null, 2));
-
-        // Kiểm tra ký túc xá đã tồn tại chưa
         const existingDorm = await DormitoryCollection.findOne({ name: req.body.name });
         if (existingDorm) {
             return res.status(400).json({ error: 'Ký túc xá với tên này đã tồn tại' });
         }
-
-        // Xử lý tọa độ với giá trị mặc định
-        let coordinates = [105.84322, 21.007119]; // Tọa độ mặc định
+        let coordinates = [105.84322, 21.007119]; //Toạ độ gốc
         
         if (req.body.location && req.body.location.coordinates) {
             if (Array.isArray(req.body.location.coordinates)) {
@@ -197,8 +155,6 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                 ];
             }
         }
-
-        // Thiết lập giá trị mặc định cho priceRange
         const defaultMinPrice = 500000;
         const defaultMaxPrice = 1500000;
         
@@ -215,15 +171,12 @@ router.post('/dormitories', isAdmin, async (req, res) => {
         }
 
         const floors = [];
-        
-        // Sử dụng cấu hình phòng từ client nếu có
         if (req.body.floorRoomConfigs && Array.isArray(req.body.floorRoomConfigs)) {
             for (const floorConfig of req.body.floorRoomConfigs) {
                 const floorNumber = floorConfig.floorNumber;
                 const rooms = [];
                 
                 for (const roomConfig of floorConfig.rooms) {
-                    // Xác định maxCapacity dựa trên loại phòng
                     let maxCapacity;
                     switch (roomConfig.roomType) {
                         case '8-person': maxCapacity = 8; break;
@@ -238,7 +191,7 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                         roomType: roomConfig.roomType,
                         maxCapacity: maxCapacity,
                         floor: floorNumber,
-                        pricePerMonth: minPrice, // Sử dụng minPrice đã được thiết lập trước đó
+                        pricePerMonth: minPrice, 
                         occupants: []
                     });
                 }
@@ -249,12 +202,9 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                 });
             }
         } else {
-            // Sử dụng cấu hình mặc định nếu không có dữ liệu từ client
             const totalFloors = parseInt(req.body.details && req.body.details.totalFloors ? req.body.details.totalFloors : 1);
             const roomsPerFloor = parseInt(req.body.details && req.body.details.roomsPerFloor ? req.body.details.roomsPerFloor : 5);
             const defaultRoomType = req.body.details && req.body.details.roomType ? req.body.details.roomType : '4-person-service';
-            
-            // Xác định maxCapacity dựa trên loại phòng
             let defaultMaxCapacity;
             switch (defaultRoomType) {
                 case '8-person': defaultMaxCapacity = 8; break;
@@ -268,7 +218,6 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                 const rooms = [];
                 
                 for (let j = 1; j <= roomsPerFloor; j++) {
-                    // Tạo mã phòng: P + số tầng + số phòng
                     const roomNumber = `P${i}${j.toString().padStart(2, '0')}`;
                     
                     rooms.push({
@@ -287,8 +236,6 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                 });
             }
         }
-        
-        // Tạo ký túc xá mới với cấu trúc tầng và phòng
         const dormitoryData = {
             name: req.body.name,
             address: req.body.address,
@@ -326,18 +273,14 @@ router.post('/dormitories', isAdmin, async (req, res) => {
     }
 });
 
-// API cập nhật ký túc xá (chỉ admin)
 router.put('/dormitories/:id', isAdmin, async (req, res) => {
     try {
-        // Không cho phép cập nhật cấu trúc tầng và phòng
-        const { floors, ...updateData } = req.body;
-        
+        const { floors, ...updateData } = req.body;    
         const updatedDormitory = await DormitoryCollection.findByIdAndUpdate(
             req.params.id,
             updateData,
             { new: true }
-        );
-        
+        ); 
         if (!updatedDormitory) {
             return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
         }
@@ -349,7 +292,6 @@ router.put('/dormitories/:id', isAdmin, async (req, res) => {
     }
 });
 
-// API xóa ký túc xá (chỉ admin)
 router.delete('/dormitories/:id', isAdmin, async (req, res) => {
     try {
         const deletedDormitory = await DormitoryCollection.findByIdAndDelete(req.params.id);
@@ -365,42 +307,32 @@ router.delete('/dormitories/:id', isAdmin, async (req, res) => {
     }
 });
 
-// API toggle trạng thái người ở (thêm/xóa)
 router.post('/dormitories/:dormId/floors/:floorNum/rooms/:roomNum/toggle-spot/:spotIndex', isAdmin, async (req, res) => {
     try {
         const { dormId } = req.params;
         const floorNum = parseInt(req.params.floorNum);
         const roomNum = req.params.roomNum;
         const spotIndex = parseInt(req.params.spotIndex);
-        
         const dormitory = await DormitoryCollection.findById(dormId);
         if (!dormitory) {
             return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
         }
-        
         const floor = dormitory.floors.find(f => f.floorNumber === floorNum);
         if (!floor) {
             return res.status(404).json({ error: 'Không tìm thấy tầng' });
         }
-        
         const room = floor.rooms.find(r => r.roomNumber === roomNum);
         if (!room) {
             return res.status(404).json({ error: 'Không tìm thấy phòng' });
         }
-        
-        // Kiểm tra vị trí hợp lệ
         if (spotIndex < 0 || spotIndex >= room.maxCapacity) {
             return res.status(400).json({ error: 'Vị trí không hợp lệ' });
         }
-        
-        // Lấy người ở đang active
         const activeOccupants = room.occupants.filter(o => o.active);
-        
-        // Nếu đã có người ở vị trí này
+
         if (activeOccupants.length > spotIndex) {
             room.occupants[spotIndex].active = false;
         } else {
-            // Thêm người ở mới
             const newOccupant = {
                 studentId: req.body.studentId || `SV-${Date.now()}`,
                 name: req.body.name || 'Sinh viên mới',
@@ -425,7 +357,6 @@ router.post('/dormitories/:dormId/floors/:floorNum/rooms/:roomNum/toggle-spot/:s
     }
 });
 
-// API lấy trạng thái phòng của ký túc xá
 router.get('/dormitories/:id/room-status', async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);

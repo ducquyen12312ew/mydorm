@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { DormitoryCollection, PendingApplicationCollection } = require('./config');
 
-// Middleware to check admin rights
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
         return next();
@@ -10,22 +9,17 @@ const isAdmin = (req, res, next) => {
     res.status(403).json({ error: 'Không có quyền truy cập' });
 };
 
-// Get all pending applications
 router.get('/admin/applications', isAdmin, async (req, res) => {
     try {
         const { status } = req.query;
-        
-        // Create filter based on status if provided
+
         const filter = {};
         if (status) {
             filter.status = status;
         }
-        
-        // Get applications and sort by creation date (newest first)
+
         const applications = await PendingApplicationCollection.find(filter)
             .sort({ createdAt: -1 });
-        
-        // Get dormitory details for each application
         const applicationData = await Promise.all(applications.map(async (app) => {
             const dormitory = await DormitoryCollection.findById(app.dormitoryId);
             return {
@@ -56,7 +50,6 @@ router.get('/admin/applications', isAdmin, async (req, res) => {
     }
 });
 
-// Get application details
 router.get('/admin/applications/:id', isAdmin, async (req, res) => {
     try {
         const application = await PendingApplicationCollection.findById(req.params.id);
@@ -67,11 +60,7 @@ router.get('/admin/applications/:id', isAdmin, async (req, res) => {
                 error: 'Không tìm thấy đơn đăng ký' 
             });
         }
-        
-        // Get dormitory details
         const dormitory = await DormitoryCollection.findById(application.dormitoryId);
-        
-        // Find the specific room
         let room = null;
         let floor = null;
         
@@ -85,8 +74,7 @@ router.get('/admin/applications/:id', isAdmin, async (req, res) => {
                 }
             }
         }
-        
-        // Get room capacity and current occupancy
+ 
         let roomCapacity = 0;
         let currentOccupants = 0;
         
@@ -125,7 +113,6 @@ router.get('/admin/applications/:id', isAdmin, async (req, res) => {
     }
 });
 
-// Approve or reject application
 router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) => {
     try {
         const { status, comments } = req.body;
@@ -136,8 +123,7 @@ router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) =>
                 error: 'Trạng thái không hợp lệ' 
             });
         }
-        
-        // Get application
+
         const application = await PendingApplicationCollection.findById(req.params.id);
         
         if (!application) {
@@ -146,22 +132,19 @@ router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) =>
                 error: 'Không tìm thấy đơn đăng ký' 
             });
         }
-        
-        // Check if application is already processed
+
         if (application.status !== 'pending') {
             return res.status(400).json({ 
                 success: false, 
                 error: 'Đơn đăng ký đã được xử lý trước đó' 
             });
         }
-        
-        // Update application status
+
         application.status = status;
         if (comments) {
             application.comments = comments;
         }
-        
-        // If approved, update dormitory room occupants
+
         if (status === 'approved') {
             const dormitory = await DormitoryCollection.findById(application.dormitoryId);
             
@@ -174,21 +157,18 @@ router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) =>
             
             let roomFound = false;
             let roomIsFull = false;
-            
-            // Find the room and update occupants
+
             for (const floor of dormitory.floors) {
                 const room = floor.rooms.find(r => r.roomNumber === application.roomNumber);
                 if (room) {
                     roomFound = true;
-                    
-                    // Check if room is full
+
                     const activeOccupants = room.occupants.filter(o => o.active).length;
                     if (activeOccupants >= room.maxCapacity) {
                         roomIsFull = true;
                         break;
                     }
-                    
-                    // Check if student is already in the room
+
                     const existingOccupant = room.occupants.find(
                         o => o.studentId === application.studentId && o.active
                     );
@@ -199,8 +179,7 @@ router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) =>
                             error: 'Sinh viên đã trong phòng này' 
                         });
                     }
-                    
-                    // Add student to room
+
                     room.occupants.push({
                         studentId: application.studentId,
                         name: application.fullName,
@@ -227,12 +206,10 @@ router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) =>
                     error: 'Phòng đã đầy' 
                 });
             }
-            
-            // Save dormitory updates
+
             await dormitory.save();
         }
-        
-        // Save application status update
+
         await application.save();
         
         res.status(200).json({ 

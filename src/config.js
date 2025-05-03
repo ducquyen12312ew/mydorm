@@ -94,17 +94,14 @@ const RoomSchema = new mongoose.Schema({
     }
 });
 
-// Virtual để tính số người ở hiện tại
 RoomSchema.virtual('currentOccupants').get(function() {
     return this.occupants ? this.occupants.filter(o => o.active).length : 0;
 });
 
-// Virtual để kiểm tra phòng còn chỗ không
 RoomSchema.virtual('available').get(function() {
     return this.occupants.filter(o => o.active).length < this.maxCapacity;
 });
 
-// Schema cho tầng
 const FloorSchema = new mongoose.Schema({
     floorNumber: {
         type: Number,
@@ -196,15 +193,10 @@ const DormitorySchema = new mongoose.Schema({
     }
 });
 
-// Geo index
 DormitorySchema.index({ location: '2dsphere' });
 DormitorySchema.index({ name: 1 }, { unique: true });
-
-// Update middleware
 DormitorySchema.pre('save', function(next) {
     this.updatedAt = Date.now();
-    
-    // Calculate price range
     let prices = [];
     
     if (this.floors && this.floors.length > 0) {
@@ -216,16 +208,13 @@ DormitorySchema.pre('save', function(next) {
             }
         });
     }
-    
     if (prices.length > 0) {
         this.details.priceRange.min = Math.min(...prices);
         this.details.priceRange.max = Math.max(...prices);
     }
-    
     next();
 });
 
-// Models
 const UserCollection = mongoose.model("users", Loginschema);
 const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
 const PendingApplicationSchema = new mongoose.Schema({
@@ -278,7 +267,6 @@ const PendingApplicationSchema = new mongoose.Schema({
     }
 });
 
-// Create the model
 const PendingApplicationCollection = mongoose.model("pendingApplications", PendingApplicationSchema);
 module.exports = { 
     UserCollection, 
