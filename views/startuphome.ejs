@@ -113,20 +113,35 @@ body.scrolling-to-stats .animation-wrapper {
     text-shadow: 0 0 20px rgba(230, 26, 26, 0.3);
 }
 
-/* Responsive letter sizing */
-@media (max-width: 768px) {
+@media (max-width: 1200px) {
     .letter {
         font-size: 8rem;
     }
 }
 
-@media (max-width: 576px) {
+@media (max-width: 992px) {
+    .letter {
+        font-size: 7rem;
+    }
+}
+
+@media (max-width: 768px) {
     .letter {
         font-size: 6rem;
     }
 }
 
-/* Responsive letter positioning */
+@media (max-width: 576px) {
+    .letter {
+        font-size: 4.5rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .letter {
+        font-size: 3.5rem;
+    }
+}
 @media (max-width: 768px) {
     .letter-H { transform: translateX(-120px); }
     .letter-U { transform: translateX(-40px); }
@@ -195,7 +210,26 @@ body.scrolling-to-stats .animation-wrapper {
 .bg-overlay-campus2 {
     background-image: url('image/camp2.png');
 }
+@media (max-width: 768px) {
+    .bg-overlay {
+        width: 500px;
+        height: 500px;
+    }
+}
 
+@media (max-width: 576px) {
+    .bg-overlay {
+        width: 400px;
+        height: 400px;
+    }
+}
+
+@media (max-width: 400px) {
+    .bg-overlay {
+        width: 350px;
+        height: 350px;
+    }
+}
 /* Big text overlay styling - left-aligned with thicker text */
 .big-text-overlay {
     position: absolute;
@@ -232,6 +266,54 @@ body.scrolling-to-stats .animation-wrapper {
     font-family: 'Quicksand', sans-serif;
     line-height: 1.4;
     max-width: 90%;
+}
+@media (max-width: 1200px) {
+    .big-text-line {
+        font-size: 4rem;
+    }
+    .subtitle {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .big-text-line {
+        font-size: 3.5rem;
+    }
+    .subtitle {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .big-text-line {
+        font-size: 3rem;
+    }
+    .subtitle {
+        font-size: 1.4rem;
+    }
+    .big-text-overlay {
+        left: 5%;
+        width: 90%;
+    }
+}
+
+@media (max-width: 576px) {
+    .big-text-line {
+        font-size: 2.5rem;
+    }
+    .subtitle {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .big-text-line {
+        font-size: 2rem;
+    }
+    .subtitle {
+        font-size: 1.1rem;
+    }
 }
 
 /* Campus options styling - centered on page */
@@ -274,7 +356,28 @@ body.scrolling-to-stats .animation-wrapper {
     letter-spacing: 1px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Added shadow */
 }
+@media (max-width: 768px) {
+    .campus-options {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    
+    .campus-option {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+        width: 80%;
+        max-width: 300px;
+    }
+}
 
+@media (max-width: 576px) {
+    .campus-option {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        width: 90%;
+    }
+}
 .campus-option:hover {
     background-color: var(--primary-color);
     transform: translateY(-8px) scale(1.05); /* Larger lift and slight scale */
@@ -366,11 +469,21 @@ body.scrolling-to-stats .animation-wrapper {
 }
 
 .header-logo img {
-    max-height: 3rem; /* Larger logo */
+    max-height: 2rem;
     width: auto;
     transition: transform 0.5s ease;
 }
+@media (max-width: 768px) {
+    .header-logo img {
+        max-height: 1.8rem;
+    }
+}
 
+@media (max-width: 576px) {
+    .header-logo img {
+        max-height: 1.5rem;
+    }
+}
 .nav-container {
     display: flex;
     align-items: center;
@@ -1424,6 +1537,92 @@ body.scrolling-to-stats .animation-wrapper {
         height: 300px;
     }
 }
+@media (max-width: 768px) {
+    .header {
+        padding: 1rem 1.5rem;
+        background-color: white;
+    }
+    
+    .nav-container {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: white;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 5rem 2rem 2rem;
+        transition: right 0.3s ease;
+        margin-left: 0;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1999;
+    }
+    
+    .nav-container.active {
+        right: 0;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+    
+    .nav-link {
+        margin: 0;
+        padding: 0.8rem 0;
+        font-size: 1.1rem;
+        opacity: 1;
+        transform: none;
+    }
+    
+    .login-btn {
+        width: 100%;
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    .menu-toggle {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 21px;
+        cursor: pointer;
+        z-index: 2001;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+    
+    .menu-toggle span {
+        display: block;
+        height: 2px;
+        width: 100%;
+        background-color: var(--primary-color);
+        border-radius: 2px;
+        transition: all 0.3s ease;
+    }
+    
+    /* Animation for hamburger to X */
+    .nav-container.active ~ .menu-toggle span:nth-child(1),
+    .menu-toggle.active span:nth-child(1) {
+        transform: translateY(9px) rotate(45deg);
+    }
+    
+    .nav-container.active ~ .menu-toggle span:nth-child(2),
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .nav-container.active ~ .menu-toggle span:nth-child(3),
+    .menu-toggle.active span:nth-child(3) {
+        transform: translateY(-9px) rotate(-45deg);
+    }
+}
     </style>
 </head>
 <body>
@@ -1474,13 +1673,6 @@ body.scrolling-to-stats .animation-wrapper {
             <div class="letter letter-T" id="letterT">T</div>
         </div>
         
-        <!-- Thêm mũi tên cuộn xuống -->
-        <div class="scroll-down" id="scrollDown">
-            <div class="scroll-down-text">Cuộn xuống</div>
-            <div class="scroll-down-icon">
-                <i class="fas fa-chevron-down"></i>
-            </div>
-        </div>
         
         <div class="cursor-follower" id="cursorFollower"></div>
         <div class="custom-cursor" id="customCursor"></div>
@@ -1659,6 +1851,49 @@ body.scrolling-to-stats .animation-wrapper {
             const campus2 = document.getElementById('campus2');
             const navLinks = document.querySelectorAll('.nav-link');
             
+            menuToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                navContainer.classList.toggle('active');
+                
+                // Animate hamburger to X
+                const spans = this.querySelectorAll('span');
+                if (navContainer.classList.contains('active')) {
+                    spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+                    spans[1].style.opacity = '0';
+                    spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+                } else {
+                    // Reset to hamburger
+                    spans[0].style.transform = 'translateY(0) rotate(0)';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'translateY(0) rotate(0)';
+                }
+            });
+            
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
+                    navContainer.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                    
+                    // Reset hamburger icon
+                    const spans = menuToggle.querySelectorAll('span');
+                    spans[0].style.transform = 'translateY(0) rotate(0)';
+                    spans[1].style.opacity = '1';
+                    spans[2].style.transform = 'translateY(0) rotate(0)';
+                }
+            });
+            
+            // Thêm vào trong window.addEventListener('resize', function() {
+            window.addEventListener('resize', function() {
+                // Reset mobile menu if window is resized to desktop view
+                if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
+                    navContainer.classList.remove('active');
+                    const spans = menuToggle.querySelectorAll('span');
+                    spans.forEach(span => span.classList.remove('active'));
+                }
+                
+                adjustAnimation();
+            });
             // Add event listeners for campus options to change background with faster morphing effect
             campus1.addEventListener('mouseenter', function() {
                 bgOverlayCampus1.style.opacity = '1';
@@ -1690,7 +1925,18 @@ body.scrolling-to-stats .animation-wrapper {
                     spans[2].style.transform = '';
                 }
             });
+            menuToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                navContainer.classList.toggle('active');
+            });
             
+            // Đóng menu khi click bên ngoài
+            document.addEventListener('click', function(event) {
+                if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
+                    navContainer.classList.remove('active');
+                    menuToggle.classList.remove('active');
+                }
+            });
             document.addEventListener('click', function(event) {
                 if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
                     navContainer.classList.remove('active');
