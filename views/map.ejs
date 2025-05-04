@@ -1175,9 +1175,8 @@ function createSlidesFromDormitories(dormitories) {
         }
         
         // Tạo thông tin giá
-        let priceText = 'Liên hệ để biết giá';
+        let priceText = '';
         if (dorm.details && dorm.details.priceRange) {
-            priceText = `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNĐ/tháng`;
         }
         
         // Tạo nội dung HTML cho slide
