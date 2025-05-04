@@ -1851,49 +1851,55 @@ body.scrolling-to-stats .animation-wrapper {
             const campus2 = document.getElementById('campus2');
             const navLinks = document.querySelectorAll('.nav-link');
             
-            menuToggle.addEventListener('click', function() {
-                this.classList.toggle('active');
-                navContainer.classList.toggle('active');
-                
-                // Animate hamburger to X
-                const spans = this.querySelectorAll('span');
-                if (navContainer.classList.contains('active')) {
-                    spans[0].style.transform = 'translateY(9px) rotate(45deg)';
-                    spans[1].style.opacity = '0';
-                    spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
-                } else {
-                    // Reset to hamburger
-                    spans[0].style.transform = 'translateY(0) rotate(0)';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'translateY(0) rotate(0)';
-                }
-            });
+            // Menu toggle click handler
+    menuToggle.addEventListener('click', function(e) {
+        e.stopPropagation(); // Prevent event from bubbling up
+        
+        navContainer.classList.toggle('active');
+        
+        const spans = this.querySelectorAll('span');
+        
+        if (navContainer.classList.contains('active')) {
+            // Transform to X
+            spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+            spans[1].style.opacity = '0';
+            spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+        } else {
+            // Transform back to hamburger
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        }
+    });
+    
+    // Close menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!navContainer.contains(event.target) && 
+            !menuToggle.contains(event.target) && 
+            navContainer.classList.contains('active')) {
             
-            // Close menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
-                    navContainer.classList.remove('active');
-                    menuToggle.classList.remove('active');
-                    
-                    // Reset hamburger icon
-                    const spans = menuToggle.querySelectorAll('span');
-                    spans[0].style.transform = 'translateY(0) rotate(0)';
-                    spans[1].style.opacity = '1';
-                    spans[2].style.transform = 'translateY(0) rotate(0)';
-                }
-            });
+            navContainer.classList.remove('active');
             
-            // Thêm vào trong window.addEventListener('resize', function() {
-            window.addEventListener('resize', function() {
-                // Reset mobile menu if window is resized to desktop view
-                if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
-                    navContainer.classList.remove('active');
-                    const spans = menuToggle.querySelectorAll('span');
-                    spans.forEach(span => span.classList.remove('active'));
-                }
-                
-                adjustAnimation();
-            });
+            // Reset hamburger icon
+            const spans = menuToggle.querySelectorAll('span');
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        }
+    });
+    
+    // Close menu when window is resized to desktop view
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
+            navContainer.classList.remove('active');
+            
+            // Reset hamburger icon
+            const spans = menuToggle.querySelectorAll('span');
+            spans[0].style.transform = 'none';
+            spans[1].style.opacity = '1';
+            spans[2].style.transform = 'none';
+        }
+    });
             // Add event listeners for campus options to change background with faster morphing effect
             campus1.addEventListener('mouseenter', function() {
                 bgOverlayCampus1.style.opacity = '1';
