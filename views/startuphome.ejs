@@ -113,35 +113,20 @@ body.scrolling-to-stats .animation-wrapper {
     text-shadow: 0 0 20px rgba(230, 26, 26, 0.3);
 }
 
-@media (max-width: 1200px) {
+/* Responsive letter sizing */
+@media (max-width: 768px) {
     .letter {
         font-size: 8rem;
     }
 }
 
-@media (max-width: 992px) {
-    .letter {
-        font-size: 7rem;
-    }
-}
-
-@media (max-width: 768px) {
+@media (max-width: 576px) {
     .letter {
         font-size: 6rem;
     }
 }
 
-@media (max-width: 576px) {
-    .letter {
-        font-size: 4.5rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .letter {
-        font-size: 3.5rem;
-    }
-}
+/* Responsive letter positioning */
 @media (max-width: 768px) {
     .letter-H { transform: translateX(-120px); }
     .letter-U { transform: translateX(-40px); }
@@ -210,26 +195,7 @@ body.scrolling-to-stats .animation-wrapper {
 .bg-overlay-campus2 {
     background-image: url('image/camp2.png');
 }
-@media (max-width: 768px) {
-    .bg-overlay {
-        width: 500px;
-        height: 500px;
-    }
-}
 
-@media (max-width: 576px) {
-    .bg-overlay {
-        width: 400px;
-        height: 400px;
-    }
-}
-
-@media (max-width: 400px) {
-    .bg-overlay {
-        width: 350px;
-        height: 350px;
-    }
-}
 /* Big text overlay styling - left-aligned with thicker text */
 .big-text-overlay {
     position: absolute;
@@ -266,54 +232,6 @@ body.scrolling-to-stats .animation-wrapper {
     font-family: 'Quicksand', sans-serif;
     line-height: 1.4;
     max-width: 90%;
-}
-@media (max-width: 1200px) {
-    .big-text-line {
-        font-size: 4rem;
-    }
-    .subtitle {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 992px) {
-    .big-text-line {
-        font-size: 3.5rem;
-    }
-    .subtitle {
-        font-size: 1.6rem;
-    }
-}
-
-@media (max-width: 768px) {
-    .big-text-line {
-        font-size: 3rem;
-    }
-    .subtitle {
-        font-size: 1.4rem;
-    }
-    .big-text-overlay {
-        left: 5%;
-        width: 90%;
-    }
-}
-
-@media (max-width: 576px) {
-    .big-text-line {
-        font-size: 2.5rem;
-    }
-    .subtitle {
-        font-size: 1.2rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .big-text-line {
-        font-size: 2rem;
-    }
-    .subtitle {
-        font-size: 1.1rem;
-    }
 }
 
 /* Campus options styling - centered on page */
@@ -356,28 +274,7 @@ body.scrolling-to-stats .animation-wrapper {
     letter-spacing: 1px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Added shadow */
 }
-@media (max-width: 768px) {
-    .campus-options {
-        flex-direction: column;
-        align-items: center;
-        gap: 1.5rem;
-    }
-    
-    .campus-option {
-        padding: 1rem 2rem;
-        font-size: 1.1rem;
-        width: 80%;
-        max-width: 300px;
-    }
-}
 
-@media (max-width: 576px) {
-    .campus-option {
-        padding: 0.8rem 1.5rem;
-        font-size: 1rem;
-        width: 90%;
-    }
-}
 .campus-option:hover {
     background-color: var(--primary-color);
     transform: translateY(-8px) scale(1.05); /* Larger lift and slight scale */
@@ -401,7 +298,92 @@ body.scrolling-to-stats .animation-wrapper {
 .campus-option:hover::before {
     opacity: 1;
 }
+@media (max-width: 768px) {
+    .big-text-line {
+        font-size: 2.5rem !important;
+    }
+    
+    .subtitle {
+        font-size: 1rem !important;
+        margin-top: 1rem;
+    }
+    
+    .big-text-overlay {
+        left: 5%;
+        width: 90%;
+        padding: 0 10px;
+    }
+}
 
+@media (max-width: 576px) {
+    .big-text-line {
+        font-size: 2rem !important;
+    }
+    
+    .subtitle {
+        font-size: 0.9rem !important;
+        line-height: 1.3;
+    }
+}
+
+@media (max-width: 400px) {
+    .big-text-line {
+        font-size: 1.6rem !important;
+    }
+    
+    .subtitle {
+        font-size: 0.85rem !important;
+    }
+}
+
+/* Letter sizes for mobile */
+@media (max-width: 768px) {
+    .letter {
+        font-size: 5rem !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .letter {
+        font-size: 4rem !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .letter {
+        font-size: 3rem !important;
+    }
+}
+
+/* Campus options adjustments */
+@media (max-width: 768px) {
+    .campus-options-container {
+        bottom: 10%;
+    }
+    
+    .campus-option {
+        padding: 0.8rem 1.8rem;
+        font-size: 1rem;
+        width: 80%;
+        max-width: 300px;
+    }
+}
+
+@media (max-width: 576px) {
+    .campus-option {
+        padding: 0.7rem 1.5rem;
+        font-size: 0.9rem;
+        width: 85%;
+    }
+}
+
+@media (max-width: 400px) {
+    .campus-option {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+        width: 90%;
+    }
+}
 .tooltip {
     position: absolute;
     bottom: calc(100% + 15px);
@@ -469,7 +451,7 @@ body.scrolling-to-stats .animation-wrapper {
 }
 
 .header-logo img {
-    max-height: 2rem;
+    max-height: 3rem; /* Larger logo */
     width: auto;
     transition: transform 0.5s ease;
 }
@@ -482,6 +464,12 @@ body.scrolling-to-stats .animation-wrapper {
 @media (max-width: 576px) {
     .header-logo img {
         max-height: 1.5rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .header-logo img {
+        max-height: 1.3rem;
     }
 }
 .nav-container {
@@ -624,21 +612,100 @@ body.scrolling-to-stats .animation-wrapper {
     display: none;
     flex-direction: column;
     justify-content: space-between;
-    width: 35px; /* Larger toggle */
-    height: 25px; /* Larger toggle */
+    width: 30px;
+    height: 21px;
     cursor: pointer;
     z-index: 2001;
+    position: relative;
 }
 
 .menu-toggle span {
     display: block;
-    height: 4px; /* Thicker lines */
+    height: 3px;
     width: 100%;
-    background-color: var(--primary-color);
-    border-radius: 4px;
+    background-color: #e61a1a;
+    border-radius: 3px;
     transition: all 0.3s ease;
+    transform-origin: center;
 }
-
+@media (max-width: 768px) {
+    .menu-toggle {
+        display: flex;
+    }
+    
+    .nav-container {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 80%;
+        max-width: 300px;
+        height: 100vh;
+        background-color: white;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 5rem 2rem 2rem;
+        transition: right 0.3s ease;
+        margin-left: 0;
+        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+        z-index: 1999;
+    }
+    
+    .nav-container.active {
+        right: 0;
+    }
+    
+    .nav-links {
+        flex-direction: column;
+        gap: 1.5rem;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+    
+    .nav-link {
+        padding: 0.8rem 0;
+        font-size: 1.1rem;
+        opacity: 1;
+        transform: none;
+        width: 100%;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .nav-link:last-child {
+        border-bottom: none;
+    }
+    
+    .login-btn {
+        width: 100%;
+        text-align: center;
+        margin-top: 2rem;
+    }
+    
+    /* Hamburger to X animation */
+    .menu-toggle.active span:nth-child(1) {
+        transform: translateY(9px) rotate(45deg);
+    }
+    
+    .menu-toggle.active span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .menu-toggle.active span:nth-child(3) {
+        transform: translateY(-9px) rotate(-45deg);
+    }
+    
+    /* Overlay when menu is open */
+    .nav-container.active::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
+}
 .stats-section {
     position: relative;
     padding: 6rem 0;
@@ -1537,92 +1604,6 @@ body.scrolling-to-stats .animation-wrapper {
         height: 300px;
     }
 }
-@media (max-width: 768px) {
-    .header {
-        padding: 1rem 1.5rem;
-        background-color: white;
-    }
-    
-    .nav-container {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 80%;
-        max-width: 300px;
-        height: 100vh;
-        background-color: white;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 5rem 2rem 2rem;
-        transition: right 0.3s ease;
-        margin-left: 0;
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-        z-index: 1999;
-    }
-    
-    .nav-container.active {
-        right: 0;
-    }
-    
-    .nav-links {
-        flex-direction: column;
-        gap: 1.5rem;
-        width: 100%;
-        margin-bottom: 2rem;
-    }
-    
-    .nav-link {
-        margin: 0;
-        padding: 0.8rem 0;
-        font-size: 1.1rem;
-        opacity: 1;
-        transform: none;
-    }
-    
-    .login-btn {
-        width: 100%;
-        text-align: center;
-        margin-top: 2rem;
-    }
-    
-    .menu-toggle {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        width: 30px;
-        height: 21px;
-        cursor: pointer;
-        z-index: 2001;
-        background: none;
-        border: none;
-        padding: 0;
-    }
-    
-    .menu-toggle span {
-        display: block;
-        height: 2px;
-        width: 100%;
-        background-color: var(--primary-color);
-        border-radius: 2px;
-        transition: all 0.3s ease;
-    }
-    
-    /* Animation for hamburger to X */
-    .nav-container.active ~ .menu-toggle span:nth-child(1),
-    .menu-toggle.active span:nth-child(1) {
-        transform: translateY(9px) rotate(45deg);
-    }
-    
-    .nav-container.active ~ .menu-toggle span:nth-child(2),
-    .menu-toggle.active span:nth-child(2) {
-        opacity: 0;
-    }
-    
-    .nav-container.active ~ .menu-toggle span:nth-child(3),
-    .menu-toggle.active span:nth-child(3) {
-        transform: translateY(-9px) rotate(-45deg);
-    }
-}
     </style>
 </head>
 <body>
@@ -1673,6 +1654,13 @@ body.scrolling-to-stats .animation-wrapper {
             <div class="letter letter-T" id="letterT">T</div>
         </div>
         
+        <!-- Thêm mũi tên cuộn xuống -->
+        <!-- <div class="scroll-down" id="scrollDown">
+            <div class="scroll-down-text">Cuộn xuống</div>
+            <div class="scroll-down-icon">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div> -->
         
         <div class="cursor-follower" id="cursorFollower"></div>
         <div class="custom-cursor" id="customCursor"></div>
@@ -1834,243 +1822,228 @@ body.scrolling-to-stats .animation-wrapper {
 <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const letterH = document.getElementById('letterH');
-            const letterU = document.getElementById('letterU');
-            const letterS = document.getElementById('letterS');
-            const letterT = document.getElementById('letterT');
-            const bgOverlay = document.getElementById('bgOverlay');
-            const bgOverlayCampus1 = document.getElementById('bgOverlayCampus1');
-            const bgOverlayCampus2 = document.getElementById('bgOverlayCampus2');
-            const lettersWrapper = document.getElementById('lettersWrapper');
-            const header = document.getElementById('header');
-            const menuToggle = document.getElementById('menuToggle');
-            const navContainer = document.getElementById('navContainer');
-            const bigTextOverlay = document.getElementById('bigTextOverlay');
-            const campusOptionsContainer = document.getElementById('campusOptionsContainer');
-            const campus1 = document.getElementById('campus1');
-            const campus2 = document.getElementById('campus2');
-            const navLinks = document.querySelectorAll('.nav-link');
+    // DOM Elements
+    const letterH = document.getElementById('letterH');
+    const letterU = document.getElementById('letterU');
+    const letterS = document.getElementById('letterS');
+    const letterT = document.getElementById('letterT');
+    const bgOverlay = document.getElementById('bgOverlay');
+    const bgOverlayCampus1 = document.getElementById('bgOverlayCampus1');
+    const bgOverlayCampus2 = document.getElementById('bgOverlayCampus2');
+    const lettersWrapper = document.getElementById('lettersWrapper');
+    const header = document.getElementById('header');
+    const menuToggle = document.getElementById('menuToggle');
+    const navContainer = document.getElementById('navContainer');
+    const bigTextOverlay = document.getElementById('bigTextOverlay');
+    const campusOptionsContainer = document.getElementById('campusOptionsContainer');
+    const campus1 = document.getElementById('campus1');
+    const campus2 = document.getElementById('campus2');
+    const navLinks = document.querySelectorAll('.nav-link');
+    
+    // Menu Toggle Functionality - Fixed version
+    if (menuToggle && navContainer) {
+        menuToggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
             
-            // Menu toggle click handler
-    menuToggle.addEventListener('click', function(e) {
-        e.stopPropagation(); // Prevent event from bubbling up
-        
-        navContainer.classList.toggle('active');
-        
-        const spans = this.querySelectorAll('span');
-        
-        if (navContainer.classList.contains('active')) {
-            // Transform to X
-            spans[0].style.transform = 'translateY(9px) rotate(45deg)';
-            spans[1].style.opacity = '0';
-            spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
-        } else {
-            // Transform back to hamburger
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
-        }
-    });
+            // Toggle active class
+            navContainer.classList.toggle('active');
+            
+            // Animate hamburger
+            const spans = this.querySelectorAll('span');
+            if (navContainer.classList.contains('active')) {
+                spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+                document.body.style.overflow = 'hidden';
+            } else {
+                spans[0].style.transform = '';
+                spans[1].style.opacity = '';
+                spans[2].style.transform = '';
+                document.body.style.overflow = '';
+            }
+        });
+    }
     
     // Close menu when clicking outside
     document.addEventListener('click', function(event) {
-        if (!navContainer.contains(event.target) && 
+        if (navContainer && menuToggle && 
+            !navContainer.contains(event.target) && 
             !menuToggle.contains(event.target) && 
             navContainer.classList.contains('active')) {
             
             navContainer.classList.remove('active');
             
-            // Reset hamburger icon
             const spans = menuToggle.querySelectorAll('span');
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
+            spans[0].style.transform = '';
+            spans[1].style.opacity = '';
+            spans[2].style.transform = '';
+            document.body.style.overflow = '';
         }
     });
     
-    // Close menu when window is resized to desktop view
+    // Close menu when clicking on nav links
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (navContainer.classList.contains('active')) {
+                navContainer.classList.remove('active');
+                
+                const spans = menuToggle.querySelectorAll('span');
+                spans[0].style.transform = '';
+                spans[1].style.opacity = '';
+                spans[2].style.transform = '';
+                document.body.style.overflow = '';
+            }
+        });
+    });
+    
+    // Campus hover effects
+    if (campus1) {
+        campus1.addEventListener('mouseenter', function() {
+            bgOverlayCampus1.style.opacity = '1';
+        });
+        
+        campus1.addEventListener('mouseleave', function() {
+            bgOverlayCampus1.style.opacity = '0';
+        });
+    }
+    
+    if (campus2) {
+        campus2.addEventListener('mouseenter', function() {
+            bgOverlayCampus2.style.opacity = '1';
+        });
+        
+        campus2.addEventListener('mouseleave', function() {
+            bgOverlayCampus2.style.opacity = '0';
+        });
+    }
+    
+    // Window resize handler
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
             navContainer.classList.remove('active');
             
-            // Reset hamburger icon
-            const spans = menuToggle.querySelectorAll('span');
-            spans[0].style.transform = 'none';
-            spans[1].style.opacity = '1';
-            spans[2].style.transform = 'none';
+            if (menuToggle) {
+                const spans = menuToggle.querySelectorAll('span');
+                spans[0].style.transform = '';
+                spans[1].style.opacity = '';
+                spans[2].style.transform = '';
+            }
+            
+            document.body.style.overflow = '';
         }
+        
+        adjustAnimation();
     });
-            // Add event listeners for campus options to change background with faster morphing effect
-            campus1.addEventListener('mouseenter', function() {
-                bgOverlayCampus1.style.opacity = '1';
-            });
-            
-            campus1.addEventListener('mouseleave', function() {
-                bgOverlayCampus1.style.opacity = '0';
-            });
-            
-            campus2.addEventListener('mouseenter', function() {
-                bgOverlayCampus2.style.opacity = '1';
-            });
-            
-            campus2.addEventListener('mouseleave', function() {
-                bgOverlayCampus2.style.opacity = '0';
-            });
-            
-            menuToggle.addEventListener('click', function() {
-                navContainer.classList.toggle('active');
-                
-                const spans = this.querySelectorAll('span');
-                if (navContainer.classList.contains('active')) {
-                    spans[0].style.transform = 'translateY(11px) rotate(45deg)';
-                    spans[1].style.opacity = '0';
-                    spans[2].style.transform = 'translateY(-11px) rotate(-45deg)';
-                } else {
-                    spans[0].style.transform = '';
-                    spans[1].style.opacity = '';
-                    spans[2].style.transform = '';
-                }
-            });
-            menuToggle.addEventListener('click', function() {
-                this.classList.toggle('active');
-                navContainer.classList.toggle('active');
-            });
-            
-            // Đóng menu khi click bên ngoài
-            document.addEventListener('click', function(event) {
-                if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
-                    navContainer.classList.remove('active');
-                    menuToggle.classList.remove('active');
-                }
-            });
-            document.addEventListener('click', function(event) {
-                if (!navContainer.contains(event.target) && !menuToggle.contains(event.target) && navContainer.classList.contains('active')) {
-                    navContainer.classList.remove('active');
-                    // Reset hamburger icon
-                    const spans = menuToggle.querySelectorAll('span');
-                    spans[0].style.transform = '';
-                    spans[1].style.opacity = '';
-                    spans[2].style.transform = '';
-                }
-            });
-            
-            window.addEventListener('resize', function() {
-                // Reset mobile menu if window is resized to desktop view
-                if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
-                    navContainer.classList.remove('active');
-                    const spans = menuToggle.querySelectorAll('span');
-                    spans.forEach(span => span.classList.remove('active'));
-                }
-                
-                adjustAnimation();
-            });
-            
-            function adjustAnimation() {
-                const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+    
+    // Animation functions
+    function adjustAnimation() {
+        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
-                if (vw <= 576) {
-                    lettersWrapper.style.top = '1rem';
-                    letterH.style.fontSize = '1.5rem';
-                    letterU.style.fontSize = '1.5rem';
-                    letterS.style.fontSize = '1.5rem';
-                    letterT.style.fontSize = '1.5rem';
-                } else if (vw <= 768) {
-                    lettersWrapper.style.top = '1.2rem';
-                    letterH.style.fontSize = '1.8rem';
-                    letterU.style.fontSize = '1.8rem';
-                    letterS.style.fontSize = '1.8rem';
-                    letterT.style.fontSize = '1.8rem';
-                } else {
-                    lettersWrapper.style.top = '1.5rem';
-                    letterH.style.fontSize = '2rem';
-                    letterU.style.fontSize = '2rem';
-                    letterS.style.fontSize = '2rem';
-                    letterT.style.fontSize = '2rem';
-                }
-            }
-            
-            function revealLetter(letter, delay) {
+        if (vw <= 576) {
+            lettersWrapper.style.top = '1rem';
+            letterH.style.fontSize = '1.5rem';
+            letterU.style.fontSize = '1.5rem';
+            letterS.style.fontSize = '1.5rem';
+            letterT.style.fontSize = '1.5rem';
+        } else if (vw <= 768) {
+            lettersWrapper.style.top = '1.2rem';
+            letterH.style.fontSize = '1.8rem';
+            letterU.style.fontSize = '1.8rem';
+            letterS.style.fontSize = '1.8rem';
+            letterT.style.fontSize = '1.8rem';
+        } else {
+            lettersWrapper.style.top = '1.5rem';
+            letterH.style.fontSize = '2rem';
+            letterU.style.fontSize = '2rem';
+            letterS.style.fontSize = '2rem';
+            letterT.style.fontSize = '2rem';
+        }
+    }
+    
+    function revealLetter(letter, delay) {
+        setTimeout(() => {
+            letter.style.opacity = '1';
+            letter.style.filter = 'blur(2px)';
+            setTimeout(() => {
+                letter.style.filter = 'blur(1px)';
                 setTimeout(() => {
-                    letter.style.opacity = '1';
-                    letter.style.filter = 'blur(2px)';
-                    setTimeout(() => {
-                        letter.style.filter = 'blur(1px)';
-                        setTimeout(() => {
-                            letter.style.filter = 'blur(0)';
-                        }, 500);
-                    }, 500);
-                }, delay);
-            }
+                    letter.style.filter = 'blur(0)';
+                }, 500);
+            }, 500);
+        }, delay);
+    }
 
-            revealLetter(letterH, 500);
-            revealLetter(letterS, 900);
-            revealLetter(letterU, 1500);
-            revealLetter(letterT, 1700);
+    // Animation sequence
+    revealLetter(letterH, 500);
+    revealLetter(letterS, 900);
+    revealLetter(letterU, 1500);
+    revealLetter(letterT, 1700);
 
-            setTimeout(() => {
-                letterH.style.transform = 'translateX(0)';
-                letterU.style.transform = 'translateX(0)';
-                letterS.style.transform = 'translateX(0)';
-                letterT.style.transform = 'translateX(0)';
-            }, 3600);
+    setTimeout(() => {
+        letterH.style.transform = 'translateX(0)';
+        letterU.style.transform = 'translateX(0)';
+        letterS.style.transform = 'translateX(0)';
+        letterT.style.transform = 'translateX(0)';
+    }, 3600);
+    
+    // Stage 3: Background appears around HUST and letters change color
+    setTimeout(() => {
+        bgOverlay.style.opacity = '1';
+        
+        letterH.style.color = 'white';
+        letterU.style.color = 'white';
+        letterS.style.color = 'white';
+        letterT.style.color = 'white';
+    }, 3800);
+    
+    // Stage 4: HUST moves to top and becomes smaller, background expands
+    setTimeout(() => {
+        lettersWrapper.style.top = '1.5rem';
+        lettersWrapper.style.transform = 'translate(-50%, 0)';
+        
+        // Adjust sizes based on screen width
+        adjustAnimation();
+        
+        // Expand background evenly from center
+        bgOverlay.style.width = '100%';
+        bgOverlay.style.height = '100%';
+        bgOverlay.style.borderRadius = '0';
+    }, 5500);
+    
+    // Stage 5: HUST letters disappear and menu appears along with big text
+    setTimeout(() => {
+        letterH.style.opacity = '0';
+        letterU.style.opacity = '0';
+        letterS.style.opacity = '0';
+        letterT.style.opacity = '0';
+        
+        // Show all elements simultaneously
+        setTimeout(() => {
+            // Show header, text overlay, and campus options all at once
+            header.style.opacity = '1';
+            header.classList.add('visible');
             
-            // Stage 3: Background appears around HUST and letters change color
-            setTimeout(() => {
-                bgOverlay.style.opacity = '1';
-                
-                letterH.style.color = 'white';
-                letterU.style.color = 'white';
-                letterS.style.color = 'white';
-                letterT.style.color = 'white';
-            }, 3800);
+            // Animate text and options with a slide-in effect
+            bigTextOverlay.style.opacity = '1';
+            bigTextOverlay.style.transform = 'translateY(-50%)';
             
-            // Stage 4: HUST moves to top and becomes smaller, background expands
-            setTimeout(() => {
-                lettersWrapper.style.top = '1.5rem';
-                lettersWrapper.style.transform = 'translate(-50%, 0)';
-                
-                // Adjust sizes based on screen width
-                adjustAnimation();
-                
-                // Expand background evenly from center
-                bgOverlay.style.width = '100%';
-                bgOverlay.style.height = '100%';
-                bgOverlay.style.borderRadius = '0';
-            }, 5500);
+            campusOptionsContainer.style.opacity = '1';
+            campusOptionsContainer.style.transform = 'translateY(0)';
             
-            // Stage 5: HUST letters disappear and menu appears along with big text
-            setTimeout(() => {
-                letterH.style.opacity = '0';
-                letterU.style.opacity = '0';
-                letterS.style.opacity = '0';
-                letterT.style.opacity = '0';
-                
-                // Show all elements simultaneously
+            // Add active class to first nav link
+            navLinks[0].classList.add('active-link');
+            
+            // Show nav links with staggered animation
+            navLinks.forEach((link, index) => {
                 setTimeout(() => {
-                    // Show header, text overlay, and campus options all at once
-                    header.style.opacity = '1';
-                    header.classList.add('visible');
-                    
-                    // Animate text and options with a slide-in effect
-                    bigTextOverlay.style.opacity = '1';
-                    bigTextOverlay.style.transform = 'translateY(-50%)';
-                    
-                    campusOptionsContainer.style.opacity = '1';
-                    campusOptionsContainer.style.transform = 'translateY(0)';
-                    
-                    // Add active class to first nav link
-                    navLinks[0].classList.add('active-link');
-                    
-                    // Show nav links with staggered animation
-                    navLinks.forEach((link, index) => {
-                        setTimeout(() => {
-                            link.style.opacity = '1';
-                            link.style.transform = 'translateY(0)';
-                        }, index * 150);
-                    });
-                }, 300);
-            }, 7000);
-        });
+                    link.style.opacity = '1';
+                    link.style.transform = 'translateY(0)';
+                }, index * 150);
+            });
+        }, 300);
+    }, 7000);
+});
     </script>
     <script>
         
