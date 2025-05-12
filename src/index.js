@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { StudentCollection, DormitoryCollection } = require('./config');
+const { StudentCollection, DormitoryCollection, PendingApplicationCollection } = require('./config');
 const bcrypt = require('bcrypt');
 const app = express();
 const session = require('express-session');
@@ -102,6 +102,221 @@ async function createDefaultAdmin() {
 }
 
 createDefaultAdmin();
+app.get("/profile", isAuthenticated, async (req, res) => {
+    try {
+        // Fetch student details with populated data
+        const student = await StudentCollection.findById(req.session.userId);
+        if (!student) {
+            return res.redirect('/login');
+        }
+        
+        // If student has dormitoryId, fetch dormitory information
+        let dormitory = null;
+        let room = null;
+        if (student.dormitoryId) {
+            dormitory = await DormitoryCollection.findById(student.dormitoryId);
+            
+            // Find student's room if roomNumber is available
+            if (dormitory && student.roomNumber) {
+                for (const floor of dormitory.floors) {
+                    const foundRoom = floor.rooms.find(r => r.roomNumber === student.roomNumber);
+                    if (foundRoom) {
+                        room = foundRoom;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Fetch student's application history
+        const applications = await PendingApplicationCollection.find({
+            studentId: student.studentId
+        }).sort({ createdAt: -1 }).limit(5);
+        
+        // Render profile page with all collected data
+        res.render("profile", {
+            student,
+            dormitory,
+            room,
+            applications,
+            user: { name: req.session.name, role: req.session.role }
+        });
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).send("Internal server error");
+    }
+});
+
+// Route to update profile information
+app.post('/update-profile', isAuthenticated, async (req, res) => {
+    try {
+        // Get updated information from request body
+        const {
+            name,
+            studentId,
+            email,
+            phone,
+            faculty,
+            academicYear,
+            gender
+        } = req.body;
+
+        // Find student and update
+        const student = await StudentCollection.findById(req.session.userId);
+        if (!student) {
+            return res.redirect('/login');
+        }
+
+        // Update session name if it changed
+        if (name && name !== student.name) {
+            req.session.name = name;
+        }
+
+        // Check if email changed and if the new email already exists
+        if (email && email !== student.email) {
+            const existingEmail = await StudentCollection.findOne({ email, _id: { $ne: req.session.userId } });
+            if (existingEmail) {
+                // Flash message would be nice here, but we'll redirect with query parameter instead
+                return res.redirect('/profile?error=email_exists');
+            }
+        }
+
+        // Update student information
+        await StudentCollection.findByIdAndUpdate(req.session.userId, {
+            name,
+            studentId,
+            email,
+            phone,
+            faculty,
+            academicYear,
+            gender
+        });
+
+        res.redirect('/profile?success=profile_updated');
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        res.redirect('/profile?error=update_failed');
+    }
+});
+
+// Route to change password
+app.post('/change-password', isAuthenticated, async (req, res) => {
+    try {
+        const { currentPassword, newPassword, confirmPassword } = req.body;
+
+        // Check if new password and confirm password match
+        if (newPassword !== confirmPassword) {
+            return res.redirect('/profile?error=passwords_dont_match');
+        }
+
+        // Find student
+        const student = await StudentCollection.findById(req.session.userId);
+        if (!student) {
+            return res.redirect('/login');
+        }
+
+        // Check if current password is correct
+        const isPasswordValid = await bcrypt.compare(currentPassword, student.password);
+        if (!isPasswordValid) {
+            return res.redirect('/profile?error=incorrect_password');
+        }
+
+        // Hash new password
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+        // Update password
+        await StudentCollection.findByIdAndUpdate(req.session.userId, {
+            password: hashedPassword
+        });
+
+        res.redirect('/profile?success=password_changed');
+    } catch (error) {
+        console.error('Error changing password:', error);
+        res.redirect('/profile?error=password_change_failed');
+    }
+});
+
+app.get("/profile", isAuthenticated, async (req, res) => {
+    try {
+        // Get any success or error messages from query parameters
+        const success = req.query.success;
+        const error = req.query.error;
+        
+        // Generate appropriate message based on query parameters
+        let message = null;
+        if (success) {
+            switch (success) {
+                case 'profile_updated':
+                    message = { type: 'success', text: 'Thông tin cá nhân đã được cập nhật thành công.' };
+                    break;
+                case 'password_changed':
+                    message = { type: 'success', text: 'Mật khẩu đã được thay đổi thành công.' };
+                    break;
+            }
+        } else if (error) {
+            switch (error) {
+                case 'email_exists':
+                    message = { type: 'error', text: 'Email này đã được sử dụng bởi tài khoản khác.' };
+                    break;
+                case 'update_failed':
+                    message = { type: 'error', text: 'Có lỗi xảy ra khi cập nhật thông tin.' };
+                    break;
+                case 'passwords_dont_match':
+                    message = { type: 'error', text: 'Mật khẩu mới và xác nhận mật khẩu không khớp.' };
+                    break;
+                case 'incorrect_password':
+                    message = { type: 'error', text: 'Mật khẩu hiện tại không đúng.' };
+                    break;
+                case 'password_change_failed':
+                    message = { type: 'error', text: 'Có lỗi xảy ra khi thay đổi mật khẩu.' };
+                    break;
+            }
+        }
+        
+        // Fetch student details with populated data
+        const student = await StudentCollection.findById(req.session.userId);
+        if (!student) {
+            return res.redirect('/login');
+        }
+        
+        // If student has dormitoryId, fetch dormitory information
+        let dormitory = null;
+        let room = null;
+        if (student.dormitoryId) {
+            dormitory = await DormitoryCollection.findById(student.dormitoryId);
+            
+            // Find student's room if roomNumber is available
+            if (dormitory && student.roomNumber) {
+                for (const floor of dormitory.floors) {
+                    const foundRoom = floor.rooms.find(r => r.roomNumber === student.roomNumber);
+                    if (foundRoom) {
+                        room = foundRoom;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // Fetch student's application history
+        const applications = await PendingApplicationCollection.find({
+            studentId: student.studentId
+        }).sort({ createdAt: -1 }).limit(5);
+        
+        // Render profile page with all collected data
+        res.render("profile", {
+            student,
+            dormitory,
+            room,
+            applications,
+            message,
+            user: { name: req.session.name, role: req.session.role }
+        });
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).send("Internal server error");
+    }
+});
 
 app.get("/map", async (req, res) => {
     try {
