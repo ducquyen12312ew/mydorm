@@ -1603,6 +1603,126 @@ body.scrolling-to-stats .animation-wrapper {
         height: 300px;
     }
 }
+.user-profile {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.avatar-container {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+}
+
+.avatar-container:hover {
+    background-color: rgba(230, 26, 26, 0.1);
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-right: 10px;
+    box-shadow: 0 3px 8px rgba(230, 26, 26, 0.3);
+    transition: all 0.3s ease;
+}
+
+.avatar-container:hover .avatar {
+    transform: scale(1.1);
+    box-shadow: 0 5px 15px rgba(230, 26, 26, 0.4);
+}
+
+.user-name {
+    color: var(--text-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: color 0.3s ease;
+}
+
+.avatar-container:hover .user-name {
+    color: var(--primary-color);
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    min-width: 180px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.user-profile:hover .dropdown-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(5px);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(230, 26, 26, 0.1);
+    color: var(--primary-color);
+}
+
+.dropdown-item i {
+    margin-right: 10px;
+    font-size: 0.9rem;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .user-profile {
+        margin-top: 20px;
+        width: 100%;
+    }
+    
+    .avatar-container {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        box-shadow: none;
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .dropdown-item {
+        padding: 10px 0;
+    }
+}
     </style>
 </head>
 <body>
@@ -1617,11 +1737,37 @@ body.scrolling-to-stats .animation-wrapper {
         </div>
         <div class="nav-container" id="navContainer">
             <nav class="nav-links">
-                <a href="#" class="nav-link">TRANG CHỦ</a>
-                <a href="#" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-                <a href="#" class="nav-link">THÔNG BÁO</a>
+                <a href="/" class="nav-link active-link">TRANG CHỦ</a>
+                <a href="/map" class="nav-link">BẢN ĐỒ</a>
+                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
             </nav>
-            <a href="/login" class="login-btn">ĐĂNG NHẬP</a>
+            <!-- Đây là phần được thay đổi: thay nút đăng nhập bằng avatar xem hồ sơ -->
+            <div class="user-profile">
+                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                    <div class="avatar">
+                        <% if (user && user.name) { %>
+                            <%= user.name.charAt(0).toUpperCase() %>
+                        <% } else { %>
+                            U
+                        <% } %>
+                    </div>
+                    <span class="user-name">
+                        <% if (user && user.name) { %>
+                            <%= user.name %>
+                        <% } else { %>
+                            Người dùng
+                        <% } %>
+                    </span>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="/profile" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> Hồ sơ
+                    </a>
+                    <a href="/logout" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
         </div>
     </header>
     <div class="animation-wrapper">
@@ -1637,7 +1783,7 @@ body.scrolling-to-stats .animation-wrapper {
         </div>
         <div class="campus-options-container" id="campusOptionsContainer">
             <div class="campus-options">
-                <div class="campus-option" id="campus1" onclick="window.location.href='/login'">
+                <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
                     <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
                 </div>
                 
