@@ -6,26 +6,73 @@ connect.then(() => {
 })
 .catch(() => {
     console.log("Database cannot be Connected");
-})
+});
 
-// Schema cho thông tin đăng nhập
-const Loginschema = new mongoose.Schema({
+// Schema cho thông tin sinh viên/người dùng
+const StudentSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        trim: true
+    },
+    username: {
+        type: String,
+        required: true,
+        unique: true,
+        trim: true
+    },
+    studentId: {
+        type: String,
+        trim: true,
+        sparse: true // Cho phép null nhưng sẽ là unique nếu tồn tại
+    },
+    email: {
+        type: String,
+        trim: true,
+        sparse: true // Cho phép null nhưng sẽ là unique nếu tồn tại
+    },
+    phone: {
+        type: String,
+        trim: true
     },
     password: {
         type: String,
         required: true
     },
+    faculty: {
+        type: String,
+        trim: true
+    },
+    academicYear: {
+        type: String
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other']
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    dormitoryId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'dormitories'
+    },
+    roomNumber: {
+        type: String
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
     }
 });
 
-// Schema cho người ở trong phòng
+// Schema cho người ở trong phòng (không thay đổi)
 const OccupantSchema = new mongoose.Schema({
     studentId: {
         type: String,
@@ -51,7 +98,7 @@ const OccupantSchema = new mongoose.Schema({
     }
 });
 
-// Schema cho thông tin phòng
+// Schema cho thông tin phòng (không thay đổi)
 const RoomSchema = new mongoose.Schema({
     roomNumber: {
         type: String,
@@ -110,7 +157,7 @@ const FloorSchema = new mongoose.Schema({
     rooms: [RoomSchema]
 });
 
-// Schema cho ký túc xá
+// Schema cho ký túc xá (không thay đổi)
 const DormitorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -215,8 +262,6 @@ DormitorySchema.pre('save', function(next) {
     next();
 });
 
-const UserCollection = mongoose.model("users", Loginschema);
-const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
 const PendingApplicationSchema = new mongoose.Schema({
     studentId: {
         type: String,
@@ -267,9 +312,12 @@ const PendingApplicationSchema = new mongoose.Schema({
     }
 });
 
+const StudentCollection = mongoose.model("students", StudentSchema);
+const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
 const PendingApplicationCollection = mongoose.model("pendingApplications", PendingApplicationSchema);
+
 module.exports = { 
-    UserCollection, 
+    StudentCollection, 
     DormitoryCollection,
     PendingApplicationCollection 
 };

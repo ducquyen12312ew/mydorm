@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { UserCollection, DormitoryCollection } = require('./config');
+const { StudentCollection, DormitoryCollection } = require('./config');
 const bcrypt = require('bcrypt');
 const app = express();
 const session = require('express-session');
@@ -12,7 +12,10 @@ app.use(session({
     secret: 'your-secret-key', 
     resave: false, 
     saveUninitialized: true, 
-    cookie: { secure: false },
+    cookie: { 
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24 // 1 ngày
+    },
     name: 'dormitory_session'
 }));
 
@@ -31,10 +34,27 @@ app.use('/api', adminApplicationRoutes);
 app.use((req, res, next) => {
     res.locals.user = {
         name: req.session.name || null,
-        role: req.session.role || null
+        role: req.session.role || null,
+        id: req.session.userId || null
     };
     next();
 });
+
+// Middleware kiểm tra đăng nhập
+const isAuthenticated = (req, res, next) => {
+    if (req.session && req.session.userId) {
+        return next();
+    }
+    res.redirect('/login');
+};
+
+// Middleware kiểm tra quyền admin
+const isAdmin = (req, res, next) => {
+    if (req.session && req.session.role === 'admin') {
+        return next();
+    }
+    res.redirect('/login');
+};
 
 app.get("/", (req, res) => {
     res.render("startuphome");
@@ -48,20 +68,23 @@ app.get("/signup", (req, res) => {
     res.render("signup");
 });
 
-app.get("/register", (req, res) => {
+app.get("/register", isAuthenticated, (req, res) => {
     res.render("register");
 });
 
 async function createDefaultAdmin() {
     try {
-        const adminExists = await UserCollection.findOne({ role: 'admin' });
+        const adminExists = await StudentCollection.findOne({ role: 'admin' });
         if (!adminExists) {
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash('admin123', saltRounds);
             
-            await UserCollection.create({
-                name: 'admin',
+            await StudentCollection.create({
+                name: 'Administrator',
+                username: 'admin',
                 password: hashedPassword,
+                phone: '0987654321',
+                email: 'admin@hust.edu.vn',
                 role: 'admin'
             });
             
@@ -72,9 +95,7 @@ async function createDefaultAdmin() {
     }
 }
 
-
 createDefaultAdmin();
-
 
 app.get("/map", async (req, res) => {
     try {
@@ -86,12 +107,7 @@ app.get("/map", async (req, res) => {
     }
 });
 
-app.get("/admin/dormitories", async (req, res) => {
-    // Check admin rights
-    if (req.session.role !== 'admin') {
-        return res.redirect('/login');
-    }
-    
+app.get("/admin/dormitories", isAdmin, async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find();
         res.render("admin-dormitories", { 
@@ -108,10 +124,7 @@ app.get("/admin/dormitories", async (req, res) => {
     }
 });
 
-app.get("/admin/application", async (req, res) => {
-    if (req.session.role !== 'admin') {
-        return res.redirect('/login');
-    }
+app.get("/admin/application", isAdmin, async (req, res) => {
     try {
         res.render("admin-application", { 
             user: { name: req.session.name, role: req.session.role } 
@@ -122,11 +135,7 @@ app.get("/admin/application", async (req, res) => {
     }
 });
 
-app.get("/admin/application/:id", async (req, res) => {
-    if (req.session.role !== 'admin') {
-        return res.redirect('/login');
-    }
-    
+app.get("/admin/application/:id", isAdmin, async (req, res) => {
     try {
         res.render("admin-application-detail", { 
             applicationId: req.params.id,
@@ -138,11 +147,7 @@ app.get("/admin/application/:id", async (req, res) => {
     }
 });
 
-app.get("/admin/dormitories/add", (req, res) => {
-    if (req.session.role !== 'admin') {
-        return res.redirect('/login');
-    }
-    
+app.get("/admin/dormitories/add", isAdmin, (req, res) => {
     res.render("admin-dormitory-form", { 
         action: "add",
         dormitory: null,
@@ -150,11 +155,7 @@ app.get("/admin/dormitories/add", (req, res) => {
     });
 });
 
-app.get("/admin/dormitories/edit/:id", async (req, res) => {
-    if (req.session.role !== 'admin') {
-        return res.redirect('/login');
-    }
-    
+app.get("/admin/dormitories/edit/:id", isAdmin, async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);
         if (!dormitory) {
@@ -171,11 +172,7 @@ app.get("/admin/dormitories/edit/:id", async (req, res) => {
     }
 });
 
-app.get("/admin/dormitories/view/:id", async (req, res) => {
-    if (req.session.role !== 'admin') {
-        return res.redirect('/login');
-    }
-    
+app.get("/admin/dormitories/view/:id", isAdmin, async (req, res) => {
     try {
         const dormitory = await DormitoryCollection.findById(req.params.id);
         if (!dormitory) {
@@ -191,6 +188,30 @@ app.get("/admin/dormitories/view/:id", async (req, res) => {
     }
 });
 
+app.get("/profile", isAuthenticated, async (req, res) => {
+    try {
+        const student = await StudentCollection.findById(req.session.userId);
+        if (!student) {
+            return res.redirect('/login');
+        }
+        
+        // Nếu sinh viên có dormitoryId, lấy thông tin ký túc xá
+        let dormitory = null;
+        if (student.dormitoryId) {
+            dormitory = await DormitoryCollection.findById(student.dormitoryId);
+        }
+        
+        res.render("profile", {
+            student,
+            dormitory,
+            user: { name: req.session.name, role: req.session.role }
+        });
+    } catch (error) {
+        console.error("Error fetching profile:", error);
+        res.status(500).send("Internal server error");
+    }
+});
+
 app.get("/api/featured-dormitories", async (req, res) => {
     try {
         const dormitories = await DormitoryCollection.find().limit(5);
@@ -201,74 +222,157 @@ app.get("/api/featured-dormitories", async (req, res) => {
     }
 });
 
+// Route xử lý đăng ký
 app.post("/signup", async (req, res) => {
-    const data = {
-        name: req.body.username,
-        phone: req.body.phone,
-        password: req.body.password,
-    };
+    try {
+        const {
+            username,
+            password,
+            name,
+            email,
+            phone,
+            studentId,
+            gender,
+            faculty,
+            academicYear
+        } = req.body;
 
-    const existingUser = await UserCollection.findOne({ name: data.name });
+        // Kiểm tra username đã tồn tại chưa
+        const existingUser = await StudentCollection.findOne({ username });
+        if (existingUser) {
+            return res.render("signup", { 
+                error: "Tên đăng nhập đã tồn tại. Vui lòng chọn tên đăng nhập khác." 
+            });
+        }
 
-    if (existingUser) {
-        res.send('User already exists. Please choose a different username.');
-    } else {
+        // Kiểm tra email đã tồn tại chưa (nếu có)
+        if (email) {
+            const existingEmail = await StudentCollection.findOne({ email });
+            if (existingEmail) {
+                return res.render("signup", { 
+                    error: "Email đã được sử dụng. Vui lòng sử dụng email khác." 
+                });
+            }
+        }
+
+        // Băm mật khẩu
         const saltRounds = 10;
-        const hashedPassword = await bcrypt.hash(data.password, saltRounds);
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        data.password = hashedPassword;
-        const userdata = await UserCollection.create(data);
-        console.log(userdata);
-        res.render('home', { data });
+        // Tạo tài khoản mới
+        const newStudent = await StudentCollection.create({
+            username,
+            password: hashedPassword,
+            name,
+            email,
+            phone,
+            studentId,
+            gender,
+            faculty,
+            academicYear,
+            role: 'user'
+        });
+
+        // Đăng nhập tự động sau khi đăng ký
+        req.session.userId = newStudent._id;
+        req.session.name = newStudent.name;
+        req.session.role = newStudent.role;
+
+        // Chuyển hướng đến trang chủ
+        res.redirect('/');
+    } catch (error) {
+        console.error("Error during signup:", error);
+        res.render("signup", { 
+            error: "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại."
+        });
     }
 });
 
-app.post("/home", async (req, res) => {
+// Route xử lý đăng nhập
+app.post("/login", async (req, res) => {
     try {
-        const user = await UserCollection.findOne({ name: req.body.username });
-        if (!user) {
-            return res.send("Tên người dùng không tồn tại");
+        const { username, password, remember } = req.body;
+
+        // Tìm người dùng với username
+        const student = await StudentCollection.findOne({ username });
+        if (!student) {
+            return res.render("login", { 
+                error: "Tên đăng nhập hoặc mật khẩu không đúng" 
+            });
         }
 
-        const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
-        if (isPasswordValid) {
-            req.session.name = user.name;
-            req.session.role = user.role;
-
-            if (user.role === "admin") {
-                return res.redirect("/admin/dormitories");
-            }
-
-            return res.render("home", { data: user });
+        // Kiểm tra mật khẩu
+        const isPasswordValid = await bcrypt.compare(password, student.password);
+        if (!isPasswordValid) {
+            return res.render("login", { 
+                error: "Tên đăng nhập hoặc mật khẩu không đúng" 
+            });
         }
 
-        res.send("Tên người dùng hoặc mật khẩu không đúng");
+        // Lưu thông tin vào session
+        req.session.userId = student._id;
+        req.session.name = student.name;
+        req.session.role = student.role;
+
+        // Nếu chọn ghi nhớ đăng nhập, kéo dài thời gian session
+        if (remember) {
+            req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30; // 30 ngày
+        }
+
+        // Chuyển hướng dựa vào vai trò
+        if (student.role === "admin") {
+            return res.redirect("/admin/dormitories");
+        } else {
+            return res.redirect("/");
+        }
     } catch (error) {
         console.error("Error during login:", error);
-        res.status(500).send("Internal server error.");
+        res.render("login", { 
+            error: "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại."
+        });
     }
 });
 
-app.get("/api/map-data", async (req, res) => {
+// Route xử lý forgot password
+app.get("/forgot-password", (req, res) => {
+    res.render("forgot-password");
+});
+
+app.post("/forgot-password", async (req, res) => {
     try {
-        const dormitories = await DormitoryCollection.find();
-        res.json(dormitories);
+        const { email } = req.body;
+
+        // Kiểm tra email có tồn tại không
+        const student = await StudentCollection.findOne({ email });
+        if (!student) {
+            return res.render("forgot-password", { 
+                error: "Email không tồn tại trong hệ thống" 
+            });
+        }
+
+        // Trong thực tế, bạn sẽ gửi email kèm link reset password
+        // Đây là giả lập cho mục đích demo
+        res.render("forgot-password", { 
+            success: "Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn" 
+        });
     } catch (error) {
-        console.error("Error fetching map data:", error);
-        res.status(500).json({ error: "Không thể lấy dữ liệu bản đồ" });
+        console.error("Error during forgot password:", error);
+        res.render("forgot-password", { 
+            error: "Đã xảy ra lỗi. Vui lòng thử lại."
+        });
     }
 });
 
-app.get('/check-session', (req, res) => {
+app.get("/check-session", (req, res) => {
     res.json({
         sessionExists: !!req.session,
         sessionData: req.session
     });
 });
 
-app.get('/logout', (req, res) => {
+app.get("/logout", (req, res) => {
     req.session.destroy();
-    res.redirect('/login');
+    res.redirect("/login");
 });
 
 const port = 5000;

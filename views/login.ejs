@@ -1,39 +1,489 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Đăng nhập</title>
-    <link rel="stylesheet" href="login.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet" />
-    
-  </head>
-  <body>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập | KTX HUST</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #e61a1a;
+            --primary-light: #ff3a3a;
+            --primary-dark: #c01616;
+            --text-color: #333;
+            --bg-color: #f8f9fa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .login-container {
+            display: flex;
+            width: 100%;
+            max-width: 1000px;
+            margin: auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            background-color: #fff;
+        }
+        
+        .login-form {
+            flex: 1;
+            padding: 40px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .login-image {
+            flex: 1;
+            background-image: url('/image/campus-background.jpg');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(230, 26, 26, 0.6);
+            z-index: 1;
+        }
+        
+        .image-content {
+            position: relative;
+            z-index: 2;
+            padding: 40px;
+            color: white;
+            text-align: center;
+        }
+        
+        .image-content h2 {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .image-content p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            line-height: 1.6;
+        }
+        
+        .login-form h1 {
+            font-size: 32px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary-color);
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .form-group .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-group .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(230, 26, 26, 0.2);
+            outline: none;
+        }
+        
+        .form-group .input-with-icon {
+            position: relative;
+        }
+        
+        .form-group .input-with-icon i {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            left: 15px;
+            color: #aaa;
+        }
+        
+        .form-group .input-with-icon input {
+            padding-left: 45px;
+        }
+        
+        .forgot-password {
+            display: block;
+            text-align: right;
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .forgot-password:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+        }
+        
+        .login-btn {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+        }
+        
+        .login-btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .signup-link {
+            text-align: center;
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        
+        .signup-link a {
+            color: var(--primary-color);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .signup-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Form divider */
+        .form-divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+        }
+        
+        .form-divider span {
+            flex: 1;
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .form-divider p {
+            margin: 0 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .login-form {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Đáp ứng */
+        @media (max-width: 992px) {
+            .login-container {
+                flex-direction: column;
+                max-width: 500px;
+            }
+            
+            .login-image {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .login-form {
+                padding: 30px 20px;
+            }
+            
+            .login-form h1 {
+                font-size: 28px;
+            }
+        }
+        
+        .error-message {
+            color: var(--primary-color);
+            font-size: 14px;
+            margin-top: 8px;
+            display: none;
+        }
+        
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: transparent;
+            border: none;
+            color: var(--primary-color);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+        
+        .social-login {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .social-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .social-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .facebook-btn {
+            background-color: #3b5998;
+        }
+        
+        .google-btn {
+            background-color: #db4437;
+        }
+        
+        .microsoft-btn {
+            background-color: #0078d4;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+        
+        .remember-me input {
+            margin-right: 10px;
+        }
+        
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .alert {
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .alert-danger {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
     <div class="login-container">
-      <div class="login-form">
-        <h1>Đăng Nhập</h1>
-        <form action="/home" method="post">
-          <div class="form-group">
-            <input type="text" name="username" placeholder="Tên đăng nhập" required />
-          </div>
-          <div class="form-group">
-            <input
-              type="password"
-              name="password"
-              placeholder="Mật khẩu"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <a href="#" class="forgot-password">Quên mật khẩu</a>
-          </div>
-          <button type="submit" class="login-btn">Đăng nhập</button>
-        </form>
-        <p>
-         Chưa có tài khoản?<a href="/signup">Đăng ký</a>
-        </p>
-      </div>
-      <div class="login-image"></div>
+        <div class="login-form">
+            <a href="/" class="back-button">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h1>Đăng nhập</h1>
+            
+            <!-- Hiển thị thông báo lỗi nếu có -->
+            <% if (typeof error !== 'undefined') { %>
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
+                </div>
+            <% } %>
+            
+            <!-- Hiển thị thông báo thành công nếu có -->
+            <% if (typeof success !== 'undefined') { %>
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i> <%= success %>
+                </div>
+            <% } %>
+            
+            <form action="/login" method="post" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Tên đăng nhập</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" name="username" class="form-control" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Mật khẩu</label>
+                    <div class="input-with-icon position-relative">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                        <span class="password-toggle" onclick="togglePassword()">
+                            <i class="far fa-eye"></i>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember" class="form-check-input">
+                    <label for="remember" class="form-check-label">Ghi nhớ đăng nhập</label>
+                </div>
+                
+                <a href="/forgot-password" class="forgot-password">Quên mật khẩu?</a>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                </button>
+            </form>
+            
+            <div class="form-divider">
+                <span></span>
+                <p>hoặc</p>
+                <span></span>
+            </div>
+            
+            <div class="social-login">
+                <div class="social-btn facebook-btn" title="Đăng nhập bằng Facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <div class="social-btn google-btn" title="Đăng nhập bằng Google">
+                    <i class="fab fa-google"></i>
+                </div>
+                <div class="social-btn microsoft-btn" title="Đăng nhập bằng Microsoft">
+                    <i class="fab fa-microsoft"></i>
+                </div>
+            </div>
+            
+            <div class="signup-link">
+                Chưa có tài khoản? <a href="/signup">Đăng ký ngay</a>
+            </div>
+        </div>
+        
+        <div class="login-image">
+            <div class="image-content">
+                <h2>Chào mừng trở lại!</h2>
+                <p>Đăng nhập để quản lý phòng ký túc xá của bạn và truy cập các dịch vụ dành cho sinh viên Bách Khoa Hà Nội.</p>
+                <img src="/image/logo.png" alt="HUST Logo" style="max-width: 150px; margin-top: 20px;">
+            </div>
+        </div>
     </div>
-  </body>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Hiển thị/ẩn mật khẩu
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.querySelector('.password-toggle i');
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+        
+        // Xử lý sự kiện submit form
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            // Xác thực dữ liệu nếu cần
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                event.preventDefault();
+                alert('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+            }
+        });
+        
+        // Xử lý đăng nhập bằng mạng xã hội
+        document.querySelector('.facebook-btn').addEventListener('click', function() {
+            alert('Tính năng đăng nhập bằng Facebook đang được phát triển!');
+        });
+        
+        document.querySelector('.google-btn').addEventListener('click', function() {
+            alert('Tính năng đăng nhập bằng Google đang được phát triển!');
+        });
+        
+        document.querySelector('.microsoft-btn').addEventListener('click', function() {
+            alert('Tính năng đăng nhập bằng Microsoft đang được phát triển!');
+        });
+    </script>
+</body>
 </html>
