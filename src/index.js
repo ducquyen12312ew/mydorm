@@ -57,7 +57,13 @@ const isAdmin = (req, res, next) => {
 };
 
 app.get("/", (req, res) => {
-    res.render("startuphome");
+    if (req.session && req.session.userId) {
+        // Nếu đã đăng nhập, hiển thị home.ejs
+        res.render("home");
+    } else {
+        // Nếu chưa đăng nhập, hiển thị startuphome.ejs
+        res.render("startuphome");
+    }
 });
 
 app.get("/login", (req, res) => {
