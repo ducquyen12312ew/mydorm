@@ -3,1732 +3,633 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TRANG CHỦ</title>
+    <title>KTX HUST - Hệ thống Ký túc xá</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Anton&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Add these lines to the <head> section of your HTML -->
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-
-<!-- Leaflet JavaScript (add before the closing </body> tag) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <style>
-    * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Quicksand', sans-serif;
-}
-
-:root {
-    --primary-color: #e61a1a;
-    --primary-dark: #c01616;
-    --primary-light: #ff3a3a;
-    --text-color: #333;
-    --bg-color: #f8f3ef;
-    --menu-bg: white;
-    --accent-red: #ff2b2b;
-}
-
-html {
-    font-size: 16px;
-    scroll-behavior: smooth;
-}
-
-@media (max-width: 1200px) {
-    html {
-        font-size: 15px;
-    }
-}
-
-@media (max-width: 992px) {
-    html {
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 768px) {
-    html {
-        font-size: 13px;
-    }
-}
-
-@media (max-width: 576px) {
-    html {
-        font-size: 12px;
-    }
-}
-
-body {
-    overflow-y: auto !important; /* Ghi đè bất kỳ thuộc tính overflow:hidden nào */
-    overflow-x: hidden;
-    height: auto !important; /* Đảm bảo body không bị giới hạn chiều cao */
-}
-
-.animation-wrapper {
-    position: relative; /* Thay đổi từ fixed sang relative */
-    width: 100%;
-    height: 100vh; /* Chiều cao đúng bằng viewport */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10; /* Giảm z-index xuống */
-    overflow: visible; /* Cho phép nội dung bên ngoài hiển thị */
-    transform-origin: center bottom;
-    transition: transform 0.8s cubic-bezier(0.65, 0, 0.35, 1), 
-                opacity 0.8s ease, 
-                filter 0.8s ease;
-}
-
-body.scrolling-to-stats .animation-wrapper {
-    transform: scale(0.9) translateY(-5vh); /* Thu nhỏ và đẩy lên trên */
-    opacity: 0.8;
-    filter: blur(5px) brightness(0.7);
-}
-
-.letters-wrapper {
-    position: absolute;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 0;
-    transition: top 2s ease, transform 2s ease;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-}
-
-.letter {
-    font-size: 10rem; /* Increased size */
-    font-weight: bold;
-    opacity: 0;
-    color: var(--primary-color);
-    transition: opacity 1.5s ease, transform 1.5s ease, color 1.5s ease, font-size 2s ease, filter 1.5s ease;
-    filter: blur(100px);
-    font-family: 'Anton', sans-serif;
-    text-shadow: 0 0 20px rgba(230, 26, 26, 0.3);
-}
-
-/* Responsive letter sizing */
-@media (max-width: 768px) {
-    .letter {
-        font-size: 8rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .letter {
-        font-size: 6rem;
-    }
-}
-
-/* Responsive letter positioning */
-@media (max-width: 768px) {
-    .letter-H { transform: translateX(-120px); }
-    .letter-U { transform: translateX(-40px); }
-    .letter-S { transform: translateX(40px); }
-    .letter-T { transform: translateX(120px); }
-}
-
-@media (max-width: 576px) {
-    .letter-H { transform: translateX(-80px); }
-    .letter-U { transform: translateX(-25px); }
-    .letter-S { transform: translateX(25px); }
-    .letter-T { transform: translateX(80px); }
-}
-
-@media (min-width: 769px) {
-    .letter-H { transform: translateX(-200px); } /* Increased spacing */
-    .letter-U { transform: translateX(-70px); }
-    .letter-S { transform: translateX(70px); }
-    .letter-T { transform: translateX(200px); }
-}
-
-/* Backgrounds container for morphing effect */
-.bg-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-}
-
-.bg-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 700px; /* Increased size */
-    height: 700px; /* Increased size */
-    transform: translate(-50%, -50%);
-    background-image: url('image/background.png');
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transition: opacity 2s ease, width 2s ease, height 2s ease, border-radius 2s ease;
-    z-index: 1;
-    border-radius: 15px; /* More rounded corners */
-    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.3); /* Added shadow for depth */
-}
-
-.bg-overlay-campus1, .bg-overlay-campus2 {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-size: cover;
-    background-position: center;
-    opacity: 0;
-    transition: opacity 0.6s ease; /* Faster transition for morphing */
-    z-index: 2;
-}
-
-.bg-overlay-campus1 {
-    background-image: url('image/camp1.png');
-}
-
-.bg-overlay-campus2 {
-    background-image: url('image/camp2.png');
-}
-
-/* Big text overlay styling - left-aligned with thicker text */
-.big-text-overlay {
-    position: absolute;
-    top: 50%;
-    left: 8%; /* Moved further to the left */
-    transform: translateY(-50%);
-    z-index: 5;
-    opacity: 0;
-    text-align: left;
-    width: 60%;
-    max-width: 800px;
-    transition: opacity 0.8s ease, transform 0.8s ease;
-    transform: translateY(-30px); /* Initial position for animation */
-}
-
-.big-text-line {
-    color: white;
-    font-size: 4.5rem; /* Increased size */
-    font-weight: 900;
-    line-height: 1.1;
-    text-transform: uppercase;
-    text-shadow: 2px 5px 15px rgba(0, 0, 0, 0.4); /* Enhanced shadow */
-    letter-spacing: -1px;
-    font-family: 'Montserrat', sans-serif; /* Changed font */
-    margin-bottom: 0.5rem;
-}
-
-.subtitle {
-    color: white;
-    font-size: 2rem; /* Increased size */
-    font-weight: 500;
-    margin-top: 2rem;
-    text-shadow: 1px 3px 8px rgba(0, 0, 0, 0.4); /* Enhanced shadow */
-    font-family: 'Quicksand', sans-serif;
-    line-height: 1.4;
-    max-width: 90%;
-}
-
-/* Campus options styling - centered on page */
-.campus-options-container {
-    position: absolute;
-    bottom: 20%; /* Moved higher up */
-    left: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    z-index: 5;
-    opacity: 0;
-    transition: opacity 0.8s ease, transform 0.8s ease;
-    transform: translateY(30px); /* Initial position for animation */
-}
-
-.campus-options {
-    display: flex;
-    justify-content: center;
-    gap: 3rem; /* Increased gap */
-    width: 100%;
-}
-
-.campus-option {
-    position: relative;
-    padding: 1.2rem 2.5rem; /* Larger padding */
-    background-color: rgba(255, 255, 255, 0.15); /* Slightly more opaque */
-    border: 2px solid rgba(255, 255, 255, 0.4); /* More visible border */
-    border-radius: 12px; /* More rounded corners */
-    color: white;
-    font-weight: 700; /* Bolder text */
-    font-size: 1.3rem; /* Larger font */
-    cursor: pointer;
-    overflow: hidden;
-    transition: all 0.4s ease; /* Faster transition */
-    font-family: 'Montserrat', sans-serif;
-    z-index: 1;
-    text-align: center;
-    letter-spacing: 1px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2); /* Added shadow */
-}
-
-.campus-option:hover {
-    background-color: var(--primary-color);
-    transform: translateY(-8px) scale(1.05); /* Larger lift and slight scale */
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25); /* Enhanced shadow on hover */
-    border-color: var(--primary-color);
-}
-
-.campus-option::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.campus-option:hover::before {
-    opacity: 1;
-}
-@media (max-width: 768px) {
-    .big-text-line {
-        font-size: 2.5rem !important;
-    }
-    
-    .subtitle {
-        font-size: 1rem !important;
-        margin-top: 1rem;
-    }
-    
-    .big-text-overlay {
-        left: 5%;
-        width: 90%;
-        padding: 0 10px;
-    }
-}
-
-@media (max-width: 576px) {
-    .big-text-line {
-        font-size: 2rem !important;
-    }
-    
-    .subtitle {
-        font-size: 0.9rem !important;
-        line-height: 1.3;
-    }
-}
-
-@media (max-width: 400px) {
-    .big-text-line {
-        font-size: 1.6rem !important;
-    }
-    
-    .subtitle {
-        font-size: 0.85rem !important;
-    }
-}
-
-/* Letter sizes for mobile */
-@media (max-width: 768px) {
-    .letter {
-        font-size: 5rem !important;
-    }
-}
-
-@media (max-width: 576px) {
-    .letter {
-        font-size: 4rem !important;
-    }
-}
-
-@media (max-width: 400px) {
-    .letter {
-        font-size: 3rem !important;
-    }
-}
-
-/* Campus options adjustments */
-@media (max-width: 768px) {
-    .campus-options-container {
-        bottom: 10%;
-    }
-    
-    .campus-option {
-        padding: 0.8rem 1.8rem;
-        font-size: 1rem;
-        width: 80%;
-        max-width: 300px;
-    }
-}
-
-@media (max-width: 576px) {
-    .campus-option {
-        padding: 0.7rem 1.5rem;
-        font-size: 0.9rem;
-        width: 85%;
-    }
-}
-
-@media (max-width: 400px) {
-    .campus-option {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.85rem;
-        width: 90%;
-    }
-}
-.tooltip {
-    position: absolute;
-    bottom: calc(100% + 15px);
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background-color: white;
-    color: var(--text-color);
-    padding: 0.7rem 1rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    white-space: nowrap;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 500;
-    pointer-events: none;
-}
-
-.tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -8px;
-    border-width: 8px;
-    border-style: solid;
-    border-color: white transparent transparent transparent;
-}
-
-.campus-option:hover .tooltip {
-    opacity: 1;
-    visibility: visible;
-    transform: translateX(-50%) translateY(0);
-}
-
-/* Enhanced Header Styling */
-.header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 1.2rem 2.5rem; /* Increased padding */
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background-color: var(--menu-bg);
-    opacity: 0;
-    transition: opacity 1s ease, transform 0.5s ease;
-    z-index: 2000;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08); /* Subtle shadow */
-    transform: translateY(-10px);
-}
-
-.header.visible {
-    transform: translateY(0);
-}
-
-.header-logo {
-    display: flex;
-    align-items: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.header-logo img {
-    max-height: 3rem; /* Larger logo */
-    width: auto;
-    transition: transform 0.5s ease;
-}
-@media (max-width: 768px) {
-    .header-logo img {
-        max-height: 1.8rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .header-logo img {
-        max-height: 1.5rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .header-logo img {
-        max-height: 1.3rem;
-    }
-}
-.nav-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-grow: 1;
-    margin-left: 5rem; /* Increased margin */
-}
-
-.nav-links {
-    display: flex;
-    gap: 3.5rem; /* Increased gap */
-}
-
-.nav-links .nav-link {
-    opacity: 0;
-    transform: translateY(10px);
-    transition: opacity 0.5s ease, transform 0.5s ease, color 0.3s ease;
-}
-
-.nav-link {
-    color: var(--text-color);
-    text-decoration: none;
-    font-size: 1.2rem; /* Larger font */
-    font-weight: 700; /* Bolder text */
-    transition: all 0.3s ease;
-    padding: 0.8rem 0;
-    position: relative;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    font-family: 'Montserrat', sans-serif;
-}
-
-.nav-link::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 3px; /* Thicker line */
-    bottom: 0.5rem;
-    left: -100%;
-    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    z-index: -1;
-}
-
-.nav-link::after {
-    content: '';
-    position: absolute;
-    width: 6px; /* Larger dot */
-    height: 6px; /* Larger dot */
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    bottom: 0.4rem;
-    left: 50%;
-    opacity: 0;
-    transform: translateX(-50%) scale(0);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.nav-link:hover {
-    color: var(--primary-color);
-    transform: translateY(-3px); /* Increased lift */
-    text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
-}
-
-.nav-link:hover::before {
-    left: 0;
-}
-
-.nav-link:hover::after {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-}
-
-.nav-link.active-link {
-    color: var(--primary-color);
-}
-
-.nav-link.active-link::after {
-    opacity: 1;
-    transform: translateX(-50%) scale(1);
-}
-
-.login-btn {
-    padding: 1rem 2.5rem; /* Larger padding */
-    background-color: transparent;
-    color: var(--primary-color);
-    border: 2.5px solid var(--primary-color); /* Thicker border */
-    border-radius: 50px;
-    font-weight: 700; /* Bolder text */
-    font-size: 1.1rem; /* Larger font */
-    cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    text-decoration: none;
-    display: inline-block;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    position: relative;
-    overflow: hidden;
-    z-index: 1;
-    font-family: 'Montserrat', sans-serif;
-    box-shadow: 0 4px 15px rgba(230, 26, 26, 0.15); /* Added shadow */
-}
-
-.login-btn::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 0;
-    height: 0;
-    background-color: var(--primary-color);
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    z-index: -1;
-    transition: width 0.5s ease, height 0.5s ease;
-}
-
-.login-btn:hover {
-    color: white;
-    transform: translateY(-5px); /* Increased lift */
-    box-shadow: 0 8px 25px rgba(230, 26, 26, 0.3); /* Enhanced shadow */
-}
-
-.login-btn:hover::before {
-    width: 300%; /* Increased to ensure full coverage */
-    height: 300%;
-}
-
-.login-btn:active {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(230, 26, 26, 0.3);
-}
-
-.menu-toggle {
-    display: none;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 30px;
-    height: 21px;
-    cursor: pointer;
-    z-index: 2001;
-    position: relative;
-}
-
-.menu-toggle span {
-    display: block;
-    height: 3px;
-    width: 100%;
-    background-color: #e61a1a;
-    border-radius: 3px;
-    transition: all 0.3s ease;
-    transform-origin: center;
-}
-@media (max-width: 768px) {
-    .menu-toggle {
-        display: flex;
-    }
-    
-    .nav-container {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 80%;
-        max-width: 300px;
-        height: 100vh;
-        background-color: white;
-        flex-direction: column;
-        justify-content: flex-start;
-        padding: 5rem 2rem 2rem;
-        transition: right 0.3s ease;
-        margin-left: 0;
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-        z-index: 1999;
-    }
-    
-    .nav-container.active {
-        right: 0;
-    }
-    
-    .nav-links {
-        flex-direction: column;
-        gap: 1.5rem;
-        width: 100%;
-        margin-bottom: 2rem;
-    }
-    
-    .nav-link {
-        padding: 0.8rem 0;
-        font-size: 1.1rem;
-        opacity: 1;
-        transform: none;
-        width: 100%;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-    }
-    
-    .nav-link:last-child {
-        border-bottom: none;
-    }
-    
-    .login-btn {
-        width: 100%;
-        text-align: center;
-        margin-top: 2rem;
-    }
-    
-    /* Hamburger to X animation */
-    .menu-toggle.active span:nth-child(1) {
-        transform: translateY(9px) rotate(45deg);
-    }
-    
-    .menu-toggle.active span:nth-child(2) {
-        opacity: 0;
-    }
-    
-    .menu-toggle.active span:nth-child(3) {
-        transform: translateY(-9px) rotate(-45deg);
-    }
-    
-    /* Overlay when menu is open */
-    .nav-container.active::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: -1;
-    }
-}
-.stats-section {
-    position: relative;
-    padding: 6rem 0;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-    overflow: hidden;
-    z-index: 5;
-    opacity: 0;
-    transform: translateY(100px);
-    transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1), 
-                opacity 1s cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.stats-section.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.stats-section::before {
-    content: '';
-    position: absolute;
-    top: -50px;
-    left: 0;
-    width: 100%;
-    height: 50px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0), white);
-    z-index: 2;
-}
-
-.main-content {
-    position: relative;
-    z-index: 5;
-    width: 100%;
-}
-
-.stats-container {
-    flex: 1;
-    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    z-index: 2;
-}
-
-.section-title {
-    position: relative;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 800;
-    text-align: center;
-    margin-bottom: 2.5rem;
-    color: #333;
-    text-transform: uppercase;
-    padding-bottom: 15px;
-}
-
-.section-title::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 80px;
-    height: 4px;
-    background: #e61a1a;
-    border-radius: 2px;
-}
-
-.section-subtitle {
-    text-align: center;
-    font-size: 1.3rem;
-    color: #666;
-    margin-bottom: 4rem;
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-}
-
-.stat-item {
-    background-color: white;
-    border-radius: 15px;
-    padding: 2.5rem 1.5rem;
-    text-align: center;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    position: relative;
-    overflow: hidden;
-    flex: 1;
-    min-width: 220px;
-    max-width: 280px;
-    transform-origin: center bottom;
-    transform: perspective(1000px) rotateX(20deg) translateY(100px) scale(0.9);
-    opacity: 0;
-    backface-visibility: hidden;
-    transition: transform 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
-                opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1), 
-                box-shadow 0.3s ease;
-}
-.stat-item.animated {
-    transform: perspective(1000px) rotateX(0) translateY(0) scale(1);
-    opacity: 1;
-}
-
-.stat-item::before {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(90deg, #e61a1a, #ff6666);
-    top: 0;
-    left: 0;
-}
-
-.stat-item::after {
-    content: '';
-    position: absolute;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(230, 26, 26, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
-    top: -50%;
-    left: -50%;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-
-.stat-item:hover {
-    transform: translateY(-15px) scale(1.05);
-    box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
-}
-
-.stat-item:hover::after {
-    opacity: 1;
-}
-
-.stat-item:nth-child(1) {
-    transition-delay: 0.1s;
-}
-
-.stat-item:nth-child(2) {
-    transition-delay: 0.3s;
-}
-
-.stat-item:nth-child(3) {
-    transition-delay: 0.5s;
-}
-
-.stat-item:nth-child(4) {
-    transition-delay: 0.7s;
-}
-
-.stat-icon-container {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 1.5rem;
-}
-
-.stat-icon {
-    position: relative;
-    font-size: 3rem;
-    color: #e61a1a;
-    z-index: 2;
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.stat-icon::after {
-    content: '';
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    background-color: rgba(230, 26, 26, 0.1);
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: -1;
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover .stat-icon::after {
-    width: 60px;
-    height: 60px;
-    background-color: rgba(230, 26, 26, 0.2);
-}
-
-.stat-number {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 3.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #e61a1a, #ff6b6b);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
-    line-height: 1;
-    transition: all 0.3s ease;
-}
-
-.stat-label {
-    font-size: 1.2rem;
-    color: #666;
-    font-weight: 600;
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover .stat-label {
-    color: #333;
-}
-
-/* HUST Logo and Featured Amenities */
-.hust-logo-section {
-    display: none; /* Ẩn phần HUST giữa hai mục */
-}
-
-.features-section {
-    position: relative;
-    opacity: 0;
-    transform: translateY(100px);
-    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1), 
-                opacity 1.2s cubic-bezier(0.19, 1, 0.22, 1);
-}
-.features-section.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-.features-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 cột bằng nhau */
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-/* Wave effect for section transitions */
-.wave-top {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    overflow: hidden;
-    line-height: 0;
-}
-
-.wave-top svg {
-    position: relative;
-    display: block;
-    width: calc(100% + 1.3px);
-    height: 70px;
-}
-
-.wave-top .shape-fill {
-    fill: #FFFFFF;
-}
-
-.feature-item {
-    background-color: white;
-    border-radius: 15px;
-    padding: 2.5rem;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-    transition: all 0.5s cubic-bezier(0.215, 0.61, 0.355, 1);
-    position: relative;
-    overflow: hidden;
-    min-height: 250px;
-    margin-bottom: 30px;
-    border-top: 5px solid #e61a1a;
-    opacity: 0;
-    transform-origin: center center;
-    transform: perspective(1000px) rotateY(-10deg) translateZ(-100px);
-    opacity: 0;
-    transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), 
-                box-shadow 0.4s ease;
-    will-change: transform, opacity;
-}
-.feature-item:hover {
-    transform: scale(1.05) translateY(-10px);
-    box-shadow: 0 25px 40px rgba(0, 0, 0, 0.2);
-}
-
-.feature-icon-wrapper {
-    position: relative;
-    display: inline-block;
-    margin-bottom: 1.5rem;
-}
-
-.feature-icon {
-    position: relative;
-    font-size: 3rem;
-    color: #e61a1a;
-    z-index: 1;
-}
-
-.feature-icon-bg {
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    background-color: rgba(230, 26, 26, 0.1);
-    border-radius: 50%;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 0;
-    transition: all 0.3s ease;
-}
-
-.feature-item:hover .feature-icon-bg {
-    width: 70px;
-    height: 70px;
-    background-color: rgba(230, 26, 26, 0.2);
-}
-
-.feature-title {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    color: #333;
-    transition: all 0.3s ease;
-}
-
-.feature-item:hover .feature-title {
-    color: #e61a1a;
-}
-
-.feature-description {
-    font-size: 1.1rem;
-    color: #666;
-    line-height: 1.6;
-}
-.feature-item.animated {
-    transform: perspective(1000px) rotateY(0) translateZ(0);
-    opacity: 1;
-}
-.feature-item::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    background: linear-gradient(45deg, transparent, rgba(230, 26, 26, 0.2), transparent);
-    border-radius: 20px;
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.5s ease;
-}
-.feature-item:hover::before {
-    opacity: 1;
-}
-.feature-item:hover .feature-icon {
-    transform: translateY(-10px) scale(1.2);
-    color: var(--primary-color);
-    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
-}
-
-/* Tạo hiệu ứng xuất hiện lần lượt */
-.feature-item:nth-child(1) { transition-delay: 0.1s; }
-.feature-item:nth-child(2) { transition-delay: 0.2s; }
-.feature-item:nth-child(3) { transition-delay: 0.3s; }
-.feature-item:nth-child(4) { transition-delay: 0.4s; }
-.feature-item:nth-child(5) { transition-delay: 0.5s; }
-.feature-item:nth-child(6) { transition-delay: 0.6s; }
-/* Scroll down indicator */
-.scroll-down {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    cursor: pointer;
-    z-index: 100;
-    opacity: 0; /* Bắt đầu ẩn */
-    transition: opacity 0.5s ease, transform 0.3s ease;
-}
-
-.scroll-down.visible {
-    opacity: 1;
-}
-
-.scroll-down:hover {
-    transform: translateX(-50%) translateY(5px);
-}
-
-.scroll-down-text {
-    color: #fff;
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-.scroll-down-icon {
-    position: relative;
-    color: white;
-    font-size: 30px;
-    animation: scrollBounce 2s infinite;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
-
-/* Enhanced Background Bubbles */
-.section-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    z-index: 1;
-    pointer-events: none; /* Ensure it doesn't interfere with clicks */
-}
-
-/* Enhanced bubble styling */
-.circle {
-    position: absolute;
-    border-radius: 50%;
-    background: linear-gradient(135deg, rgba(230, 26, 26, 0.08) 0%, rgba(255, 107, 107, 0.03) 100%);
-    box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.5), 0 0 15px rgba(230, 26, 26, 0.05);
-    backdrop-filter: blur(2px);
-    animation: float 20s infinite ease-in-out;
-    opacity: 0.8;
-    transition: all 0.5s ease;
-    border: 1px solid rgba(230, 26, 26, 0.05);
-}
-.two-column-wrapper {
-    position: relative;
-    display: flex;
-    gap: 30px;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 15px;
-    position: relative;
-    z-index: 5;
-    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-
-/* Map styling - Right column */
-.map-container {
-    flex: 1.5;
-    background: white;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #e61a1a;
-    transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-    position: relative;
-    z-index: 2;
-    transform-origin: center;
-}
-/* Hiệu ứng hover cực mạnh cho map container */
-.map-container:hover,
-.map-container.active {
-    flex: 4; /* Phóng to gấp 4 lần khi hover */
-    transform: translateY(-15px) scale(1.1);
-    box-shadow: 0 25px 50px rgba(230, 26, 26, 0.2);
-    z-index: 10;
-    position: relative;
-}
-
-/* Hiệu ứng cho stats container khi hover vào map */
-.map-container:hover ~ .stats-container,
-.two-column-wrapper:has(.map-container:hover) .stats-container,
-.map-container.active ~ .stats-container,
-.two-column-wrapper:has(.map-container.active) .stats-container {
-    flex: 0.3; /* Thu nhỏ còn rất nhỏ (chỉ còn 0.3) khi map được hover */
-    opacity: 0.6;
-    transform: scale(0.85) translateX(-30px);
-    filter: blur(1px);
-}
-
-/* Hiệu ứng trước khi hover vào map */
-.map-container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(230, 26, 26, 0.05) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.6s ease;
-    pointer-events: none;
-    z-index: 1;
-}
-
-.map-container:hover::before,
-.map-container.active::before {
-    opacity: 1;
-}
-/* Hiệu ứng viền xung quanh map khi hover */
-.map-container:hover::after,
-.map-container.active::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 14px;
-    background: linear-gradient(45deg, rgba(230, 26, 26, 0.3), transparent, rgba(230, 26, 26, 0.3));
-    z-index: -1;
-    animation: border-glow 2s ease-in-out infinite;
-}
-
-/* Hiệu ứng cho các phần tử bên trong */
-.map-container:hover .map-header h3,
-.map-container.active .map-header h3 {
-    color: #e61a1a;
-    transform: scale(1.05);
-    font-weight: 800;
-}
-.map-header {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #f0f0f0;
-    transition: all 0.4s ease;
-}
-.map-container:hover #dormitory-map {
-    height: 380px;
-}
-.map-header h3 {
-    margin: 0;
-    font-weight: 700;
-    color: #333;
-    font-size: 1.5rem;
-    transition: all 0.4s ease;
-}
-/* Tăng chiều cao rất nhiều cho map khi hover */
-.map-container:hover #dormitory-map,
-.map-container.active #dormitory-map {
-    height: 500px; /* Tăng chiều cao rất lớn khi hover */
-}
-#dormitory-map {
-    width: 100%;
-    height: 330px;
-    background-color: #f5f5f5;
-    border-radius: 0 0 8px 8px;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-    transition: height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-/* Hiệu ứng "gợi ý" hover cho người dùng */
-.map-hover-hint {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(255, 255, 255, 0.85);
-    padding: 0.8rem 1.2rem;
-    border-radius: 50px;
-    font-size: 0.9rem;
-    color: #333;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    white-space: nowrap;
-    z-index: 100;
-}
-
-.map-container:not(:hover):not(.active) .map-hover-hint {
-    opacity: 1;
-}
-
-/* Hiệu ứng ánh sáng xung quanh */
-@keyframes border-glow {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
-}
-
-/* Hiệu ứng nhấp nháy cho marker trên bản đồ */
-@keyframes marker-pulse {
-    0% { transform: scale(1); opacity: 0.7; }
-    50% { transform: scale(1.5); opacity: 1; } 
-    100% { transform: scale(1); opacity: 0.7; }
-}
-
-/* Hiệu ứng thu nhỏ cho các số thống kê khi hover vào map */
-.map-container:hover ~ .stats-container .stat-item,
-.two-column-wrapper:has(.map-container:hover) .stat-item {
-    transform: scale(0.95);
-}
-
-/* Hiệu ứng phóng to cho stat-item khi hover vào chính nó */
-.stat-item:hover {
-    transform: translateY(-15px) scale(1.1) !important;
-    z-index: 4;
-    opacity: 1 !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 992px) {
-    .two-column-wrapper {
-        flex-direction: column;
-    }
-    
-    .stats-container, .map-container {
-        width: 100%;
-    }
-    
-    .map-container:hover {
-        flex: 1;
-        transform: translateY(-5px) scale(1.03);
-    }
-    
-    .map-container:hover ~ .stats-container,
-    .two-column-wrapper:has(.map-container:hover) .stats-container {
-        flex: 1;
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-}
-
-@media (max-width: 768px) {
-    .map-container:hover #dormitory-map {
-        height: 330px;
-    }
-    
-    #dormitory-map {
-        height: 300px;
-    }
-}
-
-@media (max-width: 576px) {
-    .map-container:hover #dormitory-map {
-        height: 280px;
-    }
-    
-    #dormitory-map {
-        height: 250px;
-    }
-}
-.custom-popup {
-    max-width: 250px;
-    padding: 5px;
-}
-
-.custom-popup h3 {
-    color: #e61a1a;
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.2rem;
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 5px;
-}
-
-.custom-popup .image {
-    width: 100%;
-    height: 120px;
-    background-color: #f0f0f0;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-style: italic;
-    color: #666;
-    background-size: cover;
-    background-position: center;
-    border-radius: 5px;
-}
-
-.custom-popup p {
-    margin: 5px 0;
-    font-size: 0.9rem;
-}
-
-.custom-popup button {
-    background: #e61a1a;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    margin-top: 10px;
-    transition: background-color 0.3s;
-}
-
-.custom-popup button:hover {
-    background: #c01616;
-}
-
-/* Make sure Leaflet controls don't interfere with our custom controls */
-.leaflet-control-container .leaflet-top.leaflet-right {
-    display: none;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #dormitory-map {
-        height: 300px;
-    }
-}
-
-@media (max-width: 576px) {
-    #dormitory-map {
-        height: 250px;
-    }
-}
-/* More bubbles with varied sizes */
-.circle-1 {
-    width: 350px;
-    height: 350px;
-    top: -150px;
-    left: -100px;
-    animation-delay: 0s;
-}
-
-.circle-2 {
-    width: 250px;
-    height: 250px;
-    top: 45%;
-    right: -80px;
-    animation-delay: 5s;
-    border: 1px solid rgba(230, 26, 26, 0.03);
-}
-
-.circle-3 {
-    width: 180px;
-    height: 180px;
-    bottom: -75px;
-    left: 30%;
-    animation-delay: 10s;
-    border: 1px solid rgba(230, 26, 26, 0.04);
-}
-.animation-wrapper {
-    cursor: none; /* Ẩn con trỏ mặc định */
-    overflow: hidden; /* Đảm bảo các bong bóng không tràn ra ngoài */
-}
-
-/* Con trỏ chính */
-.custom-cursor {
-    position: fixed;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 0 15px rgba(255, 255, 255, 0.5), 
-                inset 0 0 10px rgba(255, 255, 255, 0.3);
-    pointer-events: none;
-    transform: translate(-50%, -50%);
-    z-index: 3000;
-    filter: drop-shadow(0 0 6px rgba(230, 26, 26, 0.5));
-    transition: transform 0.1s ease-out;
-}
-
-/* Con trỏ thứ hai (theo sau con trỏ chính với độ trễ) */
-.cursor-follower {
-    position: fixed;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: rgba(230, 26, 26, 0.2);
-    pointer-events: none;
-    transform: translate(-50%, -50%);
-    z-index: 2999;
-    transition: transform 0.3s ease, width 0.2s ease, height 0.2s ease;
-    backdrop-filter: blur(2px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Lớp bong bóng sẽ được tạo động bằng JavaScript */
-.water-drop {
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.3);
-    pointer-events: none;
-    z-index: 2500;
-    transform: translate(-50%, -50%);
-    animation: ripple 1.5s linear forwards;
-    backdrop-filter: blur(1px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Animation cho bong bóng/giọt nước */
-@keyframes ripple {
-    0% {
-        opacity: 0.8;
-        width: 10px;
-        height: 10px;
-    }
-    50% {
-        opacity: 0.4;
-    }
-    100% {
-        opacity: 0;
-        width: 80px;
-        height: 80px;
-    }
-}
-
-/* Hiệu ứng khi hover */
-.custom-cursor.hover {
-    transform: translate(-50%, -50%) scale(0.5);
-    background-color: rgba(255, 255, 255, 0.9);
-}
-
-.cursor-follower.hover {
-    width: 60px;
-    height: 60px;
-    background-color: rgba(230, 26, 26, 0.4);
-}
-
-/* Hiệu ứng khi click */
-.custom-cursor.click {
-    transform: translate(-50%, -50%) scale(1.5);
-}
-
-.cursor-follower.click {
-    transform: translate(-50%, -50%) scale(0.8);
-}
-@keyframes float {
-    0% {
-        transform: translateY(0) translateX(0);
-    }
-    25% {
-        transform: translateY(-20px) translateX(20px);
-    }
-    50% {
-        transform: translateY(0) translateX(40px);
-    }
-    75% {
-        transform: translateY(20px) translateX(20px);
-    }
-    100% {
-        transform: translateY(0) translateX(0);
-    }
-}
-@keyframes scrollBounce {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-    }
-    40% {
-        transform: translateY(-10px);
-    }
-    60% {
-        transform: translateY(-5px);
-    }
-}
-
-@media (max-width: 768px) {
-    .section-title {
-        font-size: 2rem;
-    }
-    
-    .section-subtitle {
-        font-size: 1.1rem;
-    }
-    
-    .stat-item {
-        min-width: 150px;
-        margin-bottom: 20px;
-    }
-    
-    .stat-number {
-        font-size: 2.8rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .stat-item {
-        min-width: 100%;
-    }
-}
-@media (max-width: 992px) {
-    .features-grid {
-        grid-template-columns: repeat(2, 1fr); /* 2 cột cho tablet */
-    }
-}
-
-@media (max-width: 576px) {
-    .features-grid {
-        grid-template-columns: 1fr; /* 1 cột cho mobile */
-    }
-}
-@media (max-width: 992px) {
-    .two-column-wrapper {
-        flex-direction: column;
-    }
-    
-    .stats-container, .map-container {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    #dormitory-map {
-        height: 300px;
-    }
-}
-.user-profile {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.avatar-container {
-    display: flex;
-    align-items: center;
-    text-decoration: none;
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 30px;
-    transition: all 0.3s ease;
-}
-
-.avatar-container:hover {
-    background-color: rgba(230, 26, 26, 0.1);
-}
-
-.avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background-color: var(--primary-color);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-    font-size: 1.2rem;
-    margin-right: 10px;
-    box-shadow: 0 3px 8px rgba(230, 26, 26, 0.3);
-    transition: all 0.3s ease;
-}
-
-.avatar-container:hover .avatar {
-    transform: scale(1.1);
-    box-shadow: 0 5px 15px rgba(230, 26, 26, 0.4);
-}
-
-.user-name {
-    color: var(--text-color);
-    font-weight: 600;
-    font-size: 0.9rem;
-    transition: color 0.3s ease;
-}
-
-.avatar-container:hover .user-name {
-    color: var(--primary-color);
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-    min-width: 180px;
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.3s ease;
-    z-index: 1000;
-    overflow: hidden;
-}
-
-.user-profile:hover .dropdown-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(5px);
-}
-
-.dropdown-item {
-    display: flex;
-    align-items: center;
-    padding: 12px 20px;
-    color: var(--text-color);
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.dropdown-item:hover {
-    background-color: rgba(230, 26, 26, 0.1);
-    color: var(--primary-color);
-}
-
-.dropdown-item i {
-    margin-right: 10px;
-    font-size: 0.9rem;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-    .user-profile {
-        margin-top: 20px;
-        width: 100%;
-    }
-    
-    .avatar-container {
-        width: 100%;
-        justify-content: flex-start;
-    }
-    
-    .dropdown-menu {
-        position: static;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-        box-shadow: none;
-        margin-top: 10px;
-        width: 100%;
-    }
-    
-    .dropdown-item {
-        padding: 10px 0;
-    }
-}
+        :root {
+            --primary-color: #e61a1a;
+            --primary-dark: #c01616;
+            --primary-light: #ff3a3a;
+            --text-color: #333;
+            --bg-color: #f8f3ef;
+            --menu-bg: white;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.2rem 2.5rem;
+            background-color: var(--menu-bg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .header-logo {
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header-logo img {
+            max-height: 3rem;
+            width: auto;
+            transition: transform 0.5s ease;
+        }
+        
+        .nav-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-grow: 1;
+            margin-left: 5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 3.5rem;
+        }
+        
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            padding: 0.8rem 0;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            bottom: 0.5rem;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: -1;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            bottom: 0.4rem;
+            left: 50%;
+            opacity: 0;
+            transform: translateX(-50%) scale(0);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .nav-link:hover {
+            color: var(--primary-color);
+            transform: translateY(-3px);
+            text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
+        }
+        
+        .nav-link:hover::before {
+            left: 0;
+        }
+        
+        .nav-link:hover::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+        
+        .nav-link.active-link {
+            color: var(--primary-color);
+        }
+        
+        .nav-link.active-link::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            height: 100vh;
+            background-image: url('/image/campus-background.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            position: relative;
+            color: white;
+            padding: 2rem;
+        }
+        
+        .hero-section {
+            position: relative;
+            width: 100%;
+            height: 100vh; /* This makes it full viewport height */
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('image/background.png');
+            background-size: cover; /* This makes the image cover the entire container */
+            background-position: center; /* Centers the image */
+            background-repeat: no-repeat; /* Prevents image from repeating */
+            z-index: -1; /* Ensures the pseudo-element stays behind the content */
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin-left: 5%;
+        }
+        
+        .hero-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        /* Campus options styling */
+        .campus-options-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            z-index: 5;
+            margin-top: 2rem;
+        }
+        
+        .campus-options {
+            display: flex;
+            gap: 3rem;
+            width: 100%;
+        }
+        
+        .campus-option {
+            position: relative;
+            padding: 1.2rem 2.5rem;
+            background-color: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3rem;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            font-family: 'Montserrat', sans-serif;
+            z-index: 1;
+            text-align: center;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .campus-option:hover {
+            background-color: var(--primary-color);
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            border-color: var(--primary-color);
+        }
+        
+        .campus-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .campus-option:hover::before {
+            opacity: 1;
+        }
+        
+        .tooltip {
+            position: absolute;
+            bottom: calc(100% + 15px);
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background-color: white;
+            color: var(--text-color);
+            padding: 0.7rem 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 500;
+            pointer-events: none;
+        }
+        
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -8px;
+            border-width: 8px;
+            border-style: solid;
+            border-color: white transparent transparent transparent;
+        }
+        
+        .campus-option:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+        
+        /* Stats Section */
+        .stats-section {
+            padding: 5rem 0;
+            background-color: white;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            color: #666;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .stat-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 3px solid var(--primary-color);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        /* Features Section */
+        .features-section {
+            padding: 5rem 0;
+            background-color: var(--bg-color);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .feature-item {
+            background-color: white;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border-top: 3px solid var(--primary-color);
+        }
+        
+        .feature-item:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+        
+        .feature-description {
+            color: #666;
+        }
+        
+        /* Map Section */
+        .map-section {
+            padding: 5rem 0;
+            background-color: white;
+        }
+        
+        .map-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .map-info {
+            padding: 2rem;
+        }
+        
+        .map-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+        
+        .map-description {
+            margin-bottom: 2rem;
+            color: #666;
+        }
+        
+        #dormitory-map {
+            width: 100%;
+            height: 400px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            padding: 5px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+        
+        .avatar-container:hover {
+            background-color: rgba(230, 26, 26, 0.1);
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+        
+        .user-name {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .avatar-container:hover .user-name {
+            color: var(--primary-color);
+        }
+        
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .user-profile:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(5px);
+        }
+        
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-item:hover {
+            background-color: rgba(230, 26, 26, 0.1);
+            color: var(--primary-color);
+        }
+        
+        .dropdown-item i {
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .map-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.8rem 1rem;
+            }
+            
+            .nav-container {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background-color: white;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 5rem 2rem 2rem;
+                transition: right 0.3s ease;
+                margin-left: 0;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+            }
+            
+            .nav-container.active {
+                right: 0;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 1.5rem;
+                width: 100%;
+                margin-bottom: 2rem;
+            }
+            
+            .menu-toggle {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                width: 30px;
+                height: 20px;
+                cursor: pointer;
+                z-index: 1000;
+            }
+            
+            .menu-toggle span {
+                display: block;
+                height: 3px;
+                width: 100%;
+                background-color: var(--primary-color);
+                border-radius: 3px;
+                transition: all 0.3s ease;
+            }
+            
+            .menu-toggle.active span:nth-child(1) {
+                transform: translateY(8px) rotate(45deg);
+            }
+            
+            .menu-toggle.active span:nth-child(2) {
+                opacity: 0;
+            }
+            
+            .menu-toggle.active span:nth-child(3) {
+                transform: translateY(-8px) rotate(-45deg);
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .user-profile {
+                margin-top: 2rem;
+                width: 100%;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-top: 1rem;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
-    <header class="header" id="header">
+    <!-- Header -->
+    <header class="header">
         <div class="header-logo">
-            <img src="image/logo.png" alt="HUST Logo" id="hustLogo">
+            <img src="image/logo.png" alt="HUST Logo">
         </div>
         <div class="menu-toggle" id="menuToggle">
             <span></span>
@@ -1741,7 +642,7 @@ body.scrolling-to-stats .animation-wrapper {
                 <a href="/map" class="nav-link">BẢN ĐỒ</a>
                 <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
             </nav>
-            <!-- Đây là phần được thay đổi: thay nút đăng nhập bằng avatar xem hồ sơ -->
+            <!-- User profile dropdown -->
             <div class="user-profile">
                 <a href="/profile" class="avatar-container" title="Xem hồ sơ">
                     <div class="avatar">
@@ -1770,1304 +671,227 @@ body.scrolling-to-stats .animation-wrapper {
             </div>
         </div>
     </header>
-    <div class="animation-wrapper">
-        <div class="bg-container" id="bgContainer">
-            <div class="bg-overlay" id="bgOverlay"></div>
-            <div class="bg-overlay-campus1" id="bgOverlayCampus1"></div>
-            <div class="bg-overlay-campus2" id="bgOverlayCampus2"></div>
-        </div>
-        <div class="big-text-overlay" id="bigTextOverlay">
-            <div class="big-text-line">KÝ TÚC XÁ</div>
-            <div class="big-text-line">ĐẠI HỌC BÁCH KHOA</div>
-            <div class="subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá - Không gian sống tiện nghi, hiện đại</div>
-        </div>
-        <div class="campus-options-container" id="campusOptionsContainer">
-            <div class="campus-options">
-                <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
-                    <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
-                </div>
-                
-                <div class="campus-option" id="campus2">
-                    <i class="fas fa-school"></i> CƠ SỞ HƯNG YÊN
-                </div>
-            </div>           
-        </div>
-        <div class="letters-wrapper" id="lettersWrapper">
-            <div class="letter letter-H" id="letterH">H</div>
-            <div class="letter letter-U" id="letterU">U</div>
-            <div class="letter letter-S" id="letterS">S</div>
-            <div class="letter letter-T" id="letterT">T</div>
-        </div>
-        
-        <!-- Thêm mũi tên cuộn xuống -->
-        <!-- <div class="scroll-down" id="scrollDown">
-            <div class="scroll-down-text">Cuộn xuống</div>
-            <div class="scroll-down-icon">
-                <i class="fas fa-chevron-down"></i>
-            </div>
-        </div> -->
-        
-        <div class="cursor-follower" id="cursorFollower"></div>
-        <div class="custom-cursor" id="customCursor"></div>
-    </div>
-    
-    <div class="main-content">
 
-       <!-- Phần thống kê với hiệu ứng xuất hiện -->
-<!-- Cấu trúc mới cho phần Stats và Map -->
-<section class="stats-section" id="stats">
-    <!-- Hình nền động -->
-    <div class="section-background">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-    </div>
-    
-    <!-- Gợn sóng trên đầu -->
-    <div class="wave-top">
-        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
-        </svg>
-    </div>
-    
-    <h2 class="section-title">THÔNG TIN KÝ TÚC XÁ</h2>
-    <p class="section-subtitle">Hệ thống ký túc xá đại học Bách Khoa Hà Nội với cơ sở vật chất hiện đại</p>
-    
-    <div class="two-column-wrapper">
-        <!-- Left column: Stats -->
-        <div class="stats-container">
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-icon-container">
-                        <i class="fas fa-building stat-icon"></i>
-                        <div class="stat-icon-bg"></div>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">KÝ TÚC XÁ ĐẠI HỌC BÁCH KHOA</h1>
+            <p class="hero-subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá - Không gian sống tiện nghi, hiện đại</p>
+            <div class="campus-options-container">
+                <div class="campus-options">
+                    <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
+                        <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
+                        <div class="tooltip">Xem bản đồ KTX cơ sở Hà Nội</div>
                     </div>
-                    <div class="stat-number" data-count="12">0</div>
-                    <div class="stat-label">Tòa nhà</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon-container">
-                        <i class="fas fa-door-open stat-icon"></i>
-                        <div class="stat-icon-bg"></div>
+                    
+                    <div class="campus-option" id="campus2">
+                        <i class="fas fa-school"></i> CƠ SỞ HƯNG YÊN
+                        <div class="tooltip">Đang phát triển</div>
                     </div>
-                    <div class="stat-number" data-count="450">0</div>
-                    <div class="stat-label">Phòng ở</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon-container">
-                        <i class="fas fa-user-graduate stat-icon"></i>
-                        <div class="stat-icon-bg"></div>
-                    </div>
-                    <div class="stat-number" data-count="3500">0</div>
-                    <div class="stat-label">Sinh viên</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-icon-container">
-                        <i class="fas fa-clipboard-check stat-icon"></i>
-                        <div class="stat-icon-bg"></div>
-                    </div>
-                    <div class="stat-number" data-count="98">0</div>
-                    <div class="stat-label">Tỷ lệ hài lòng (%)</div>
-                </div>
+                </div>           
             </div>
         </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <h2 class="section-title">THÔNG TIN KÝ TÚC XÁ</h2>
+        <p class="section-subtitle">Hệ thống ký túc xá đại học Bách Khoa Hà Nội với cơ sở vật chất hiện đại</p>
         
-        <!-- Right column: Map -->
+        <div class="stats-grid">
+            <div class="stat-item">
+                <i class="fas fa-building stat-icon"></i>
+                <div class="stat-number" id="building-count">12</div>
+                <div class="stat-label">Tòa nhà</div>
+            </div>
+            
+            <div class="stat-item">
+                <i class="fas fa-door-open stat-icon"></i>
+                <div class="stat-number" id="room-count">450</div>
+                <div class="stat-label">Phòng ở</div>
+            </div>
+            
+            <div class="stat-item">
+                <i class="fas fa-user-graduate stat-icon"></i>
+                <div class="stat-number" id="student-count">3500</div>
+                <div class="stat-label">Sinh viên</div>
+            </div>
+            
+            <div class="stat-item">
+                <i class="fas fa-clipboard-check stat-icon"></i>
+                <div class="stat-number" id="satisfaction-rate">98</div>
+                <div class="stat-label">Tỷ lệ hài lòng (%)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2 class="section-title">TIỆN ÍCH NỔI BẬT</h2>
+        <p class="section-subtitle">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
+        
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-wifi feature-icon"></i>
+                <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
+                <p class="feature-description">Phủ sóng toàn bộ khu KTX, đảm bảo kết nối ổn định cho học tập và giải trí.</p>
+            </div>
+            
+            <div class="feature-item">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3 class="feature-title">An Ninh 24/7</h3>
+                <p class="feature-description">Hệ thống camera giám sát và bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
+            </div>
+            
+            <div class="feature-item">
+                <i class="fas fa-utensils feature-icon"></i>
+                <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
+                <p class="feature-description">Đa dạng món ăn với giá sinh viên, tiết kiệm thời gian cho sinh viên.</p>
+            </div>
+            
+            <div class="feature-item">
+                <i class="fas fa-dumbbell feature-icon"></i>
+                <h3 class="feature-title">Phòng Tập Thể Dục</h3>
+                <p class="feature-description">Trang bị đầy đủ thiết bị, hỗ trợ sinh viên rèn luyện sức khỏe sau giờ học.</p>
+            </div>
+            
+            <div class="feature-item">
+                <i class="fas fa-book feature-icon"></i>
+                <h3 class="feature-title">Phòng Tự Học</h3>
+                <p class="feature-description">Không gian yên tĩnh với máy lạnh, tạo môi trường học tập hiệu quả.</p>
+            </div>
+            
+            <div class="feature-item">
+                <i class="fas fa-tshirt feature-icon"></i>
+                <h3 class="feature-title">Khu Giặt Ủi</h3>
+                <p class="feature-description">Khu vực giặt ủi tự động, giúp sinh viên tiết kiệm thời gian chăm sóc quần áo.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-section">
+        <h2 class="section-title">BẢN ĐỒ KÝ TÚC XÁ</h2>
+        <p class="section-subtitle">Xem vị trí và thông tin chi tiết các khu ký túc xá</p>
+        
         <div class="map-container">
-            <div class="map-header">
-                <h3>Bản đồ Ký túc xá</h3>
+            <div class="map-info">
+                <h3 class="map-title">Tìm kiếm vị trí phù hợp</h3>
+                <p class="map-description">Bản đồ giúp bạn định vị các khu ký túc xá, đánh giá khoảng cách đến trường và các tiện ích xung quanh. Nhấp vào từng điểm trên bản đồ để xem thông tin chi tiết.</p>
+                <a href="/map" class="btn btn-primary">Xem bản đồ đầy đủ</a>
             </div>
             <div id="dormitory-map"></div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Phần tiện ích nổi bật -->
-<section class="features-section" id="features">
-    <!-- Hình nền động -->
-    <div class="section-background">
-        <div class="circle circle-1"></div>
-        <div class="circle circle-2"></div>
-        <div class="circle circle-3"></div>
-    </div>
-    
-    <!-- Gợn sóng trên đầu -->
-    <div class="wave-top">
-        <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" class="shape-fill"></path>
-        </svg>
-    </div>
-    
-    <div class="stats-container">
-        <h2 class="section-title" data-aos="fade-up">TIỆN ÍCH NỔI BẬT</h2>
-        <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
-        
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; max-width: 1200px; margin: 0 auto;">
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="200" style="height: 280px; min-width: auto;">
-                <div class="feature-icon-wrapper">
-                    <i class="fas fa-wifi feature-icon"></i>
-                    <div class="feature-icon-bg"></div>
-                </div>
-                <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
-                <p class="feature-description" style="font-size: 0.95rem;">Phủ sóng toàn bộ khu KTX, đảm bảo kết nối ổn định cho học tập và giải trí.</p>
-            </div>
-            
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="300" style="height: 280px; min-width: auto;">
-                <div class="feature-icon-wrapper">
-                    <i class="fas fa-shield-alt feature-icon"></i>
-                    <div class="feature-icon-bg"></div>
-                </div>
-                <h3 class="feature-title">An Ninh 24/7</h3>
-                <p class="feature-description" style="font-size: 0.95rem;">Hệ thống camera giám sát và bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
-            </div>
-            
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="400" style="height: 280px; min-width: auto;">
-                <div class="feature-icon-wrapper">
-                    <i class="fas fa-utensils feature-icon"></i>
-                    <div class="feature-icon-bg"></div>
-                </div>
-                <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
-                <p class="feature-description" style="font-size: 0.95rem;">Đa dạng món ăn với giá sinh viên, tiết kiệm thời gian cho sinh viên.</p>
-            </div>
-            
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="500" style="height: 280px; min-width: auto;">
-                <div class="feature-icon-wrapper">
-                    <i class="fas fa-dumbbell feature-icon"></i>
-                    <div class="feature-icon-bg"></div>
-                </div>
-                <h3 class="feature-title">Phòng Tập Thể Dục</h3>
-                <p class="feature-description" style="font-size: 0.95rem;">Trang bị đầy đủ thiết bị, hỗ trợ sinh viên rèn luyện sức khỏe sau giờ học.</p>
-            </div>
-            
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="600" style="height: 280px; min-width: auto;">
-                <div class="feature-icon-wrapper">
-                    <i class="fas fa-book feature-icon"></i>
-                    <div class="feature-icon-bg"></div>
-                </div>
-                <h3 class="feature-title">Phòng Tự Học</h3>
-                <p class="feature-description" style="font-size: 0.95rem;">Không gian yên tĩnh với máy lạnh, tạo môi trường học tập hiệu quả.</p>
-            </div>
-            
-            <div class="feature-item" data-aos="fade-up" data-aos-delay="700" style="height: 280px; min-width: auto;">
-                <div class="feature-icon-wrapper">
-                    <i class="fas fa-tshirt feature-icon"></i>
-                    <div class="feature-icon-bg"></div>
-                </div>
-                <h3 class="feature-title">Khu Giặt Ủi</h3>
-                <p class="feature-description" style="font-size: 0.95rem;">Khu vực giặt ủi tự động, giúp sinh viên tiết kiệm thời gian chăm sóc quần áo.</p>
-            </div>
-        </div>
-    </div>
-</section>
-</div><!-- Kết thúc main-content -->
-    
-<script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script>
+        // Mobile menu toggle
         document.addEventListener('DOMContentLoaded', function() {
-    // DOM Elements
-    const letterH = document.getElementById('letterH');
-    const letterU = document.getElementById('letterU');
-    const letterS = document.getElementById('letterS');
-    const letterT = document.getElementById('letterT');
-    const bgOverlay = document.getElementById('bgOverlay');
-    const bgOverlayCampus1 = document.getElementById('bgOverlayCampus1');
-    const bgOverlayCampus2 = document.getElementById('bgOverlayCampus2');
-    const lettersWrapper = document.getElementById('lettersWrapper');
-    const header = document.getElementById('header');
-    const menuToggle = document.getElementById('menuToggle');
-    const navContainer = document.getElementById('navContainer');
-    const bigTextOverlay = document.getElementById('bigTextOverlay');
-    const campusOptionsContainer = document.getElementById('campusOptionsContainer');
-    const campus1 = document.getElementById('campus1');
-    const campus2 = document.getElementById('campus2');
-    const navLinks = document.querySelectorAll('.nav-link');
-    
-    // Menu Toggle Functionality - Fixed version
-    if (menuToggle && navContainer) {
-        menuToggle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
+            const menuToggle = document.getElementById('menuToggle');
+            const navContainer = document.getElementById('navContainer');
             
-            // Toggle active class
-            navContainer.classList.toggle('active');
-            
-            // Animate hamburger
-            const spans = this.querySelectorAll('span');
-            if (navContainer.classList.contains('active')) {
-                spans[0].style.transform = 'translateY(9px) rotate(45deg)';
-                spans[1].style.opacity = '0';
-                spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
-                document.body.style.overflow = 'hidden';
-            } else {
-                spans[0].style.transform = '';
-                spans[1].style.opacity = '';
-                spans[2].style.transform = '';
-                document.body.style.overflow = '';
-            }
-        });
-    }
-    
-    // Close menu when clicking outside
-    document.addEventListener('click', function(event) {
-        if (navContainer && menuToggle && 
-            !navContainer.contains(event.target) && 
-            !menuToggle.contains(event.target) && 
-            navContainer.classList.contains('active')) {
-            
-            navContainer.classList.remove('active');
-            
-            const spans = menuToggle.querySelectorAll('span');
-            spans[0].style.transform = '';
-            spans[1].style.opacity = '';
-            spans[2].style.transform = '';
-            document.body.style.overflow = '';
-        }
-    });
-    
-    // Close menu when clicking on nav links
-    navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            if (navContainer.classList.contains('active')) {
-                navContainer.classList.remove('active');
-                
-                const spans = menuToggle.querySelectorAll('span');
-                spans[0].style.transform = '';
-                spans[1].style.opacity = '';
-                spans[2].style.transform = '';
-                document.body.style.overflow = '';
-            }
-        });
-    });
-    
-    // Campus hover effects
-    if (campus1) {
-        campus1.addEventListener('mouseenter', function() {
-            bgOverlayCampus1.style.opacity = '1';
-        });
-        
-        campus1.addEventListener('mouseleave', function() {
-            bgOverlayCampus1.style.opacity = '0';
-        });
-    }
-    
-    if (campus2) {
-        campus2.addEventListener('mouseenter', function() {
-            bgOverlayCampus2.style.opacity = '1';
-        });
-        
-        campus2.addEventListener('mouseleave', function() {
-            bgOverlayCampus2.style.opacity = '0';
-        });
-    }
-    
-    // Window resize handler
-    window.addEventListener('resize', function() {
-        if (window.innerWidth > 768 && navContainer.classList.contains('active')) {
-            navContainer.classList.remove('active');
-            
-            if (menuToggle) {
-                const spans = menuToggle.querySelectorAll('span');
-                spans[0].style.transform = '';
-                spans[1].style.opacity = '';
-                spans[2].style.transform = '';
-            }
-            
-            document.body.style.overflow = '';
-        }
-        
-        adjustAnimation();
-    });
-    
-    // Animation functions
-    function adjustAnimation() {
-        const vw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-
-        if (vw <= 576) {
-            lettersWrapper.style.top = '1rem';
-            letterH.style.fontSize = '1.5rem';
-            letterU.style.fontSize = '1.5rem';
-            letterS.style.fontSize = '1.5rem';
-            letterT.style.fontSize = '1.5rem';
-        } else if (vw <= 768) {
-            lettersWrapper.style.top = '1.2rem';
-            letterH.style.fontSize = '1.8rem';
-            letterU.style.fontSize = '1.8rem';
-            letterS.style.fontSize = '1.8rem';
-            letterT.style.fontSize = '1.8rem';
-        } else {
-            lettersWrapper.style.top = '1.5rem';
-            letterH.style.fontSize = '2rem';
-            letterU.style.fontSize = '2rem';
-            letterS.style.fontSize = '2rem';
-            letterT.style.fontSize = '2rem';
-        }
-    }
-    
-    function revealLetter(letter, delay) {
-        setTimeout(() => {
-            letter.style.opacity = '1';
-            letter.style.filter = 'blur(2px)';
-            setTimeout(() => {
-                letter.style.filter = 'blur(1px)';
-                setTimeout(() => {
-                    letter.style.filter = 'blur(0)';
-                }, 500);
-            }, 500);
-        }, delay);
-    }
-
-    // Animation sequence
-    revealLetter(letterH, 500);
-    revealLetter(letterS, 900);
-    revealLetter(letterU, 1500);
-    revealLetter(letterT, 1700);
-
-    setTimeout(() => {
-        letterH.style.transform = 'translateX(0)';
-        letterU.style.transform = 'translateX(0)';
-        letterS.style.transform = 'translateX(0)';
-        letterT.style.transform = 'translateX(0)';
-    }, 3600);
-    
-    // Stage 3: Background appears around HUST and letters change color
-    setTimeout(() => {
-        bgOverlay.style.opacity = '1';
-        
-        letterH.style.color = 'white';
-        letterU.style.color = 'white';
-        letterS.style.color = 'white';
-        letterT.style.color = 'white';
-    }, 3800);
-    
-    // Stage 4: HUST moves to top and becomes smaller, background expands
-    setTimeout(() => {
-        lettersWrapper.style.top = '1.5rem';
-        lettersWrapper.style.transform = 'translate(-50%, 0)';
-        
-        // Adjust sizes based on screen width
-        adjustAnimation();
-        
-        // Expand background evenly from center
-        bgOverlay.style.width = '100%';
-        bgOverlay.style.height = '100%';
-        bgOverlay.style.borderRadius = '0';
-    }, 5500);
-    
-    // Stage 5: HUST letters disappear and menu appears along with big text
-    setTimeout(() => {
-        letterH.style.opacity = '0';
-        letterU.style.opacity = '0';
-        letterS.style.opacity = '0';
-        letterT.style.opacity = '0';
-        
-        // Show all elements simultaneously
-        setTimeout(() => {
-            // Show header, text overlay, and campus options all at once
-            header.style.opacity = '1';
-            header.classList.add('visible');
-            
-            // Animate text and options with a slide-in effect
-            bigTextOverlay.style.opacity = '1';
-            bigTextOverlay.style.transform = 'translateY(-50%)';
-            
-            campusOptionsContainer.style.opacity = '1';
-            campusOptionsContainer.style.transform = 'translateY(0)';
-            
-            // Add active class to first nav link
-            navLinks[0].classList.add('active-link');
-            
-            // Show nav links with staggered animation
-            navLinks.forEach((link, index) => {
-                setTimeout(() => {
-                    link.style.opacity = '1';
-                    link.style.transform = 'translateY(0)';
-                }, index * 150);
-            });
-        }, 300);
-    }, 7000);
-});
-    </script>
-    <script>
-        
-        document.body.classList.add('locked-scroll');
-        document.addEventListener('DOMContentLoaded', function() {
-            AOS.init({
-                duration: 800,
-                easing: 'ease-out',
-                once: false,
-                mirror: false,
-                offset: 100
-            });
-        });
-        
-        // Biến để theo dõi trạng thái animation
-        let animationCompleted = false;
-        const ANIMATION_COMPLETE_TIME = 7000; // Thời gian khi animation hoàn tất (ms) - phù hợp với timeline của bạn
-        document.body.style.overflow = 'hidden';
-        // Hàm mở khóa cuộn trang sau khi animation hoàn tất
-        setTimeout(function() {
-            document.body.classList.remove('locked-scroll');
-            animationCompleted = true;
-            setTimeout(function() {
-                document.body.style.overflow = 'auto';
-                animationCompleted = true;
-                
-                // Hiện mũi tên
-                const scrollDownBtn = document.getElementById('scrollDown');
-                if (scrollDownBtn) {
-                    scrollDownBtn.classList.add('visible');
-                }
-            }, ANIMATION_COMPLETE_TIME);
-            // Hiển thị mũi tên cuộn xuống
-            const scrollDownBtn = document.getElementById('scrollDown');
-            if (scrollDownBtn) {
-                scrollDownBtn.classList.add('visible');
-            }
-            
-            // Kiểm tra vị trí ban đầu
-            checkScrollPosition();
-        }, ANIMATION_COMPLETE_TIME);
-        document.getElementById('scrollDown').addEventListener('click', function() {
-            if (!animationCompleted) return;
-            
-            // Thêm class cho animation-wrapper
-            document.body.classList.add('scrolling-to-stats');
-            
-            // Cuộn đến phần thống kê
-            const statsSection = document.getElementById('stats');
-            if (statsSection) {
-                statsSection.scrollIntoView({ 
-                    behavior: 'smooth',
-                    block: 'start'
+            if (menuToggle && navContainer) {
+                menuToggle.addEventListener('click', function() {
+                    navContainer.classList.toggle('active');
+                    
+                    const spans = this.querySelectorAll('span');
+                    if (navContainer.classList.contains('active')) {
+                        spans[0].style.transform = 'translateY(9px) rotate(45deg)';
+                        spans[1].style.opacity = '0';
+                        spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
+                    } else {
+                        spans[0].style.transform = '';
+                        spans[1].style.opacity = '';
+                        spans[2].style.transform = '';
+                    }
                 });
             }
-        });
-        function isElementInViewport(el) {
-            if (!el) return false;
-            const rect = el.getBoundingClientRect();
-            return (
-                rect.top <= (window.innerHeight || document.documentElement.clientHeight) * 0.8 &&
-                rect.bottom >= 0
-            );
-        }
-        
-        
-        // Khởi tạo biến để theo dõi trạng thái đếm
-        let counterActive = false;
-        
-        // Hàm bắt đầu đếm
-        function startCounting() {
-            if (counterActive || !animationCompleted) return;
             
-            counterActive = true;
-            const statNumbers = document.querySelectorAll('.stat-number');
-            
-            statNumbers.forEach((statNumber, index) => {
-                const targetCount = parseInt(statNumber.getAttribute('data-count'));
-                const duration = 2500; // Kéo dài thêm
-                const startTime = Date.now();
-                
-                // Thêm delay tăng dần cho từng mục
-                setTimeout(() => {
-                    // Thêm hiệu ứng rung nhẹ
-                    statNumber.classList.add('counting');
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (navContainer && menuToggle && 
+                    !navContainer.contains(event.target) && 
+                    !menuToggle.contains(event.target) && 
+                    navContainer.classList.contains('active')) {
                     
-                    function updateCounter() {
-                        const now = Date.now();
-                        const progress = Math.min((now - startTime) / duration, 1);
-                        
-                        // Sử dụng hàm easing để tạo hiệu ứng tăng tốc
-                        const easedProgress = 1 - Math.pow(1 - progress, 3);
-                        const currentCount = Math.floor(easedProgress * targetCount);
-                        
-                        statNumber.textContent = currentCount;
-                        
-                        if (progress < 1) {
-                            requestAnimationFrame(updateCounter);
-                        } else {
-                            statNumber.textContent = targetCount;
-                            statNumber.classList.add('completed');
-                            statNumber.classList.remove('counting');
-                        }
-                    }
+                    navContainer.classList.remove('active');
                     
-                    requestAnimationFrame(updateCounter);
-                }, index * 150);
-            });
-        }
-        function addCountingStyles() {
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes counting-pulse {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.05); }
-                    100% { transform: scale(1); }
-                }
-                
-                .stat-number.counting {
-                    animation: counting-pulse 0.5s infinite;
-                }
-                
-                .stat-number.completed {
-                    animation: completed-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                }
-                
-                @keyframes completed-bounce {
-                    0% { transform: scale(1); }
-                    50% { transform: scale(1.2); }
-                    100% { transform: scale(1); }
-                }
-                
-                .transitioning-to-features .stats-section {
-                    transform: scale(0.95) translateY(-20px);
-                    opacity: 0.8;
-                    transition: transform 0.8s ease, opacity 0.8s ease;
-                }
-            `;
-            document.head.appendChild(style);
-        }
-        // Hàm reset số đếm
-        function resetCounters() {
-            if (!counterActive) return;
-            
-            counterActive = false;
-            const statNumbers = document.querySelectorAll('.stat-number');
-            
-            statNumbers.forEach(statNumber => {
-                statNumber.textContent = '0';
-            });
-        }
-        let statsVisible = false;
-        // Hàm kiểm tra vị trí cuộn và bắt đầu/reset đếm
-        function checkScrollPosition() {
-            if (!animationCompleted) return;
-            
-            const statsSection = document.getElementById('stats');
-            
-            if (statsSection && isElementInViewport(statsSection)) {
-                // Khi stats section vào khung nhìn
-                if (!statsVisible) {
-                    statsVisible = true;
-                    statsSection.classList.add('visible');
-                    
-                    // Thêm animation cho stat-item sau một khoảng thời gian
-                    setTimeout(() => {
-                        document.querySelectorAll('.stat-item').forEach(item => {
-                            item.classList.add('animated');
-                        });
-                        
-                        // Bắt đầu đếm số
-                        startCounting();
-                    }, 300);
-                }
-            } else {
-                // Khi stats section ra khỏi khung nhìn
-                if (statsVisible) {
-                    statsVisible = false;
-                    statsSection.classList.remove('visible');
-                    document.querySelectorAll('.stat-item').forEach(item => {
-                        item.classList.remove('animated');
-                    });
-                    resetCounters();
-                }
-                
-                // Xóa class scrolling-to-stats khi cuộn lên lại phần trên
-                if (statsSection && statsSection.getBoundingClientRect().top > window.innerHeight) {
-                    document.body.classList.remove('scrolling-to-stats');
-                }
-            }
-        }
-        
-        // Thêm hiệu ứng làm mờ khi cuộn
-        let isScrolling;
-        window.addEventListener('scroll', function() {
-            if (!animationCompleted) return;
-            
-            // Kiểm tra vị trí để hiệu ứng đếm
-            checkScrollPosition();
-            
-            // Thêm class khi cuộn
-            document.body.classList.add('scrolling');
-            
-            // Xóa class sau khi dừng cuộn
-            clearTimeout(isScrolling);
-            isScrolling = setTimeout(function() {
-                document.body.classList.remove('scrolling');
-            }, 100);
-        });
-        
-        // Thêm chức năng cuộn xuống khi click vào mũi tên scroll down
-        const scrollDownBtn = document.getElementById('scrollDown');
-        if (scrollDownBtn) {
-            scrollDownBtn.addEventListener('click', function() {
-                if (!animationCompleted) return;
-                
-                const statsSection = document.getElementById('stats');
-                if (statsSection) {
-                    statsSection.scrollIntoView({ 
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
+                    const spans = menuToggle.querySelectorAll('span');
+                    spans[0].style.transform = '';
+                    spans[1].style.opacity = '';
+                    spans[2].style.transform = '';
                 }
             });
-        }
-        // Thêm đoạn này vào phần JavaScript của bạn
-let featuresVisible = false;
-
-// Hàm kiểm tra xem người dùng đã cuộn qua hết phần thống kê chưa
-function checkFeaturesSection() {
-    if (!animationCompleted) return;
-    
-    const statsSection = document.getElementById('stats');
-    const featuresSection = document.getElementById('features');
-    
-    if (!statsSection || !featuresSection) return;
-    
-    // Lấy vị trí và kích thước của phần thống kê
-    const statsRect = statsSection.getBoundingClientRect();
-    
-    // Kiểm tra xem đã cuộn qua hết phần thống kê chưa
-    if (statsRect.bottom < window.innerHeight * 0.7) {
-        if (!featuresVisible) {
-            featuresVisible = true;
             
-            // Thêm hiệu ứng đặc biệt trước khi hiển thị
-            document.body.classList.add('transitioning-to-features');
+            // Add campus hover effects
+            const campus1 = document.getElementById('campus1');
+            const campus2 = document.getElementById('campus2');
             
-            setTimeout(() => {
-                featuresSection.classList.add('visible');
-                
-                // Kích hoạt animation cho từng feature item với delay tăng dần
-                document.querySelectorAll('.feature-item').forEach((item, index) => {
-                    setTimeout(() => {
-                        item.classList.add('animated');
-                    }, 100 * index);
+            if (campus1) {
+                campus1.addEventListener('mouseenter', function() {
+                    // Adjust hover effect if needed
                 });
                 
-                // Hiệu ứng hoàn tất
-                setTimeout(() => {
-                    document.body.classList.remove('transitioning-to-features');
-                }, 1000);
-            }, 300);
-        }
-    } else {
-        // Ẩn mượt mà khi cuộn lên
-        if (featuresVisible && statsRect.bottom > window.innerHeight) {
-            featuresVisible = false;
-            featuresSection.classList.remove('visible');
-            
-            document.querySelectorAll('.feature-item').forEach(item => {
-                item.classList.remove('animated');
-            });
-        }
-    }
-}
-
-// Thêm hàm kiểm tra vào event listener cuộn
-window.addEventListener('scroll', function() {
-    // Các hàm xử lý cuộn hiện tại của bạn
-    checkScrollPosition(); // Hàm hiện có cho phần thống kê
-    
-    // Thêm kiểm tra cho phần tiện ích
-    checkFeaturesSection();
-});
-        window.addEventListener('scroll', function() {
-            checkScrollPosition();
-        });
-        
-        // Xử lý sự kiện resize
-        window.addEventListener('resize', checkScrollPosition);
-        
-        // Kiểm tra ban đầu khi trang tải xong
-        document.addEventListener('DOMContentLoaded', function() {
-            if (animationCompleted) {
-                checkScrollPosition();
+                campus1.addEventListener('mouseleave', function() {
+                    // Reset effect if needed
+                });
             }
-        });
-        
-        </script>
-        <script>
-            // Thêm vào phần script của bạn
-            document.addEventListener('DOMContentLoaded', function() {
-                const cursor = document.getElementById('customCursor');
-                const follower = document.getElementById('cursorFollower');
-                const animWrapper = document.querySelector('.animation-wrapper');
+            
+            if (campus2) {
+                campus2.addEventListener('mouseenter', function() {
+                    // Adjust hover effect if needed
+                });
                 
-                if (cursor && follower && animWrapper) {
-                    let mouseX = 0;
-                    let mouseY = 0;
-                    let followerX = 0;
-                    let followerY = 0;
-                    let drops = []; // Mảng lưu trữ các giọt nước
-                    let lastDropTime = 0; // Thời gian tạo giọt nước cuối cùng
-                    
-                    // Hiển thị con trỏ khi chuột ở trong animation-wrapper
-                    animWrapper.addEventListener('mouseenter', () => {
-                        cursor.style.display = 'block';
-                        follower.style.display = 'block';
-                    });
-                    
-                    animWrapper.addEventListener('mouseleave', () => {
-                        cursor.style.display = 'none';
-                        follower.style.display = 'none';
-                    });
-                    
-                    // Cập nhật vị trí chuột
-                    document.addEventListener('mousemove', (e) => {
-                        mouseX = e.clientX;
-                        mouseY = e.clientY;
-                        
-                        // Di chuyển con trỏ chính ngay lập tức
-                        cursor.style.left = mouseX + 'px';
-                        cursor.style.top = mouseY + 'px';
-                        
-                        // Tạo hiệu ứng giọt nước khi di chuyển nhanh
-                        const now = Date.now();
-                        const distance = Math.sqrt(
-                            Math.pow(mouseX - followerX, 2) + 
-                            Math.pow(mouseY - followerY, 2)
-                        );
-                        
-                        // Nếu di chuyển đủ xa và không quá nhiều giọt nước
-                        if (distance > 60 && now - lastDropTime > 100 && drops.length < 10) {
-                            createWaterDrop(mouseX, mouseY);
-                            lastDropTime = now;
-                        }
-                    });
-                    
-                    // Hiệu ứng hover cho các phần tử có thể click
-                    const clickableElements = animWrapper.querySelectorAll('a, button, .campus-option, .scroll-down, [onclick]');
-                    clickableElements.forEach(element => {
-                        element.addEventListener('mouseenter', () => {
-                            cursor.classList.add('hover');
-                            follower.classList.add('hover');
-                        });
-                        
-                        element.addEventListener('mouseleave', () => {
-                            cursor.classList.remove('hover');
-                            follower.classList.remove('hover');
-                        });
-                    });
-                    
-                    // Hiệu ứng click
-                    document.addEventListener('mousedown', () => {
-                        cursor.classList.add('click');
-                        follower.classList.add('click');
-                        // Tạo nhiều giọt nước khi click
-                        for (let i = 0; i < 5; i++) {
-                            setTimeout(() => {
-                                createWaterDrop(mouseX, mouseY, true);
-                            }, i * 50);
-                        }
-                    });
-                    
-                    document.addEventListener('mouseup', () => {
-                        cursor.classList.remove('click');
-                        follower.classList.remove('click');
-                    });
-                    
-                    // Hàm tạo giọt nước/bong bóng
-                    function createWaterDrop(x, y, isClick = false) {
-                        const drop = document.createElement('div');
-                        drop.className = 'water-drop';
-                        
-                        // Nếu là click, tạo giọt nước lớn hơn
-                        if (isClick) {
-                            drop.style.backgroundColor = 'rgba(230, 26, 26, 0.3)';
-                            drop.style.border = '1px solid rgba(255, 255, 255, 0.4)';
-                        }
-                        
-                        // Thêm một chút ngẫu nhiên cho vị trí
-                        const randomOffsetX = (Math.random() - 0.5) * 20;
-                        const randomOffsetY = (Math.random() - 0.5) * 20;
-                        
-                        drop.style.left = (x + randomOffsetX) + 'px';
-                        drop.style.top = (y + randomOffsetY) + 'px';
-                        
-                        animWrapper.appendChild(drop);
-                        drops.push(drop);
-                        
-                        // Xóa giọt nước sau khi animation kết thúc
-                        setTimeout(() => {
-                            if (drop.parentNode === animWrapper) {
-                                animWrapper.removeChild(drop);
-                            }
-                            drops = drops.filter(d => d !== drop);
-                        }, 1500);
-                    }
-                    
-                    // Animation loop cho follower (hiệu ứng mượt hơn)
-                    function animate() {
-                        // Cập nhật vị trí follower với hiệu ứng trễ
-                        let distX = mouseX - followerX;
-                        let distY = mouseY - followerY;
-                        
-                        followerX += distX * 0.1;
-                        followerY += distY * 0.1;
-                        
-                        follower.style.left = followerX + 'px';
-                        follower.style.top = followerY + 'px';
-                        
-                        requestAnimationFrame(animate);
-                    }
-                    
-                    animate();
-                }
-            });
-            </script>
-            <script>
-                // Initialize the dormitory map when the page is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Make sure the stats section is visible before initializing the map
-    const statsSection = document.getElementById('stats');
-    if (statsSection && document.getElementById('dormitory-map')) {
-        initializeMap();
-    }
-});
-
-// Function to initialize the map
-function initializeMap() {
-    // Create the map centered at HUST coordinates
-    const map = L.map('dormitory-map', {
-        zoomControl: false  // Turn off default zoom controls
-    }).setView([21.007119, 105.843220], 15);
-
-    // Add OpenStreetMap tile layer
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
-
-    // Create custom icons
-    const universityIcon = L.icon({
-        iconUrl: '/image/university.png',
-        iconSize: [40, 40],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-    });
-
-    const dormIcon = L.icon({
-        iconUrl: '/image/location.png',
-        iconSize: [40, 40],
-        iconAnchor: [16, 32],
-        popupAnchor: [0, -32]
-    });
-
-    // Add HUST marker
-    const university = L.marker([21.007119, 105.843220], {
-        icon: universityIcon
-    }).addTo(map);
-
-    university.bindPopup(`
-        <div class="custom-popup">
-            <h3>Đại học Bách Khoa Hà Nội</h3>
-            <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
-        </div>
-    `);
-
-    // Fetch dormitory data from API
-    fetchDormitories(map, dormIcon);
-
-    // Add custom zoom controls
-    addMapControls(map);
-}
-
-// Function to fetch dormitory data
-function fetchDormitories(map, dormIcon) {
-    fetch('/api/map-data')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+                campus2.addEventListener('mouseleave', function() {
+                    // Reset effect if needed
+                });
             }
-            return response.json();
-        })
-        .then(dormitories => {
-            if (dormitories && dormitories.length > 0) {
-                addDormsToMap(map, dormitories, dormIcon);
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching dormitories:', error);
-            // Add sample dormitories for demonstration if fetch fails
-            addSampleDormsToMap(map, dormIcon);
-        });
-}
-
-// Function to add dormitories to map
-function addDormsToMap(map, dorms, dormIcon) {
-    dorms.forEach(dorm => {
-        if (dorm.location && dorm.location.coordinates && dorm.location.coordinates.length === 2) {
-            // Convert MongoDB coordinates [long, lat] to Leaflet coordinates [lat, long]
-            const coordinates = [dorm.location.coordinates[1], dorm.location.coordinates[0]];
             
-            const marker = L.marker(coordinates, {
-                icon: dormIcon
+            // Initialize map
+            const map = L.map('dormitory-map').setView([21.007119, 105.843220], 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             
-            // Create popup content
-            const popupContent = `
-                <div class="custom-popup">
-                    <h3>${dorm.name}</h3>
-                    ${dorm.imageUrl ? `<div class="image" style="background-image: url('${dorm.imageUrl}')"></div>` : ''}
-                    <p><strong>Địa chỉ:</strong> ${dorm.address || 'Không có thông tin'}</p>
-                    ${dorm.details ? `
-                        <p><strong>Giá phòng:</strong> ${dorm.details.priceRange ? 
-                            `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNĐ/tháng` : 
-                            'Không có thông tin'}</p>
-                    ` : ''}
-                </div>
-            `;
+            // Add HUST marker
+            const hust = L.marker([21.007119, 105.843220]).addTo(map);
+            hust.bindPopup("<b>Đại học Bách Khoa Hà Nội</b>").openPopup();
             
-            marker.bindPopup(popupContent);
-        }
-    });
-}
-
-// Function to add sample dormitories if fetch fails
-function addSampleDormsToMap(map, dormIcon) {
-    const sampleDorms = [
-        {
-            name: "KTX Bách Khoa",
-            coordinates: [21.004987, 105.847273],
-            address: "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
-            priceRange: {min: 500000, max: 1500000}
-        },
-        {
-            name: "KTX Pháp Vân",
-            coordinates: [20.973632, 105.834873],
-            address: "Hoàng Mai, Hà Nội",
-            priceRange: {min: 300000, max: 800000}
-        },
-        {
-            name: "KTX Mỹ Đình",
-            coordinates: [21.032876, 105.765347],
-            address: "Nam Từ Liêm, Hà Nội",
-            priceRange: {min: 600000, max: 1800000}
-        }
-    ];
-    
-    sampleDorms.forEach(dorm => {
-        const marker = L.marker(dorm.coordinates, {
-            icon: dormIcon
-        }).addTo(map);
-        
-        const popupContent = `
-            <div class="custom-popup">
-                <h3>${dorm.name}</h3>
-                <p><strong>Địa chỉ:</strong> ${dorm.address}</p>
-                <p><strong>Giá phòng:</strong> ${dorm.priceRange.min.toLocaleString()} - ${dorm.priceRange.max.toLocaleString()} VNĐ/tháng</p>
-            </div>
-        `;
-        
-        marker.bindPopup(popupContent);
-    });
-}
-
-// Function to add custom map controls
-function addMapControls(map) {
-    // Create a container for custom controls if they don't exist already
-    if (!document.querySelector('.map-controls')) {
-        const controlContainer = document.createElement('div');
-        controlContainer.className = 'map-controls';
-        controlContainer.style.cssText = `
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 1000;
-        `;
-        document.getElementById('dormitory-map').appendChild(controlContainer);
-        
-        // Zoom in button
-        const zoomInBtn = document.createElement('div');
-        zoomInBtn.className = 'map-control-btn';
-        zoomInBtn.innerHTML = '➕';
-        zoomInBtn.style.cssText = `
-            background: white;
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            line-height: 30px;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
-            cursor: pointer;
-            margin-bottom: 5px;
-        `;
-        zoomInBtn.onclick = function() { map.zoomIn(); };
-        controlContainer.appendChild(zoomInBtn);
-        
-        // Zoom out button
-        const zoomOutBtn = document.createElement('div');
-        zoomOutBtn.className = 'map-control-btn';
-        zoomOutBtn.innerHTML = '➖';
-        zoomOutBtn.style.cssText = `
-            background: white;
-            width: 30px;
-            height: 30px;
-            text-align: center;
-            line-height: 30px;
-            border-radius: 4px;
-            box-shadow: 0 1px 5px rgba(0,0,0,0.2);
-            cursor: pointer;
-        `;
-        zoomOutBtn.onclick = function() { map.zoomOut(); };
-        controlContainer.appendChild(zoomOutBtn);
-    }
-}
-            </script>
-            <script> 
-                // JavaScript để tăng cường hiệu ứng hover cho bản đồ
-document.addEventListener('DOMContentLoaded', function() {
-    // Đợi trang tải xong và stats section hiển thị
-    const checkMapExistence = setInterval(() => {
-        const mapContainer = document.querySelector('.map-container');
-        const statsContainer = document.querySelector('.stats-container');
-        const dormitoryMap = document.getElementById('dormitory-map');
-        
-        if (mapContainer && statsContainer && dormitoryMap) {
-            clearInterval(checkMapExistence);
-            setupMapHoverEffects(mapContainer, statsContainer, dormitoryMap);
-        }
-    }, 500);
-});
-
-// Thiết lập hiệu ứng hover cho bản đồ
-function setupMapHoverEffects(mapContainer, statsContainer, dormitoryMap) {
-    // Thêm phần tử gợi ý hover
-    const hoverHint = document.createElement('div');
-    hoverHint.className = 'map-hover-hint';
-    hoverHint.textContent = 'Di chuột vào để phóng to bản đồ';
-    mapContainer.appendChild(hoverHint);
-    
-    // Hiển thị hint sau một khoảng thời gian
-    setTimeout(() => {
-        hoverHint.style.opacity = '1';
-        // Ẩn hint sau 3 giây
-        setTimeout(() => {
-            hoverHint.style.opacity = '0';
-        }, 3000);
-    }, 1500);
-    
-    // Thêm hiệu ứng particles khi hover
-    mapContainer.addEventListener('mouseenter', () => {
-        // Thông báo cho Leaflet map để cập nhật kích thước khi container thay đổi
-        if (window.map) {
-            setTimeout(() => {
-                window.map.invalidateSize();
-            }, 400); // Đợi animation hoàn tất
-        }
-        
-        // Tạo hiệu ứng particle
-        createParticleEffect(mapContainer);
-        
-        // Ẩn hint khi đã hover
-        hoverHint.style.opacity = '0';
-    });
-    
-    // Thêm lắng nghe sự kiện khi click vào bản đồ
-    dormitoryMap.addEventListener('click', () => {
-        // Thêm hiệu ứng ripple
-        createRippleEffect(event, dormitoryMap);
-    });
-}
-
-// Tạo hiệu ứng particle xung quanh map khi hover
-function createParticleEffect(container) {
-    // Số lượng particle
-    const particleCount = 10;
-    
-    // Tạo các particle
-    for (let i = 0; i < particleCount; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'map-particle';
-        
-        // Styling cho particle
-        particle.style.cssText = `
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            background-color: rgba(230, 26, 26, 0.5);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 100;
-            opacity: 0;
-            box-shadow: 0 0 10px rgba(230, 26, 26, 0.3);
-        `;
-        
-        // Vị trí ngẫu nhiên xung quanh container
-        const side = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
-        const percentPosition = Math.random() * 100;
-        
-        switch(side) {
-            case 0: // top
-                particle.style.top = '-10px';
-                particle.style.left = percentPosition + '%';
-                break;
-            case 1: // right
-                particle.style.top = percentPosition + '%';
-                particle.style.right = '-10px';
-                break;
-            case 2: // bottom
-                particle.style.bottom = '-10px';
-                particle.style.left = percentPosition + '%';
-                break;
-            case 3: // left
-                particle.style.top = percentPosition + '%';
-                particle.style.left = '-10px';
-                break;
-        }
-        
-        // Thêm vào container
-        container.appendChild(particle);
-        
-        // Animation cho particle
-        setTimeout(() => {
-            particle.style.transition = `all ${Math.random() * 2 + 1}s ease-out`;
-            particle.style.opacity = '1';
-            
-            // Di chuyển particle
-            const xMove = (Math.random() - 0.5) * 50;
-            const yMove = (Math.random() - 0.5) * 50;
-            
-            if (side === 0 || side === 2) {
-                particle.style.transform = `translateY(${yMove}px) scale(${Math.random() + 0.5})`;
-            } else {
-                particle.style.transform = `translateX(${xMove}px) scale(${Math.random() + 0.5})`;
-            }
-            
-            // Xóa particle sau khi animation hoàn tất
-            setTimeout(() => {
-                particle.style.opacity = '0';
-                setTimeout(() => {
-                    if (particle.parentNode === container) {
-                        container.removeChild(particle);
-                    }
-                }, 1000);
-            }, 2000);
-        }, Math.random() * 500);
-    }
-}
-
-// Tạo hiệu ứng ripple khi click vào map
-function createRippleEffect(event, element) {
-    // Tạo phần tử ripple
-    const ripple = document.createElement('div');
-    ripple.className = 'map-ripple';
-    
-    // Styling cho ripple
-    ripple.style.cssText = `
-        position: absolute;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.4);
-        transform: scale(0);
-        animation: ripple-animation 0.8s ease-out;
-        pointer-events: none;
-        z-index: 100;
-    `;
-    
-    // Thêm keyframe animation
-    if (!document.querySelector('#ripple-animation')) {
-        const style = document.createElement('style');
-        style.id = 'ripple-animation';
-        style.textContent = `
-            @keyframes ripple-animation {
-                to {
-                    transform: scale(4);
-                    opacity: 0;
+            // Sample dormitory markers
+            const dormitories = [
+                {
+                    name: "KTX Pháp Vân",
+                    location: [20.9736, 105.8349],
+                    address: "Hoàng Mai, Hà Nội",
+                    capacity: "1200 sinh viên"
+                },
+                {
+                    name: "KTX Thái Hà",
+                    location: [21.0111, 105.8235],
+                    address: "Thái Hà, Đống Đa, Hà Nội",
+                    capacity: "800 sinh viên"
+                },
+                {
+                    name: "KTX Trung tâm",
+                    location: [21.0045, 105.8425],
+                    address: "Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+                    capacity: "1500 sinh viên"
                 }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    // Tính toán vị trí của ripple
-    const rect = element.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    
-    ripple.style.top = y + 'px';
-    ripple.style.left = x + 'px';
-    ripple.style.width = '10px';
-    ripple.style.height = '10px';
-    
-    // Thêm ripple vào element
-    element.appendChild(ripple);
-    
-    // Xóa ripple sau khi animation hoàn tất
-    setTimeout(() => {
-        if (ripple.parentNode === element) {
-            element.removeChild(ripple);
-        }
-    }, 800);
-}
-
-// Cải thiện hiệu ứng khi khởi tạo Leaflet map
-function enhanceMapInitialization() {
-    // Lưu reference của map trong window object để có thể truy cập từ các hàm khác
-    const originalInitializeMap = window.initializeMap;
-    
-    window.initializeMap = function() {
-        const mapResult = originalInitializeMap();
-        
-        // Lưu map reference
-        window.map = mapResult || map;
-        
-        // Thêm hiệu ứng fade-in cho map tiles
-        const mapContainer = document.querySelector('.map-container');
-        if (mapContainer) {
-            mapContainer.style.opacity = '0';
-            setTimeout(() => {
-                mapContainer.style.transition = 'opacity 1s ease';
-                mapContainer.style.opacity = '1';
-            }, 300);
-        }
-        
-        return window.map;
-    };
-}
-
-// Thêm animation cho Leaflet controls
-function enhanceMapControls() {
-    // Kiểm tra nếu Leaflet đã được tải
-    if (typeof L !== 'undefined') {
-        // Lưu reference đến phương thức addMapControls gốc
-        const originalAddMapControls = window.addMapControls;
-        
-        window.addMapControls = function(map) {
-            // Gọi hàm gốc
-            originalAddMapControls(map);
+            ];
             
-            // Tăng cường hiệu ứng cho controls
-            const controlBtns = document.querySelectorAll('.map-control-btn');
-            controlBtns.forEach(btn => {
-                // Thêm hiệu ứng hover
-                btn.addEventListener('mouseenter', () => {
-                    btn.style.transform = 'scale(1.1)';
-                    btn.style.boxShadow = '0 5px 15px rgba(230, 26, 26, 0.3)';
-                });
-                
-                btn.addEventListener('mouseleave', () => {
-                    btn.style.transform = 'scale(1)';
-                    btn.style.boxShadow = '0 1px 5px rgba(0,0,0,0.2)';
-                });
-                
-                // Thêm hiệu ứng khi click
-                btn.addEventListener('mousedown', () => {
-                    btn.style.transform = 'scale(0.95)';
-                });
-                
-                btn.addEventListener('mouseup', () => {
-                    btn.style.transform = 'scale(1.1)';
-                });
+            // Add dormitory markers
+            dormitories.forEach(dorm => {
+                const marker = L.marker(dorm.location).addTo(map);
+                marker.bindPopup(`
+                    <b>${dorm.name}</b><br>
+                    Địa chỉ: ${dorm.address}<br>
+                    Sức chứa: ${dorm.capacity}
+                `);
             });
-        };
-    }
-}
-
-// Thực hiện cải thiện các hàm gốc
-enhanceMapInitialization();
-enhanceMapControls();
-            </script>
+        });
+    </script>
 </body>
 </html>
