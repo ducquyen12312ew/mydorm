@@ -302,227 +302,246 @@
             line-height: 1.2;
         }
         /* CSS cho Swiper và tính năng hover để chuyển slide */
-.showcase {
-    padding-top: 80px; /* Để không bị che bởi header */
-    height: 100vh;
-    background-color: white;
-    position: relative;
-    overflow: hidden;
-}
-.showcase-background {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('image/camp1.png');
-    background-size: cover; /* Ảnh bao phủ toàn bộ phần tử */
-    backdrop-filter: blur(10px); /* Làm mờ nền */
-    opacity: 0.6; /* Đặt độ mờ 60% */
-    z-index: 1; /* Đảm bảo thứ tự hiển thị */
-}
-.swiper-container {
-    width: 100%;
-    height: 100%;
-    position: relative;
-}
-
-.swiper-wrapper {
-    display: flex;
-    align-items: center;
-    height: 100%;
-}
-
-/* Cập nhật CSS để giảm kích thước slide và tăng khoảng cách */
-.swiper-slide {
-    width: 50%; /* Giảm độ rộng của slide chính */
-    height: 65%; /* Giảm chiều cao slide chính */
-    background-position: center;
-    background-size: cover;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    transition: all 0.5s ease;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%) scale(1);
-    opacity: 0;
-    z-index: 1;
-}
-
-.swiper-slide-prev {
-    transform: translateX(-130%) scale(0.7); /* Tăng khoảng cách */
-    opacity: 0.4; /* Giảm độ mờ để tăng khoảng cách cảm nhận */
-    z-index: 0;
-}
-
-.swiper-slide-active {
-    transform: translateX(-50%) scale(1);
-    opacity: 1;
-    z-index: 2;
-}
-
-.swiper-slide-next {
-    transform: translateX(30%) scale(0.7); /* Tăng khoảng cách */
-    opacity: 0.4; /* Giảm độ mờ để tăng khoảng cách cảm nhận */
-    z-index: 0;
-}
-
-/* Vùng hover để chuyển slide */
-.navigation-hover-area {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    width: 15%;
-    z-index: 10;
-    cursor: pointer;
-}
-
-.navigation-hover-left {
-    left: 0;
-}
-
-.navigation-hover-right {
-    right: 0;
-}
-
-/* Mũi tên chỉ hướng khi hover */
-.navigation-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 3rem;
-    color: white;
-    background-color: rgba(231, 76, 60, 0.7);
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-    z-index: 11;
-}
-
-.navigation-arrow-left {
-    left: 20px;
-}
-
-.navigation-arrow-right {
-    right: 20px;
-}
-
-.navigation-hover-left:hover .navigation-arrow-left,
-.navigation-hover-area:hover + .navigation-arrow {
-    opacity: 1;
-}
-
-.navigation-hover-right:hover .navigation-arrow-right {
-    opacity: 1;
-}
-
-.slide-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 2rem;
-    color: white;
-    text-align: left;
-}
-
-.slide-title {
-    font-family: 'Anton', sans-serif;
-    font-size: 3rem;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
-}
-
-.slide-subtitle {
-    font-size: 1.2rem;
-    margin-bottom: 1rem;
-    opacity: 0.9;
-}
-
-.slide-features {
-    list-style: none;
-    margin-bottom: 1.5rem;
-}
-
-.slide-features li {
-    margin-bottom: 0.3rem;
-    display: flex;
-    align-items: center;
-    font-size: 1rem;
-}
-
-.slide-features li::before {
-    content: "•";
-    color: #e74c3c;
-    font-weight: bold;
-    margin-right: 10px;
-}
-
-.slide-cta {
-    background-color: #e74c3c;
-    color: white;
-    text-decoration: none;
-    padding: 0.8rem 2rem;
-    border-radius: 4px;
-    font-weight: 600;
-    display: inline-block;
-    transition: background-color 0.3s;
-    margin-bottom: 1rem;
-    width: fit-content;
-}
-
-.slide-cta:hover {
-    background-color: #c0392b;
-}
-
-/* Điều chỉnh pagination */
-.swiper-pagination {
-    position: absolute;
-    bottom: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-}
-
-.swiper-pagination-bullet {
-    width: 10px;
-    height: 10px;
-    background-color: white;
-    opacity: 0.5;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.swiper-pagination-bullet-active {
-    background-color: #e74c3c;
-    opacity: 1;
-    transform: scale(1.2);
-}
-
-.price-tag {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-    background-color: #e74c3c;
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 1.2rem;
-}
+        .showcase {
+            position: relative;
+            height: 85vh;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+        
+        .showcase-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(10px);
+            opacity: 0.3;
+            z-index: 1;
+            transition: background-image 0.5s ease;
+        }
+        
+        /* Property slider styling */
+        .property-slider {
+            position: relative;
+            height: 100%;
+            z-index: 10;
+        }
+        
+        .slider-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .slider-wrapper {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            flex: 0 0 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        /* Navigation controls - updated for better interaction */
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(230, 26, 26, 0.8);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+            z-index: 20;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider-nav:hover {
+            background-color: rgba(230, 26, 26, 1);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider-nav:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .slider-nav-prev {
+            left: 30px;
+        }
+        
+        .slider-nav-next {
+            right: 30px;
+        }
+        
+        /* Property info card */
+        .property-info-card {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            max-width: 450px;
+            z-index: 20;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .property-info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .property-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: #e61a1a;
+        }
+        
+        .property-address {
+            font-size: 16px;
+            color: #666;
+            margin: 0 0 20px 0;
+        }
+        
+        /* Property details styling */
+        .property-details {
+            margin-bottom: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .detail-item i {
+            font-size: 18px;
+            color: #e61a1a;
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .detail-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        /* Amenities styling */
+        .property-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .amenity-tag {
+            background-color: #f0f0f0;
+            color: #555;
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        /* Register button */
+        .register-button {
+            display: inline-block;
+            background-color: #e61a1a;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+        }
+        
+        .register-button:hover {
+            background-color: #c01616;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(230, 26, 26, 0.4);
+            color: white;
+        }
+        
+        /* Pagination */
+        .slider-pagination {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 20;
+        }
+        
+        .pagination-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pagination-dot.active {
+            background-color: #e61a1a;
+            transform: scale(1.2);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .property-info-card {
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+                max-width: calc(100% - 40px);
+            }
+            
+            .slider-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .property-title {
+                font-size: 22px;
+            }
+        }
 
 /* Responsive */
 @media (max-width: 992px) {
@@ -1006,20 +1025,70 @@
     <!-- Showcase section -->
 
     <section class="showcase">
-        <!-- Thêm div background mờ -->
+        <!-- Background element -->
         <div class="showcase-background"></div>
         
-        <div class="swiper-container">
-            <div class="swiper-wrapper">
-                <!-- Slides sẽ được tạo tự động từ database -->
+        <!-- Main slider container -->
+        <div class="property-slider">
+            <div class="slider-container">
+                <!-- Slides will be populated dynamically from database -->
+                <div class="slider-wrapper" id="sliderWrapper">
+                    <!-- Slides will be inserted here via JavaScript -->
+                </div>
+                
+                <!-- Navigation arrows with improved visibility and interaction -->
+                <button class="slider-nav slider-nav-prev" id="prevSlideBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="slider-nav slider-nav-next" id="nextSlideBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <!-- Info card overlay -->
+                <div class="property-info-card">
+                    <div class="property-info-content">
+                        <h2 class="property-title" id="propertyTitle"></h2>
+                        <p class="property-address" id="propertyAddress"></p>
+                        
+                        <div class="property-details">
+                            <div class="detail-item">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div class="detail-content">
+                                    <div class="detail-label">Giá phòng:</div>
+                                    <div class="detail-value" id="propertyPrice"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <i class="fas fa-building"></i>
+                                <div class="detail-content">
+                                    <div class="detail-label">Loại khu:</div>
+                                    <div class="detail-value" id="propertyCategory"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <i class="fas fa-users"></i>
+                                <div class="detail-content">
+                                    <div class="detail-label">Sức chứa:</div>
+                                    <div class="detail-value" id="propertyCapacity"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="property-amenities" id="propertyAmenities">
+                            <!-- Amenities will be populated here -->
+                        </div>
+                        
+                        <a href="#" class="register-button" id="registerButton">
+                            <i class="fas fa-sign-in-alt"></i> Đăng ký ngay
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Pagination dots -->
+                <div class="slider-pagination" id="sliderPagination"></div>
             </div>
-            
-            <!-- Định nghĩa vùng hover để chuyển slide -->
-            <div class="navigation-hover-area navigation-hover-left"></div>
-            <div class="navigation-hover-area navigation-hover-right"></div>
-            
-            <!-- Add Pagination -->
-            <div class="swiper-pagination"></div>
         </div>
     </section>
 
@@ -1424,28 +1493,6 @@ function setupMapControls() {
     }
 }
 
-// Hàm khởi tạo slideshow
-function initializeSlideshow() {
-    // Lấy danh sách slide
-    slides = document.querySelectorAll('.swiper-slide');
-    totalSlides = slides.length;
-    
-    console.log("Số slide tìm thấy:", totalSlides);
-    
-    if (totalSlides > 0) {
-        // Tạo pagination
-        createPagination();
-        
-        // Khởi tạo các slide ban đầu
-        initializeSlides();
-        
-        // Thêm các sự kiện điều hướng
-        setupSlideNavigation();
-        
-        // Tự động chuyển slide
-        setInterval(nextSlide, 5000);
-    }
-}
 
 // Hàm tạo pagination
 function createPagination() {
@@ -1750,6 +1797,548 @@ function showDirections(lat, lng) {
     window.open(url, '_blank');
 }
 
+    </script>
+    <section class="showcase">
+        <!-- Background element -->
+        <div class="showcase-background"></div>
+        
+        <!-- Main slider container -->
+        <div class="property-slider">
+            <div class="slider-container">
+                <!-- Slides will be populated dynamically from database -->
+                <div class="slider-wrapper" id="sliderWrapper">
+                    <!-- Slides will be inserted here via JavaScript -->
+                </div>
+                
+                <!-- Navigation arrows with improved visibility and interaction -->
+                <button class="slider-nav slider-nav-prev" id="prevSlideBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="slider-nav slider-nav-next" id="nextSlideBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                
+                <!-- Info card overlay -->
+                <div class="property-info-card">
+                    <div class="property-info-content">
+                        <h2 class="property-title" id="propertyTitle"></h2>
+                        <p class="property-address" id="propertyAddress"></p>
+                        
+                        <div class="property-details">
+                            <div class="detail-item">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div class="detail-content">
+                                    <div class="detail-label">Giá phòng:</div>
+                                    <div class="detail-value" id="propertyPrice"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <i class="fas fa-building"></i>
+                                <div class="detail-content">
+                                    <div class="detail-label">Loại khu:</div>
+                                    <div class="detail-value" id="propertyCategory"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-item">
+                                <i class="fas fa-users"></i>
+                                <div class="detail-content">
+                                    <div class="detail-label">Sức chứa:</div>
+                                    <div class="detail-value" id="propertyCapacity"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="property-amenities" id="propertyAmenities">
+                            <!-- Amenities will be populated here -->
+                        </div>
+                        
+                        <a href="#" class="register-button" id="registerButton">
+                            <i class="fas fa-sign-in-alt"></i> Đăng ký ngay
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Pagination dots -->
+                <div class="slider-pagination" id="sliderPagination"></div>
+            </div>
+        </div>
+    </section>
+    
+    <style>
+        /* Showcase section styling */
+        .showcase {
+            position: relative;
+            height: 85vh;
+            overflow: hidden;
+            background-color: #f5f5f5;
+        }
+        
+        .showcase-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            filter: blur(10px);
+            opacity: 0.3;
+            z-index: 1;
+            transition: background-image 0.5s ease;
+        }
+        
+        /* Property slider styling */
+        .property-slider {
+            position: relative;
+            height: 100%;
+            z-index: 10;
+        }
+        
+        .slider-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        .slider-wrapper {
+            display: flex;
+            height: 100%;
+            transition: transform 0.5s ease;
+        }
+        
+        .slide {
+            flex: 0 0 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+        }
+        
+        /* Navigation controls - updated for better interaction */
+        .slider-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            background-color: rgba(230, 26, 26, 0.8);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            color: white;
+            z-index: 20;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider-nav:hover {
+            background-color: rgba(230, 26, 26, 1);
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slider-nav:active {
+            transform: translateY(-50%) scale(0.95);
+        }
+        
+        .slider-nav-prev {
+            left: 30px;
+        }
+        
+        .slider-nav-next {
+            right: 30px;
+        }
+        
+        /* Property info card */
+        .property-info-card {
+            position: absolute;
+            bottom: 50px;
+            left: 50px;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            padding: 25px;
+            max-width: 450px;
+            z-index: 20;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .property-info-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .property-title {
+            font-size: 26px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            color: #e61a1a;
+        }
+        
+        .property-address {
+            font-size: 16px;
+            color: #666;
+            margin: 0 0 20px 0;
+        }
+        
+        /* Property details styling */
+        .property-details {
+            margin-bottom: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .detail-item i {
+            font-size: 18px;
+            color: #e61a1a;
+            margin-right: 15px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .detail-content {
+            flex: 1;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .detail-value {
+            color: #333;
+        }
+        
+        /* Amenities styling */
+        .property-amenities {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .amenity-tag {
+            background-color: #f0f0f0;
+            color: #555;
+            font-size: 13px;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        
+        /* Register button */
+        .register-button {
+            display: inline-block;
+            background-color: #e61a1a;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+        }
+        
+        .register-button:hover {
+            background-color: #c01616;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(230, 26, 26, 0.4);
+            color: white;
+        }
+        
+        /* Pagination */
+        .slider-pagination {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            z-index: 20;
+        }
+        
+        .pagination-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .pagination-dot.active {
+            background-color: #e61a1a;
+            transform: scale(1.2);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .property-info-card {
+                left: 20px;
+                right: 20px;
+                bottom: 20px;
+                max-width: calc(100% - 40px);
+            }
+            
+            .slider-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .property-title {
+                font-size: 22px;
+            }
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the dormitory slider
+            initializeDormitorySlider();
+            
+            // Add direct event listeners to navigation buttons
+            document.getElementById('prevSlideBtn').addEventListener('click', function() {
+                navigateSlide('prev');
+            });
+            
+            document.getElementById('nextSlideBtn').addEventListener('click', function() {
+                navigateSlide('next');
+            });
+        });
+        
+        let currentSlideIndex = 0;
+        let dormitoryData = [];
+        
+        // Navigation function
+        function navigateSlide(direction) {
+            if (direction === 'prev') {
+                goToSlide(currentSlideIndex - 1);
+            } else {
+                goToSlide(currentSlideIndex + 1);
+            }
+        }
+        
+        function initializeDormitorySlider() {
+            console.log("Initializing dormitory slider...");
+            
+            // Fetch dormitory data from API
+            fetch('/api/map-data')
+                .then(response => response.json())
+                .then(dormitories => {
+                    console.log("Fetched dormitories:", dormitories.length);
+                    
+                    if (dormitories && dormitories.length > 0) {
+                        dormitoryData = dormitories;
+                        createSlides(dormitories);
+                        
+                        // Update background with first slide
+                        updateBackgroundImage(dormitories[0].imageUrl || '/image/camp1.png');
+                        
+                        // Start auto-rotation after a delay
+                        setTimeout(startAutoRotation, 1000);
+                    } else {
+                        console.warn('No dormitories found');
+                        // Display a message or handle empty data case
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching dormitories:', error);
+                    // Display error message
+                });
+        }
+        
+        function createSlides(dormitories) {
+            console.log("Creating slides for", dormitories.length, "dormitories");
+            
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            const pagination = document.getElementById('sliderPagination');
+            
+            if (!sliderWrapper || !pagination) {
+                console.error("Required DOM elements not found");
+                return;
+            }
+            
+            // Clear any existing content
+            sliderWrapper.innerHTML = '';
+            pagination.innerHTML = '';
+            
+            // Create slides for each dormitory
+            dormitories.forEach((dorm, index) => {
+                // Create slide
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                
+                // Set background image - use dorm.imageUrl or a placeholder
+                const imageUrl = dorm.imageUrl || '/image/camp1.png';
+                slide.style.backgroundImage = `url('${imageUrl}')`;
+                
+                // Add to wrapper
+                sliderWrapper.appendChild(slide);
+                
+                // Create pagination dot
+                const dot = document.createElement('div');
+                dot.className = 'pagination-dot';
+                if (index === 0) dot.classList.add('active');
+                
+                // Add click event to dot
+                dot.addEventListener('click', function() {
+                    goToSlide(index);
+                });
+                
+                pagination.appendChild(dot);
+                
+                // If it's the first slide, update the info card
+                if (index === 0) {
+                    updatePropertyInfo(dorm);
+                }
+            });
+            
+            console.log("Created", sliderWrapper.children.length, "slides");
+        }
+        
+        function updatePropertyInfo(dorm) {
+            // Update basic info
+            document.getElementById('propertyTitle').textContent = dorm.name || '';
+            document.getElementById('propertyAddress').textContent = dorm.address || '';
+            
+            // Format price range
+            let priceText = '';
+            if (dorm.details && dorm.details.priceRange) {
+                const min = dorm.details.priceRange.min.toLocaleString();
+                const max = dorm.details.priceRange.max.toLocaleString();
+                priceText = `${min} - ${max} VNĐ/tháng`;
+            }
+            document.getElementById('propertyPrice').textContent = priceText;
+            
+            // Translate category
+            let categoryText = '';
+            if (dorm.details && dorm.details.category) {
+                switch(dorm.details.category) {
+                    case 'basic': categoryText = 'Khu cơ bản'; break;
+                    case 'premium': categoryText = 'Khu cao cấp'; break;
+                    case 'international': categoryText = 'Khu du học sinh'; break;
+                    default: categoryText = dorm.details.category;
+                }
+            }
+            document.getElementById('propertyCategory').textContent = categoryText;
+            
+            // Calculate capacity
+            let capacityText = '';
+            if (dorm.floors && dorm.floors.length > 0) {
+                let totalRooms = 0;
+                let totalCapacity = 0;
+                
+                dorm.floors.forEach(floor => {
+                    if (floor.rooms && floor.rooms.length > 0) {
+                        totalRooms += floor.rooms.length;
+                        floor.rooms.forEach(room => {
+                            totalCapacity += room.maxCapacity || 0;
+                        });
+                    }
+                });
+                
+                capacityText = `${totalRooms} phòng, ${totalCapacity} sinh viên`;
+            }
+            document.getElementById('propertyCapacity').textContent = capacityText;
+            
+            // Update amenities
+            const amenitiesContainer = document.getElementById('propertyAmenities');
+            if (amenitiesContainer) {
+                amenitiesContainer.innerHTML = '';
+                
+                if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
+                    // Display up to 6 amenities
+                    const displayAmenities = dorm.details.amenities.slice(0, 6);
+                    
+                    displayAmenities.forEach(amenity => {
+                        const tag = document.createElement('span');
+                        tag.className = 'amenity-tag';
+                        tag.textContent = amenity;
+                        amenitiesContainer.appendChild(tag);
+                    });
+                }
+            }
+            
+            // Update registration button
+            const registerButton = document.getElementById('registerButton');
+            if (registerButton && dorm._id) {
+                registerButton.href = `/register?dormId=${dorm._id}`;
+            }
+        }
+        
+        function updateBackgroundImage(imageUrl) {
+            const background = document.querySelector('.showcase-background');
+            if (background) {
+                background.style.backgroundImage = `url('${imageUrl}')`;
+            }
+        }
+        
+        function startAutoRotation() {
+            // Auto rotate slides every 7 seconds
+            setInterval(function() {
+                goToSlide(currentSlideIndex + 1);
+            }, 7000);
+        }
+        
+        function goToSlide(index) {
+            console.log("Going to slide:", index);
+            
+            const slides = document.querySelectorAll('.slide');
+            const sliderWrapper = document.getElementById('sliderWrapper');
+            const dots = document.querySelectorAll('.pagination-dot');
+            
+            if (!slides.length || !sliderWrapper) {
+                console.error("Required DOM elements not found for slide navigation");
+                return;
+            }
+            
+            // Calculate the actual index with wrap-around
+            const totalSlides = slides.length;
+            const newIndex = ((index % totalSlides) + totalSlides) % totalSlides; // Ensure positive value
+            
+            console.log("New slide index:", newIndex, "Total slides:", totalSlides);
+            
+            // Update current slide index
+            currentSlideIndex = newIndex;
+            
+            // Move the slider
+            sliderWrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
+            
+            // Update pagination dots
+            dots.forEach((dot, i) => {
+                if (i === currentSlideIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+            
+            // Update info card with current dormitory data
+            if (dormitoryData && dormitoryData.length > currentSlideIndex) {
+                const currentDorm = dormitoryData[currentSlideIndex];
+                updatePropertyInfo(currentDorm);
+                updateBackgroundImage(currentDorm.imageUrl || '/image/camp1.png');
+            }
+        }
     </script>
 </body>
 </html>
