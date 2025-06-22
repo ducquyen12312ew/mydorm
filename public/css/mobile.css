@@ -1,0 +1,321 @@
+/* Add this CSS to your main stylesheet or in <style> tags */
+
+/* 1. Mobile-first responsive design */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* 2. Fix mobile viewport issues */
+.container, .login-container, .signup-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* 3. Mobile login form fixes */
+.login-form, .signup-form {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    width: 100%;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px; /* Prevents zoom on iOS */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* 4. Button mobile optimizations */
+.btn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+.btn:active {
+    transform: translateY(1px);
+}
+
+/* 5. Mobile navigation fixes */
+.navbar {
+    position: relative;
+    z-index: 1000;
+}
+
+.navbar-toggler {
+    border: none;
+    background: transparent;
+    padding: 8px;
+}
+
+.navbar-collapse {
+    width: 100%;
+}
+
+/* 6. Mobile table responsiveness */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.table {
+    width: 100%;
+    margin-bottom: 0;
+}
+
+/* 7. Mobile modal fixes */
+.modal {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.modal-dialog {
+    width: 95%;
+    max-width: 500px;
+    margin: 10px auto;
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+
+/* 8. Touch-friendly interactive elements */
+a, button, .btn, .nav-link {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+/* 9. Mobile-specific responsive breakpoints */
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .login-image {
+        display: none; /* Hide decorative images on mobile */
+    }
+    
+    .login-form {
+        width: 100%;
+        max-width: none;
+        padding: 20px;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .signup-container {
+        padding: 10px;
+    }
+    
+    .step-indicator {
+        margin-bottom: 20px;
+    }
+    
+    .step {
+        font-size: 12px;
+        padding: 8px;
+    }
+    
+    h1, h2 {
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .social-login-btn {
+        margin-bottom: 10px;
+        padding: 12px;
+        font-size: 14px;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+        border-radius: 12px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    
+    .login-form, .signup-form {
+        padding: 15px;
+    }
+    
+    .btn {
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+    
+    .form-control {
+        padding: 14px;
+        font-size: 16px;
+    }
+    
+    .modal-dialog {
+        width: 98%;
+        margin: 5px auto;
+    }
+    
+    .table-responsive {
+        font-size: 14px;
+    }
+    
+    .navbar-brand {
+        font-size: 18px;
+    }
+}
+
+/* 10. iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+    .form-control {
+        font-size: 16px; /* Prevents zoom */
+        border-radius: 8px;
+    }
+    
+    .btn {
+        -webkit-appearance: none;
+        border-radius: 8px;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+        -webkit-appearance: none;
+        -webkit-border-radius: 8px;
+    }
+}
+
+/* 11. Android specific fixes */
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select {
+        background-image: url("data:image/svg+xml;charset=US-ASCII,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 5'><path fill='%23666' d='M2 0L0 2h4zm0 5L0 3h4z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 8px center;
+        background-size: 12px;
+        padding-right: 30px;
+    }
+}
+
+/* 12. Accessibility improvements for mobile */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* 13. High contrast mode support */
+@media (prefers-contrast: high) {
+    .btn {
+        border: 2px solid;
+    }
+    
+    .form-control {
+        border: 2px solid;
+    }
+    
+    .card {
+        border: 2px solid;
+    }
+}
+
+/* 14. Dark mode support */
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color: #121212;
+        color: #ffffff;
+    }
+    
+    .card {
+        background-color: #1e1e1e;
+        border-color: #333;
+    }
+    
+    .form-control {
+        background-color: #2d2d2d;
+        border-color: #555;
+        color: #ffffff;
+    }
+    
+    .form-control::placeholder {
+        color: #aaa;
+    }
+}
+
+/* 15. Loading states for mobile */
+.loading {
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
