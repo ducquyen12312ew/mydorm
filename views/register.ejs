@@ -6,6 +6,7 @@
     <title>Đăng ký phòng ký túc xá</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
@@ -17,6 +18,8 @@
 
         :root {
             --primary-color: #e61a1a;
+            --primary-dark: #c01616;
+            --primary-light: #ff3a3a;
             --text-color: #333;
             --bg-color: #f8f3ef;
             --menu-bg: white;
@@ -24,32 +27,38 @@
 
         body {
             background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
             min-height: 100vh;
         }
 
-        /* Header styles */
+        /* Header Styles - Updated to match home.ejs */
         .header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            padding: 0.8rem 2rem;
+            padding: 1.2rem 2.5rem;
+            background-color: var(--menu-bg);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--menu-bg);
             z-index: 2000;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         }
 
         .header-logo {
             display: flex;
             align-items: center;
+            position: relative;
+            overflow: hidden;
         }
 
         .header-logo img {
-            max-height: 2.5rem;
+            max-height: 3rem;
             width: auto;
+            transition: transform 0.5s ease;
         }
 
         .nav-container {
@@ -57,31 +66,46 @@
             align-items: center;
             justify-content: space-between;
             flex-grow: 1;
-            margin-left: 4rem;
+            margin-left: 5rem;
         }
 
         .nav-links {
             display: flex;
-            gap: 3rem;
+            gap: 3.5rem;
         }
 
         .nav-link {
             color: var(--text-color);
             text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
             padding: 0.8rem 0;
             position: relative;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: all 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            bottom: 0.5rem;
+            left: -100%;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: -1;
         }
 
         .nav-link::after {
             content: '';
             position: absolute;
-            width: 4px;
-            height: 4px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background-color: var(--primary-color);
             bottom: 0.4rem;
@@ -93,6 +117,12 @@
 
         .nav-link:hover {
             color: var(--primary-color);
+            transform: translateY(-3px);
+            text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
+        }
+
+        .nav-link:hover::before {
+            left: 0;
         }
 
         .nav-link:hover::after {
@@ -109,9 +139,358 @@
             transform: translateX(-50%) scale(1);
         }
 
+        /* Notification Styles */
+        .notification-wrapper {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .notification-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            padding: 12px;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-btn:hover {
+            background: rgba(230, 26, 26, 0.1);
+            transform: scale(1.05);
+        }
+
+        .notification-icon {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            min-width: 18px;
+            height: 18px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .notification-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            width: 380px;
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 2001;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .notification-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(5px);
+        }
+
+        .notification-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
+            color: white;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .notification-header h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .notification-count {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .notification-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s ease;
+            border-bottom: 2px solid transparent;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+            background: rgba(230, 26, 26, 0.05);
+        }
+
+        .notification-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f5f5f5;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .notification-item:hover {
+            background: rgba(230, 26, 26, 0.05);
+        }
+
+        .notification-item.unread {
+            background: rgba(230, 26, 26, 0.02);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .notification-icon-wrapper {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+
+        .notification-icon-wrapper.success {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+        }
+
+        .notification-icon-wrapper.warning {
+            background: rgba(255, 165, 2, 0.1);
+            color: #ffa502;
+        }
+
+        .notification-icon-wrapper.info {
+            background: rgba(230, 26, 26, 0.1);
+            color: var(--primary-color);
+        }
+
+        .notification-icon-wrapper.error {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 700;
+            color: #333;
+            font-size: 14px;
+            margin-bottom: 4px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .notification-message {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .notification-time {
+            color: #999;
+            font-size: 12px;
+        }
+
+        .notification-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .notification-empty i {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 1999;
+            display: none;
+        }
+
+        .overlay.show {
+            display: block;
+        }
+
+        /* User Profile */
+        .user-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            padding: 5px;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .avatar-container:hover {
+            background-color: rgba(230, 26, 26, 0.1);
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-right: 10px;
+        }
+
+        .user-name {
+            color: var(--text-color);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .avatar-container:hover .user-name {
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .user-profile:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(5px);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: rgba(230, 26, 26, 0.1);
+            color: var(--primary-color);
+        }
+
+        .dropdown-item i {
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 20px;
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        .menu-toggle span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--primary-color);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
         /* Main content styles */
         .main-container {
-            padding-top: 100px;
+            padding-top: 120px;
             padding-bottom: 50px;
         }
 
@@ -254,21 +633,154 @@
             width: 3rem;
             height: 3rem;
         }
+
+        /* Responsive Styles */
+        @media (max-width: 992px) {
+            .notification-dropdown {
+                width: 320px;
+                right: -20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0.8rem 1rem;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .nav-container {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background-color: white;
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 5rem 2rem 2rem;
+                transition: right 0.3s ease;
+                margin-left: 0;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+            }
+
+            .nav-container.active {
+                right: 0;
+            }
+
+            .nav-links {
+                flex-direction: column;
+                gap: 1.5rem;
+                width: 100%;
+                margin-bottom: 2rem;
+            }
+
+            .user-profile {
+                margin-top: 2rem;
+                width: 100%;
+            }
+
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                margin-top: 1rem;
+                width: 100%;
+            }
+
+            .notification-wrapper {
+                margin-right: 10px;
+            }
+
+            .notification-dropdown {
+                width: 280px;
+                right: -30px;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="overlay" id="overlay"></div>
+    
     <!-- Header -->
     <header class="header">
         <div class="header-logo">
-            <img src="/image/logo.png" alt="HUST Logo">
+            <img src="image/logo.png" alt="HUST Logo">
         </div>
-        <div class="nav-container">
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-container" id="navContainer">
             <nav class="nav-links">
                 <a href="/" class="nav-link">TRANG CHỦ</a>
                 <a href="/map" class="nav-link">BẢN ĐỒ</a>
                 <a href="/register" class="nav-link active-link">ĐĂNG KÝ PHÒNG</a>
             </nav>
-            <a href="/login" class="btn btn-outline-danger">ĐĂNG NHẬP</a>
+            
+            <div style="display: flex; align-items: center;">
+                <!-- Notification System -->
+                <div class="notification-wrapper">
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell notification-icon"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                    
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h3>Thông báo</h3>
+                            <span class="notification-count" id="notificationCount">Mới 0</span>
+                        </div>
+                        
+                        <div class="notification-tabs">
+                            <button class="tab-btn active" data-tab="all">Tất cả</button>
+                            <button class="tab-btn" data-tab="unread">Chưa đọc</button>
+                        </div>
+                        
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>Chưa có thông báo mới</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User profile dropdown -->
+                <div class="user-profile">
+                    <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                        <div class="avatar">
+                            <% if (user && user.name) { %>
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            <% } else { %>
+                                U
+                            <% } %>
+                        </div>
+                        <span class="user-name">
+                            <% if (user && user.name) { %>
+                                <%= user.name %>
+                            <% } else { %>
+                                Người dùng
+                            <% } %>
+                        </span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/profile" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ
+                        </a>
+                        <a href="/logout" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
@@ -409,7 +921,222 @@
     <!-- Bootstrap and JavaScript libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Notification System
+        let notifications = [];
+        let currentTab = 'all';
+        let isDropdownOpen = false;
+
+        // DOM elements for notifications
+        const notificationBtn = document.getElementById('notificationBtn');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationList = document.getElementById('notificationList');
+        const notificationBadge = document.getElementById('notificationBadge');
+        const notificationCount = document.getElementById('notificationCount');
+        const overlay = document.getElementById('overlay');
+        const tabBtns = document.querySelectorAll('.tab-btn');
+
+        // Mobile menu functionality
+        const menuToggle = document.getElementById('menuToggle');
+        const navContainer = document.getElementById('navContainer');
+        
+        if (menuToggle && navContainer) {
+            menuToggle.addEventListener('click', function() {
+                menuToggle.classList.toggle('active');
+                navContainer.classList.toggle('active');
+            });
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(event) {
+            if (navContainer && menuToggle && 
+                !navContainer.contains(event.target) && 
+                !menuToggle.contains(event.target) && 
+                navContainer.classList.contains('active')) {
+                
+                navContainer.classList.remove('active');
+                menuToggle.classList.remove('active');
+            }
+        });
+
+        // Initialize notification system
         document.addEventListener('DOMContentLoaded', function() {
+            loadNotifications();
+            
+            // Notification event listeners
+            notificationBtn.addEventListener('click', toggleNotificationDropdown);
+            overlay.addEventListener('click', closeNotificationDropdown);
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const tab = e.target.dataset.tab;
+                    switchTab(tab);
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
+                    closeNotificationDropdown();
+                }
+            });
+
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+
+            // Initialize registration form
+            initializeRegistrationForm();
+        });
+
+        // Load notifications from API
+        async function loadNotifications() {
+            try {
+                const response = await fetch('/api/notifications');
+                if (response.ok) {
+                    const data = await response.json();
+                    notifications = data.notifications || [];
+                    updateNotificationBadge(data.unreadCount || 0);
+                    renderNotifications();
+                } else {
+                    console.error('Failed to load notifications');
+                }
+            } catch (error) {
+                console.error('Error loading notifications:', error);
+            }
+        }
+
+        // Toggle notification dropdown
+        function toggleNotificationDropdown() {
+            isDropdownOpen = !isDropdownOpen;
+            
+            if (isDropdownOpen) {
+                notificationDropdown.classList.add('show');
+                overlay.classList.add('show');
+            } else {
+                closeNotificationDropdown();
+            }
+        }
+
+        // Close notification dropdown
+        function closeNotificationDropdown() {
+            isDropdownOpen = false;
+            notificationDropdown.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        // Switch notification tab
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            tabBtns.forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            renderNotifications();
+        }
+
+        // Render notifications
+        function renderNotifications() {
+            const filteredNotifications = currentTab === 'unread' 
+                ? notifications.filter(n => !n.isRead)
+                : notifications;
+            
+            if (filteredNotifications.length === 0) {
+                notificationList.innerHTML = `
+                    <div class="notification-empty">
+                        <i class="fas fa-bell-slash"></i>
+                        <p>${currentTab === 'unread' ? 'Không có thông báo chưa đọc' : 'Chưa có thông báo mới'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            notificationList.innerHTML = filteredNotifications.map(notification => `
+                <div class="notification-item ${!notification.isRead ? 'unread' : ''}" onclick="markAsRead('${notification._id}')">
+                    <div class="notification-icon-wrapper ${notification.type}">
+                        ${getNotificationIcon(notification.type)}
+                    </div>
+                    <div class="notification-content">
+                        <div class="notification-title">${notification.title}</div>
+                        <div class="notification-message">${notification.message}</div>
+                        <div class="notification-time">${formatTime(notification.createdAt)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Get notification icon
+        function getNotificationIcon(type) {
+            const icons = {
+                success: '<i class="fas fa-check-circle"></i>',
+                warning: '<i class="fas fa-exclamation-triangle"></i>',
+                info: '<i class="fas fa-info-circle"></i>',
+                error: '<i class="fas fa-times-circle"></i>'
+            };
+            return icons[type] || icons.info;
+        }
+
+        // Format time
+        function formatTime(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diff = now - date;
+            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
+            
+            if (diff < 60000) { // Less than 1 minute
+                return 'Vừa xong';
+            } else if (diff < 3600000) { // Less than 1 hour
+                return Math.floor(diff / 60000) + ' phút trước';
+            } else if (diff < 86400000) { // Less than 1 day
+                return Math.floor(diff / 3600000) + ' giờ trước';
+            } else {
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                return `${hours}:${minutes} • ${days[date.getDay()]} ${day}/${month}/${year}`;
+            }
+        }
+
+        // Mark notification as read
+        async function markAsRead(notificationId) {
+            try {
+                const response = await fetch(`/api/notifications/${notificationId}/read`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    // Update local state
+                    const notification = notifications.find(n => n._id === notificationId);
+                    if (notification && !notification.isRead) {
+                        notification.isRead = true;
+                        const unreadCount = notifications.filter(n => !n.isRead).length;
+                        updateNotificationBadge(unreadCount);
+                        renderNotifications();
+                    }
+                }
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        // Update notification badge
+        function updateNotificationBadge(count) {
+            if (count > 0) {
+                notificationBadge.textContent = count > 99 ? '99+' : count;
+                notificationBadge.style.display = 'flex';
+                notificationCount.textContent = `Mới ${count}`;
+            } else {
+                notificationBadge.style.display = 'none';
+                notificationCount.textContent = 'Không có mới';
+            }
+        }
+
+        // Registration form functionality
+        function initializeRegistrationForm() {
             // Check if dormId is in URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             const dormId = urlParams.get('dormId');
@@ -677,7 +1404,6 @@
                             <div class="room-number">${room.roomNumber}</div>
                             <div class="room-type">${roomTypeText}</div>
                             <div class="room-capacity">${room.currentOccupants}/${room.maxCapacity} chỗ</div>
-        
                         `;
                         
                         roomGrid.appendChild(roomCard);
@@ -770,7 +1496,7 @@
                     alert('Đăng ký không thành công: ' + error.message);
                 });
             }
-        });
+        }
     </script>
 </body>
 </html>

@@ -312,12 +312,108 @@ const PendingApplicationSchema = new mongoose.Schema({
     }
 });
 
+const NotificationSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true,
+        trim: true
+    },
+    message: {
+        type: String,
+        required: true
+    },
+    type: {
+        type: String,
+        enum: ['success', 'warning', 'info', 'error'],
+        default: 'info'
+    },
+    targetUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students'
+    }],
+    targetRole: {
+        type: String,
+        enum: ['all', 'user', 'admin'],
+        default: 'all'
+    },
+    isGlobal: {
+        type: Boolean,
+        default: false
+    },
+    readBy: [{
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'students'
+        },
+        readAt: {
+            type: Date,
+            default: Date.now
+        }
+    }],
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students',
+        required: true
+    },
+    priority: {
+        type: String,
+        enum: ['low', 'normal', 'high'],
+        default: 'normal'
+    },
+    expiresAt: {
+        type: Date
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
+// Schema cho activity log (theo dõi hoạt động người dùng)
+const ActivityLogSchema = new mongoose.Schema({
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students',
+        required: true
+    },
+    action: {
+        type: String,
+        required: true,
+        enum: [
+            'register_success', 
+            'register_failed', 
+            'payment_success', 
+            'payment_failed',
+            'room_assigned',
+            'room_changed',
+            'profile_updated',
+            'login',
+            'logout'
+        ]
+    },
+    description: {
+        type: String,
+        required: true
+    },
+    details: {
+        type: mongoose.Schema.Types.Mixed
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const StudentCollection = mongoose.model("students", StudentSchema);
 const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
 const PendingApplicationCollection = mongoose.model("pendingApplications", PendingApplicationSchema);
+const NotificationCollection = mongoose.model("notifications", NotificationSchema);
+const ActivityLogCollection = mongoose.model("activity_logs", ActivityLogSchema);
 
 module.exports = { 
     StudentCollection, 
     DormitoryCollection,
-    PendingApplicationCollection 
+    PendingApplicationCollection,
+    NotificationCollection,
+    ActivityLogCollection
 };

@@ -1,6 +1,6 @@
 const express = require("express");
 const path = require("path");
-const { StudentCollection, DormitoryCollection, PendingApplicationCollection } = require('./config');
+const { StudentCollection, DormitoryCollection, PendingApplicationCollection,  NotificationCollection, ActivityLogCollection } = require('./config');
 const bcrypt = require('bcrypt');
 const app = express();
 const session = require('express-session');
@@ -468,7 +468,6 @@ app.get("/api/featured-dormitories", async (req, res) => {
     }
 });
 
-// Route xử lý đăng ký
 app.post("/signup", async (req, res) => {
     try {
         const {
@@ -523,6 +522,11 @@ app.post("/signup", async (req, res) => {
         req.session.userId = newStudent._id;
         req.session.name = newStudent.name;
         req.session.role = newStudent.role;
+
+        // ✨ THÊM MỚI: Tạo thông báo chào mừng
+        await sendNotificationOnEvent('welcome', newStudent._id, {
+            name: newStudent.name
+        });
 
         // Chuyển hướng đến trang chủ
         res.redirect('/');
@@ -637,6 +641,441 @@ app.get("/check-session", (req, res) => {
 app.get("/logout", (req, res) => {
     req.session.destroy();
     res.redirect("/login");
+});
+
+async function createNotification(data) {
+    try {
+        const notification = new NotificationCollection(data);
+        await notification.save();
+        return notification;
+    } catch (error) {
+        console.error("Error creating notification:", error);
+        return null;
+    }
+}
+
+async function createActivityLog(userId, action, description, details = {}) {
+    try {
+        const log = new ActivityLogCollection({
+            userId,
+            action,
+            description,
+            details
+        });
+        await log.save();
+        return log;
+    } catch (error) {
+        console.error("Error creating activity log:", error);
+        return null;
+    }
+}
+
+app.get("/api/notifications", async (req, res) => {
+    try {
+        // SỬA LỖI: Đổi từ user_id thành userId
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        const userId = req.session.userId; // SỬA LỖI: Đổi từ user_id thành userId
+        const userRole = req.session.role || 'user';
+
+        // Lấy thông báo dành cho user
+        const notifications = await NotificationCollection.find({
+            $or: [
+                { isGlobal: true },
+                { targetUsers: userId },
+                { targetRole: userRole },
+                { targetRole: 'all' }
+            ],
+            $or: [
+                { expiresAt: { $exists: false } },
+                { expiresAt: null },
+                { expiresAt: { $gt: new Date() } }
+            ]
+        })
+        .sort({ createdAt: -1 })
+        .limit(50)
+        .lean();
+
+        // Đánh dấu thông báo nào đã đọc
+        const notificationsWithReadStatus = notifications.map(notification => ({
+            ...notification,
+            isRead: notification.readBy.some(read => read.userId.toString() === userId.toString())
+        }));
+
+        res.json({
+            success: true,
+            notifications: notificationsWithReadStatus,
+            unreadCount: notificationsWithReadStatus.filter(n => !n.isRead).length
+        });
+
+    } catch (error) {
+        console.error("Error fetching notifications:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+app.post("/api/notifications/:id/read", async (req, res) => {
+    try {
+        // SỬA LỖI: Đổi từ user_id thành userId
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        const notificationId = req.params.id;
+        const userId = req.session.userId; // SỬA LỖI: Đổi từ user_id thành userId
+
+        // Kiểm tra xem user đã đọc thông báo này chưa
+        const notification = await NotificationCollection.findById(notificationId);
+        if (!notification) {
+            return res.status(404).json({ error: "Notification not found" });
+        }
+
+        const alreadyRead = notification.readBy.some(read => 
+            read.userId.toString() === userId.toString()
+        );
+
+        if (!alreadyRead) {
+            await NotificationCollection.findByIdAndUpdate(
+                notificationId,
+                {
+                    $push: {
+                        readBy: {
+                            userId: userId,
+                            readAt: new Date()
+                        }
+                    }
+                }
+            );
+        }
+
+        res.json({ success: true, message: "Notification marked as read" });
+
+    } catch (error) {
+        console.error("Error marking notification as read:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+app.post("/api/admin/notifications", isAdmin, async (req, res) => {
+    try {
+        const { title, message, type, targetRole, isGlobal, priority, expiresAt } = req.body;
+        
+        const notification = await createNotification({
+            title,
+            message,
+            type: type || 'info',
+            targetRole: targetRole || 'all',
+            isGlobal: isGlobal || false,
+            priority: priority || 'normal',
+            expiresAt: expiresAt ? new Date(expiresAt) : null,
+            createdBy: req.session.userId // SỬA LỖI: Đổi từ user_id thành userId
+        });
+
+        if (notification) {
+            res.json({ success: true, notification });
+        } else {
+            res.status(500).json({ error: "Failed to create notification" });
+        }
+
+    } catch (error) {
+        console.error("Error creating notification:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+async function sendNotificationOnEvent(eventType, userId, details = {}) {
+    try {
+        let notificationData = { createdBy: userId };
+
+        switch (eventType) {
+            case 'welcome':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Chào mừng đến với hệ thống KTX HUST!',
+                    message: `Xin chào ${details.name}! Tài khoản của bạn đã được tạo thành công. Hãy khám phá các tính năng của hệ thống.`,
+                    type: 'success',
+                    targetUsers: [userId],
+                    priority: 'normal'
+                };
+                await createActivityLog(userId, 'register_success', 'Tạo tài khoản thành công', details);
+                break;
+
+            case 'registration_success':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Đăng ký ký túc xá thành công',
+                    message: `Bạn đã đăng ký ký túc xá thành công. Phòng: ${details.roomNumber || 'Chưa xác định'}, ${details.dormitoryName || ''}`,
+                    type: 'success',
+                    targetUsers: [userId],
+                    priority: 'high'
+                };
+                await createActivityLog(userId, 'register_success', 'Đăng ký ký túc xá thành công', details);
+                break;
+
+            case 'registration_failed':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Đăng ký ký túc xá thất bại',
+                    message: `Đăng ký không thành công. Lý do: ${details.reason || 'Không xác định'}${details.roomNumber ? `. Phòng: ${details.roomNumber}` : ''}`,
+                    type: 'error',
+                    targetUsers: [userId],
+                    priority: 'high'
+                };
+                await createActivityLog(userId, 'register_failed', 'Đăng ký ký túc xá thất bại', details);
+                break;
+
+            case 'payment_success':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Thanh toán thành công',
+                    message: `Thanh toán ${details.type || 'phí'} đã được xử lý thành công. Số tiền: ${details.amount || '0'} VND${details.transactionId ? `. Mã GD: ${details.transactionId}` : ''}`,
+                    type: 'success',
+                    targetUsers: [userId],
+                    priority: 'normal'
+                };
+                await createActivityLog(userId, 'payment_success', 'Thanh toán thành công', details);
+                break;
+
+            case 'payment_failed':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Thanh toán thất bại',
+                    message: `Giao dịch thanh toán không thành công${details.reason ? `. Lý do: ${details.reason}` : ''}. Vui lòng thử lại sau.`,
+                    type: 'error',
+                    targetUsers: [userId],
+                    priority: 'high'
+                };
+                await createActivityLog(userId, 'payment_failed', 'Thanh toán thất bại', details);
+                break;
+
+            case 'room_assigned':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Phân phòng thành công',
+                    message: `Bạn đã được phân phòng ${details.roomNumber}${details.dormitoryName ? ` tại ${details.dormitoryName}` : ''}. Vui lòng xem thông tin chi tiết.`,
+                    type: 'info',
+                    targetUsers: [userId],
+                    priority: 'high'
+                };
+                await createActivityLog(userId, 'room_assigned', 'Được phân phòng', details);
+                break;
+
+            case 'room_changed':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Chuyển phòng thành công',
+                    message: `Bạn đã được chuyển từ phòng ${details.oldRoom} sang phòng ${details.newRoom}. Vui lòng cập nhật thông tin cá nhân.`,
+                    type: 'info',
+                    targetUsers: [userId],
+                    priority: 'high'
+                };
+                await createActivityLog(userId, 'room_changed', 'Chuyển phòng', details);
+                break;
+
+            case 'profile_updated':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Cập nhật thông tin thành công',
+                    message: `Thông tin cá nhân của bạn đã được cập nhật thành công.`,
+                    type: 'success',
+                    targetUsers: [userId],
+                    priority: 'low'
+                };
+                await createActivityLog(userId, 'profile_updated', 'Cập nhật thông tin cá nhân', details);
+                break;
+
+            case 'password_changed':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Thay đổi mật khẩu thành công',
+                    message: `Mật khẩu của bạn đã được thay đổi thành công vào lúc ${new Date().toLocaleString('vi-VN')}.`,
+                    type: 'info',
+                    targetUsers: [userId],
+                    priority: 'normal'
+                };
+                await createActivityLog(userId, 'password_changed', 'Thay đổi mật khẩu', details);
+                break;
+
+            case 'maintenance_notice':
+                notificationData = {
+                    ...notificationData,
+                    title: 'Thông báo bảo trì hệ thống',
+                    message: details.message || 'Hệ thống sẽ được bảo trì trong thời gian tới. Vui lòng theo dõi thông báo.',
+                    type: 'warning',
+                    isGlobal: true,
+                    targetRole: 'all',
+                    priority: 'normal'
+                };
+                break;
+
+            case 'announcement':
+                notificationData = {
+                    ...notificationData,
+                    title: details.title || 'Thông báo từ Ban Quản lý',
+                    message: details.message,
+                    type: details.type || 'info',
+                    isGlobal: true,
+                    targetRole: details.targetRole || 'all',
+                    priority: details.priority || 'normal'
+                };
+                break;
+
+            case 'reminder':
+                notificationData = {
+                    ...notificationData,
+                    title: details.title || 'Nhắc nhở',
+                    message: details.message,
+                    type: 'warning',
+                    targetUsers: [userId],
+                    priority: 'normal'
+                };
+                break;
+
+            default:
+                console.log(`Unknown notification event type: ${eventType}`);
+                return null;
+        }
+
+        const notification = await createNotification(notificationData);
+        return notification;
+
+    } catch (error) {
+        console.error("Error sending notification:", error);
+        return null;
+    }
+}
+
+global.sendNotificationOnEvent = sendNotificationOnEvent;
+global.createActivityLog = createActivityLog;
+
+app.post("/register-room", isAuthenticated, async (req, res) => {
+    try {
+        const { dormitoryId, roomNumber, preferences } = req.body;
+        const userId = req.session.userId;
+
+        // Logic đăng ký phòng (giả lập)
+        const success = Math.random() > 0.3; // 70% thành công
+
+        if (success) {
+            // Cập nhật thông tin sinh viên
+            await StudentCollection.findByIdAndUpdate(userId, {
+                dormitoryId: dormitoryId,
+                roomNumber: roomNumber
+            });
+
+            // ✨ Tạo thông báo thành công
+            await sendNotificationOnEvent('registration_success', userId, {
+                roomNumber: roomNumber,
+                dormitoryName: "KTX Trung tâm" // Lấy từ database
+            });
+
+            res.json({ 
+                success: true, 
+                message: "Đăng ký phòng thành công!",
+                roomNumber: roomNumber 
+            });
+        } else {
+            // ✨ Tạo thông báo thất bại
+            await sendNotificationOnEvent('registration_failed', userId, {
+                reason: "Phòng đã đầy",
+                roomNumber: roomNumber
+            });
+
+            res.json({ 
+                success: false, 
+                message: "Đăng ký thất bại - Phòng đã đầy!" 
+            });
+        }
+
+    } catch (error) {
+        console.error("Error registering room:", error);
+        
+        // ✨ Tạo thông báo lỗi hệ thống
+        await sendNotificationOnEvent('registration_failed', req.session.userId, {
+            reason: "Lỗi hệ thống"
+        });
+
+        res.status(500).json({ 
+            success: false, 
+            message: "Lỗi hệ thống" 
+        });
+    }
+});
+
+app.post("/admin/send-announcement", isAdmin, async (req, res) => {
+    try {
+        const { title, message, type, targetRole, priority } = req.body;
+        
+        const notification = await createNotification({
+            title: title,
+            message: message,
+            type: type || 'info',
+            isGlobal: true,
+            targetRole: targetRole || 'all',
+            priority: priority || 'normal',
+            createdBy: req.session.userId
+        });
+        
+        res.json({ 
+            success: true, 
+            message: "Đã gửi thông báo thành công!",
+            notificationId: notification._id 
+        });
+        
+    } catch (error) {
+        console.error("Error sending announcement:", error);
+        res.status(500).json({ error: "Không thể gửi thông báo" });
+    }
+});
+
+app.post("/api/notifications/mark-all-read", async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({ error: "Unauthorized" });
+        }
+
+        const userId = req.session.userId;
+        
+        // Tìm tất cả thông báo chưa đọc của user
+        const unreadNotifications = await NotificationCollection.find({
+            $or: [
+                { isGlobal: true },
+                { targetUsers: userId },
+                { targetRole: req.session.role || 'user' },
+                { targetRole: 'all' }
+            ],
+            'readBy.userId': { $ne: userId }
+        });
+
+        // Đánh dấu tất cả đã đọc
+        const updatePromises = unreadNotifications.map(notification => 
+            NotificationCollection.findByIdAndUpdate(
+                notification._id,
+                {
+                    $push: {
+                        readBy: {
+                            userId: userId,
+                            readAt: new Date()
+                        }
+                    }
+                }
+            )
+        );
+
+        await Promise.all(updatePromises);
+
+        res.json({ 
+            success: true, 
+            message: `Đã đánh dấu ${unreadNotifications.length} thông báo là đã đọc` 
+        });
+
+    } catch (error) {
+        console.error("Error marking all notifications as read:", error);
+        res.status(500).json({ error: "Internal server error" });
+    }
 });
 
 const port = 5000;
