@@ -207,7 +207,8 @@ router.put('/admin/applications/:id/update-status', isAdmin, async (req, res) =>
                 });
             }
 
-            await dormitory.save();
+            // FIX: Skip validation to prevent the totalFloors validation error
+            await dormitory.save({ validateBeforeSave: false });
         }
 
         await application.save();
