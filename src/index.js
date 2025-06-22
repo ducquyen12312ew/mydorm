@@ -11,10 +11,12 @@ const adminApplicationRoutes = require('./admin-application-routes');
 app.use(session({
     secret: 'your-secret-key', 
     resave: false, 
-    saveUninitialized: true, 
+    saveUninitialized: false, // Thay đổi từ true thành false
     cookie: { 
-        secure: false,
-        maxAge: 1000 * 60 * 60 * 24 // 1 ngày
+        secure: false, // Đảm bảo false cho HTTP
+        httpOnly: true, // Thêm để bảo mật
+        maxAge: 1000 * 60 * 60 * 24, // 1 ngày
+        sameSite: 'lax' // Thêm cho compatibility trên mobile
     },
     name: 'dormitory_session'
 }));
@@ -58,14 +60,37 @@ const isAdmin = (req, res, next) => {
 
 app.get("/", (req, res) => {
     if (req.session && req.session.userId) {
-        // Nếu đã đăng nhập, hiển thị home.ejs
-        res.render("home");
+        // Kiểm tra role của user để chuyển hướng đúng
+        if (req.session.role === 'admin') {
+            // Admin sẽ được chuyển đến trang admin
+            res.redirect('/admin/dormitories');
+        } else {
+            // Sinh viên sẽ được hiển thị trang home.ejs
+            res.render("home", {
+                user: { 
+                    name: req.session.name, 
+                    role: req.session.role,
+                    id: req.session.userId
+                }
+            });
+        }
     } else {
         // Nếu chưa đăng nhập, hiển thị startuphome.ejs
         res.render("startuphome");
     }
 });
-
+app.get("/home", isAuthenticated, (req, res) => {
+    if (req.session.role === 'admin') {
+        return res.redirect('/admin/dormitories');
+    }
+    res.render("home", {
+        user: { 
+            name: req.session.name, 
+            role: req.session.role,
+            id: req.session.userId
+        }
+    });
+});
 app.get("/login", (req, res) => {
     res.render("login");
 });
@@ -540,12 +565,23 @@ app.post("/login", async (req, res) => {
             req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30; // 30 ngày
         }
 
-        // Chuyển hướng dựa vào vai trò
-        if (student.role === "admin") {
-            return res.redirect("/admin/dormitories");
-        } else {
-            return res.redirect("/");
-        }
+        // Đảm bảo session được lưu trước khi redirect
+        req.session.save((err) => {
+            if (err) {
+                console.error('Session save error:', err);
+                return res.render("login", { 
+                    error: "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại."
+                });
+            }
+
+            // Chuyển hướng dựa vào vai trò
+            if (student.role === "admin") {
+                return res.redirect("/admin/dormitories");
+            } else {
+                return res.redirect("/");
+            }
+        });
+
     } catch (error) {
         console.error("Error during login:", error);
         res.render("login", { 
@@ -553,7 +589,14 @@ app.post("/login", async (req, res) => {
         });
     }
 });
-
+app.use('/debug-session', (req, res) => {
+    res.json({
+        sessionData: req.session,
+        hasUserId: !!req.session.userId,
+        role: req.session.role,
+        name: req.session.name
+    });
+});
 // Route xử lý forgot password
 app.get("/forgot-password", (req, res) => {
     res.render("forgot-password");
