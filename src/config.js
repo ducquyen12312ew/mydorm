@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
-const connect = mongoose.connect("mongodb://0.0.0.0:27017/Dormitory");
+
+const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/Dormitory";
+
+// Kết nối MongoDB với promise
+const connect = mongoose.connect(uri);
 
 connect.then(() => {
     console.log("Database Connected Successfully");
 })
-.catch(() => {
-    console.log("Database cannot be Connected");
+.catch((err) => {
+    console.error("Database cannot be Connected:", err);
 });
 
 // Schema cho thông tin sinh viên/người dùng
@@ -72,7 +76,7 @@ const StudentSchema = new mongoose.Schema({
     }
 });
 
-// Schema cho người ở trong phòng (không thay đổi)
+// Schema cho người ở trong phòng
 const OccupantSchema = new mongoose.Schema({
     studentId: {
         type: String,
@@ -98,7 +102,7 @@ const OccupantSchema = new mongoose.Schema({
     }
 });
 
-// Schema cho thông tin phòng (không thay đổi)
+// Schema cho thông tin phòng
 const RoomSchema = new mongoose.Schema({
     roomNumber: {
         type: String,
@@ -157,7 +161,7 @@ const FloorSchema = new mongoose.Schema({
     rooms: [RoomSchema]
 });
 
-// Schema cho ký túc xá (không thay đổi)
+// Schema cho ký túc xá
 const DormitorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -253,7 +257,7 @@ DormitorySchema.pre('save', function(next) {
         this.details.totalFloors = 1;
     }
     
-    // Tính toán price range như cũ
+    // Tính toán price range
     let prices = [];
     
     if (this.floors && this.floors.length > 0) {
@@ -306,9 +310,8 @@ const PendingApplicationSchema = new mongoose.Schema({
         ref: 'dormitories',
         required: true
     },
-    dormitoryName: {  // ✅ BỎ REQUIRED - CHỈ LƯU KHI CÓ
+    dormitoryName: {
         type: String
-        // required: false (mặc định)
     },
     roomNumber: {
         type: String,

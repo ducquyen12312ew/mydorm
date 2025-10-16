@@ -10,10 +10,10 @@ const adminApplicationRoutes = require('./admin-application-routes');
 const roomStatusRoutes = require('./room-status-routes');
 
 app.use(session({
-    secret: 'your-secret-key', 
-    resave: false, 
+    secret: process.env.SESSION_SECRET || 'dev-secret',
+    resave: false,
     saveUninitialized: false,
-    cookie: { 
+    cookie: {
         secure: false,
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24, // 1 ngày
@@ -1507,7 +1507,7 @@ app.post("/api/notifications/mark-all-read", async (req, res) => {
 });
 
 
-const port = 5000;
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+  console.log(`Server listening on port ${port}`);
 });
