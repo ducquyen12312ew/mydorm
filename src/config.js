@@ -244,6 +244,16 @@ DormitorySchema.index({ location: '2dsphere' });
 DormitorySchema.index({ name: 1 }, { unique: true });
 DormitorySchema.pre('save', function(next) {
     this.updatedAt = Date.now();
+    
+    // Tự động cập nhật totalFloors dựa trên số lượng floors thực tế
+    if (this.floors && this.floors.length > 0) {
+        this.details.totalFloors = this.floors.length;
+    } else if (!this.details.totalFloors) {
+        // Nếu không có floors nào nhưng cũng chưa set totalFloors, đặt mặc định là 1
+        this.details.totalFloors = 1;
+    }
+    
+    // Tính toán price range như cũ
     let prices = [];
     
     if (this.floors && this.floors.length > 0) {
@@ -255,10 +265,12 @@ DormitorySchema.pre('save', function(next) {
             }
         });
     }
+    
     if (prices.length > 0) {
         this.details.priceRange.min = Math.min(...prices);
         this.details.priceRange.max = Math.max(...prices);
     }
+    
     next();
 });
 
@@ -294,6 +306,10 @@ const PendingApplicationSchema = new mongoose.Schema({
         ref: 'dormitories',
         required: true
     },
+    dormitoryName: {  // ✅ BỎ REQUIRED - CHỈ LƯU KHI CÓ
+        type: String
+        // required: false (mặc định)
+    },
     roomNumber: {
         type: String,
         required: true
@@ -305,6 +321,27 @@ const PendingApplicationSchema = new mongoose.Schema({
     },
     comments: {
         type: String
+    },
+    approvedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students'
+    },
+    approvedAt: {
+        type: Date
+    },
+    rejectedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students'
+    },
+    rejectedAt: {
+        type: Date
+    },
+    rejectionReason: {
+        type: String
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
     },
     createdAt: {
         type: Date,
@@ -369,7 +406,6 @@ const NotificationSchema = new mongoose.Schema({
     }
 });
 
-// Schema cho activity log (theo dõi hoạt động người dùng)
 const ActivityLogSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -388,7 +424,10 @@ const ActivityLogSchema = new mongoose.Schema({
             'room_changed',
             'profile_updated',
             'login',
-            'logout'
+            'logout',
+            'application_approved',  
+            'application_rejected',  
+            'password_changed'       
         ]
     },
     description: {

@@ -464,10 +464,10 @@
             const roomNumber = document.getElementById('roomNumber').value;
             const spotIndex = document.getElementById('spotIndex').value;
             
-            const studentId = document.getElementById('studentId').value;
-            const name = document.getElementById('studentName').value;
-            const phone = document.getElementById('studentPhone').value;
-            const email = document.getElementById('studentEmail').value;
+            const studentId = document.getElementById('studentId').value.trim();
+            const name = document.getElementById('studentName').value.trim();
+            const phone = document.getElementById('studentPhone').value.trim();
+            const email = document.getElementById('studentEmail').value.trim();
             
             // Kiểm tra các trường bắt buộc
             if (!studentId || !name) {
@@ -493,6 +493,7 @@
                 if (data.error) {
                     alert('Lỗi: ' + data.error);
                 } else {
+                    alert(data.message || 'Thêm sinh viên thành công!');
                     // Đóng modal và tải lại trang
                     const modal = bootstrap.Modal.getInstance(document.getElementById('occupantModal'));
                     modal.hide();
@@ -505,38 +506,101 @@
             });
         }
         
-        // Xóa người ở
-        function removeOccupant() {
-            const dormitoryId = document.getElementById('dormitoryId').value;
-            const floorNumber = document.getElementById('floorNumber').value;
-            const roomNumber = document.getElementById('roomNumber').value;
-            const spotIndex = document.getElementById('spotIndex').value;
-            
-            if (confirm('Bạn có chắc chắn muốn xóa sinh viên này khỏi phòng?')) {
-                fetch(`/api/dormitories/${dormitoryId}/floors/${floorNumber}/rooms/${roomNumber}/toggle-spot/${spotIndex}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Lỗi: ' + data.error);
-                    } else {
-                        // Đóng modal và tải lại trang
-                        const modal = bootstrap.Modal.getInstance(document.getElementById('occupantModal'));
-                        modal.hide();
-                        location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Đã xảy ra lỗi khi xóa sinh viên!');
-                });
+       // Xóa người ở
+function removeOccupant() {
+    const dormitoryId = document.getElementById('dormitoryId').value;
+    const floorNumber = document.getElementById('floorNumber').value;
+    const roomNumber = document.getElementById('roomNumber').value;
+    const spotIndex = document.getElementById('spotIndex').value;
+    
+    if (confirm('Bạn có chắc chắn muốn xóa sinh viên này khỏi phòng?')) {
+        // Gọi API để xóa người ở (không gửi body data)
+        fetch(`/api/dormitories/${dormitoryId}/floors/${floorNumber}/rooms/${roomNumber}/toggle-spot/${spotIndex}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             }
-        }
+            // Không gửi body để backend hiểu đây là lệnh xóa
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert('Lỗi: ' + data.error);
+            } else {
+                alert(data.message || 'Xóa sinh viên thành công!');
+                // Đóng modal và tải lại trang
+                const modal = bootstrap.Modal.getInstance(document.getElementById('occupantModal'));
+                modal.hide();
+                location.reload();
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Đã xảy ra lỗi khi xóa sinh viên!');
+        });
+    }
+}
+function selectSpot(spotElement) {
+    const dormitoryId = spotElement.getAttribute('data-dormitory-id');
+    const floorNumber = spotElement.getAttribute('data-floor-number');
+    const roomNumber = spotElement.getAttribute('data-room-number');
+    const spotIndex = spotElement.getAttribute('data-spot-index');
+    const isOccupied = spotElement.querySelector('.occupant-icon').classList.contains('occupied');
+    
+    // Cập nhật các trường ẩn trong form
+    document.getElementById('dormitoryId').value = dormitoryId;
+    document.getElementById('floorNumber').value = floorNumber;
+    document.getElementById('roomNumber').value = roomNumber;
+    document.getElementById('spotIndex').value = spotIndex;
+    
+    // Reset form
+    document.getElementById('occupantForm').reset();
+    
+    // Cập nhật tiêu đề modal
+    document.getElementById('occupantModalLabel').textContent = 
+        `Quản lý sinh viên - Phòng ${roomNumber} - Vị trí ${parseInt(spotIndex) + 1}`;
+    
+    // Cập nhật phần trạng thái
+    const statusElement = document.getElementById('occupantStatus');
+    if (isOccupied) {
+        // Lấy tên người ở từ vị trí được chọn
+        const occupantName = spotElement.querySelector('.occupant-name').textContent;
         
+        statusElement.innerHTML = `
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>
+                Vị trí này đang được <strong>${occupantName}</strong> sử dụng.
+            </div>
+        `;
+        
+        // Hiển thị form để có thể xem/chỉnh sửa thông tin (tùy chọn)
+        // TODO: Có thể fetch thông tin chi tiết và điền vào form
+        
+        // Cập nhật các nút trong footer
+        document.getElementById('modalFooter').innerHTML = `
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-danger" onclick="removeOccupant()">
+                <i class="fas fa-user-minus me-1"></i> Xóa người ở
+            </button>
+        `;
+        
+    } else {
+        statusElement.innerHTML = `
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Vị trí này đang trống. Hãy thêm sinh viên mới.
+            </div>
+        `;
+        
+        // Cập nhật các nút trong footer
+        document.getElementById('modalFooter').innerHTML = `
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            <button type="button" class="btn btn-success" onclick="addOccupant()">
+                <i class="fas fa-user-plus me-1"></i> Thêm sinh viên
+            </button>
+        `;
+    }
+}
         // Cập nhật thông tin người ở
         function updateOccupant() {
             // Chức năng này có thể được phát triển thêm

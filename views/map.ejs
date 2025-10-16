@@ -977,9 +977,9 @@
     </style>
 </head>
 <body>
-    <header class="header" id="header">
+    <header class="header">
         <div class="header-logo">
-            <img src="image/logo.png" alt="HUST Logo" id="hustLogo">
+            <img src="image/logo.png" alt="HUST Logo">
         </div>
         <div class="menu-toggle" id="menuToggle">
             <span></span>
@@ -988,35 +988,38 @@
         </div>
         <div class="nav-container" id="navContainer">
             <nav class="nav-links">
-                <a href="/" class="nav-link active-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link">BẢN ĐỒ</a>
+                <a href="/" class="nav-link">TRANG CHỦ</a>
+                <a href="/map" class="nav-link active-link">BẢN ĐỒ</a>
                 <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
             </nav>
-            <!-- Đây là phần được thay đổi: thay nút đăng nhập bằng avatar xem hồ sơ -->
-            <div class="user-profile">
-                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
-                    <div class="avatar">
-                        <% if (user && user.name) { %>
-                            <%= user.name.charAt(0).toUpperCase() %>
-                        <% } else { %>
-                            U
-                        <% } %>
+
+                <!-- User profile dropdown -->
+                <div class="user-profile">
+                    <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                        <div class="avatar">
+                            <% if (user && user.name) { %>
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            <% } else { %>
+                                U
+                            <% } %>
+                        </div>
+                        <span class="user-name">
+                            <% if (user && user.name) { %>
+                                <%= user.name %>
+                            <% } else { %>
+                                Người dùng
+                            <% } %>
+                        </span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/profile" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ
+                        </a>
+                        <a href="/logout" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
                     </div>
-                    <span class="user-name">
-                        <% if (user && user.name) { %>
-                            <%= user.name %>
-                        <% } else { %>
-                            Người dùng
-                        <% } %>
-                    </span>
-                </a>
-                <div class="dropdown-menu">
-                    <a href="/profile" class="dropdown-item">
-                        <i class="fas fa-user-circle"></i> Hồ sơ
-                    </a>
-                    <a href="/logout" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
                 </div>
             </div>
         </div>
@@ -1798,73 +1801,6 @@ function showDirections(lat, lng) {
 }
 
     </script>
-    <section class="showcase">
-        <!-- Background element -->
-        <div class="showcase-background"></div>
-        
-        <!-- Main slider container -->
-        <div class="property-slider">
-            <div class="slider-container">
-                <!-- Slides will be populated dynamically from database -->
-                <div class="slider-wrapper" id="sliderWrapper">
-                    <!-- Slides will be inserted here via JavaScript -->
-                </div>
-                
-                <!-- Navigation arrows with improved visibility and interaction -->
-                <button class="slider-nav slider-nav-prev" id="prevSlideBtn">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="slider-nav slider-nav-next" id="nextSlideBtn">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <!-- Info card overlay -->
-                <div class="property-info-card">
-                    <div class="property-info-content">
-                        <h2 class="property-title" id="propertyTitle"></h2>
-                        <p class="property-address" id="propertyAddress"></p>
-                        
-                        <div class="property-details">
-                            <div class="detail-item">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <div class="detail-content">
-                                    <div class="detail-label">Giá phòng:</div>
-                                    <div class="detail-value" id="propertyPrice"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <i class="fas fa-building"></i>
-                                <div class="detail-content">
-                                    <div class="detail-label">Loại khu:</div>
-                                    <div class="detail-value" id="propertyCategory"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <i class="fas fa-users"></i>
-                                <div class="detail-content">
-                                    <div class="detail-label">Sức chứa:</div>
-                                    <div class="detail-value" id="propertyCapacity"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="property-amenities" id="propertyAmenities">
-                            <!-- Amenities will be populated here -->
-                        </div>
-                        
-                        <a href="#" class="register-button" id="registerButton">
-                            <i class="fas fa-sign-in-alt"></i> Đăng ký ngay
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Pagination dots -->
-                <div class="slider-pagination" id="sliderPagination"></div>
-            </div>
-        </div>
-    </section>
     
     <style>
         /* Showcase section styling */
