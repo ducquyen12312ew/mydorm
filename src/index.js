@@ -9,39 +9,14 @@ const registrationRoutes = require('./registration-routes');
 const adminApplicationRoutes = require('./admin-application-routes');
 const roomStatusRoutes = require('./room-status-routes');
 
-app.set('trust proxy', 1);
-
-app.use((req, res, next) => {
-  const host = req.headers.host || '';
-  if (host === 'smartdorm.site') {
-    if (req.method === 'GET') {
-      return res.redirect(301, `https://www.smartdorm.site${req.originalUrl}`);
-    }
-    return res.redirect(308, `https://www.smartdorm.site${req.originalUrl}`);
-  }
-  next();
-});
-
-app.use((req, res, next) => {
-  const isSecure = req.secure || req.headers['x-forwarded-proto'] === 'https';
-  if (!isSecure) {
-    const host = req.headers.host;
-    if (req.method === 'GET') {
-      return res.redirect(301, `https://${host}${req.originalUrl}`);
-    }
-    return res.redirect(308, `https://${host}${req.originalUrl}`);
-  }
-  next();
-});
-
 app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24,
+        maxAge: 1000 * 60 * 60 * 24, // 1 ngày
         sameSite: 'lax'
     },
     name: 'dormitory_session'
@@ -51,8 +26,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
+
 app.set("view engine", "ejs");
 
+// API routes
 app.use('/api', registrationRoutes);
 app.use('/api', dormitoryRoutes);
 app.use('/api', adminApplicationRoutes);
@@ -67,6 +44,7 @@ app.use((req, res, next) => {
     next();
 });
 
+// Middleware kiểm tra đăng nhập
 const isAuthenticated = (req, res, next) => {
     if (req.session && req.session.userId) {
         return next();
@@ -74,6 +52,7 @@ const isAuthenticated = (req, res, next) => {
     res.redirect('/login');
 };
 
+// Middleware kiểm tra quyền admin
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
         return next();
@@ -83,9 +62,12 @@ const isAdmin = (req, res, next) => {
 
 app.get("/", (req, res) => {
     if (req.session && req.session.userId) {
+        // Kiểm tra role của user để chuyển hướng đúng
         if (req.session.role === 'admin') {
+            // Admin sẽ được chuyển đến trang admin
             res.redirect('/admin/dormitories');
         } else {
+            // Sinh viên sẽ được hiển thị trang home.ejs
             res.render("home", {
                 user: { 
                     name: req.session.name, 
@@ -95,10 +77,10 @@ app.get("/", (req, res) => {
             });
         }
     } else {
+        // Nếu chưa đăng nhập, hiển thị startuphome.ejs
         res.render("startuphome");
     }
 });
-
 app.get("/home", isAuthenticated, (req, res) => {
     if (req.session.role === 'admin') {
         return res.redirect('/admin/dormitories');
@@ -111,7 +93,6 @@ app.get("/home", isAuthenticated, (req, res) => {
         }
     });
 });
-
 app.get("/login", (req, res) => {
     res.render("login");
 });
