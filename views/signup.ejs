@@ -449,7 +449,6 @@
             <div class="step-indicator">
                 <div class="step active" data-step="1">1</div>
                 <div class="step" data-step="2">2</div>
-                <div class="step" data-step="3">3</div>
             </div>
             
             <form action="/signup" method="post" id="signupForm">
@@ -557,42 +556,6 @@
                         </div>
                     </div>
                     
-                    <div class="form-navigation">
-                        <button type="button" class="prev-btn" id="step2Prev"><i class="fas fa-arrow-left"></i> Quay lại</button>
-                        <button type="button" class="next-btn" id="step2Next">Tiếp tục <i class="fas fa-arrow-right"></i></button>
-                    </div>
-                </div>
-                
-                <!-- Bước 3: Thông tin bổ sung (không bắt buộc) -->
-                <div class="form-step" id="step3">
-                    <div class="form-group">
-                        <label for="faculty">Khoa/Viện</label>
-                        <select class="form-select" id="faculty" name="faculty">
-                            <option value="" selected>-- Chọn khoa/viện --</option>
-                            <option value="cntt">Trường Công nghệ Thông tin và Truyền thông</option>
-                            <option value="co_khi">TrườngCơ khí</option>
-                            <option value="dien">Viện Điện</option>
-                            <option value="hoa">Viện Kỹ thuật Hóa học</option>
-                            <option value="vl">Viện Vật lý kỹ thuật</option>
-                            <option value="nn">Viện Ngoại ngữ</option>
-                            <option value="kinh_te">Viện Kinh tế và Quản lý</option>
-                            <option value="other">Khác</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="academicYear">Năm học</label>
-                        <select class="form-select" id="academicYear" name="academicYear">
-                            <option value="" selected>-- Chọn năm học --</option>
-                            <option value="1">Năm 1</option>
-                            <option value="2">Năm 2</option>
-                            <option value="3">Năm 3</option>
-                            <option value="4">Năm 4</option>
-                            <option value="5">Năm 5</option>
-                            <option value="6">Sau đại học</option>
-                        </select>
-                    </div>
-                    
                     <div class="form-group">
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" id="agreeTerms" name="agreeTerms" required>
@@ -603,7 +566,7 @@
                     </div>
                     
                     <div class="form-navigation">
-                        <button type="button" class="prev-btn" id="step3Prev"><i class="fas fa-arrow-left"></i> Quay lại</button>
+                        <button type="button" class="prev-btn" id="step2Prev"><i class="fas fa-arrow-left"></i> Quay lại</button>
                         <button type="submit" class="signup-btn">
                             <i class="fas fa-user-plus me-2"></i> Đăng ký
                         </button>
@@ -691,8 +654,6 @@
             const formSteps = document.querySelectorAll('.form-step');
             const step1Next = document.getElementById('step1Next');
             const step2Prev = document.getElementById('step2Prev');
-            const step2Next = document.getElementById('step2Next');
-            const step3Prev = document.getElementById('step3Prev');
             
             const passwordInput = document.getElementById('password');
             const confirmPasswordInput = document.getElementById('confirmPassword');
@@ -759,18 +720,6 @@
             
             step2Prev.addEventListener('click', function() {
                 goToStep(1);
-            });
-            
-            step2Next.addEventListener('click', function() {
-                // Kiểm tra hợp lệ
-                if (!validateStep2()) return;
-                
-                // Chuyển bước
-                goToStep(3);
-            });
-            
-            step3Prev.addEventListener('click', function() {
-                goToStep(2);
             });
             
             // Di chuyển đến bước
@@ -848,6 +797,12 @@
                     isValid = false;
                 }
                 
+                // Kiểm tra checkbox đồng ý điều khoản
+                if (!document.getElementById('agreeTerms').checked) {
+                    alert('Bạn phải đồng ý với điều khoản sử dụng để tiếp tục đăng ký.');
+                    isValid = false;
+                }
+                
                 return isValid;
             }
             
@@ -887,6 +842,15 @@
                 
                 return { score, feedback };
             }
+            
+            // Xử lý submit form
+            document.getElementById('signupForm').addEventListener('submit', function(e) {
+                // Validate bước 2 trước khi submit
+                if (!validateStep2()) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         });
         
         // Hiển thị/ẩn mật khẩu

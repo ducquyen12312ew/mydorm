@@ -7,16 +7,17 @@ const session = require('express-session');
 const dormitoryRoutes = require('./dormitory-routes');
 const registrationRoutes = require('./registration-routes');
 const adminApplicationRoutes = require('./admin-application-routes');
+const roomStatusRoutes = require('./room-status-routes');
 
 app.use(session({
     secret: 'your-secret-key', 
     resave: false, 
-    saveUninitialized: false, // Thay đổi từ true thành false
+    saveUninitialized: false,
     cookie: { 
-        secure: false, // Đảm bảo false cho HTTP
-        httpOnly: true, // Thêm để bảo mật
+        secure: false,
+        httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24, // 1 ngày
-        sameSite: 'lax' // Thêm cho compatibility trên mobile
+        sameSite: 'lax'
     },
     name: 'dormitory_session'
 }));
@@ -32,6 +33,7 @@ app.set("view engine", "ejs");
 app.use('/api', registrationRoutes);
 app.use('/api', dormitoryRoutes);
 app.use('/api', adminApplicationRoutes);
+app.use('/', roomStatusRoutes);
 
 app.use((req, res, next) => {
     res.locals.user = {
@@ -563,7 +565,8 @@ app.post("/login", async (req, res) => {
         req.session.userId = student._id;
         req.session.name = student.name;
         req.session.role = student.role;
-
+        req.session.studentId = student.studentId;
+        
         // Nếu chọn ghi nhớ đăng nhập, kéo dài thời gian session
         if (remember) {
             req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30; // 30 ngày
@@ -786,6 +789,339 @@ app.post("/api/admin/notifications", isAdmin, async (req, res) => {
     }
 });
 
+app.post("/admin/approve-application", isAdmin, async (req, res) => {
+    try {
+        const { applicationId, action, rejectionReason } = req.body;
+        const adminId = req.session.userId;
+
+        console.log(`[ADMIN-APPROVE] Admin ${adminId} processing application ${applicationId} with action: ${action}`);
+
+        const application = await PendingApplicationCollection.findById(applicationId);
+        if (!application) {
+            console.log(`[ERROR] Application ${applicationId} not found`);
+            return res.status(404).json({ 
+                success: false, 
+                message: "Không tìm thấy đơn đăng ký" 
+            });
+        }
+
+        console.log(`[DEBUG] Found application:`, {
+            id: application._id,
+            studentId: application.studentId,
+            status: application.status,
+            roomNumber: application.roomNumber,
+            fullName: application.fullName
+        });
+
+        if (application.status !== 'pending') {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Đơn đăng ký đã được xử lý (${application.status})` 
+            });
+        }
+
+        if (action === 'approve') {
+            // ✅ THÊM MỚI: Kiểm tra sinh viên đã tồn tại trong toàn hệ thống chưa
+            console.log(`[DEBUG] Checking if student already exists in system...`);
+            
+            const existingStudent = await checkStudentExistsInSystem(application.studentId, application.fullName);
+            
+            if (existingStudent.exists) {
+                const location = existingStudent.location;
+                const fieldType = existingStudent.type === 'studentId' ? 'Mã sinh viên' : 'Tên sinh viên';
+                const fieldValue = existingStudent.type === 'studentId' ? application.studentId : application.fullName;
+                
+                console.log(`[ERROR] Student already exists:`, location);
+                
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `${fieldType} "${fieldValue}" đã được đăng ký tại ${location.dormitoryName} - Tầng ${location.floorNumber} - Phòng ${location.roomNumber}. Không thể duyệt đơn đăng ký này!` 
+                });
+            }
+
+            // ✅ THÊM MỚI: Kiểm tra phòng còn chỗ trống không
+            const dormitory = await DormitoryCollection.findById(application.dormitoryId);
+            if (!dormitory) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Không tìm thấy ký túc xá" 
+                });
+            }
+
+            let targetRoom = null;
+            let targetFloor = null;
+
+            // Tìm phòng trong ký túc xá
+            for (const floor of dormitory.floors) {
+                const room = floor.rooms.find(r => r.roomNumber === application.roomNumber);
+                if (room) {
+                    targetRoom = room;
+                    targetFloor = floor;
+                    break;
+                }
+            }
+
+            if (!targetRoom) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: `Không tìm thấy phòng ${application.roomNumber} trong ký túc xá` 
+                });
+            }
+
+            // Kiểm tra phòng còn chỗ trống không
+            const activeOccupants = targetRoom.occupants.filter(o => o.active);
+            if (activeOccupants.length >= targetRoom.maxCapacity) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Phòng ${application.roomNumber} đã đầy (${activeOccupants.length}/${targetRoom.maxCapacity}). Không thể duyệt đơn đăng ký!` 
+                });
+            }
+
+            // ✅ Nếu tất cả kiểm tra đều pass, tiến hành duyệt đơn
+            console.log(`[DEBUG] All validation passed, approving application...`);
+
+            // Cập nhật trạng thái đơn đăng ký
+            const updatedApplication = await PendingApplicationCollection.findByIdAndUpdate(
+                applicationId, 
+                {
+                    status: 'approved',
+                    approvedBy: adminId,
+                    approvedAt: new Date(),
+                    updatedAt: new Date()
+                },
+                { new: true }
+            );
+
+            console.log(`[DEBUG] Application updated:`, updatedApplication.status);
+
+            // Tìm sinh viên trong database
+            const student = await StudentCollection.findOne({ studentId: application.studentId });
+            if (!student) {
+                console.log(`[ERROR] Student not found for studentId: ${application.studentId}`);
+                return res.status(404).json({ 
+                    success: false, 
+                    message: "Không tìm thấy sinh viên trong hệ thống" 
+                });
+            }
+
+            console.log(`[DEBUG] Found student:`, {
+                id: student._id,
+                name: student.name,
+                studentId: student.studentId
+            });
+
+            // Cập nhật thông tin phòng cho sinh viên
+            await StudentCollection.findByIdAndUpdate(student._id, {
+                dormitoryId: application.dormitoryId,
+                roomNumber: application.roomNumber,
+                updatedAt: new Date()
+            });
+
+            // Thêm sinh viên vào phòng
+            targetRoom.occupants.push({
+                studentId: application.studentId,
+                name: application.fullName,
+                phone: application.phone || '',
+                email: application.email || '',
+                checkInDate: new Date(),
+                active: true
+            });
+
+            // Đảm bảo totalFloors được cập nhật đúng
+            if (!dormitory.details.totalFloors) {
+                dormitory.details.totalFloors = dormitory.floors.length;
+            }
+
+            // Lưu thay đổi vào ký túc xá
+            await dormitory.save();
+
+            console.log(`[DEBUG] Student room assigned: ${application.roomNumber}`);
+
+            // Gửi thông báo cho sinh viên
+            const notificationResult = await sendNotificationOnEvent('registration_approved', student._id, {
+                roomNumber: application.roomNumber,
+                dormitoryName: application.dormitoryName || dormitory.name,
+                applicationId: applicationId
+            });
+
+            console.log(`[DEBUG] Notification result:`, notificationResult ? 'SUCCESS' : 'FAILED');
+
+            // Tạo activity log
+            await createActivityLog(student._id, 'application_approved', 
+                `Đơn đăng ký phòng ${application.roomNumber} đã được duyệt`, {
+                applicationId: applicationId,
+                approvedBy: adminId
+            });
+
+            res.json({ 
+                success: true, 
+                message: "Đã duyệt đơn đăng ký thành công!",
+                data: {
+                    applicationId: applicationId,
+                    studentName: student.name,
+                    roomNumber: application.roomNumber,
+                    dormitoryName: dormitory.name,
+                    notificationSent: !!notificationResult
+                }
+            });
+
+        } else if (action === 'reject') {
+            // Từ chối đơn đăng ký
+            await PendingApplicationCollection.findByIdAndUpdate(applicationId, {
+                status: 'rejected',
+                rejectedBy: adminId,
+                rejectedAt: new Date(),
+                rejectionReason: rejectionReason || "Không đáp ứng yêu cầu",
+                updatedAt: new Date()
+            });
+
+            const student = await StudentCollection.findOne({ studentId: application.studentId });
+            if (student) {
+                await sendNotificationOnEvent('registration_rejected', student._id, {
+                    roomNumber: application.roomNumber,
+                    reason: rejectionReason || "Không đáp ứng yêu cầu",
+                    applicationId: applicationId
+                });
+
+                // Tạo activity log
+                await createActivityLog(student._id, 'application_rejected', 
+                    `Đơn đăng ký phòng ${application.roomNumber} đã bị từ chối`, {
+                    applicationId: applicationId,
+                    rejectedBy: adminId,
+                    reason: rejectionReason
+                });
+            }
+
+            res.json({ 
+                success: true, 
+                message: "Đã từ chối đơn đăng ký!" 
+            });
+        } else {
+            res.status(400).json({ 
+                success: false, 
+                message: "Hành động không hợp lệ (phải là 'approve' hoặc 'reject')" 
+            });
+        }
+
+    } catch (error) {
+        console.error("[ERROR] Error processing application:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Lỗi hệ thống khi xử lý đơn đăng ký",
+            error: error.message
+        });
+    }
+});
+
+
+app.put("/api/admin/applications/:id/update-status", isAdmin, async (req, res) => {
+    try {
+        const { status, comments } = req.body;
+        const applicationId = req.params.id;
+        const adminId = req.session.userId;
+
+        // Validate status
+        if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: "Trạng thái không hợp lệ" 
+            });
+        }
+
+        // Find application
+        const application = await PendingApplicationCollection.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ 
+                success: false, 
+                error: "Không tìm thấy đơn đăng ký" 
+            });
+        }
+
+        // Find student
+        const student = await StudentCollection.findOne({ studentId: application.studentId });
+        if (!student) {
+            return res.status(404).json({ 
+                success: false, 
+                error: "Không tìm thấy sinh viên" 
+            });
+        }
+
+        if (status === 'approved') {
+            // Update application
+            await PendingApplicationCollection.findByIdAndUpdate(applicationId, {
+                status: 'approved',
+                approvedBy: adminId,
+                approvedAt: new Date(),
+                comments: comments || '',
+                updatedAt: new Date()
+            });
+
+            // Assign room to student
+            await StudentCollection.findByIdAndUpdate(student._id, {
+                dormitoryId: application.dormitoryId,
+                roomNumber: application.roomNumber,
+                updatedAt: new Date()
+            });
+
+            // Send notification
+            await sendNotificationOnEvent('registration_approved', student._id, {
+                roomNumber: application.roomNumber,
+                dormitoryName: application.dormitoryName || "KTX HUST",
+                applicationId: applicationId
+            });
+
+            res.json({ 
+                success: true, 
+                message: "Đã duyệt đơn đăng ký thành công!"
+            });
+
+        } else if (status === 'rejected') {
+            // Update application
+            await PendingApplicationCollection.findByIdAndUpdate(applicationId, {
+                status: 'rejected',
+                rejectedBy: adminId,
+                rejectedAt: new Date(),
+                rejectionReason: comments || "Không đáp ứng yêu cầu",
+                comments: comments || '',
+                updatedAt: new Date()
+            });
+
+            // Send notification
+            await sendNotificationOnEvent('registration_rejected', student._id, {
+                roomNumber: application.roomNumber,
+                reason: comments || "Không đáp ứng yêu cầu",
+                applicationId: applicationId
+            });
+
+            res.json({ 
+                success: true, 
+                message: "Đã từ chối đơn đăng ký!"
+            });
+
+        } else {
+            // Just update comments for pending
+            await PendingApplicationCollection.findByIdAndUpdate(applicationId, {
+                status: 'pending',
+                comments: comments || '',
+                updatedAt: new Date()
+            });
+
+            res.json({ 
+                success: true, 
+                message: "Đã cập nhật trạng thái thành công!" 
+            });
+        }
+
+    } catch (error) {
+        console.error("Error updating application status:", error);
+        res.status(500).json({ 
+            success: false, 
+            error: "Lỗi hệ thống khi cập nhật trạng thái"
+        });
+    }
+});
+
+
 async function sendNotificationOnEvent(eventType, userId, details = {}) {
     try {
         let notificationData = { createdBy: userId };
@@ -802,6 +1138,29 @@ async function sendNotificationOnEvent(eventType, userId, details = {}) {
                 };
                 await createActivityLog(userId, 'register_success', 'Tạo tài khoản thành công', details);
                 break;
+                case 'registration_approved':
+                    notificationData = {
+                        ...notificationData,
+                        title: 'Đơn đăng ký ký túc xá đã được duyệt!',
+                        message: `Đơn đăng ký phòng ${details.roomNumber} tại ${details.dormitoryName} của bạn đã được admin phê duyệt. Vui lòng kiểm tra thông tin chi tiết trong hồ sơ cá nhân.`,
+                        type: 'success',
+                        targetUsers: [userId],
+                        priority: 'high'
+                    };
+                    await createActivityLog(userId, 'registration_approved', 'Đơn đăng ký được duyệt', details);
+                    break;
+    
+                case 'registration_rejected':
+                    notificationData = {
+                        ...notificationData,
+                        title: 'Đơn đăng ký ký túc xá bị từ chối',
+                        message: `Đơn đăng ký phòng ${details.roomNumber} của bạn đã bị từ chối. Lý do: ${details.reason}. Bạn có thể đăng ký lại phòng khác hoặc liên hệ ban quản lý để biết thêm chi tiết.`,
+                        type: 'error',
+                        targetUsers: [userId],
+                        priority: 'high'
+                    };
+                    await createActivityLog(userId, 'registration_rejected', 'Đơn đăng ký bị từ chối', details);
+                    break;
 
             case 'registration_success':
                 notificationData = {
@@ -948,6 +1307,75 @@ async function sendNotificationOnEvent(eventType, userId, details = {}) {
     }
 }
 
+app.get("/admin/applications", isAdmin, async (req, res) => {
+    try {
+        const { status, page = 1, limit = 20 } = req.query;
+        
+        let query = {};
+        if (status && status !== 'all') {
+            query.status = status;
+        }
+
+        const applications = await ApplicationCollection
+            .find(query)
+            .populate('userId', 'name studentId email phone')
+            .sort({ createdAt: -1 })
+            .limit(limit * 1)
+            .skip((page - 1) * limit);
+
+        const total = await ApplicationCollection.countDocuments(query);
+
+        res.json({
+            success: true,
+            applications,
+            totalPages: Math.ceil(total / limit),
+            currentPage: page,
+            total
+        });
+
+    } catch (error) {
+        console.error("Error fetching applications:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Lỗi khi lấy danh sách đơn đăng ký" 
+        });
+    }
+});
+
+app.get("/admin/applications/stats", isAdmin, async (req, res) => {
+    try {
+        const stats = await ApplicationCollection.aggregate([
+            {
+                $group: {
+                    _id: "$status",
+                    count: { $sum: 1 }
+                }
+            }
+        ]);
+
+        const result = {
+            pending: 0,
+            approved: 0,
+            rejected: 0,
+            total: 0
+        };
+
+        stats.forEach(stat => {
+            result[stat._id] = stat.count;
+            result.total += stat.count;
+        });
+
+        res.json({ success: true, stats: result });
+
+    } catch (error) {
+        console.error("Error fetching application stats:", error);
+        res.status(500).json({ 
+            success: false, 
+            message: "Lỗi khi lấy thống kê đơn đăng ký" 
+        });
+    }
+});
+
 global.sendNotificationOnEvent = sendNotificationOnEvent;
 global.createActivityLog = createActivityLog;
 
@@ -1077,6 +1505,7 @@ app.post("/api/notifications/mark-all-read", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
 
 const port = 5000;
 app.listen(port, () => {

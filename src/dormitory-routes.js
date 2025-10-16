@@ -7,6 +7,90 @@ const isAdmin = (req, res, next) => {
     }
     res.status(403).json({ error: 'Không có quyền truy cập' });
 };
+async function checkStudentExistsInSystem(studentId, name) {
+    try {
+        // Sử dụng MongoDB aggregation để tìm kiếm hiệu quả hơn
+        const result = await DormitoryCollection.aggregate([
+            { $unwind: "$floors" },
+            { $unwind: "$floors.rooms" },
+            { $unwind: "$floors.rooms.occupants" },
+            {
+                $match: {
+                    "floors.rooms.occupants.active": true,
+                    $or: [
+                        { "floors.rooms.occupants.studentId": studentId },
+                        { "floors.rooms.occupants.name": name }
+                    ]
+                }
+            },
+            {
+                $project: {
+                    dormitoryName: "$name",
+                    floorNumber: "$floors.floorNumber",
+                    roomNumber: "$floors.rooms.roomNumber",
+                    occupant: "$floors.rooms.occupants"
+                }
+            },
+            { $limit: 1 } // Chỉ cần tìm 1 kết quả để kiểm tra
+        ]);
+
+        if (result.length > 0) {
+            const found = result[0];
+            return {
+                exists: true,
+                location: {
+                    dormitoryName: found.dormitoryName,
+                    floorNumber: found.floorNumber,
+                    roomNumber: found.roomNumber,
+                    studentId: found.occupant.studentId,
+                    name: found.occupant.name
+                },
+                type: found.occupant.studentId === studentId ? 'studentId' : 'name'
+            };
+        }
+
+        return { exists: false };
+    } catch (error) {
+        console.error('Error checking student existence:', error);
+        throw error;
+    }
+}
+
+// Helper function để xóa sinh viên khỏi hệ thống (khi cần chuyển phòng)
+async function removeStudentFromSystem(studentId) {
+    try {
+        const dormitories = await DormitoryCollection.find({});
+        
+        for (const dorm of dormitories) {
+            let dormUpdated = false;
+            
+            for (const floor of dorm.floors) {
+                for (const room of floor.rooms) {
+                    const occupantIndex = room.occupants.findIndex(o => 
+                        o.active && o.studentId === studentId
+                    );
+                    
+                    if (occupantIndex !== -1) {
+                        room.occupants[occupantIndex].active = false;
+                        dormUpdated = true;
+                        break;
+                    }
+                }
+                if (dormUpdated) break;
+            }
+            
+            if (dormUpdated) {
+                await dorm.save();
+                return true;
+            }
+        }
+        
+        return false;
+    } catch (error) {
+        console.error('Error removing student from system:', error);
+        throw error;
+    }
+}
 
 router.get('/dormitories', async (req, res) => {
     try {
@@ -307,47 +391,165 @@ router.delete('/dormitories/:id', isAdmin, async (req, res) => {
     }
 });
 
+// API endpoint xử lý toggle spot (thêm/xóa người ở)
 router.post('/dormitories/:dormId/floors/:floorNum/rooms/:roomNum/toggle-spot/:spotIndex', isAdmin, async (req, res) => {
     try {
         const { dormId } = req.params;
         const floorNum = parseInt(req.params.floorNum);
         const roomNum = req.params.roomNum;
         const spotIndex = parseInt(req.params.spotIndex);
+        
         const dormitory = await DormitoryCollection.findById(dormId);
         if (!dormitory) {
             return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
         }
+        
         const floor = dormitory.floors.find(f => f.floorNumber === floorNum);
         if (!floor) {
             return res.status(404).json({ error: 'Không tìm thấy tầng' });
         }
+        
         const room = floor.rooms.find(r => r.roomNumber === roomNum);
         if (!room) {
             return res.status(404).json({ error: 'Không tìm thấy phòng' });
         }
+        
         if (spotIndex < 0 || spotIndex >= room.maxCapacity) {
             return res.status(400).json({ error: 'Vị trí không hợp lệ' });
         }
+        
+        // Lấy danh sách người ở đang active
         const activeOccupants = room.occupants.filter(o => o.active);
-
-        if (activeOccupants.length > spotIndex) {
-            room.occupants[spotIndex].active = false;
-        } else {
+        
+        // Nếu có dữ liệu trong request body, đó là thêm người ở mới
+        if (req.body && (req.body.studentId || req.body.name)) {
+            const { studentId, name, phone, email } = req.body;
+            
+            // Kiểm tra trùng lặp TOÀN HỆ THỐNG - sinh viên đã ở phòng nào chưa
+            const allDormitories = await DormitoryCollection.find({});
+            
+            let existingStudentLocation = null;
+            let existingNameLocation = null;
+            
+            // Duyệt qua tất cả ký túc xá để tìm sinh viên
+            for (const dorm of allDormitories) {
+                for (const floor of dorm.floors) {
+                    for (const checkRoom of floor.rooms) {
+                        // Kiểm tra trùng mã sinh viên
+                        const duplicateStudentId = checkRoom.occupants.find(o => 
+                            o.active && o.studentId === studentId
+                        );
+                        
+                        if (duplicateStudentId) {
+                            existingStudentLocation = {
+                                dormitoryName: dorm.name,
+                                floorNumber: floor.floorNumber,
+                                roomNumber: checkRoom.roomNumber,
+                                studentId: duplicateStudentId.studentId,
+                                name: duplicateStudentId.name
+                            };
+                        }
+                        
+                        // Kiểm tra trùng tên sinh viên
+                        const duplicateName = checkRoom.occupants.find(o => 
+                            o.active && o.name === name
+                        );
+                        
+                        if (duplicateName) {
+                            existingNameLocation = {
+                                dormitoryName: dorm.name,
+                                floorNumber: floor.floorNumber,
+                                roomNumber: checkRoom.roomNumber,
+                                studentId: duplicateName.studentId,
+                                name: duplicateName.name
+                            };
+                        }
+                    }
+                }
+            }
+            
+            // Trả về lỗi với thông tin chi tiết nếu trùng lặp
+            if (existingStudentLocation) {
+                return res.status(400).json({ 
+                    error: `Mã sinh viên "${studentId}" đã được đăng ký tại ${existingStudentLocation.dormitoryName} - Tầng ${existingStudentLocation.floorNumber} - Phòng ${existingStudentLocation.roomNumber}. Mỗi sinh viên chỉ được ở một phòng duy nhất.` 
+                });
+            }
+            
+            if (existingNameLocation) {
+                return res.status(400).json({ 
+                    error: `Tên sinh viên "${name}" đã được đăng ký tại ${existingNameLocation.dormitoryName} - Tầng ${existingNameLocation.floorNumber} - Phòng ${existingNameLocation.roomNumber}. Mỗi sinh viên chỉ được ở một phòng duy nhất.` 
+                });
+            }
+            
+            // Kiểm tra xem vị trí có đang trống không
+            const activeOccupants = room.occupants.filter(o => o.active);
+            if (spotIndex < activeOccupants.length) {
+                return res.status(400).json({ 
+                    error: 'Vị trí này đã có người ở. Vui lòng chọn vị trí khác hoặc xóa người ở hiện tại trước.' 
+                });
+            }
+            
+            // Thêm người ở mới
             const newOccupant = {
-                studentId: req.body.studentId || `SV-${Date.now()}`,
-                name: req.body.name || 'Sinh viên mới',
-                phone: req.body.phone || '',
-                email: req.body.email || '',
+                studentId: studentId,
+                name: name,
+                phone: phone || '',
+                email: email || '',
                 checkInDate: new Date(),
                 active: true
             };
             
             room.occupants.push(newOccupant);
+            
+            // Đảm bảo totalFloors được cập nhật đúng
+            if (!dormitory.details.totalFloors) {
+                dormitory.details.totalFloors = dormitory.floors.length;
+            }
+            
+            await dormitory.save();
+            
+            return res.json({ 
+                success: true, 
+                message: 'Thêm sinh viên thành công',
+                room: room 
+            });
+        } 
+        // Nếu không có dữ liệu, đó là xóa người ở
+        else {
+            // Kiểm tra xem có người ở tại vị trí này không
+            if (spotIndex >= activeOccupants.length) {
+                return res.status(400).json({ 
+                    error: 'Vị trí này không có người ở' 
+                });
+            }
+            
+            // Tìm và xóa người ở tại vị trí này
+            // Vì occupants array có thể có các phần tử inactive, cần tìm đúng vị trí
+            let activeIndex = 0;
+            for (let i = 0; i < room.occupants.length; i++) {
+                if (room.occupants[i].active) {
+                    if (activeIndex === spotIndex) {
+                        room.occupants[i].active = false;
+                        break;
+                    }
+                    activeIndex++;
+                }
+            }
+            
+            // Đảm bảo totalFloors được cập nhật đúng
+            if (!dormitory.details.totalFloors) {
+                dormitory.details.totalFloors = dormitory.floors.length;
+            }
+            
+            await dormitory.save();
+            
+            return res.json({ 
+                success: true, 
+                message: 'Xóa sinh viên thành công',
+                room: room 
+            });
         }
         
-        await dormitory.save();
-        
-        res.json({ success: true, room });
     } catch (error) {
         console.error('Error toggling occupant:', error);
         res.status(500).json({ 
