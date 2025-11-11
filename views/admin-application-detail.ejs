@@ -3,800 +3,1126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết đơn đăng ký - Admin</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Chi Tiết Đơn Đăng Ký - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        .header {
+        :root {
+            --primary-color: #e61a1a;
+            --primary-hover: #c01515;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--text-dark);
+        }
+
+        .admin-header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            padding: 0.8rem 2rem;
+            background: white;
+            z-index: 1000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: white;
-            z-index: 2000;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            transition: opacity 1s ease, transform 0.5s ease;
+            height: 70px;
         }
 
-        .header-logo {
+        .admin-logo {
             display: flex;
             align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-logo img {
-            max-height: 2.5rem;
-            width: auto;
-            transition: transform 0.5s ease;
-        }
-
-        .logo-text {
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin-left: 0.5rem;
-            color: #e61a1a;
-        }
-
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-grow: 1;
-            margin-left: 1rem;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 2rem;
-            margin-right: 2rem;
-        }
-
-        .nav-link {
-            color: #333;
+            gap: 12px;
             text-decoration: none;
-            font-size: 0.9rem;
+        }
+
+        .admin-logo img {
+            height: 40px;
+            width: auto;
+        }
+
+        .admin-logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .admin-nav {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            flex: 1;
+            margin: 0 3rem;
+        }
+
+        .admin-nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .admin-nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.95rem;
             font-weight: 600;
-            transition: all 0.3s ease;
-            padding: 0.8rem 0;
-            position: relative;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            white-space: nowrap;
-            overflow: hidden;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s ease;
         }
 
-        .nav-link::before {
+        .admin-nav-link::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 2px;
-            bottom: 0.5rem;
-            left: -100%;
-            background: linear-gradient(90deg, transparent, #e61a1a, transparent);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: -1;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background-color: #e61a1a;
-            bottom: 0.4rem;
-            left: 50%;
-            opacity: 0;
-            transform: translateX(-50%) scale(0);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .nav-link:hover {
-            color: #e61a1a;
-            transform: translateY(-2px);
-            text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
-        }
-
-        .nav-link:hover::before {
+            bottom: 0;
             left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
         }
 
-        .nav-link:hover::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
+        .admin-nav-link:hover {
+            color: var(--primary-color);
         }
 
-        .nav-link.active-link {
-            color: #e61a1a;
+        .admin-nav-link:hover::before {
+            width: 100%;
         }
 
-        .nav-link.active-link::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
+        .admin-nav-link.active {
+            color: var(--primary-color);
         }
 
-        .user-info {
+        .admin-nav-link.active::before {
+            width: 100%;
+        }
+
+        .admin-user-section {
             display: flex;
             align-items: center;
-            gap: 1rem;
         }
 
-        .user-avatar {
-            width: 36px;
-            height: 36px;
+        .admin-user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-user-avatar {
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background-color: #f8e8e8;
+            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #e61a1a;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .user-name {
-            font-size: 0.9rem;
-            color: #333;
-            white-space: nowrap;
-        }
-
-        .logout-btn {
-            padding: 0.6rem 1.5rem;
-            background-color: transparent;
-            color: #e61a1a;
-            border: 2px solid #e61a1a;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            text-decoration: none;
-            display: inline-block;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            white-space: nowrap;
-            position: relative;
-            overflow: hidden;
-            z-index: 1;
-        }
-
-        .logout-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background-color: #e61a1a;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: -1;
-            transition: width 0.5s ease, height 0.5s ease;
-        }
-
-        .logout-btn:hover {
             color: white;
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-sm);
         }
 
-        .logout-btn:hover::before {
-            width: 200%;
-            height: 200%;
+        .admin-content {
+            padding-top: 90px;
+            min-height: calc(100vh - 70px);
+            padding-bottom: 2rem;
         }
 
-        .logout-btn:active {
-            transform: translateY(-1px);
-            box-shadow: 0 2px 8px rgba(230, 26, 26, 0.3);
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
         }
 
-        .menu-toggle {
-            display: none;
-            flex-direction: column;
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            display: flex;
             justify-content: space-between;
-            width: 30px;
-            height: 21px;
-            cursor: pointer;
-            z-index: 2001;
+            align-items: center;
         }
 
-        .menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
-            background-color: #e61a1a;
-            border-radius: 3px;
-            transition: all 0.3s ease;
+        .page-header h1 {
+            color: var(--text-dark);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
 
-        .content-container {
-            padding-top: 80px;
-            padding-bottom: 50px;
+        .page-header p {
+            color: var(--text-light);
+            margin: 0;
         }
-        .application-title {
-            color: #e61a1a;
-            margin-bottom: 20px;
+
+        .page-header .btn {
+            padding: 0.5rem 1.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
-        }
-        .back-button {
-            color: #6c757d;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-        .back-button:hover {
-            color: #e61a1a;
-        }
-        .application-status {
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
+            gap: 0.5rem;
             font-weight: 600;
-            margin-left: 15px;
-        }
-        .status-pending {
-            background-color: #fff3cd;
-            color: #856404;
-        }
-        .status-approved {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-rejected {
-            background-color: #f8d7da;
-            color: #721c24;
+            border-radius: 8px;
+            transition: all 0.2s ease;
         }
 
-        .detail-card {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-outline-secondary {
+            color: var(--text-dark);
+            border-color: var(--border-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            border-color: var(--border-color);
+        }
+
+        .detail-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
+            margin-bottom: 2rem;
         }
 
-        .detail-card-header {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            border-bottom: 1px solid #dee2e6;
-            font-weight: 600;
-            color: #212529;
+        .detail-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .detail-card-body {
-            padding: 20px;
-        }
-
-        .info-row {
-            margin-bottom: 15px;
-        }
-
-        .info-label {
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .info-value {
-            color: #212529;
-        }
-
-        .action-section {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .comments-section {
-            margin-top: 20px;
-        }
-
-        .occupancy-info {
+        .detail-header h2 {
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            margin: 0;
             display: flex;
             align-items: center;
-            margin-top: 10px;
+            gap: 0.75rem;
         }
 
-        .occupancy-bar {
-            flex: 1;
-            height: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-            margin: 0 10px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .occupancy-fill {
-            height: 100%;
-            background-color: #28a745;
-            position: absolute;
-            left: 0;
-            top: 0;
-        }
-
-        .room-status {
-            padding: 3px 10px;
-            border-radius: 20px;
+        .detail-header .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
             font-size: 0.8rem;
             font-weight: 600;
         }
 
-        .room-available {
-            background-color: #d4edda;
-            color: #155724;
+        .status-pending {
+            background-color: #fff8e1;
+            color: #f57c00;
         }
 
-        .room-full {
-            background-color: #f8d7da;
-            color: #721c24;
+        .status-approved {
+            background-color: #e8f5e9;
+            color: #2e7d32;
         }
-        .loading-container {
+
+        .status-rejected {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .status-waitlist {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .detail-content {
+            padding: 2rem;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+        }
+
+        .detail-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-section h3 {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .detail-item {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 50px 0;
+            gap: 0.35rem;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        .detail-value {
+            font-size: 1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .action-footer {
+            padding: 1.5rem 2rem;
+            background-color: var(--bg-light);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .warning-box {
+            background-color: #fff8e1;
+            color: #f57c00;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .warning-box.error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        .warning-box i {
+            font-size: 1.5rem;
+        }
+
+        .warning-box p {
+            margin: 0;
+        }
+
+        .warning-box strong {
+            display: block;
+            margin-bottom: 0.35rem;
+        }
+
+        .comments-section {
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .comments-section h4 {
+            font-size: 1rem;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .comment-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .comment-input textarea {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            padding: 3rem;
         }
 
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            border-left-color: #e61a1a;
+            width: 50px;
+            height: 50px;
+            border: 3px solid #f3f3f3;
             border-radius: 50%;
+            border-top: 3px solid var(--primary-color);
             animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
         }
 
         @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
-            .menu-toggle {
-                display: flex;
-            }
-            
-            .nav-container {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 80%;
-                max-width: 300px;
-                height: 100vh;
-                background-color: white;
-                flex-direction: column;
-                justify-content: flex-start;
-                padding: 5rem 2rem 2rem;
-                transition: right 0.3s ease;
-                margin-left: 0;
-                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-                z-index: 1999;
-            }
-            
-            .nav-container.active {
-                right: 0;
-            }
-            
-            .nav-links {
-                flex-direction: column;
-                gap: 1rem;
-                width: 100%;
-                margin-bottom: 2rem;
-                margin-right: 0;
-            }
-            
-            .user-info {
+            .page-header {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 1rem;
             }
             
-            .user-name {
-                display: block;
+            .detail-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
             }
+            
+            .action-footer {
+                flex-direction: column;
+            }
+            
+            .action-footer .btn {
+                width: 100%;
+            }
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 10px;
+            overflow: hidden;
+            animation: fadeIn 0.3s;
+        }
+
+        .toast-header {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .toast-body {
+            padding: 15px;
+        }
+
+        .toast-success .toast-header {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .toast-error .toast-header {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <header class="header">
-        <div class="header-logo">
-            <img src="/image/logo.png" alt="KTX Logo">
-        </div>
-        <div class="menu-toggle" id="menuToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="nav-container" id="navContainer">
-            <nav class="nav-links">
-                <a href="/admin/dormitories" class="nav-link">DANH SÁCH KTX</a>
-                <a href="/admin/applications" class="nav-link active-link">ĐƠN ĐĂNG KÝ</a>
-            </nav>
-            <div class="user-info">
-                <div class="user-avatar">
-                    <%= user.name.charAt(0).toUpperCase() %>
+    <!-- ADMIN HEADER -->
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <a href="/admin/dashboard" class="admin-logo">
+                <img src="/image/logo.png" alt="Logo KTX">
+                <span class="admin-logo-text">KTX HUST</span>
+            </a>
+
+            <nav class="admin-nav">
+                <ul class="admin-nav-links">
+                    <li><a href="/admin/dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="/admin/dormitories" class="admin-nav-link"><i class="fas fa-building"></i> Danh sách KTX</a></li>
+                    <li><a href="/admin/application" class="admin-nav-link active"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
+                    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
+                </ul>
+                
+                <div class="admin-user-section">
+                    <div class="admin-user-profile">
+                        <div class="admin-user-avatar">
+                            <%= user.name ? user.name.charAt(0).toUpperCase() : 'A' %>
+                        </div>
+                    </div>
                 </div>
-                <div class="user-name"><%= user.name %></div>
-                <a href="/logout" class="logout-btn">Đăng xuất</a>
-            </div>
+            </nav>
         </div>
     </header>
 
-    <div class="content-container">
+    <!-- MAIN CONTENT -->
+    <div class="admin-content">
         <div class="container">
-            <div id="loadingContainer" class="loading-container">
-                <div class="spinner"></div>
-                <p class="mt-3">Đang tải dữ liệu...</p>
-            </div>
-
-            <div id="applicationContainer" style="display: none;">
-                <h2 class="application-title">
-                    <a href="/admin/applications" class="back-button">
-                        <i class="fas fa-arrow-left me-2"></i>
+            <div class="page-header">
+                <div>
+                    <h1><i class="fas fa-file-alt"></i> Chi Tiết Đơn Đăng Ký</h1>
+                    <p>Xem thông tin chi tiết và xử lý đơn đăng ký</p>
+                </div>
+                <div>
+                    <a href="/admin/application" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Quay lại danh sách
                     </a>
-                    Chi tiết đơn đăng ký
-                    <span id="applicationStatus" class="application-status"></span>
-                </h2>
-
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="detail-card">
-                            <div class="detail-card-header">
-                                <i class="fas fa-user-graduate me-2"></i> Thông tin sinh viên
-                            </div>
-                            <div class="detail-card-body">
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Mã sinh viên</div>
-                                    <div class="col-md-8 info-value" id="studentId"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Họ và tên</div>
-                                    <div class="col-md-8 info-value" id="fullName"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Email</div>
-                                    <div class="col-md-8 info-value" id="email"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Số điện thoại</div>
-                                    <div class="col-md-8 info-value" id="phone"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Khoa/Viện</div>
-                                    <div class="col-md-8 info-value" id="faculty"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Năm học</div>
-                                    <div class="col-md-8 info-value" id="academicYear"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Giới tính</div>
-                                    <div class="col-md-8 info-value" id="gender"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="detail-card">
-                            <div class="detail-card-header">
-                                <i class="fas fa-building me-2"></i> Thông tin ký túc xá
-                            </div>
-                            <div class="detail-card-body">
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Ký túc xá</div>
-                                    <div class="col-md-8 info-value" id="dormitoryName"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Phòng</div>
-                                    <div class="col-md-8 info-value" id="roomNumber"></div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Sức chứa</div>
-                                    <div class="col-md-8 info-value">
-                                        <span id="currentOccupants"></span>/<span id="roomCapacity"></span> sinh viên
-                                        <div class="occupancy-info">
-                                            <div class="occupancy-bar">
-                                                <div class="occupancy-fill" id="occupancyFill"></div>
-                                            </div>
-                                            <span class="room-status" id="roomStatus"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row info-row">
-                                    <div class="col-md-4 info-label">Ngày đăng ký</div>
-                                    <div class="col-md-8 info-value" id="createdAt"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-4">
-                        <div class="detail-card" id="actionCard">
-                            <div class="detail-card-header">
-                                <i class="fas fa-tasks me-2"></i> Xử lý đơn đăng ký
-                            </div>
-                            <div class="detail-card-body">
-                                <div class="action-section">
-                                    <form id="applicationForm">
-                                        <div class="mb-3">
-                                            <label for="statusSelect" class="form-label">Trạng thái</label>
-                                            <select class="form-select" id="statusSelect">
-                                                <option value="pending">Chờ duyệt</option>
-                                                <option value="approved">Duyệt đơn</option>
-                                                <option value="rejected">Từ chối</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label for="comments" class="form-label">Ghi chú</label>
-                                            <textarea class="form-control" id="comments" rows="3" placeholder="Nhập ghi chú (nếu có)"></textarea>
-                                        </div>
-                                        <div class="d-grid">
-                                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                                <i class="fas fa-save me-1"></i> Cập nhật trạng thái
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                                <div class="comments-section">
-                                    <h5 class="mb-3">Ghi chú trước đó</h5>
-                                    <div id="previousComments" class="bg-light p-3 rounded">
-                                        <em>Chưa có ghi chú nào.</em>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="detail-card">
-                            <div class="detail-card-header">
-                                <i class="fas fa-history me-2"></i> Lịch sử trạng thái
-                            </div>
-                            <div class="detail-card-body">
-                                <div id="statusHistory">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <i class="fas fa-circle text-warning me-2"></i>
-                                        <div>
-                                            <div>Tạo đơn đăng ký</div>
-                                            <small class="text-muted" id="createdDate"></small>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
-            <div id="errorContainer" class="alert alert-danger" style="display: none;">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <span id="errorMessage">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</span>
+            <div id="loading-container" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <div id="application-details" style="display: none;">
+                <!-- Application details will be filled with JavaScript -->
             </div>
         </div>
     </div>
-
+    
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rejectModalLabel">Từ chối đơn đăng ký</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="rejectionReason" class="form-label">Lý do từ chối:</label>
+                        <textarea class="form-control" id="rejectionReason" rows="3" placeholder="Nhập lý do từ chối đơn đăng ký..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" id="confirmRejectBtn">Từ chối đơn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Approve Modal -->
+    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="approveModalLabel">Duyệt đơn đăng ký</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn duyệt đơn đăng ký này không?</p>
+                    <p>Sinh viên sẽ được thông báo và có thể tiến hành các bước tiếp theo.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-success" id="confirmApproveBtn">Duyệt đơn</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Assign Room Modal -->
+    <div class="modal fade" id="assignRoomModal" tabindex="-1" aria-labelledby="assignRoomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="assignRoomModalLabel">Phân phòng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Xác nhận phân phòng cho sinh viên này?</p>
+                    <p>Sinh viên sẽ được gán vào phòng và nhận thông báo qua email.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" id="confirmAssignBtn">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const menuToggle = document.getElementById('menuToggle');
-            const navContainer = document.getElementById('navContainer');
+            // Get application ID from URL
+            const pathParts = window.location.pathname.split('/');
+            const applicationId = pathParts[pathParts.length - 1];
             
-            if (menuToggle && navContainer) {
-                menuToggle.addEventListener('click', function() {
-                    navContainer.classList.toggle('active');
-                    const spans = this.querySelectorAll('span');
-                    if (navContainer.classList.contains('active')) {
-                        spans[0].style.transform = 'translateY(9px) rotate(45deg)';
-                        spans[1].style.opacity = '0';
-                        spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
-                    } else {
-                        spans[0].style.transform = '';
-                        spans[1].style.opacity = '';
-                        spans[2].style.transform = '';
+            // Elements
+            const loadingContainer = document.getElementById('loading-container');
+            const applicationDetails = document.getElementById('application-details');
+            const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
+            const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
+            const assignRoomModal = new bootstrap.Modal(document.getElementById('assignRoomModal'));
+            const rejectionReason = document.getElementById('rejectionReason');
+            const confirmRejectBtn = document.getElementById('confirmRejectBtn');
+            const confirmApproveBtn = document.getElementById('confirmApproveBtn');
+            const confirmAssignBtn = document.getElementById('confirmAssignBtn');
+            
+            // Fetch application details
+            function fetchApplicationDetails() {
+                showLoading();
+                
+                fetch(`/api/admin/applications/${applicationId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.application) {
+                            renderApplicationDetails(data.application);
+                        } else {
+                            showToast('error', 'Lỗi', data.error || 'Không thể tải thông tin đơn đăng ký');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching application details:', error);
+                        showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ');
+                    });
+            }
+            
+            // Render application details
+            function renderApplicationDetails(application) {
+                // Format date
+                const createdAt = new Date(application.createdAt);
+                const formattedDate = `${createdAt.getDate()}/${createdAt.getMonth() + 1}/${createdAt.getFullYear()}`;
+                
+                // Get status class and text
+                let statusClass = '';
+                let statusText = '';
+                
+                switch (application.status) {
+                    case 'pending':
+                    case 'pending_review':
+                        statusClass = 'status-pending';
+                        statusText = 'Chờ duyệt';
+                        break;
+                    case 'approved':
+                    case 'approved_waiting_payment':
+                        statusClass = 'status-approved';
+                        statusText = 'Đã duyệt';
+                        break;
+                    case 'rejected':
+                        statusClass = 'status-rejected';
+                        statusText = 'Từ chối';
+                        break;
+                    case 'waitlist':
+                        statusClass = 'status-waitlist';
+                        statusText = 'Chờ phân phòng';
+                        break;
+                    case 'assigned_room':
+                        statusClass = 'status-approved';
+                        statusText = 'Đã phân phòng';
+                        break;
+                    case 'checked_in':
+                        statusClass = 'status-approved';
+                        statusText = 'Đã check-in';
+                        break;
+                    case 'checked_out':
+                        statusClass = 'status-rejected';
+                        statusText = 'Đã check-out';
+                        break;
+                    case 'expired':
+                        statusClass = 'status-rejected';
+                        statusText = 'Hết hạn';
+                        break;
+                    default:
+                        statusClass = 'status-pending';
+                        statusText = 'Không xác định';
+                }
+                
+                // Check if there are any warnings
+                let warningHtml = '';
+                
+                // Check if student already exists in system
+                if (application.studentExistsInfo) {
+                    const location = application.studentExistsInfo;
+                    warningHtml = `
+                        <div class="warning-box error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Sinh viên đã tồn tại trong hệ thống</strong>
+                                <p>Sinh viên này đã được đăng ký tại ${location.dormitoryName} - Tầng ${location.floorNumber} - Phòng ${location.roomNumber}. Không thể duyệt đơn đăng ký này!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Check if room is full
+                if (application.isRoomFull) {
+                    warningHtml += `
+                        <div class="warning-box error">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <strong>Phòng đã đầy</strong>
+                                <p>Phòng ${application.roomNumber} hiện đã đầy (${application.currentOccupants}/${application.roomCapacity} chỗ). Không thể duyệt đơn đăng ký này!</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Create content
+                applicationDetails.innerHTML = `
+                    <div class="detail-container">
+                        <div class="detail-header">
+                            <h2>
+                                <i class="fas fa-file-alt"></i> 
+                                Đơn đăng ký #${application._id.substring(0, 8)}
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </h2>
+                            <div>
+                                <span class="text-muted">Ngày đăng ký: ${formattedDate}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-content">
+                            ${warningHtml}
+                            
+                            <div class="detail-section">
+                                <h3>Thông tin sinh viên</h3>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <p class="detail-label">Mã sinh viên</p>
+                                        <p class="detail-value">${application.studentId || '-'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Họ và tên</p>
+                                        <p class="detail-value">${application.fullName || '-'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Email</p>
+                                        <p class="detail-value">${application.email || '-'}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <p class="detail-label">Số điện thoại</p>
+                                        <p class="detail-value">${application.phone || '-'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Khoa</p>
+                                        <p class="detail-value">${application.faculty || '-'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Niên khóa</p>
+                                        <p class="detail-value">${application.academicYear || '-'}</p>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <p class="detail-label">Giới tính</p>
+                                        <p class="detail-value">${application.gender === 'male' ? 'Nam' : application.gender === 'female' ? 'Nữ' : '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="detail-section">
+                                <h3>Thông tin đăng ký</h3>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <p class="detail-label">Ký túc xá</p>
+                                        <p class="detail-value">${application.dormitoryName || '-'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Phòng</p>
+                                        <p class="detail-value">${application.roomNumber || '-'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Sức chứa phòng</p>
+                                        <p class="detail-value">${application.roomCapacity || '-'} người (Hiện tại: ${application.currentOccupants || '0'})</p>
+                                    </div>
+                                </div>
+                                <div class="detail-row">
+                                    <div class="detail-item">
+                                        <p class="detail-label">Loại phòng ưu tiên</p>
+                                        <p class="detail-value">${application.roomType || 'Không có ưu tiên'}</p>
+                                    </div>
+                                    <div class="detail-item">
+                                        <p class="detail-label">Chính sách giới tính ưu tiên</p>
+                                        <p class="detail-value">${application.preferredGenderPolicy === 'male' ? 'Nam' : application.preferredGenderPolicy === 'female' ? 'Nữ' : 'Không có ưu tiên'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            ${application.comments ? `
+                                <div class="detail-section">
+                                    <h3>Ghi chú</h3>
+                                    <div class="comments-section">
+                                        <p>${application.comments}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            ${application.status === 'rejected' ? `
+                                <div class="detail-section">
+                                    <h3>Lý do từ chối</h3>
+                                    <div class="comments-section">
+                                        <p>${application.rejectionReason || 'Không có lý do cụ thể'}</p>
+                                    </div>
+                                </div>
+                            ` : ''}
+                            
+                            ${application.status === 'approved_waiting_payment' || application.status === 'assigned_room' || application.status === 'checked_in' ? `
+                                <div class="detail-section">
+                                    <h3>Thông tin thanh toán</h3>
+                                    <div class="detail-row">
+                                        <div class="detail-item">
+                                            <p class="detail-label">Trạng thái thanh toán</p>
+                                            <p class="detail-value">${application.payment && application.payment.paid ? '<span class="text-success">Đã thanh toán</span>' : '<span class="text-danger">Chưa thanh toán</span>'}</p>
+                                        </div>
+                                        ${application.payment && application.payment.paid ? `
+                                            <div class="detail-item">
+                                                <p class="detail-label">Số tiền</p>
+                                                <p class="detail-value">${application.payment.amount ? application.payment.amount.toLocaleString() + ' VNĐ' : '-'}</p>
+                                            </div>
+                                            <div class="detail-item">
+                                                <p class="detail-label">Phương thức</p>
+                                                <p class="detail-value">${application.payment.method || '-'}</p>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div class="action-footer">
+                            ${application.status === 'pending' || application.status === 'pending_review' ? `
+                                ${!application.studentExistsInfo && !application.isRoomFull ? `
+                                    <button class="btn btn-success" id="approveBtn">
+                                        <i class="fas fa-check"></i> Duyệt đơn
+                                    </button>
+                                ` : ''}
+                                <button class="btn btn-danger" id="rejectBtn">
+                                    <i class="fas fa-times"></i> Từ chối
+                                </button>
+                            ` : ''}
+                            
+                            ${application.status === 'approved_waiting_payment' && !application.payment?.paid ? `
+                                <button class="btn btn-primary" id="confirmPaymentBtn">
+                                    <i class="fas fa-credit-card"></i> Xác nhận thanh toán
+                                </button>
+                            ` : ''}
+                            
+                            ${application.status === 'approved_waiting_payment' && application.payment?.paid ? `
+                                <button class="btn btn-primary" id="assignRoomBtn">
+                                    <i class="fas fa-door-open"></i> Phân phòng
+                                </button>
+                            ` : ''}
+                            
+                            ${application.status === 'assigned_room' ? `
+                                <button class="btn btn-success" id="checkInBtn">
+                                    <i class="fas fa-sign-in-alt"></i> Check-in
+                                </button>
+                            ` : ''}
+                            
+                            ${application.status === 'checked_in' ? `
+                                <button class="btn btn-warning" id="checkOutBtn">
+                                    <i class="fas fa-sign-out-alt"></i> Check-out
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                // Add event listeners
+                if (application.status === 'pending' || application.status === 'pending_review') {
+                    if (!application.studentExistsInfo && !application.isRoomFull) {
+                        document.getElementById('approveBtn').addEventListener('click', function() {
+                            approveModal.show();
+                        });
                     }
-                });
+                    
+                    document.getElementById('rejectBtn').addEventListener('click', function() {
+                        rejectModal.show();
+                    });
+                    
+                    // Approve application
+                    confirmApproveBtn.onclick = function() {
+                        approveApplication(applicationId);
+                    };
+                    
+                    // Reject application
+                    confirmRejectBtn.onclick = function() {
+                        const reason = rejectionReason.value;
+                        if (!reason.trim()) {
+                            alert('Vui lòng nhập lý do từ chối.');
+                            return;
+                        }
+                        rejectApplication(applicationId, reason);
+                    };
+                }
+                
+                // Confirm payment button
+                if (application.status === 'approved_waiting_payment' && !application.payment?.paid) {
+                    document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
+                        confirmPayment(applicationId);
+                    });
+                }
+                
+                // Assign room button
+                if (application.status === 'approved_waiting_payment' && application.payment?.paid) {
+                    document.getElementById('assignRoomBtn').addEventListener('click', function() {
+                        assignRoomModal.show();
+                    });
+                    
+                    confirmAssignBtn.onclick = function() {
+                        assignRoom(applicationId);
+                    };
+                }
+                
+                // Check-in button
+                if (application.status === 'assigned_room') {
+                    document.getElementById('checkInBtn').addEventListener('click', function() {
+                        checkIn(applicationId);
+                    });
+                }
+                
+                // Check-out button
+                if (application.status === 'checked_in') {
+                    document.getElementById('checkOutBtn').addEventListener('click', function() {
+                        checkOut(applicationId);
+                    });
+                }
+                
+                // Show details and hide loading
+                hideLoading();
+                applicationDetails.style.display = 'block';
             }
-
-            const applicationId = '<%= applicationId %>';
-
-            fetchApplicationDetails(applicationId);
-
-            const applicationForm = document.getElementById('applicationForm');
-            if (applicationForm) {
-                applicationForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    updateApplicationStatus(applicationId);
-                });
-            }
-        });
-
-        function fetchApplicationDetails(applicationId) {
-            const loadingContainer = document.getElementById('loadingContainer');
-            const applicationContainer = document.getElementById('applicationContainer');
-            const errorContainer = document.getElementById('errorContainer');
-
-            if (loadingContainer) loadingContainer.style.display = 'flex';
-            if (applicationContainer) applicationContainer.style.display = 'none';
-            if (errorContainer) errorContainer.style.display = 'none';
-
-            fetch(`/api/admin/applications/${applicationId}`)
+            
+            // Actions
+            function approveApplication(applicationId) {
+                fetch('/admin/approve-application', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        applicationId,
+                        action: 'approve'
+                    })
+                })
                 .then(response => response.json())
                 .then(data => {
-
-                    if (loadingContainer) loadingContainer.style.display = 'none';
-                    
-                    if (data.success && data.application) {
-
-                        if (applicationContainer) applicationContainer.style.display = 'block';
-
-                        fillApplicationDetails(data.application);
+                    if (data.success) {
+                        showToast('success', 'Thành công', data.message || 'Đã duyệt đơn đăng ký thành công!');
+                        setTimeout(() => fetchApplicationDetails(), 2000); // Reload data after 2 seconds
                     } else {
-                        if (errorContainer) {
-                            errorContainer.style.display = 'block';
-                            const errorMessage = document.getElementById('errorMessage');
-                            if (errorMessage) {
-                                errorMessage.textContent = data.error || 'Không thể tải thông tin đơn đăng ký.';
-                            }
-                        }
+                        showToast('error', 'Lỗi', data.message || 'Lỗi khi duyệt đơn đăng ký.');
+                    }
+                    approveModal.hide();
+                })
+                .catch(error => {
+                    console.error('Error approving application:', error);
+                    showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ.');
+                    approveModal.hide();
+                });
+            }
+            
+            function rejectApplication(applicationId, reason) {
+                fetch('/admin/approve-application', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        applicationId,
+                        action: 'reject',
+                        rejectionReason: reason
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('success', 'Thành công', data.message || 'Đã từ chối đơn đăng ký thành công!');
+                        setTimeout(() => fetchApplicationDetails(), 2000); // Reload data after 2 seconds
+                    } else {
+                        showToast('error', 'Lỗi', data.message || 'Lỗi khi từ chối đơn đăng ký.');
+                    }
+                    rejectModal.hide();
+                })
+                .catch(error => {
+                    console.error('Error rejecting application:', error);
+                    showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ.');
+                    rejectModal.hide();
+                });
+            }
+            
+            function confirmPayment(applicationId) {
+                fetch(`/api/admin/applications/${applicationId}/confirm-payment`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        amount: 1500000, // Default amount
+                        method: 'admin_confirmation'
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success || data.ok) {
+                        showToast('success', 'Thành công', 'Đã xác nhận thanh toán thành công!');
+                        setTimeout(() => fetchApplicationDetails(), 2000); // Reload data after 2 seconds
+                    } else {
+                        showToast('error', 'Lỗi', data.message || data.error || 'Lỗi khi xác nhận thanh toán.');
                     }
                 })
                 .catch(error => {
-                    console.error('Error fetching application details:', error);
-
-                    if (loadingContainer) loadingContainer.style.display = 'none';
- 
-                    if (errorContainer) {
-                        errorContainer.style.display = 'block';
-                        const errorMessage = document.getElementById('errorMessage');
-                        if (errorMessage) {
-                            errorMessage.textContent = 'Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.';
-                        }
-                    }
+                    console.error('Error confirming payment:', error);
+                    showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ.');
                 });
-        }
-
-        function fillApplicationDetails(application) {
-            document.getElementById('studentId').textContent = application.studentId || 'N/A';
-            document.getElementById('fullName').textContent = application.fullName || 'N/A';
-            document.getElementById('email').textContent = application.email || 'N/A';
-            document.getElementById('phone').textContent = application.phone || 'N/A';
-            document.getElementById('faculty').textContent = application.faculty || 'N/A';
-            document.getElementById('academicYear').textContent = application.academicYear || 'N/A';
-            let genderText = 'N/A';
-            if (application.gender === 'male') {
-                genderText = 'Nam';
-            } else if (application.gender === 'female') {
-                genderText = 'Nữ';
-            }
-            document.getElementById('gender').textContent = genderText;
-            document.getElementById('dormitoryName').textContent = application.dormitoryName || 'N/A';
-            document.getElementById('roomNumber').textContent = application.roomNumber || 'N/A';
-            document.getElementById('currentOccupants').textContent = application.currentOccupants || '0';
-            document.getElementById('roomCapacity').textContent = application.roomCapacity || '0';
-            const occupancyPercentage = application.roomCapacity > 0 
-                ? Math.round((application.currentOccupants / application.roomCapacity) * 100) 
-                : 0;
-            document.getElementById('occupancyFill').style.width = `${occupancyPercentage}%`;
-
-            const roomStatus = document.getElementById('roomStatus');
-            if (application.isRoomFull) {
-                roomStatus.textContent = 'Đã đầy';
-                roomStatus.className = 'room-status room-full';
-            } else {
-                roomStatus.textContent = 'Còn chỗ';
-                roomStatus.className = 'room-status room-available';
-            }
-            const statusElement = document.getElementById('applicationStatus');
-            let statusClass = '';
-            let statusText = '';
-            
-            switch(application.status) {
-                case 'pending':
-                    statusClass = 'status-pending';
-                    statusText = 'Chờ duyệt';
-                    break;
-                case 'approved':
-                    statusClass = 'status-approved';
-                    statusText = 'Đã duyệt';
-                    break;
-                case 'rejected':
-                    statusClass = 'status-rejected';
-                    statusText = 'Từ chối';
-                    break;
-                default:
-                    statusClass = 'status-pending';
-                    statusText = 'Chờ duyệt';
             }
             
-            statusElement.className = `application-status ${statusClass}`;
-            statusElement.textContent = statusText;
-            const createdDate = new Date(application.createdAt);
-            const formattedDate = createdDate.toLocaleDateString('vi-VN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-            
-            document.getElementById('createdAt').textContent = formattedDate;
-            document.getElementById('createdDate').textContent = formattedDate;
-            document.getElementById('statusSelect').value = application.status;
-            if (application.comments) {
-                document.getElementById('comments').value = application.comments;
-                document.getElementById('previousComments').innerHTML = application.comments;
-            }
-            if (application.status !== 'pending') {
-                document.getElementById('statusSelect').disabled = true;
-                document.getElementById('comments').disabled = true;
-                document.getElementById('submitBtn').disabled = true;
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check-circle me-1"></i> Đã xử lý';
-            }
-        }
-        function updateApplicationStatus(applicationId) {
-            const statusSelect = document.getElementById('statusSelect');
-            const comments = document.getElementById('comments');
-            const submitBtn = document.getElementById('submitBtn');
-            
-            if (!statusSelect || !comments || !submitBtn) return;
-            statusSelect.disabled = true;
-            comments.disabled = true;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span> Đang xử lý...';
-            const status = statusSelect.value;
-            const commentsText = comments.value;
-
-            if (!status || !['pending', 'approved', 'rejected'].includes(status)) {
-                alert('Trạng thái không hợp lệ.');
-                statusSelect.disabled = false;
-                comments.disabled = false;
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Cập nhật trạng thái';
-                
-                return;
-            }
-
-            fetch(`/api/admin/applications/${applicationId}/update-status`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    status: status,
-                    comments: commentsText
+            function assignRoom(applicationId) {
+                fetch(`/api/admin/applications/${applicationId}/assign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(data.message || 'Cập nhật trạng thái thành công');
-                    window.location.reload();
-                } else {
-                    // Show error alert
-                    alert(data.error || 'Không thể cập nhật trạng thái. Vui lòng thử lại sau.');
-                    
-                    // Re-enable form
-                    statusSelect.disabled = false;
-                    comments.disabled = false;
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Cập nhật trạng thái';
-                }
-            })
-            .catch(error => {
-                console.error('Error updating application status:', error);
-                alert('Đã xảy ra lỗi khi cập nhật trạng thái. Vui lòng thử lại sau.');
-                statusSelect.disabled = false;
-                comments.disabled = false;
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-save me-1"></i> Cập nhật trạng thái';
-            });
-        }
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success || data.ok) {
+                        showToast('success', 'Thành công', 'Đã phân phòng thành công!');
+                        setTimeout(() => fetchApplicationDetails(), 2000); // Reload data after 2 seconds
+                    } else {
+                        showToast('error', 'Lỗi', data.message || data.error || 'Lỗi khi phân phòng.');
+                    }
+                    assignRoomModal.hide();
+                })
+                .catch(error => {
+                    console.error('Error assigning room:', error);
+                    showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ.');
+                    assignRoomModal.hide();
+                });
+            }
+            
+            function checkIn(applicationId) {
+                fetch(`/api/admin/applications/${applicationId}/check-in`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success || data.ok) {
+                        showToast('success', 'Thành công', 'Đã check-in thành công!');
+                        setTimeout(() => fetchApplicationDetails(), 2000); // Reload data after 2 seconds
+                    } else {
+                        showToast('error', 'Lỗi', data.message || data.error || 'Lỗi khi check-in.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking in:', error);
+                    showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ.');
+                });
+            }
+            
+            function checkOut(applicationId) {
+                fetch(`/api/admin/applications/${applicationId}/check-out`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success || data.ok) {
+                        showToast('success', 'Thành công', 'Đã check-out thành công!');
+                        setTimeout(() => fetchApplicationDetails(), 2000); // Reload data after 2 seconds
+                    } else {
+                        showToast('error', 'Lỗi', data.message || data.error || 'Lỗi khi check-out.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking out:', error);
+                    showToast('error', 'Lỗi', 'Lỗi kết nối máy chủ.');
+                });
+            }
+            
+            // UI helper functions
+            function showLoading() {
+                loadingContainer.style.display = 'block';
+                applicationDetails.style.display = 'none';
+            }
+            
+            function hideLoading() {
+                loadingContainer.style.display = 'none';
+            }
+            
+            function showToast(type, title, message) {
+                const toastContainer = document.getElementById('toastContainer');
+                const toastId = 'toast-' + Date.now();
+                
+                const toastHtml = `
+                    <div class="toast toast-${type}" id="${toastId}">
+                        <div class="toast-header">
+                            <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} me-2"></i>
+                            <strong>${title}</strong>
+                            <button type="button" class="btn-close ms-auto" onclick="document.getElementById('${toastId}').remove();"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+                
+                toastContainer.insertAdjacentHTML('beforeend', toastHtml);
+                
+                // Auto-remove after 5 seconds
+                setTimeout(() => {
+                    const toast = document.getElementById(toastId);
+                    if (toast) toast.remove();
+                }, 5000);
+            }
+            
+            // Initialize
+            fetchApplicationDetails();
+        });
     </script>
 </body>
 </html>

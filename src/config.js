@@ -1,18 +1,22 @@
 const mongoose = require('mongoose');
 
-const uri = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/Dormitory";
-
-// Kết nối MongoDB với promise
-const connect = mongoose.connect(uri);
-
-connect.then(() => {
-    console.log("Database Connected Successfully");
-})
-.catch((err) => {
-    console.error("Database cannot be Connected:", err);
+mongoose.connect('mongodb://0.0.0.0:27017/Dormitory', {
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
 });
 
-// Schema cho thông tin sinh viên/người dùng
+mongoose.connection.on('connected', () => {
+    console.log('Database Connected Successfully');
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+    console.log('MongoDB disconnected');
+});
+
 const StudentSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -28,12 +32,12 @@ const StudentSchema = new mongoose.Schema({
     studentId: {
         type: String,
         trim: true,
-        sparse: true // Cho phép null nhưng sẽ là unique nếu tồn tại
+        sparse: true
     },
     email: {
         type: String,
         trim: true,
-        sparse: true // Cho phép null nhưng sẽ là unique nếu tồn tại
+        sparse: true
     },
     phone: {
         type: String,
@@ -76,7 +80,6 @@ const StudentSchema = new mongoose.Schema({
     }
 });
 
-// Schema cho người ở trong phòng
 const OccupantSchema = new mongoose.Schema({
     studentId: {
         type: String,
@@ -102,7 +105,6 @@ const OccupantSchema = new mongoose.Schema({
     }
 });
 
-// Schema cho thông tin phòng
 const RoomSchema = new mongoose.Schema({
     roomNumber: {
         type: String,
@@ -161,7 +163,6 @@ const FloorSchema = new mongoose.Schema({
     rooms: [RoomSchema]
 });
 
-// Schema cho ký túc xá
 const DormitorySchema = new mongoose.Schema({
     name: {
         type: String,
@@ -180,7 +181,7 @@ const DormitorySchema = new mongoose.Schema({
             default: 'Point'
         },
         coordinates: {
-            type: [Number], // [longitude, latitude]
+            type: [Number],
             required: true
         }
     },
@@ -246,18 +247,16 @@ const DormitorySchema = new mongoose.Schema({
 
 DormitorySchema.index({ location: '2dsphere' });
 DormitorySchema.index({ name: 1 }, { unique: true });
+
 DormitorySchema.pre('save', function(next) {
     this.updatedAt = Date.now();
     
-    // Tự động cập nhật totalFloors dựa trên số lượng floors thực tế
     if (this.floors && this.floors.length > 0) {
         this.details.totalFloors = this.floors.length;
     } else if (!this.details.totalFloors) {
-        // Nếu không có floors nào nhưng cũng chưa set totalFloors, đặt mặc định là 1
         this.details.totalFloors = 1;
     }
     
-    // Tính toán price range
     let prices = [];
     
     if (this.floors && this.floors.length > 0) {
@@ -430,7 +429,9 @@ const ActivityLogSchema = new mongoose.Schema({
             'logout',
             'application_approved',  
             'application_rejected',  
-            'password_changed'       
+            'password_changed',
+            'registration_approved',
+            'registration_rejected'
         ]
     },
     description: {
@@ -446,11 +447,11 @@ const ActivityLogSchema = new mongoose.Schema({
     }
 });
 
-const StudentCollection = mongoose.model("students", StudentSchema);
-const DormitoryCollection = mongoose.model("dormitories", DormitorySchema);
-const PendingApplicationCollection = mongoose.model("pendingApplications", PendingApplicationSchema);
-const NotificationCollection = mongoose.model("notifications", NotificationSchema);
-const ActivityLogCollection = mongoose.model("activity_logs", ActivityLogSchema);
+const StudentCollection = mongoose.model('students', StudentSchema);
+const DormitoryCollection = mongoose.model('dormitories', DormitorySchema);
+const PendingApplicationCollection = mongoose.model('pendingApplications', PendingApplicationSchema);
+const NotificationCollection = mongoose.model('notifications', NotificationSchema);
+const ActivityLogCollection = mongoose.model('activity_logs', ActivityLogSchema);
 
 module.exports = { 
     StudentCollection, 
