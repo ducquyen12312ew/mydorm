@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Điều Khiển - Admin KTX</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #e61a1a;
+            --primary-hover: #c01515;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: var(--text-dark);
+        }
+
+        /* ADMIN HEADER */
+        .admin-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            z-index: 2000;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-header-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .admin-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .admin-logo img {
+            height: 40px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .admin-logo:hover img {
+            transform: scale(1.05);
+        }
+
+        .admin-logo-text {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .admin-nav {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            flex: 1;
+            margin: 0 3rem;
+        }
+
+        .admin-nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .admin-nav-link {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 0.5rem 0;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .admin-nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), #ff6b6b);
+            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .admin-nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .admin-nav-link:hover::before {
+            width: 100%;
+        }
+
+        .admin-nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .admin-nav-link.active::before {
+            width: 100%;
+        }
+
+        .admin-nav-link i {
+            margin-right: 8px;
+        }
+
+        .admin-user-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .admin-user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .admin-user-profile:hover {
+            background: var(--bg-light);
+        }
+
+        .admin-user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .admin-user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-user-name {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .admin-user-role {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .admin-dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            min-width: 220px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .admin-user-profile:hover .admin-dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .admin-dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.25rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .admin-dropdown-item:hover {
+            background: var(--bg-light);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .admin-dropdown-item i {
+            margin-right: 12px;
+            width: 20px;
+        }
+
+        .admin-dropdown-item.logout {
+            color: #e74c3c;
+        }
+
+        .admin-dropdown-item.logout:hover {
+            background: #ffe6e6;
+            border-left-color: #e74c3c;
+        }
+
+        .admin-menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 28px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .admin-menu-toggle span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background: var(--primary-color);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .admin-content {
+            padding-top: 90px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* PAGE HEADER */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            color: var(--text-dark);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-light);
+            margin: 0;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .stat-card.blue {
+            border-left-color: #3498db;
+        }
+
+        .stat-card.green {
+            border-left-color: #2ecc71;
+        }
+
+        .stat-card.orange {
+            border-left-color: #e67e22;
+        }
+
+        .stat-card.red {
+            border-left-color: var(--primary-color);
+        }
+
+        .stat-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* CHART SECTION */
+        .chart-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-header h2 {
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .chart-filters select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            background: white;
+        }
+
+        /* TABLE */
+        .dormitory-table {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .dormitory-table h2 {
+            padding: 1.5rem 2rem;
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            border-bottom: 1px solid var(--border-color);
+            margin: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background: var(--bg-light);
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        table tr:hover {
+            background: var(--bg-light);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.high {
+            background: #e74c3c;
+        }
+
+        .progress-fill.medium {
+            background: #f39c12;
+        }
+
+        .progress-fill.low {
+            background: #2ecc71;
+        }
+
+        /* ACTIVITY SECTION */
+        .activity-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .activity-section h2 {
+            font-size: 1.25rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .activity-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            padding: 1rem;
+            border-left: 3px solid #3498db;
+            background: var(--bg-light);
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+        }
+
+        .activity-item .time {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-item .content {
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .activity-item .actor {
+            font-weight: 600;
+            color: #3498db;
+        }
+
+        /* LOADING */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .spinner {
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .admin-menu-toggle {
+                display: flex;
+            }
+
+            .admin-nav {
+                position: fixed;
+                top: 70px;
+                right: -100%;
+                width: 280px;
+                height: calc(100vh - 70px);
+                background: white;
+                flex-direction: column;
+                gap: 0;
+                margin: 0;
+                padding: 2rem 0;
+                box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+            }
+
+            .admin-nav.active {
+                right: 0;
+            }
+
+            .admin-nav-links {
+                flex-direction: column;
+                gap: 0;
+                width: 100%;
+            }
+
+            .admin-nav-link {
+                padding: 1rem 2rem;
+                border-bottom: 1px solid var(--border-color);
+                width: 100%;
+            }
+
+            .admin-user-info {
+                display: flex;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ADMIN HEADER -->
+    <header class="admin-header">
+        <div class="admin-header-container">
+            <a href="/admin/dashboard" class="admin-logo">
+                <img src="/image/logo.png" alt="Logo">
+                <span class="admin-logo-text">KTX HUST</span>
+            </a>
+
+            <div class="admin-menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <nav class="admin-nav" id="adminNav">
+                <ul class="admin-nav-links">
+                    <li><a href="/admin/dashboard" class="admin-nav-link active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                    <li><a href="/admin/dormitories" class="admin-nav-link"><i class="fas fa-building"></i> Danh sách KTX</a></li>
+                    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
+                    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
+                </ul>
+
+                <div class="admin-user-section">
+                    <div class="admin-user-profile">
+                        <div class="admin-user-avatar">A</div>
+                        <div class="admin-user-info">
+                            <span class="admin-user-name">Admin</span>
+                            <span class="admin-user-role">Quản trị viên</span>
+                        </div>
+                        <div class="admin-dropdown-menu">
+                            <a href="/profile" class="admin-dropdown-item">
+                                <i class="fas fa-user"></i> Hồ sơ cá nhân
+                            </a>
+                            <a href="/admin/settings" class="admin-dropdown-item">
+                                <i class="fas fa-cog"></i> Cài đặt
+                            </a>
+                            <a href="/logout" class="admin-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <div class="admin-content">
+        <div class="container">
+            <div class="page-header">
+                <h1><i class="fas fa-chart-line"></i> Bảng Điều Khiển</h1>
+                <p>Tổng quan về hệ thống quản lý ký túc xá</p>
+            </div>
+
+            <div id="loading" class="loading" style="display:none;">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
+            </div>
+
+            <div id="dashboard-content" style="display: none;">
+                <div class="stats-grid" id="stats-grid"></div>
+
+                <div class="dormitory-table">
+                    <h2>Thống Kê Theo Ký Túc Xá</h2>
+                    <div class="table-container">
+                        <table id="dormitory-stats-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên KTX</th>
+                                    <th>Tổng phòng</th>
+                                    <th>Phòng trống</th>
+                                    <th>Sức chứa</th>
+                                    <th>Đã sử dụng</th>
+                                    <th>Tỷ lệ lấp đầy</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dormitory-stats-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <div class="chart-header">
+                        <h2>Xu Hướng Hoạt Động Theo Thời Gian</h2>
+                        <div class="chart-filters">
+                            <select id="period-filter">
+                                <option value="week">7 ngày qua</option>
+                                <option value="month" selected>30 ngày qua</option>
+                                <option value="quarter">3 tháng qua</option>
+                                <option value="year">1 năm qua</option>
+                            </select>
+                        </div>
+                    </div>
+                    <canvas id="trend-chart" height="80"></canvas>
+                </div>
+
+                <div class="activity-section">
+                    <h2>Hoạt Động Gần Đây</h2>
+                    <div class="activity-list" id="activity-list"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+    <script>
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('adminNav').classList.toggle('active');
+        });
+
+        let trendChart = null;
+
+        async function loadDashboardStats() {
+            document.getElementById('loading').style.display = 'block';
+            try {
+                const response = await fetch('/admin/dashboard/stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    renderStats(data.stats);
+                    renderDormitoryTable(data.stats.dormitoryStats);
+                    renderActivities(data.stats.recentActivities);
+                    loadTrendChart();
+
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('dashboard-content').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                document.getElementById('loading').innerHTML = '<p>Không thể tải dữ liệu. Vui lòng thử lại.</p>';
+            }
+        }
+
+        function renderStats(stats) {
+            const statsGrid = document.getElementById('stats-grid');
+            
+            const statsCards = [
+                {
+                    title: 'Sinh viên đang ở KTX',
+                    value: stats.totalStudents.toLocaleString(),
+                    label: 'Tổng số sinh viên',
+                    color: 'blue'
+                },
+                {
+                    title: 'Phòng trống',
+                    value: stats.availableRooms.toLocaleString(),
+                    label: `Trên tổng ${stats.totalRooms} phòng`,
+                    color: 'green'
+                },
+                {
+                    title: 'Đơn chờ duyệt',
+                    value: stats.pendingApplications.toLocaleString(),
+                    label: 'Cần xử lý',
+                    color: 'orange'
+                },
+                {
+                    title: 'Tỷ lệ sử dụng',
+                    value: `${stats.occupancyRate}%`,
+                    label: `${stats.occupiedSpots}/${stats.totalCapacity} chỗ`,
+                    color: stats.occupancyRate > 80 ? 'red' : 'blue'
+                }
+            ];
+
+            statsGrid.innerHTML = statsCards.map(card => `
+                <div class="stat-card ${card.color}">
+                    <h3>${card.title}</h3>
+                    <div class="value">${card.value}</div>
+                    <div class="label">${card.label}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderDormitoryTable(dormitories) {
+            const tbody = document.getElementById('dormitory-stats-body');
+            
+            tbody.innerHTML = dormitories.map(dorm => {
+                const rate = parseFloat(dorm.occupancyRate);
+                let progressClass = 'low';
+                if (rate > 80) progressClass = 'high';
+                else if (rate > 50) progressClass = 'medium';
+
+                return `
+                    <tr>
+                        <td><strong>${dorm.name}</strong></td>
+                        <td>${dorm.totalRooms}</td>
+                        <td>${dorm.availableRooms}</td>
+                        <td>${dorm.capacity}</td>
+                        <td>${dorm.occupied}</td>
+                        <td>
+                            <div>${dorm.occupancyRate}%</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill ${progressClass}" style="width: ${dorm.occupancyRate}%"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function loadTrendChart() {
+            const period = document.getElementById('period-filter').value;
+            
+            try {
+                const response = await fetch(`/admin/dashboard/occupancy-trend?period=${period}`);
+                const result = await response.json();
+
+                if (result.success && result.data.labels.length > 0) {
+                    renderTrendChart(result.data);
+                }
+            } catch (error) {
+                console.error('Error loading trend chart:', error);
+            }
+        }
+
+        function renderTrendChart(data) {
+            const ctx = document.getElementById('trend-chart');
+            
+            if (trendChart) {
+                trendChart.destroy();
+            }
+
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: data.series.map((series, index) => {
+                        const colors = ['#3498db', '#2ecc71', '#e74c3c'];
+                        return {
+                            label: series.name,
+                            data: series.data,
+                            borderColor: colors[index],
+                            backgroundColor: colors[index] + '20',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4
+                        };
+                    })
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderActivities(activities) {
+            const activityList = document.getElementById('activity-list');
+            
+            if (activities.length === 0) {
+                activityList.innerHTML = '<p style="text-align:center;color:#95a5a6;">Chưa có hoạt động nào</p>';
+                return;
+            }
+
+            activityList.innerHTML = activities.map(activity => {
+                const actionLabels = {
+                    'checked_in': 'đã nhận phòng',
+                    'checked_out': 'đã trả phòng',
+                    'room_assigned': 'được phân phòng',
+                    'application_approved': 'được duyệt đơn',
+                    'application_rejected': 'bị từ chối đơn'
+                };
+
+                const time = new Date(activity.timestamp).toLocaleString('vi-VN');
+                const action = actionLabels[activity.action] || activity.action;
+
+                return `
+                    <div class="activity-item">
+                        <div class="time">${time}</div>
+                        <div class="content">
+                            <span class="actor">${activity.actor}</span> ${action}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('period-filter').addEventListener('change', loadTrendChart);
+        window.addEventListener('load', loadDashboardStats);
+    </script>
+</body>
+</html>

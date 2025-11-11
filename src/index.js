@@ -8,6 +8,8 @@ const dormitoryRoutes = require('./dormitory-routes');
 const registrationRoutes = require('./registration-routes');
 const adminApplicationRoutes = require('./admin-application-routes');
 const roomStatusRoutes = require('./room-status-routes');
+const dashboardRoutes = require('./dashboard-routes');
+const adminDashboardRoutes = require('./dashboard-routes');
 
 app.use(session({
     secret: process.env.SESSION_SECRET || 'dev-secret',
@@ -25,7 +27,8 @@ app.use(session({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
-
+app.use(dashboardRoutes);
+app.use(adminDashboardRoutes);
 
 app.set("view engine", "ejs");
 
@@ -353,6 +356,26 @@ app.get("/map", async (req, res) => {
         console.error("Error fetching dormitories for map:", error);
         res.render("map", { dormitories: "[]" });
     }
+});
+
+// Dashboard route
+app.get("/admin/dashboard", isAdmin, (req, res) => {
+    res.render("admin-dashboard", { 
+        user: { 
+            name: req.session.name, 
+            role: req.session.role 
+        } 
+    });
+});
+
+// Logs route
+app.get("/admin/logs", isAdmin, (req, res) => {
+    res.render("admin-logs", { 
+        user: { 
+            name: req.session.name, 
+            role: req.session.role 
+        } 
+    });
 });
 
 app.get("/admin/dormitories", isAdmin, async (req, res) => {
@@ -1506,6 +1529,39 @@ app.post("/api/notifications/mark-all-read", async (req, res) => {
     }
 });
 
+async function checkStudentExistsInSystem(studentId, fullName) {
+    try {
+        const dormitories = await DormitoryCollection.find({});
+        
+        for (const dorm of dormitories) {
+            for (const floor of dorm.floors) {
+                for (const room of floor.rooms) {
+                    const occupant = room.occupants.find(o => 
+                        o.active && 
+                        (o.studentId === studentId || o.name === fullName)
+                    );
+                    
+                    if (occupant) {
+                        return {
+                            exists: true,
+                            type: occupant.studentId === studentId ? 'studentId' : 'name',
+                            location: {
+                                dormitoryName: dorm.name,
+                                floorNumber: floor.floorNumber,
+                                roomNumber: room.roomNumber
+                            }
+                        };
+                    }
+                }
+            }
+        }
+        
+        return { exists: false };
+    } catch (error) {
+        console.error('Error checking student exists:', error);
+        return { exists: false };
+    }
+}
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
