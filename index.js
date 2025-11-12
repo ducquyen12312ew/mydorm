@@ -11,6 +11,8 @@ const registrationRoutes = require('./src/routes/student/registration-routes');
 const adminApplicationRoutes = require('./src/routes/admin/admin-application-routes');
 const roomStatusRoutes = require('./src/routes/student/room-status-routes');
 const dashboardRoutes = require('./src/routes/admin/dashboard-routes');
+const adminAcademicRoutes = require('./src/routes/admin/adminAcademicRoutes');
+const studentAcademicRoutes = require('./src/routes/student/studentAcademicRoutes');
 
 // Session configuration
 app.use(session({
@@ -31,6 +33,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(dashboardRoutes);
+app.use('/api', adminAcademicRoutes);
+app.use('/api', studentAcademicRoutes);
 
 app.set("view engine", "ejs");
 
@@ -1450,6 +1454,52 @@ async function createDefaultAdmin() {
         console.error('Error creating admin account:', error);
     }
 }
+
+// Academic Policies Page
+app.get("/admin/academic/policies", isAdmin, async (req, res) => {
+    try {
+        res.render("admin/academic/admin-academic-policies", { 
+            user: { 
+                name: req.session.name, 
+                role: req.session.role 
+            } 
+        });
+    } catch (error) {
+        console.error("Error rendering academic policies page:", error);
+        res.status(500).send("Internal server error");
+    }
+});
+
+// Priority Queue Page
+app.get("/admin/academic/priority-queue", isAdmin, async (req, res) => {
+    try {
+        res.render("admin/academic/admin-priority-queue", { 
+            user: { 
+                name: req.session.name, 
+                role: req.session.role 
+            } 
+        });
+    } catch (error) {
+        console.error("Error rendering priority queue page:", error);
+        res.status(500).send("Internal server error");
+    }
+});
+
+// Student Registration Portal
+app.get("/student/registration-portal", isAuthenticated, async (req, res) => {
+    try {
+        res.render("student/student-registration-portal", { 
+            user: { 
+                name: req.session.name, 
+                role: req.session.role,
+                id: req.session.userId
+            } 
+        });
+    } catch (error) {
+        console.error("Error rendering registration portal:", error);
+        res.status(500).send("Internal server error");
+    }
+});
 
 createDefaultAdmin();
 

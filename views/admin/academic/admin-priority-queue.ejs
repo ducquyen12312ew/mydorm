@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hàng đợi ưu tiên - DomiSys Admin</title>
+    <link rel="stylesheet" href="/css/admin-priority-queue.css">
+</head>
+<body>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="header-content">
+                <h1>Hàng đợi ưu tiên đăng ký phòng</h1>
+                <div class="header-actions">
+                    <button class="btn-refresh" onclick="loadQueue()">Làm mới</button>
+                    <button class="btn-auto-assign" onclick="showAutoAssignModal()">Phân phòng tự động</button>
+                </div>
+            </div>
+        </header>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalStudents">0</div>
+                    <div class="stat-label">Tổng sinh viên</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏳</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="pendingStudents">0</div>
+                    <div class="stat-label">Đang chờ</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="assignedStudents">0</div>
+                    <div class="stat-label">Đã phân phòng</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-content">
+                    <div class="stat-value" id="avgPriority">0</div>
+                    <div class="stat-label">Điểm TB</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-wrapper">
+            <div class="filter-section">
+                <select id="yearGroupFilter" onchange="filterQueue()">
+                    <option value="">Tất cả nhóm năm</option>
+                    <option value="1">Năm 1</option>
+                    <option value="2">Năm 2-3</option>
+                    <option value="3">Năm 4+</option>
+                </select>
+                <select id="statusFilter" onchange="filterQueue()">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="pending">Đang chờ</option>
+                    <option value="assigned">Đã phân</option>
+                    <option value="rejected">Bị từ chối</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Tìm theo MSSV hoặc tên..." onkeyup="filterQueue()">
+            </div>
+
+            <div class="queue-table-container">
+                <table class="queue-table">
+                    <thead>
+                        <tr>
+                            <th>Hạng</th>
+                            <th>MSSV</th>
+                            <th>Họ và tên</th>
+                            <th>Năm học</th>
+                            <th>Nhóm</th>
+                            <th>Điểm ưu tiên</th>
+                            <th>Phòng hiện tại</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queueTableBody">
+                        <tr>
+                            <td colspan="9" class="loading">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="autoAssignModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Phân phòng tự động</h2>
+                <button class="close-btn" onclick="closeAutoAssignModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Hệ thống sẽ tự động phân phòng cho sinh viên dựa trên:</p>
+                <ul>
+                    <li>Điểm ưu tiên</li>
+                    <li>Chính sách năm học</li>
+                    <li>Phòng trống phù hợp với giới tính</li>
+                    <li>Sở thích phòng (nếu có)</li>
+                </ul>
+                <div class="form-group">
+                    <label>Chọn năm học:</label>
+                    <select id="autoAssignYear">
+                        <option value="">Chọn năm học</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Chọn nhóm năm:</label>
+                    <select id="autoAssignYearGroup">
+                        <option value="">Tất cả nhóm</option>
+                        <option value="1">Năm 1</option>
+                        <option value="2">Năm 2-3</option>
+                        <option value="3">Năm 4+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Số lượng sinh viên tối đa:</label>
+                    <input type="number" id="autoAssignLimit" placeholder="Để trống = tất cả" min="1">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" onclick="closeAutoAssignModal()">Hủy</button>
+                <button class="btn-confirm" onclick="executeAutoAssign()">Bắt đầu phân phòng</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="studentDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Chi tiết sinh viên</h2>
+                <button class="close-btn" onclick="closeStudentDetailModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="studentDetailContent">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allStudents = [];
+        let filteredStudents = [];
+
+        async function loadQueue() {
+            try {
+                const response = await fetch('/api/admin/priority-queue');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allStudents = data.queue;
+                    filteredStudents = allStudents;
+                    renderQueue(filteredStudents);
+                    updateStats(allStudents);
+                }
+            } catch (error) {
+                console.error('Error loading queue:', error);
+                document.getElementById('queueTableBody').innerHTML = 
+                    '<tr><td colspan="9" class="error">Không thể tải dữ liệu</td></tr>';
+            }
+        }
+
+        function updateStats(students) {
+            document.getElementById('totalStudents').textContent = students.length;
+            
+            const pending = students.filter(s => s.registrationStatus === 'pending').length;
+            document.getElementById('pendingStudents').textContent = pending;
+            
+            const assigned = students.filter(s => 
+                s.registrationStatus === 'assigned_room' || s.registrationStatus === 'checked_in'
+            ).length;
+            document.getElementById('assignedStudents').textContent = assigned;
+            
+            const avgPriority = students.length > 0 
+                ? (students.reduce((sum, s) => sum + (s.priorityScore || 0), 0) / students.length).toFixed(1)
+                : 0;
+            document.getElementById('avgPriority').textContent = avgPriority;
+        }
+
+        function filterQueue() {
+            const yearGroup = document.getElementById('yearGroupFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            
+            filteredStudents = allStudents.filter(student => {
+                const matchYearGroup = !yearGroup || student.yearGroup == yearGroup;
+                const matchStatus = !status || student.registrationStatus === status;
+                const matchSearch = !search || 
+                    student.studentId.toLowerCase().includes(search) || 
+                    student.name.toLowerCase().includes(search);
+                
+                return matchYearGroup && matchStatus && matchSearch;
+            });
+            
+            renderQueue(filteredStudents);
+        }
+
+        function renderQueue(students) {
+            const tbody = document.getElementById('queueTableBody');
+            
+            if (students.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" class="empty">Không có sinh viên nào</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = students.map((student, index) => `
+                <tr class="student-row ${getStatusClass(student.registrationStatus)}">
+                    <td class="rank-cell">${index + 1}</td>
+                    <td>${student.studentId}</td>
+                    <td>${student.name}</td>
+                    <td>Năm ${student.academicYear}</td>
+                    <td>
+                        <span class="year-group-badge group-${student.yearGroup}">
+                            ${getYearGroupLabel(student.yearGroup)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="priority-score">${student.priorityScore || 0}</span>
+                    </td>
+                    <td>${student.dormitoryId && student.roomNumber ? 
+                        `${student.dormitoryName || 'N/A'} - ${student.roomNumber}` : 
+                        '<span class="no-room">Chưa có</span>'}</td>
+                    <td>
+                        <span class="status-badge status-${student.registrationStatus}">
+                            ${getStatusLabel(student.registrationStatus)}
+                        </span>
+                    </td>
+                    <td>
+                        <button class="btn-detail" onclick="viewStudentDetail('${student._id}')">Chi tiết</button>
+                        ${student.registrationStatus === 'pending' ? 
+                            `<button class="btn-assign" onclick="manualAssign('${student._id}')">Phân phòng</button>` : 
+                            ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getYearGroupLabel(group) {
+            const labels = {
+                1: 'Năm 1',
+                2: 'Năm 2-3',
+                3: 'Năm 4+'
+            };
+            return labels[group] || 'N/A';
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'pending': 'Đang chờ',
+                'assigned_room': 'Đã phân',
+                'checked_in': 'Đã nhận',
+                'rejected': 'Từ chối',
+                'cancelled': 'Hủy'
+            };
+            return labels[status] || status;
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'pending': 'pending',
+                'assigned_room': 'assigned',
+                'checked_in': 'checked-in',
+                'rejected': 'rejected'
+            };
+            return classes[status] || '';
+        }
+
+        async function viewStudentDetail(studentId) {
+            const student = allStudents.find(s => s._id === studentId);
+            if (!student) return;
+            
+            const detailContent = `
+                <div class="student-detail">
+                    <div class="detail-section">
+                        <h3>Thông tin cơ bản</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">MSSV:</span>
+                                <span class="detail-value">${student.studentId}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Họ và tên:</span>
+                                <span class="detail-value">${student.name}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Năm học:</span>
+                                <span class="detail-value">Năm ${student.academicYear}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Khoa:</span>
+                                <span class="detail-value">${student.faculty || 'N/A'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Giới tính:</span>
+                                <span class="detail-value">${student.gender === 'male' ? 'Nam' : 'Nữ'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email:</span>
+                                <span class="detail-value">${student.email}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h3>Thông tin đăng ký</h3>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Nhóm năm:</span>
+                                <span class="detail-value">${getYearGroupLabel(student.yearGroup)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Điểm ưu tiên:</span>
+                                <span class="detail-value priority-highlight">${student.priorityScore || 0}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Trạng thái:</span>
+                                <span class="detail-value">
+                                    <span class="status-badge status-${student.registrationStatus}">
+                                        ${getStatusLabel(student.registrationStatus)}
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Phòng hiện tại:</span>
+                                <span class="detail-value">${student.dormitoryId && student.roomNumber ? 
+                                    `${student.dormitoryName || 'N/A'} - ${student.roomNumber}` : 
+                                    'Chưa có'}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${student.registrationHistory && student.registrationHistory.length > 0 ? `
+                        <div class="detail-section">
+                            <h3>Lịch sử đăng ký</h3>
+                            <div class="history-list">
+                                ${student.registrationHistory.map(h => `
+                                    <div class="history-item">
+                                        <div>${h.academicYear}</div>
+                                        <div class="status-badge status-${h.status}">${getStatusLabel(h.status)}</div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            document.getElementById('studentDetailContent').innerHTML = detailContent;
+            document.getElementById('studentDetailModal').style.display = 'flex';
+        }
+
+        function closeStudentDetailModal() {
+            document.getElementById('studentDetailModal').style.display = 'none';
+        }
+
+        function showAutoAssignModal() {
+            const select = document.getElementById('autoAssignYear');
+            const currentYear = new Date().getFullYear();
+            const nextYear = currentYear + 1;
+            
+            select.innerHTML = `
+                <option value="${currentYear}-${nextYear}">${currentYear}-${nextYear}</option>
+                <option value="${currentYear-1}-${currentYear}">${currentYear-1}-${currentYear}</option>
+            `;
+            
+            document.getElementById('autoAssignModal').style.display = 'flex';
+        }
+
+        function closeAutoAssignModal() {
+            document.getElementById('autoAssignModal').style.display = 'none';
+        }
+
+        async function executeAutoAssign() {
+            const academicYear = document.getElementById('autoAssignYear').value;
+            const yearGroup = document.getElementById('autoAssignYearGroup').value;
+            const limit = document.getElementById('autoAssignLimit').value;
+            
+            if (!academicYear) {
+                alert('Vui lòng chọn năm học');
+                return;
+            }
+            
+            if (!confirm('Bạn có chắc muốn bắt đầu phân phòng tự động?')) return;
+            
+            try {
+                const response = await fetch('/api/admin/auto-assign-rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        academicYear,
+                        yearGroup: yearGroup || undefined,
+                        limit: limit ? parseInt(limit) : undefined
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(`Phân phòng thành công cho ${data.assignedCount} sinh viên`);
+                    closeAutoAssignModal();
+                    loadQueue();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error in auto assign:', error);
+                alert('Không thể thực hiện phân phòng tự động');
+            }
+        }
+
+        async function manualAssign(studentId) {
+            alert('Tính năng phân phòng thủ công đang được phát triển');
+        }
+
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        };
+
+        loadQueue();
+    </script>
+</body>
+</html>

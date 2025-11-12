@@ -3,164 +3,502 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Chính sách Năm học</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .policy-card {
-            border: 1px solid #dee2e6;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background: white;
-        }
-        .year-group-section {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-        }
-        .badge-year {
-            font-size: 0.9rem;
-            padding: 5px 15px;
-        }
-    </style>
+    <title>Quản lý chính sách năm học - DomiSys Admin</title>
+    <link rel="stylesheet" href="/css/admin-academic-policies.css">
 </head>
 <body>
-    <div class="container mt-4">
-        <h1>Quản lý Chính sách Năm học</h1>
-        
-        <ul class="nav nav-tabs mb-4">
-            <li class="nav-item">
-                <a class="nav-link active" data-bs-toggle="tab" href="#list">Danh sách</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-bs-toggle="tab" href="#create">Tạo mới</a>
-            </li>
-        </ul>
+    <div class="admin-container">
+        <header class="admin-header">
+            <div class="header-content">
+                <h1>Quản lý chính sách năm học</h1>
+                <button class="btn-add" onclick="showAddPolicyModal()">+ Thêm chính sách mới</button>
+            </div>
+        </header>
 
-        <div class="tab-content">
-            <div class="tab-pane fade show active" id="list">
-                <div id="policies-container">
-                    <div class="text-center py-5">
-                        <div class="spinner-border"></div>
-                        <p>Đang tải...</p>
-                    </div>
-                </div>
+        <div class="content-wrapper">
+            <div class="filter-section">
+                <select id="yearFilter" onchange="filterPolicies()">
+                    <option value="">Tất cả năm học</option>
+                </select>
+                <select id="statusFilter" onchange="filterPolicies()">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="active">Đang kích hoạt</option>
+                    <option value="inactive">Ngưng kích hoạt</option>
+                </select>
             </div>
 
-            <div class="tab-pane fade" id="create">
-                <form id="create-form">
-                    <div class="mb-3">
-                        <label class="form-label">Năm học</label>
-                        <input type="text" class="form-control" id="academicYear" placeholder="2024-2025" required>
-                    </div>
-
-                    <h5>Năm 1</h5>
-                    <div class="year-group-section">
-                        <div class="mb-3">
-                            <label>Cho phép tự chọn phòng</label>
-                            <select class="form-select" id="year1_canChooseRoom">
-                                <option value="false" selected>Không</option>
-                                <option value="true">Có</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label>Phân tự động</label>
-                            <select class="form-select" id="year1_autoAssign">
-                                <option value="true" selected>Có</option>
-                                <option value="false">Không</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <h5>Năm 2-3</h5>
-                    <div class="year-group-section">
-                        <div class="mb-3">
-                            <label>Cho phép tự chọn phòng</label>
-                            <select class="form-select" id="year2_canChooseRoom">
-                                <option value="true" selected>Có</option>
-                                <option value="false">Không</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <h5>Năm 4+</h5>
-                    <div class="year-group-section">
-                        <div class="mb-3">
-                            <label>Cho phép đổi phòng</label>
-                            <select class="form-select" id="year4_allowChange">
-                                <option value="true" selected>Có</option>
-                                <option value="false">Không</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Tạo Chính sách</button>
-                </form>
-            </div>
+            <div id="policiesList" class="policies-list"></div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div id="policyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Thêm chính sách năm học</h2>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="policyForm">
+                <div class="form-group">
+                    <label>Năm học</label>
+                    <input type="text" id="academicYear" required placeholder="VD: 2024-2025">
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="activeStatus" checked>
+                        Kích hoạt chính sách
+                    </label>
+                </div>
+
+                <div class="year-group-section">
+                    <h3>Chính sách cho năm 1</h3>
+                    <div class="policy-controls">
+                        <label>
+                            <input type="checkbox" id="year1_canChoose" onchange="toggleYear1Options()">
+                            Cho phép tự chọn phòng
+                        </label>
+                        <label>
+                            <input type="checkbox" id="year1_autoAssign" checked>
+                            Phân phòng tự động
+                        </label>
+                        <label>
+                            Mức ưu tiên:
+                            <select id="year1_priority">
+                                <option value="low">Thấp</option>
+                                <option value="default" selected>Mặc định</option>
+                                <option value="medium">Trung bình</option>
+                                <option value="high">Cao</option>
+                            </select>
+                        </label>
+                        <div class="form-group">
+                            <label>Mô tả</label>
+                            <textarea id="year1_description" rows="2">Sinh viên năm 1 được phân phòng tự động</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="year-group-section">
+                    <h3>Chính sách cho năm 2-3</h3>
+                    <div class="policy-controls">
+                        <label>
+                            <input type="checkbox" id="year23_canChoose" checked>
+                            Cho phép tự chọn phòng
+                        </label>
+                        <label>
+                            <input type="checkbox" id="year23_autoAssign">
+                            Phân phòng tự động
+                        </label>
+                        <label>
+                            Mức ưu tiên:
+                            <select id="year23_priority">
+                                <option value="low">Thấp</option>
+                                <option value="default">Mặc định</option>
+                                <option value="medium" selected>Trung bình</option>
+                                <option value="high">Cao</option>
+                            </select>
+                        </label>
+                        <div class="form-group">
+                            <label>Thời gian chọn phòng (bắt đầu)</label>
+                            <input type="datetime-local" id="year23_start">
+                        </div>
+                        <div class="form-group">
+                            <label>Thời gian chọn phòng (kết thúc)</label>
+                            <input type="datetime-local" id="year23_end">
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả</label>
+                            <textarea id="year23_description" rows="2">Sinh viên năm 2-3 được tự chọn phòng trong khoảng thời gian quy định</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="year-group-section">
+                    <h3>Chính sách cho năm 4+</h3>
+                    <div class="policy-controls">
+                        <label>
+                            <input type="checkbox" id="year4_canChoose" checked>
+                            Cho phép tự chọn phòng
+                        </label>
+                        <label>
+                            <input type="checkbox" id="year4_autoAssign">
+                            Phân phòng tự động
+                        </label>
+                        <label>
+                            <input type="checkbox" id="year4_allowChange" checked>
+                            Cho phép đổi phòng
+                        </label>
+                        <label>
+                            Mức ưu tiên:
+                            <select id="year4_priority">
+                                <option value="low">Thấp</option>
+                                <option value="default">Mặc định</option>
+                                <option value="medium">Trung bình</option>
+                                <option value="high" selected>Cao</option>
+                            </select>
+                        </label>
+                        <div class="form-group">
+                            <label>Thời gian chọn phòng (bắt đầu)</label>
+                            <input type="datetime-local" id="year4_start">
+                        </div>
+                        <div class="form-group">
+                            <label>Thời gian chọn phòng (kết thúc)</label>
+                            <input type="datetime-local" id="year4_end">
+                        </div>
+                        <div class="form-group">
+                            <label>Mô tả</label>
+                            <textarea id="year4_description" rows="2">Sinh viên năm cuối có quyền ưu tiên cao nhất và có thể đổi phòng</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Ghi chú</label>
+                    <textarea id="policyNotes" rows="3" placeholder="Ghi chú về chính sách này..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="closeModal()">Hủy</button>
+                    <button type="submit" class="btn-save">Lưu chính sách</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
+        let allPolicies = [];
+        let editingPolicyId = null;
+
         async function loadPolicies() {
-            const response = await fetch('/api/admin/academic-policies');
-            const data = await response.json();
-            
-            if (data.success && data.policies.length > 0) {
-                let html = '';
-                data.policies.forEach(p => {
-                    html += `<div class="policy-card">
-                        <h5>${p.academicYear}</h5>
-                        <span class="badge ${p.active ? 'bg-success' : 'bg-secondary'}">
-                            ${p.active ? 'Kích hoạt' : 'Tạm dừng'}
-                        </span>
-                    </div>`;
-                });
-                document.getElementById('policies-container').innerHTML = html;
-            } else {
-                document.getElementById('policies-container').innerHTML = 
-                    '<div class="alert alert-warning">Chưa có chính sách nào</div>';
+            try {
+                const response = await fetch('/api/admin/academic-policies');
+                const data = await response.json();
+                
+                if (data.success) {
+                    allPolicies = data.policies;
+                    populateYearFilter();
+                    renderPolicies(allPolicies);
+                }
+            } catch (error) {
+                console.error('Error loading policies:', error);
+                alert('Không thể tải danh sách chính sách');
             }
         }
 
-        document.getElementById('create-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = {
-                academicYear: document.getElementById('academicYear').value,
-                active: true,
-                policies: {
-                    year1: {
-                        canChooseRoom: document.getElementById('year1_canChooseRoom').value === 'true',
-                        autoAssign: document.getElementById('year1_autoAssign').value === 'true',
-                        priority: 'default'
-                    },
-                    year2_3: {
-                        canChooseRoom: document.getElementById('year2_canChooseRoom').value === 'true',
-                        priority: 'medium'
-                    },
-                    year4_plus: {
-                        allowRoomChange: document.getElementById('year4_allowChange').value === 'true',
-                        priority: 'high'
+        function populateYearFilter() {
+            const yearFilter = document.getElementById('yearFilter');
+            const years = [...new Set(allPolicies.map(p => p.academicYear))];
+            
+            years.forEach(year => {
+                const option = document.createElement('option');
+                option.value = year;
+                option.textContent = year;
+                yearFilter.appendChild(option);
+            });
+        }
+
+        function filterPolicies() {
+            const yearFilter = document.getElementById('yearFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let filtered = allPolicies;
+            
+            if (yearFilter) {
+                filtered = filtered.filter(p => p.academicYear === yearFilter);
+            }
+            
+            if (statusFilter === 'active') {
+                filtered = filtered.filter(p => p.active === true);
+            } else if (statusFilter === 'inactive') {
+                filtered = filtered.filter(p => p.active === false);
+            }
+            
+            renderPolicies(filtered);
+        }
+
+        function renderPolicies(policies) {
+            const container = document.getElementById('policiesList');
+            
+            if (policies.length === 0) {
+                container.innerHTML = '<div class="empty-state">Chưa có chính sách nào</div>';
+                return;
+            }
+            
+            container.innerHTML = policies.map(policy => `
+                <div class="policy-card ${policy.active ? 'active' : 'inactive'}">
+                    <div class="policy-header">
+                        <div class="policy-title">
+                            <h3>${policy.academicYear}</h3>
+                            <span class="status-badge ${policy.active ? 'active' : 'inactive'}">
+                                ${policy.active ? 'Đang kích hoạt' : 'Ngưng kích hoạt'}
+                            </span>
+                        </div>
+                        <div class="policy-actions">
+                            <button onclick="editPolicy('${policy._id}')" class="btn-edit">Sửa</button>
+                            <button onclick="togglePolicyStatus('${policy._id}', ${!policy.active})" class="btn-toggle">
+                                ${policy.active ? 'Tắt' : 'Bật'}
+                            </button>
+                            <button onclick="deletePolicy('${policy._id}')" class="btn-delete">Xóa</button>
+                        </div>
+                    </div>
+                    
+                    <div class="policy-groups">
+                        <div class="group-info">
+                            <h4>Năm 1</h4>
+                            <p>${policy.policies.year1.description}</p>
+                            <div class="group-details">
+                                <span class="detail-tag ${policy.policies.year1.canChooseRoom ? 'enabled' : 'disabled'}">
+                                    ${policy.policies.year1.canChooseRoom ? '✓ Tự chọn' : '✗ Không tự chọn'}
+                                </span>
+                                <span class="detail-tag ${policy.policies.year1.autoAssign ? 'enabled' : 'disabled'}">
+                                    ${policy.policies.year1.autoAssign ? '✓ Tự động' : '✗ Không tự động'}
+                                </span>
+                                <span class="priority-badge priority-${policy.policies.year1.priority}">
+                                    ${policy.policies.year1.priority}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="group-info">
+                            <h4>Năm 2-3</h4>
+                            <p>${policy.policies.year2_3.description}</p>
+                            <div class="group-details">
+                                <span class="detail-tag ${policy.policies.year2_3.canChooseRoom ? 'enabled' : 'disabled'}">
+                                    ${policy.policies.year2_3.canChooseRoom ? '✓ Tự chọn' : '✗ Không tự chọn'}
+                                </span>
+                                ${policy.policies.year2_3.selectionWindow && policy.policies.year2_3.selectionWindow.start ? 
+                                    `<span class="time-window">
+                                        ${new Date(policy.policies.year2_3.selectionWindow.start).toLocaleDateString('vi-VN')} - 
+                                        ${new Date(policy.policies.year2_3.selectionWindow.end).toLocaleDateString('vi-VN')}
+                                    </span>` : ''}
+                                <span class="priority-badge priority-${policy.policies.year2_3.priority}">
+                                    ${policy.policies.year2_3.priority}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="group-info">
+                            <h4>Năm 4+</h4>
+                            <p>${policy.policies.year4_plus.description}</p>
+                            <div class="group-details">
+                                <span class="detail-tag ${policy.policies.year4_plus.canChooseRoom ? 'enabled' : 'disabled'}">
+                                    ${policy.policies.year4_plus.canChooseRoom ? '✓ Tự chọn' : '✗ Không tự chọn'}
+                                </span>
+                                <span class="detail-tag ${policy.policies.year4_plus.allowRoomChange ? 'enabled' : 'disabled'}">
+                                    ${policy.policies.year4_plus.allowRoomChange ? '✓ Đổi phòng' : '✗ Không đổi'}
+                                </span>
+                                ${policy.policies.year4_plus.selectionWindow && policy.policies.year4_plus.selectionWindow.start ? 
+                                    `<span class="time-window">
+                                        ${new Date(policy.policies.year4_plus.selectionWindow.start).toLocaleDateString('vi-VN')} - 
+                                        ${new Date(policy.policies.year4_plus.selectionWindow.end).toLocaleDateString('vi-VN')}
+                                    </span>` : ''}
+                                <span class="priority-badge priority-${policy.policies.year4_plus.priority}">
+                                    ${policy.policies.year4_plus.priority}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${policy.notes ? `<div class="policy-notes">${policy.notes}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function showAddPolicyModal() {
+            editingPolicyId = null;
+            document.getElementById('modalTitle').textContent = 'Thêm chính sách năm học';
+            document.getElementById('policyForm').reset();
+            document.getElementById('year1_autoAssign').checked = true;
+            document.getElementById('year23_canChoose').checked = true;
+            document.getElementById('year4_canChoose').checked = true;
+            document.getElementById('year4_allowChange').checked = true;
+            document.getElementById('policyModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('policyModal').style.display = 'none';
+            editingPolicyId = null;
+        }
+
+        async function editPolicy(policyId) {
+            try {
+                const policy = allPolicies.find(p => p._id === policyId);
+                if (!policy) return;
+                
+                editingPolicyId = policyId;
+                document.getElementById('modalTitle').textContent = 'Chỉnh sửa chính sách';
+                
+                document.getElementById('academicYear').value = policy.academicYear;
+                document.getElementById('activeStatus').checked = policy.active;
+                
+                document.getElementById('year1_canChoose').checked = policy.policies.year1.canChooseRoom;
+                document.getElementById('year1_autoAssign').checked = policy.policies.year1.autoAssign;
+                document.getElementById('year1_priority').value = policy.policies.year1.priority;
+                document.getElementById('year1_description').value = policy.policies.year1.description;
+                
+                document.getElementById('year23_canChoose').checked = policy.policies.year2_3.canChooseRoom;
+                document.getElementById('year23_autoAssign').checked = policy.policies.year2_3.autoAssign;
+                document.getElementById('year23_priority').value = policy.policies.year2_3.priority;
+                document.getElementById('year23_description').value = policy.policies.year2_3.description;
+                
+                if (policy.policies.year2_3.selectionWindow) {
+                    if (policy.policies.year2_3.selectionWindow.start) {
+                        document.getElementById('year23_start').value = new Date(policy.policies.year2_3.selectionWindow.start).toISOString().slice(0, 16);
+                    }
+                    if (policy.policies.year2_3.selectionWindow.end) {
+                        document.getElementById('year23_end').value = new Date(policy.policies.year2_3.selectionWindow.end).toISOString().slice(0, 16);
                     }
                 }
+                
+                document.getElementById('year4_canChoose').checked = policy.policies.year4_plus.canChooseRoom;
+                document.getElementById('year4_autoAssign').checked = policy.policies.year4_plus.autoAssign;
+                document.getElementById('year4_allowChange').checked = policy.policies.year4_plus.allowRoomChange;
+                document.getElementById('year4_priority').value = policy.policies.year4_plus.priority;
+                document.getElementById('year4_description').value = policy.policies.year4_plus.description;
+                
+                if (policy.policies.year4_plus.selectionWindow) {
+                    if (policy.policies.year4_plus.selectionWindow.start) {
+                        document.getElementById('year4_start').value = new Date(policy.policies.year4_plus.selectionWindow.start).toISOString().slice(0, 16);
+                    }
+                    if (policy.policies.year4_plus.selectionWindow.end) {
+                        document.getElementById('year4_end').value = new Date(policy.policies.year4_plus.selectionWindow.end).toISOString().slice(0, 16);
+                    }
+                }
+                
+                document.getElementById('policyNotes').value = policy.notes || '';
+                
+                document.getElementById('policyModal').style.display = 'flex';
+            } catch (error) {
+                console.error('Error loading policy for edit:', error);
+                alert('Không thể tải thông tin chính sách');
+            }
+        }
+
+        async function togglePolicyStatus(policyId, newStatus) {
+            if (!confirm(`Bạn có chắc muốn ${newStatus ? 'kích hoạt' : 'tắt'} chính sách này?`)) return;
+            
+            try {
+                const response = await fetch(`/api/admin/academic-policies/${policyId}/toggle`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ active: newStatus })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Cập nhật trạng thái thành công');
+                    loadPolicies();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error toggling policy status:', error);
+                alert('Không thể cập nhật trạng thái');
+            }
+        }
+
+        async function deletePolicy(policyId) {
+            if (!confirm('Bạn có chắc muốn xóa chính sách này? Hành động không thể hoàn tác.')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/academic-policies/${policyId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Xóa chính sách thành công');
+                    loadPolicies();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error deleting policy:', error);
+                alert('Không thể xóa chính sách');
+            }
+        }
+
+        function toggleYear1Options() {
+            const canChoose = document.getElementById('year1_canChoose').checked;
+            document.getElementById('year1_autoAssign').disabled = canChoose;
+        }
+
+        document.getElementById('policyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const policyData = {
+                academicYear: document.getElementById('academicYear').value,
+                active: document.getElementById('activeStatus').checked,
+                policies: {
+                    year1: {
+                        canChooseRoom: document.getElementById('year1_canChoose').checked,
+                        autoAssign: document.getElementById('year1_autoAssign').checked,
+                        priority: document.getElementById('year1_priority').value,
+                        description: document.getElementById('year1_description').value
+                    },
+                    year2_3: {
+                        canChooseRoom: document.getElementById('year23_canChoose').checked,
+                        autoAssign: document.getElementById('year23_autoAssign').checked,
+                        priority: document.getElementById('year23_priority').value,
+                        description: document.getElementById('year23_description').value,
+                        selectionWindow: {
+                            start: document.getElementById('year23_start').value || null,
+                            end: document.getElementById('year23_end').value || null
+                        }
+                    },
+                    year4_plus: {
+                        canChooseRoom: document.getElementById('year4_canChoose').checked,
+                        autoAssign: document.getElementById('year4_autoAssign').checked,
+                        allowRoomChange: document.getElementById('year4_allowChange').checked,
+                        priority: document.getElementById('year4_priority').value,
+                        description: document.getElementById('year4_description').value,
+                        selectionWindow: {
+                            start: document.getElementById('year4_start').value || null,
+                            end: document.getElementById('year4_end').value || null
+                        }
+                    }
+                },
+                notes: document.getElementById('policyNotes').value
             };
-
-            const response = await fetch('/api/admin/academic-policies', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data)
-            });
-
-            const result = await response.json();
-            if (result.success) {
-                alert('Tạo thành công!');
-                location.reload();
-            } else {
-                alert('Lỗi: ' + result.error);
+            
+            try {
+                let response;
+                if (editingPolicyId) {
+                    response = await fetch(`/api/admin/academic-policies/${editingPolicyId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(policyData)
+                    });
+                } else {
+                    response = await fetch('/api/admin/academic-policies', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(policyData)
+                    });
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert(editingPolicyId ? 'Cập nhật chính sách thành công' : 'Tạo chính sách thành công');
+                    closeModal();
+                    loadPolicies();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error saving policy:', error);
+                alert('Không thể lưu chính sách');
             }
         });
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('policyModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
 
         loadPolicies();
     </script>
