@@ -6,7 +6,7 @@ const {
     StudentCollection, 
     ActivityLogCollection,
     AcademicWindowCollection 
-} = require('./config');
+} = require('../../config/config');
 const { isValidObjectId } = require('mongoose');
 
 const isAdmin = (req, res, next) => {

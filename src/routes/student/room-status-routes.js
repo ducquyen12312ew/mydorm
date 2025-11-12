@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { DormitoryCollection, PendingApplicationCollection } = require('./config');
+const { DormitoryCollection, PendingApplicationCollection } = require('../../config/config');
 
 // Middleware kiểm tra đăng nhập
 const isAuthenticated = (req, res, next) => {
