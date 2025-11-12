@@ -398,6 +398,61 @@
             background: #dc3545;
         }
 
+        .dropdown {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    content: '';
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: middle;
+    border-top: 4px solid;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    min-width: 220px;
+    padding: 0.5rem 0;
+    margin-top: 0.5rem;
+    z-index: 1000;
+    display: none;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu .dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1.25rem;
+    color: var(--text-dark);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.dropdown-menu .dropdown-item:hover {
+    background: var(--bg-light);
+    border-left-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.dropdown-menu .dropdown-item i {
+    margin-right: 10px;
+    width: 18px;
+}
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .admin-menu-toggle {
@@ -458,11 +513,22 @@
 
             <nav class="admin-nav" id="adminNav">
                 <ul class="admin-nav-links">
-                    <li><a href="/admin/dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/admin/dormitories" class="admin-nav-link active"><i class="fas fa-building"></i> Danh sách KTX</a></li>
-                    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
-                    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
-                </ul>
+    <li><a href="/admin/dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+    <li><a href="/admin/dormitories" class="admin-nav-link active"><i class="fas fa-building"></i> Danh sách KTX</a></li>
+    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
+
+    <li class="dropdown">
+        <a href="#" class="admin-nav-link dropdown-toggle" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-graduation-cap"></i> Năm học
+        </a>
+        <ul class="dropdown-menu" aria-labelledby="academicDropdown">
+            <li><a class="dropdown-item" href="/admin/academic/policies"><i class="fas fa-file-contract"></i> Chính sách năm học</a></li>
+            <li><a class="dropdown-item" href="/admin/academic/priority-queue"><i class="fas fa-list-ol"></i> Hàng đợi ưu tiên</a></li>
+        </ul>
+    </li>
+    
+    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
+</ul>
 
                 <div class="admin-user-section">
                     <div class="admin-user-profile">

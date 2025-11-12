@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cổng đăng ký KTX - DomiSys</title>
+    <link rel="stylesheet" href="/css/student-registration-portal.css">
+</head>
+<body>
+    <div class="portal-container">
+        <header class="portal-header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <img src="/image/logo.png" alt="Logo" class="logo">
+                    <h1>Cổng đăng ký ký túc xá</h1>
+                </div>
+                <div class="user-info" id="userInfo"></div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div id="eligibilitySection" class="section">
+                <div class="eligibility-card">
+                    <div class="card-header">
+                        <h2>Thông tin đăng ký của bạn</h2>
+                    </div>
+                    <div id="eligibilityContent" class="card-content">
+                        <div class="loading-spinner">Đang kiểm tra điều kiện...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="registrationSection" class="section" style="display: none;">
+                <div class="registration-card">
+                    <div class="card-header">
+                        <h2>Đăng ký phòng ký túc xá</h2>
+                    </div>
+                    <div class="card-content">
+                        <div id="roomSelectionArea"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="statusSection" class="section" style="display: none;">
+                <div class="status-card">
+                    <div class="card-header">
+                        <h2>Trạng thái đăng ký</h2>
+                    </div>
+                    <div id="statusContent" class="card-content"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let studentInfo = null;
+        let eligibilityData = null;
+        let availableRooms = [];
+
+        async function loadStudentInfo() {
+            try {
+                const response = await fetch('/api/student/registration-eligibility');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    if (data.requireLogin) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error(data.error || 'Không thể tải thông tin');
+                }
+                
+                studentInfo = data.studentInfo;
+                eligibilityData = {
+                    eligible: data.eligible,
+                    reason: data.reason,
+                    yearGroup: data.yearGroup,
+                    canChooseRoom: data.canChooseRoom,
+                    autoAssign: data.autoAssign,
+                    policy: data.policy
+                };
+                
+                renderUserInfo();
+                renderEligibility();
+                
+                if (data.eligible && data.canChooseRoom) {
+                    loadAvailableRooms();
+                }
+                
+                loadRegistrationStatus();
+                
+            } catch (error) {
+                console.error('Error loading student info:', error);
+                document.getElementById('eligibilityContent').innerHTML = 
+                    `<div class="error-message">${error.message}</div>`;
+            }
+        }
+
+        function renderUserInfo() {
+            const userInfoDiv = document.getElementById('userInfo');
+            userInfoDiv.innerHTML = `
+                <div class="user-details">
+                    <div class="user-name">${studentInfo.name}</div>
+                    <div class="user-id">${studentInfo.studentId}</div>
+                    <div class="user-year">Năm ${studentInfo.academicYear}</div>
+                </div>
+            `;
+        }
+
+        function renderEligibility() {
+            const content = document.getElementById('eligibilityContent');
+            
+            if (!eligibilityData.eligible) {
+                content.innerHTML = `
+                    <div class="eligibility-info not-eligible">
+                        <div class="eligibility-icon">❌</div>
+                        <div class="eligibility-message">
+                            <h3>Không đủ điều kiện đăng ký</h3>
+                            <p>${eligibilityData.reason}</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+            
+            const yearGroupLabels = {
+                1: 'Năm 1',
+                2: 'Năm 2-3',
+                3: 'Năm 4+'
+            };
+            
+            content.innerHTML = `
+                <div class="eligibility-info eligible">
+                    <div class="eligibility-icon">✅</div>
+                    <div class="eligibility-message">
+                        <h3>Bạn đủ điều kiện đăng ký!</h3>
+                        <p>${eligibilityData.reason}</p>
+                    </div>
+                </div>
+                
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Nhóm năm học:</span>
+                        <span class="info-value">${yearGroupLabels[eligibilityData.yearGroup]}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Khoa:</span>
+                        <span class="info-value">${studentInfo.faculty || 'N/A'}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Giới tính:</span>
+                        <span class="info-value">${studentInfo.gender === 'male' ? 'Nam' : 'Nữ'}</span>
+                    </div>
+                </div>
+                
+                <div class="policy-info">
+                    <h4>Chính sách áp dụng:</h4>
+                    <div class="policy-details">
+                        ${eligibilityData.canChooseRoom ? 
+                            '<div class="policy-tag enabled">✓ Được tự chọn phòng</div>' : 
+                            '<div class="policy-tag disabled">✗ Không được tự chọn phòng</div>'}
+                        ${eligibilityData.autoAssign ? 
+                            '<div class="policy-tag enabled">✓ Phân phòng tự động</div>' : 
+                            '<div class="policy-tag disabled">✗ Không phân tự động</div>'}
+                    </div>
+                    ${eligibilityData.policy && eligibilityData.policy.description ? 
+                        `<p class="policy-description">${eligibilityData.policy.description}</p>` : ''}
+                </div>
+                
+                ${eligibilityData.canChooseRoom ? 
+                    '<button class="btn-start-registration" onclick="showRegistrationSection()">Bắt đầu đăng ký</button>' : 
+                    '<div class="auto-assign-notice">Hệ thống sẽ tự động phân phòng cho bạn. Vui lòng chờ thông báo.</div>'}
+            `;
+        }
+
+        function showRegistrationSection() {
+            document.getElementById('registrationSection').style.display = 'block';
+            document.getElementById('registrationSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function loadAvailableRooms() {
+            try {
+                const response = await fetch('/api/student/available-rooms');
+                const data = await response.json();
+                
+                if (data.success) {
+                    availableRooms = data.rooms;
+                    renderAvailableRooms();
+                }
+            } catch (error) {
+                console.error('Error loading available rooms:', error);
+                document.getElementById('roomSelectionArea').innerHTML = 
+                    '<div class="error-message">Không thể tải danh sách phòng trống</div>';
+            }
+        }
+
+        function renderAvailableRooms() {
+            const area = document.getElementById('roomSelectionArea');
+            
+            if (availableRooms.length === 0) {
+                area.innerHTML = '<div class="no-rooms">Hiện tại không có phòng trống phù hợp</div>';
+                return;
+            }
+            
+            const dormitoryGroups = {};
+            availableRooms.forEach(room => {
+                if (!dormitoryGroups[room.dormitoryName]) {
+                    dormitoryGroups[room.dormitoryName] = [];
+                }
+                dormitoryGroups[room.dormitoryName].push(room);
+            });
+            
+            area.innerHTML = `
+                <div class="dormitory-filter">
+                    <select id="dormitorySelect" onchange="filterRooms()">
+                        <option value="">Tất cả ký túc xá</option>
+                        ${Object.keys(dormitoryGroups).map(name => 
+                            `<option value="${name}">${name}</option>`
+                        ).join('')}
+                    </select>
+                </div>
+                
+                <div class="rooms-grid" id="roomsGrid">
+                    ${availableRooms.map(room => `
+                        <div class="room-card" data-dormitory="${room.dormitoryName}">
+                            <div class="room-header">
+                                <div class="room-number">Phòng ${room.roomNumber}</div>
+                                <div class="room-building">${room.dormitoryName}</div>
+                            </div>
+                            <div class="room-details">
+                                <div class="room-info-row">
+                                    <span class="info-icon">👥</span>
+                                    <span>${room.currentOccupancy || 0}/${room.capacity} người</span>
+                                </div>
+                                <div class="room-info-row">
+                                    <span class="info-icon">💵</span>
+                                    <span>${(room.price || 0).toLocaleString('vi-VN')} VNĐ/tháng</span>
+                                </div>
+                                <div class="room-info-row">
+                                    <span class="info-icon">📍</span>
+                                    <span>Tầng ${room.floor || 'N/A'}</span>
+                                </div>
+                            </div>
+                            <button class="btn-select-room" onclick="selectRoom('${room.dormitoryId}', '${room.roomNumber}')">
+                                Chọn phòng này
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function filterRooms() {
+            const selectedDormitory = document.getElementById('dormitorySelect').value;
+            const roomCards = document.querySelectorAll('.room-card');
+            
+            roomCards.forEach(card => {
+                if (!selectedDormitory || card.dataset.dormitory === selectedDormitory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        async function selectRoom(dormitoryId, roomNumber) {
+            if (!confirm(`Bạn có chắc muốn chọn phòng ${roomNumber}?`)) return;
+            
+            try {
+                const response = await fetch('/api/student/select-room', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        dormitoryId: dormitoryId,
+                        roomNumber: roomNumber
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Đăng ký phòng thành công!');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error selecting room:', error);
+                alert('Không thể đăng ký phòng. Vui lòng thử lại sau.');
+            }
+        }
+
+        async function loadRegistrationStatus() {
+            if (!studentInfo) return;
+            
+            if (studentInfo.registrationStatus === 'assigned_room' || 
+                studentInfo.registrationStatus === 'checked_in') {
+                
+                document.getElementById('statusSection').style.display = 'block';
+                
+                const statusLabels = {
+                    'assigned_room': 'Đã được phân phòng',
+                    'checked_in': 'Đã nhận phòng'
+                };
+                
+                const statusContent = document.getElementById('statusContent');
+                statusContent.innerHTML = `
+                    <div class="status-info">
+                        <div class="status-badge status-${studentInfo.registrationStatus}">
+                            ${statusLabels[studentInfo.registrationStatus]}
+                        </div>
+                        <div class="room-assignment">
+                            <h3>Thông tin phòng của bạn</h3>
+                            <div class="assignment-details">
+                                <div class="assignment-item">
+                                    <span class="assignment-label">Ký túc xá:</span>
+                                    <span class="assignment-value">KTX</span>
+                                </div>
+                                <div class="assignment-item">
+                                    <span class="assignment-label">Số phòng:</span>
+                                    <span class="assignment-value">${studentInfo.roomNumber || 'N/A'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        loadStudentInfo();
+    </script>
+</body>
+</html>
