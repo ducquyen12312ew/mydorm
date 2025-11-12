@@ -6,7 +6,7 @@ const {
     PendingApplicationCollection,  // Đảm bảo import đúng
     NotificationCollection, 
     ActivityLogCollection 
-} = require('./config');
+} = require('../config/config');
 
 // Middleware kiểm tra quyền admin
 const isAdmin = (req, res, next) => {

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Chính sách Năm học</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .policy-card {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+        }
+        .year-group-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+        .badge-year {
+            font-size: 0.9rem;
+            padding: 5px 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Quản lý Chính sách Năm học</h1>
+        
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item">
+                <a class="nav-link active" data-bs-toggle="tab" href="#list">Danh sách</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#create">Tạo mới</a>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="list">
+                <div id="policies-container">
+                    <div class="text-center py-5">
+                        <div class="spinner-border"></div>
+                        <p>Đang tải...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="create">
+                <form id="create-form">
+                    <div class="mb-3">
+                        <label class="form-label">Năm học</label>
+                        <input type="text" class="form-control" id="academicYear" placeholder="2024-2025" required>
+                    </div>
+
+                    <h5>Năm 1</h5>
+                    <div class="year-group-section">
+                        <div class="mb-3">
+                            <label>Cho phép tự chọn phòng</label>
+                            <select class="form-select" id="year1_canChooseRoom">
+                                <option value="false" selected>Không</option>
+                                <option value="true">Có</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label>Phân tự động</label>
+                            <select class="form-select" id="year1_autoAssign">
+                                <option value="true" selected>Có</option>
+                                <option value="false">Không</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5>Năm 2-3</h5>
+                    <div class="year-group-section">
+                        <div class="mb-3">
+                            <label>Cho phép tự chọn phòng</label>
+                            <select class="form-select" id="year2_canChooseRoom">
+                                <option value="true" selected>Có</option>
+                                <option value="false">Không</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <h5>Năm 4+</h5>
+                    <div class="year-group-section">
+                        <div class="mb-3">
+                            <label>Cho phép đổi phòng</label>
+                            <select class="form-select" id="year4_allowChange">
+                                <option value="true" selected>Có</option>
+                                <option value="false">Không</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Tạo Chính sách</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        async function loadPolicies() {
+            const response = await fetch('/api/admin/academic-policies');
+            const data = await response.json();
+            
+            if (data.success && data.policies.length > 0) {
+                let html = '';
+                data.policies.forEach(p => {
+                    html += `<div class="policy-card">
+                        <h5>${p.academicYear}</h5>
+                        <span class="badge ${p.active ? 'bg-success' : 'bg-secondary'}">
+                            ${p.active ? 'Kích hoạt' : 'Tạm dừng'}
+                        </span>
+                    </div>`;
+                });
+                document.getElementById('policies-container').innerHTML = html;
+            } else {
+                document.getElementById('policies-container').innerHTML = 
+                    '<div class="alert alert-warning">Chưa có chính sách nào</div>';
+            }
+        }
+
+        document.getElementById('create-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                academicYear: document.getElementById('academicYear').value,
+                active: true,
+                policies: {
+                    year1: {
+                        canChooseRoom: document.getElementById('year1_canChooseRoom').value === 'true',
+                        autoAssign: document.getElementById('year1_autoAssign').value === 'true',
+                        priority: 'default'
+                    },
+                    year2_3: {
+                        canChooseRoom: document.getElementById('year2_canChooseRoom').value === 'true',
+                        priority: 'medium'
+                    },
+                    year4_plus: {
+                        allowRoomChange: document.getElementById('year4_allowChange').value === 'true',
+                        priority: 'high'
+                    }
+                }
+            };
+
+            const response = await fetch('/api/admin/academic-policies', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            if (result.success) {
+                alert('Tạo thành công!');
+                location.reload();
+            } else {
+                alert('Lỗi: ' + result.error);
+            }
+        });
+
+        loadPolicies();
+    </script>
+</body>
+</html>

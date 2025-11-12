@@ -6,7 +6,7 @@ const {
     StudentCollection, 
     ActivityLogCollection,
     AcademicWindowCollection 
-} = require('./config');
+} = require('../../config/config');
 
 // Middleware kiểm tra đăng nhập
 const requireLogin = (req, res, next) => {
