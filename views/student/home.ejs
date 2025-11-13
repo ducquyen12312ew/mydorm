@@ -8,386 +8,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+    
+    <!-- CSS chung cho tất cả trang student -->
+    <link rel="stylesheet" href="/css/student.css">
+
+    <!-- Style riêng cho trang home -->
     <style>
-        :root {
-            --primary-color: #e61a1a;
-            --primary-dark: #c01616;
-            --primary-light: #ff3a3a;
-            --text-color: #333;
-            --bg-color: #f8f3ef;
-            --menu-bg: white;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Quicksand', sans-serif;
-        }
-        
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        
-        /* Header Styles */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1.2rem 2.5rem;
-            background-color: var(--menu-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 2000;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        }
-        
-        .header-logo {
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .header-logo img {
-            max-height: 3rem;
-            width: auto;
-            transition: transform 0.5s ease;
-        }
-        
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-grow: 1;
-            margin-left: 5rem;
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 3.5rem;
-        }
-        
-        .nav-link {
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            padding: 0.8rem 0;
-            position: relative;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 3px;
-            bottom: 0.5rem;
-            left: -100%;
-            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: -1;
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            bottom: 0.4rem;
-            left: 50%;
-            opacity: 0;
-            transform: translateX(-50%) scale(0);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        .nav-link:hover {
-            color: var(--primary-color);
-            transform: translateY(-3px);
-            text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
-        }
-        
-        .nav-link:hover::before {
-            left: 0;
-        }
-        
-        .nav-link:hover::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-        }
-        
-        .nav-link.active-link {
-            color: var(--primary-color);
-        }
-        
-        .nav-link.active-link::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-        }
-
-        /* Notification Styles */
-        .notification-wrapper {
-            position: relative;
-            margin-right: 20px;
-        }
-
-        .notification-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            padding: 12px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-btn:hover {
-            background: rgba(230, 26, 26, 0.1);
-            transform: scale(1.05);
-        }
-
-        .notification-icon {
-            font-size: 1.4rem;
-            color: var(--primary-color);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            min-width: 18px;
-            height: 18px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .notification-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            width: 380px;
-            max-height: 500px;
-            overflow-y: auto;
-            z-index: 2001;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
-
-        .notification-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(5px);
-        }
-
-        .notification-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .notification-header h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .notification-count {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .notification-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            color: #666;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-            font-weight: 600;
-        }
-
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-            background: rgba(230, 26, 26, 0.05);
-        }
-
-        .notification-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .notification-item {
-            padding: 16px 20px;
-            border-bottom: 1px solid #f5f5f5;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .notification-item:hover {
-            background: rgba(230, 26, 26, 0.05);
-        }
-
-        .notification-item.unread {
-            background: rgba(230, 26, 26, 0.02);
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .notification-icon-wrapper {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 16px;
-        }
-
-        .notification-icon-wrapper.success {
-            background: rgba(46, 213, 115, 0.1);
-            color: #2ed573;
-        }
-
-        .notification-icon-wrapper.warning {
-            background: rgba(255, 165, 2, 0.1);
-            color: #ffa502;
-        }
-
-        .notification-icon-wrapper.info {
-            background: rgba(230, 26, 26, 0.1);
-            color: var(--primary-color);
-        }
-
-        .notification-icon-wrapper.error {
-            background: rgba(255, 71, 87, 0.1);
-            color: #ff4757;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 700;
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 4px;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .notification-message {
-            color: #666;
-            font-size: 13px;
-            line-height: 1.4;
-            margin-bottom: 6px;
-        }
-
-        .notification-time {
-            color: #999;
-            font-size: 12px;
-        }
-
-        .notification-empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .notification-empty i {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            opacity: 0.5;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: transparent;
-            z-index: 1999;
-            display: none;
-        }
-
-        .overlay.show {
-            display: block;
-        }
-        
-        /* Hero Section */
-        .hero-section {
-            height: 100vh;
-            background-image: url('/image/campus-background.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            align-items: center;
-            position: relative;
-            color: white;
-            padding: 2rem;
-        }
-        
+        /* Hero Section với background image */
         .hero-section {
             position: relative;
             width: 100%;
             height: 100vh;
             overflow: hidden;
+            display: flex;
+            align-items: center;
+            color: white;
         }
         
         .hero-section::before {
@@ -409,6 +44,7 @@
             z-index: 10;
             max-width: 800px;
             margin-left: 5%;
+            padding: 2rem;
         }
         
         .hero-title {
@@ -474,92 +110,58 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-            z-index: -1;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
             opacity: 0;
             transition: opacity 0.3s ease;
         }
-        
+
         .campus-option:hover::before {
             opacity: 1;
         }
-        
-        .tooltip {
-            position: absolute;
-            bottom: calc(100% + 15px);
-            left: 50%;
-            transform: translateX(-50%) translateY(10px);
-            background-color: white;
-            color: var(--text-color);
-            padding: 0.7rem 1rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-            font-family: 'Quicksand', sans-serif;
-            font-weight: 500;
-            pointer-events: none;
+
+        .campus-option .tooltip {
+            display: none;
         }
-        
-        .tooltip::after {
-            content: '';
-            position: absolute;
-            top: 100%;
-            left: 50%;
-            margin-left: -8px;
-            border-width: 8px;
-            border-style: solid;
-            border-color: white transparent transparent transparent;
-        }
-        
-        .campus-option:hover .tooltip {
-            opacity: 1;
-            visibility: visible;
-            transform: translateX(-50%) translateY(0);
-        }
-        
+
         /* Stats Section */
         .stats-section {
             padding: 5rem 0;
             background-color: white;
+            text-align: center;
         }
         
         .section-title {
-            text-align: center;
             font-family: 'Montserrat', sans-serif;
             font-size: 2.5rem;
             font-weight: 800;
-            margin-bottom: 1.5rem;
             color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
         .section-subtitle {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto 3rem;
+            font-size: 1.1rem;
             color: #666;
+            margin-bottom: 3rem;
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 1rem;
+            padding: 0 2rem;
         }
         
         .stat-item {
-            background-color: white;
-            border-radius: 10px;
-            padding: 2rem;
             text-align: center;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            background: linear-gradient(135deg, #fff, #f8f3ef);
+            border-radius: 15px;
             transition: transform 0.3s, box-shadow 0.3s;
-            border-top: 3px solid var(--primary-color);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .stat-item:hover {
@@ -608,6 +210,7 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s, box-shadow 0.3s;
             border-top: 3px solid var(--primary-color);
+            text-align: center;
         }
         
         .feature-item:hover {
@@ -630,6 +233,8 @@
         
         .feature-description {
             color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
         }
         
         /* Map Section */
@@ -662,6 +267,7 @@
         .map-description {
             margin-bottom: 2rem;
             color: #666;
+            line-height: 1.8;
         }
         
         #dormitory-map {
@@ -670,645 +276,246 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
-        
-        /* User Profile */
-        .user-profile {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-        
-        .avatar-container {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            padding: 5px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-        }
-        
-        .avatar-container:hover {
-            background-color: rgba(230, 26, 26, 0.1);
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-right: 10px;
-        }
-        
-        .user-name {
-            color: var(--text-color);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .avatar-container:hover .user-name {
-            color: var(--primary-color);
-        }
-        
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            min-width: 180px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-        
-        .user-profile:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(5px);
-        }
-        
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--text-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        
-        .dropdown-item:hover {
-            background-color: rgba(230, 26, 26, 0.1);
-            color: var(--primary-color);
-        }
-        
-        .dropdown-item i {
-            margin-right: 10px;
-            font-size: 0.9rem;
-        }
 
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
-            color: white;
-            text-decoration: none;
-            border-radius: 25px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(230, 26, 26, 0.3);
-        }
-        
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            .map-container {
-                grid-template-columns: 1fr;
-            }
-            
-            .hero-title {
-                font-size: 2.5rem;
-            }
-            
-            .hero-subtitle {
-                font-size: 1.2rem;
-            }
-
-            .notification-dropdown {
-                width: 320px;
-                right: -20px;
-            }
-        }
-        
+        /* Responsive cho home page */
         @media (max-width: 768px) {
-            .header {
-                padding: 0.8rem 1rem;
+            .hero-title {
+                font-size: 2rem;
             }
-            
-            .nav-container {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 80%;
-                max-width: 300px;
-                height: 100vh;
-                background-color: white;
-                flex-direction: column;
-                justify-content: flex-start;
-                padding: 5rem 2rem 2rem;
-                transition: right 0.3s ease;
-                margin-left: 0;
-                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-                z-index: 999;
+
+            .hero-subtitle {
+                font-size: 1.1rem;
             }
-            
-            .nav-container.active {
-                right: 0;
-            }
-            
-            .nav-links {
-                flex-direction: column;
-                gap: 1.5rem;
-                width: 100%;
-                margin-bottom: 2rem;
-            }
-            
-            .menu-toggle {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                width: 30px;
-                height: 20px;
-                cursor: pointer;
-                z-index: 1000;
-            }
-            
-            .menu-toggle span {
-                display: block;
-                height: 3px;
-                width: 100%;
-                background-color: var(--primary-color);
-                border-radius: 3px;
-                transition: all 0.3s ease;
-            }
-            
-            .menu-toggle.active span:nth-child(1) {
-                transform: translateY(8px) rotate(45deg);
-            }
-            
-            .menu-toggle.active span:nth-child(2) {
-                opacity: 0;
-            }
-            
-            .menu-toggle.active span:nth-child(3) {
-                transform: translateY(-8px) rotate(-45deg);
-            }
-            
-            .hero-buttons {
+
+            .campus-options {
                 flex-direction: column;
                 gap: 1rem;
             }
-            
-            .user-profile {
-                margin-top: 2rem;
-                width: 100%;
-            }
-            
-            .dropdown-menu {
-                position: static;
-                opacity: 1;
-                visibility: visible;
-                transform: none;
-                box-shadow: none;
-                margin-top: 1rem;
-                width: 100%;
+
+            .campus-option {
+                font-size: 1.1rem;
+                padding: 1rem 1.5rem;
             }
 
-            .notification-wrapper {
-                margin-right: 10px;
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
             }
 
-            .notification-dropdown {
-                width: 280px;
-                right: -30px;
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .map-container {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
-<header class="header">
-  <div class="header-logo">
-    <img src="image/logo.png" alt="HUST Logo">
-  </div>
-  <div class="menu-toggle" id="menuToggle">
-    <span></span><span></span><span></span>
-  </div>
+    
+    <header class="header">
+        <div class="header-logo">
+            <img src="image/logo.png" alt="HUST Logo">
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span><span></span><span></span>
+        </div>
 
-  <div class="nav-container" id="navContainer">
-    <nav class="nav-links">
-      <a href="/" class="nav-link active-link">TRANG CHỦ</a>
-      <a href="/map" class="nav-link">BẢN ĐỒ</a>
-      <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-      <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
+        <div class="nav-container" id="navContainer">
+            <nav class="nav-links">
+                <a href="/" class="nav-link active-link">TRANG CHỦ</a>
+                <a href="/map" class="nav-link">BẢN ĐỒ</a>
+                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
 
-      <% if (user && user.role === 'student') { %>
-        <a href="/student/registration-portal" class="nav-link">
-          <i class="fas fa-door-open"></i> Cổng đăng ký KTX
-        </a>
-      <% } %>
-    </nav>
+                <% if (user && user.role === 'student') { %>
+                    <a href="/student/registration-portal" class="nav-link">
+                        <i class="fas fa-door-open"></i> Cổng đăng ký KTX
+                    </a>
+                <% } %>
+            </nav>
 
-    <div style="display: flex; align-items: center;">
-      <!-- Notification System -->
-      <div class="notification-wrapper">
-        <button class="notification-btn" id="notificationBtn">
-          <i class="fas fa-bell notification-icon"></i>
-          <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-        </button>
+            <div style="display: flex; align-items: center;">
+                <!-- Notification System -->
+                <div class="notification-wrapper">
+                    <button class="notification-btn" id="notificationBtn">
+                        <i class="fas fa-bell notification-icon"></i>
+                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
 
-        <div class="notification-dropdown" id="notificationDropdown">
-          <div class="notification-header">
-            <h3>Thông báo</h3>
-            <span class="notification-count" id="notificationCount">Mới 0</span>
-          </div>
-          <div class="notification-tabs">
-            <button class="tab-btn active" data-tab="all">Tất cả</button>
-            <button class="tab-btn" data-tab="unread">Chưa đọc</button>
-          </div>
-          <div class="notification-list" id="notificationList">
-            <div class="notification-empty">
-              <i class="fas fa-bell-slash"></i>
-              <p>Chưa có thông báo mới</p>
+                    <div class="notification-dropdown" id="notificationDropdown">
+                        <div class="notification-header">
+                            <h3>Thông báo</h3>
+                            <span class="notification-count" id="notificationCount">Mới 0</span>
+                        </div>
+                        <div class="notification-tabs">
+                            <button class="tab-btn active" data-tab="all">Tất cả</button>
+                            <button class="tab-btn" data-tab="unread">Chưa đọc</button>
+                        </div>
+                        <div class="notification-list" id="notificationList">
+                            <div class="notification-empty">
+                                <i class="fas fa-bell-slash"></i>
+                                <p>Chưa có thông báo mới</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User profile dropdown -->
+                <div class="user-profile">
+                    <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                        <div class="avatar">
+                            <% if (user && user.name) { %>
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            <% } else { %> U <% } %>
+                        </div>
+                        <span class="user-name">
+                            <% if (user && user.name) { %>
+                                <%= user.name %>
+                            <% } else { %>
+                                Người dùng
+                            <% } %>
+                        </span>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="/profile" class="dropdown-item">
+                            <i class="fas fa-user-circle"></i> Hồ sơ
+                        </a>
+                        <a href="/logout" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        </a>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
+    </header>
 
-      <!-- User profile dropdown -->
-      <div class="user-profile">
-        <a href="/profile" class="avatar-container" title="Xem hồ sơ">
-          <div class="avatar">
-            <% if (user && user.name) { %>
-              <%= user.name.charAt(0).toUpperCase() %>
-            <% } else { %> U <% } %>
-          </div>
-          <span class="user-name">
-            <% if (user && user.name) { %>
-              <%= user.name %>
-            <% } else { %>
-              Người dùng
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">KÝ TÚC XÁ ĐẠI HỌC BÁCH KHOA</h1>
+            <p class="hero-subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá - Không gian sống tiện nghi, hiện đại</p>
+            <div class="campus-options-container">
+                <div class="campus-options">
+                    <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
+                        <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
+                        <div class="tooltip">Xem bản đồ KTX cơ sở Hà Nội</div>
+                    </div>
+                    <div class="campus-option" id="campus2">
+                        <i class="fas fa-school"></i> CƠ SỞ HƯNG YÊN
+                        <div class="tooltip">Đang phát triển</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stats-section">
+        <h2 class="section-title">THÔNG TIN KÝ TÚC XÁ</h2>
+        <p class="section-subtitle">Hệ thống ký túc xá đại học Bách Khoa Hà Nội với cơ sở vật chất hiện đại</p>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <i class="fas fa-building stat-icon"></i>
+                <div class="stat-number" id="building-count">12</div>
+                <div class="stat-label">Tòa nhà</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-door-open stat-icon"></i>
+                <div class="stat-number" id="room-count">450</div>
+                <div class="stat-label">Phòng ở</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-user-graduate stat-icon"></i>
+                <div class="stat-number" id="student-count">3500</div>
+                <div class="stat-label">Sinh viên</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-clipboard-check stat-icon"></i>
+                <div class="stat-number" id="satisfaction-rate">98</div>
+                <div class="stat-label">Tỷ lệ hài lòng (%)</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <h2 class="section-title">TIỆN ÍCH NỔI BẬT</h2>
+        <p class="section-subtitle">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
+
+        <div class="features-grid">
+            <div class="feature-item">
+                <i class="fas fa-wifi feature-icon"></i>
+                <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
+                <p class="feature-description">Phủ sóng toàn bộ khu KTX, đảm bảo kết nối ổn định cho học tập và giải trí.</p>
+            </div>
+
+            <div class="feature-item">
+                <i class="fas fa-shield-alt feature-icon"></i>
+                <h3 class="feature-title">An Ninh 24/7</h3>
+                <p class="feature-description">Hệ thống camera giám sát và bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
+            </div>
+
+            <div class="feature-item">
+                <i class="fas fa-utensils feature-icon"></i>
+                <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
+                <p class="feature-description">Đa dạng món ăn với giá sinh viên, tiết kiệm thời gian cho sinh viên.</p>
+            </div>
+
+            <div class="feature-item">
+                <i class="fas fa-dumbbell feature-icon"></i>
+                <h3 class="feature-title">Phòng Tập Thể Dục</h3>
+                <p class="feature-description">Trang bị đầy đủ thiết bị, hỗ trợ sinh viên rèn luyện sức khỏe sau giờ học.</p>
+            </div>
+
+            <div class="feature-item">
+                <i class="fas fa-book feature-icon"></i>
+                <h3 class="feature-title">Phòng Tự Học</h3>
+                <p class="feature-description">Không gian yên tĩnh với máy lạnh, tạo môi trường học tập hiệu quả.</p>
+            </div>
+
+            <div class="feature-item">
+                <i class="fas fa-tshirt feature-icon"></i>
+                <h3 class="feature-title">Khu Giặt Ủi</h3>
+                <p class="feature-description">Khu vực giặt ủi tự động, giúp sinh viên tiết kiệm thời gian chăm sóc quần áo.</p>
+            </div>
+
+            <% if (user && user.role === 'student') { %>
+                <div class="feature-item">
+                    <i class="fas fa-door-open feature-icon"></i>
+                    <h3 class="feature-title">Đăng ký phòng</h3>
+                    <p class="feature-description">Kiểm tra điều kiện và đăng ký phòng ký túc xá phù hợp với bạn</p>
+                    <a href="/student/registration-portal" class="btn btn-primary">Bắt đầu đăng ký</a>
+                </div>
             <% } %>
-          </span>
-        </a>
-        <div class="dropdown-menu">
-          <a href="/profile" class="dropdown-item">
-            <i class="fas fa-user-circle"></i> Hồ sơ
-          </a>
-          <a href="/logout" class="dropdown-item">
-            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-          </a>
         </div>
-      </div>
-    </div>
-  </div>
-</header>
+    </section>
 
-<section class="hero-section">
-  <div class="hero-content">
-    <h1 class="hero-title">KÝ TÚC XÁ ĐẠI HỌC BÁCH KHOA</h1>
-    <p class="hero-subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá - Không gian sống tiện nghi, hiện đại</p>
-    <div class="campus-options-container">
-      <div class="campus-options">
-        <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
-          <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
-          <div class="tooltip">Xem bản đồ KTX cơ sở Hà Nội</div>
+    <section class="map-section">
+        <h2 class="section-title">BẢN ĐỒ KÝ TÚC XÁ</h2>
+        <p class="section-subtitle">Xem vị trí và thông tin chi tiết các khu ký túc xá</p>
+        <div class="map-container">
+            <div class="map-info">
+                <h3 class="map-title">Tìm kiếm vị trí phù hợp</h3>
+                <p class="map-description">Bản đồ giúp bạn định vị các khu ký túc xá, đánh giá khoảng cách đến trường và các tiện ích xung quanh. Nhấp vào từng điểm trên bản đồ để xem thông tin chi tiết.</p>
+                <a href="/map" class="btn btn-primary">Xem bản đồ đầy đủ</a>
+            </div>
+            <div id="dormitory-map"></div>
         </div>
-        <div class="campus-option" id="campus2">
-          <i class="fas fa-school"></i> CƠ SỞ HƯNG YÊN
-          <div class="tooltip">Đang phát triển</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="stats-section">
-  <h2 class="section-title">THÔNG TIN KÝ TÚC XÁ</h2>
-  <p class="section-subtitle">Hệ thống ký túc xá đại học Bách Khoa Hà Nội với cơ sở vật chất hiện đại</p>
-  <div class="stats-grid">
-    <div class="stat-item">
-      <i class="fas fa-building stat-icon"></i>
-      <div class="stat-number" id="building-count">12</div>
-      <div class="stat-label">Tòa nhà</div>
-    </div>
-    <div class="stat-item">
-      <i class="fas fa-door-open stat-icon"></i>
-      <div class="stat-number" id="room-count">450</div>
-      <div class="stat-label">Phòng ở</div>
-    </div>
-    <div class="stat-item">
-      <i class="fas fa-user-graduate stat-icon"></i>
-      <div class="stat-number" id="student-count">3500</div>
-      <div class="stat-label">Sinh viên</div>
-    </div>
-    <div class="stat-item">
-      <i class="fas fa-clipboard-check stat-icon"></i>
-      <div class="stat-number" id="satisfaction-rate">98</div>
-      <div class="stat-label">Tỷ lệ hài lòng (%)</div>
-    </div>
-  </div>
-</section>
-
-<section class="features-section">
-  <h2 class="section-title">TIỆN ÍCH NỔI BẬT</h2>
-  <p class="section-subtitle">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
-
-  <div class="features-grid">
-    <div class="feature-item">
-      <i class="fas fa-wifi feature-icon"></i>
-      <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
-      <p class="feature-description">Phủ sóng toàn bộ khu KTX, đảm bảo kết nối ổn định cho học tập và giải trí.</p>
-    </div>
-
-    <div class="feature-item">
-      <i class="fas fa-shield-alt feature-icon"></i>
-      <h3 class="feature-title">An Ninh 24/7</h3>
-      <p class="feature-description">Hệ thống camera giám sát và bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
-    </div>
-
-    <div class="feature-item">
-      <i class="fas fa-utensils feature-icon"></i>
-      <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
-      <p class="feature-description">Đa dạng món ăn với giá sinh viên, tiết kiệm thời gian cho sinh viên.</p>
-    </div>
-
-    <div class="feature-item">
-      <i class="fas fa-dumbbell feature-icon"></i>
-      <h3 class="feature-title">Phòng Tập Thể Dục</h3>
-      <p class="feature-description">Trang bị đầy đủ thiết bị, hỗ trợ sinh viên rèn luyện sức khỏe sau giờ học.</p>
-    </div>
-
-    <div class="feature-item">
-      <i class="fas fa-book feature-icon"></i>
-      <h3 class="feature-title">Phòng Tự Học</h3>
-      <p class="feature-description">Không gian yên tĩnh với máy lạnh, tạo môi trường học tập hiệu quả.</p>
-    </div>
-
-    <div class="feature-item">
-      <i class="fas fa-tshirt feature-icon"></i>
-      <h3 class="feature-title">Khu Giặt Ủi</h3>
-      <p class="feature-description">Khu vực giặt ủi tự động, giúp sinh viên tiết kiệm thời gian chăm sóc quần áo.</p>
-    </div>
-
-    <% if (user && user.role === 'student') { %>
-      <div class="feature-item">
-        <i class="fas fa-door-open feature-icon"></i>
-        <h3 class="feature-title">Đăng ký phòng</h3>
-        <p class="feature-description">Kiểm tra điều kiện và đăng ký phòng ký túc xá phù hợp với bạn</p>
-        <a href="/student/registration-portal" class="btn btn-primary">Bắt đầu đăng ký</a>
-      </div>
-    <% } %>
-  </div>
-</section>
-
-<section class="map-section">
-  <h2 class="section-title">BẢN ĐỒ KÝ TÚC XÁ</h2>
-  <p class="section-subtitle">Xem vị trí và thông tin chi tiết các khu ký túc xá</p>
-  <div class="map-container">
-    <div class="map-info">
-      <h3 class="map-title">Tìm kiếm vị trí phù hợp</h3>
-      <p class="map-description">Bản đồ giúp bạn định vị các khu ký túc xá, đánh giá khoảng cách đến trường và các tiện ích xung quanh. Nhấp vào từng điểm trên bản đồ để xem thông tin chi tiết.</p>
-      <a href="/map" class="btn btn-primary">Xem bản đồ đầy đủ</a>
-    </div>
-    <div id="dormitory-map"></div>
-  </div>
-</section>
-
+    </section>
 
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="/js/student-common.js"></script>
     <script>
-        // Notification System
-        let notifications = [];
-        let currentTab = 'all';
-        let isDropdownOpen = false;
-
-        // DOM elements
-        const notificationBtn = document.getElementById('notificationBtn');
-        const notificationDropdown = document.getElementById('notificationDropdown');
-        const notificationList = document.getElementById('notificationList');
-        const notificationBadge = document.getElementById('notificationBadge');
-        const notificationCount = document.getElementById('notificationCount');
-        const overlay = document.getElementById('overlay');
-        const tabBtns = document.querySelectorAll('.tab-btn');
-
-        // Initialize notification system
-        document.addEventListener('DOMContentLoaded', function() {
-            loadNotifications();
-            
-            // Event listeners
-            notificationBtn.addEventListener('click', toggleNotificationDropdown);
-            overlay.addEventListener('click', closeNotificationDropdown);
-
-            tabBtns.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const tab = e.target.dataset.tab;
-                    switchTab(tab);
-                });
-            });
-
-            // Close dropdown when clicking outside
-            document.addEventListener('click', (e) => {
-                if (!notificationBtn.contains(e.target) && !notificationDropdown.contains(e.target)) {
-                    closeNotificationDropdown();
-                }
-            });
-
-            // Refresh notifications every 30 seconds
-            setInterval(loadNotifications, 30000);
-        });
-
-        // Load notifications from API
-        async function loadNotifications() {
-            try {
-                const response = await fetch('/api/notifications');
-                if (response.ok) {
-                    const data = await response.json();
-                    notifications = data.notifications || [];
-                    updateNotificationBadge(data.unreadCount || 0);
-                    renderNotifications();
-                } else {
-                    console.error('Failed to load notifications');
-                }
-            } catch (error) {
-                console.error('Error loading notifications:', error);
-            }
-        }
-
-        // Toggle notification dropdown
-        function toggleNotificationDropdown() {
-            isDropdownOpen = !isDropdownOpen;
-            
-            if (isDropdownOpen) {
-                notificationDropdown.classList.add('show');
-                overlay.classList.add('show');
-            } else {
-                closeNotificationDropdown();
-            }
-        }
-
-        // Close notification dropdown
-        function closeNotificationDropdown() {
-            isDropdownOpen = false;
-            notificationDropdown.classList.remove('show');
-            overlay.classList.remove('show');
-        }
-
-        // Switch notification tab
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            tabBtns.forEach(btn => {
-                btn.classList.remove('active');
-                if (btn.dataset.tab === tab) {
-                    btn.classList.add('active');
-                }
-            });
-            
-            renderNotifications();
-        }
-
-        // Render notifications
-        function renderNotifications() {
-            const filteredNotifications = currentTab === 'unread' 
-                ? notifications.filter(n => !n.isRead)
-                : notifications;
-            
-            if (filteredNotifications.length === 0) {
-                notificationList.innerHTML = `
-                    <div class="notification-empty">
-                        <i class="fas fa-bell-slash"></i>
-                        <p>${currentTab === 'unread' ? 'Không có thông báo chưa đọc' : 'Chưa có thông báo mới'}</p>
-                    </div>
-                `;
-                return;
-            }
-
-            notificationList.innerHTML = filteredNotifications.map(notification => `
-                <div class="notification-item ${!notification.isRead ? 'unread' : ''}" onclick="markAsRead('${notification._id}')">
-                    <div class="notification-icon-wrapper ${notification.type}">
-                        ${getNotificationIcon(notification.type)}
-                    </div>
-                    <div class="notification-content">
-                        <div class="notification-title">${notification.title}</div>
-                        <div class="notification-message">${notification.message}</div>
-                        <div class="notification-time">${formatTime(notification.createdAt)}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Get notification icon
-        function getNotificationIcon(type) {
-            const icons = {
-                success: '<i class="fas fa-check-circle"></i>',
-                warning: '<i class="fas fa-exclamation-triangle"></i>',
-                info: '<i class="fas fa-info-circle"></i>',
-                error: '<i class="fas fa-times-circle"></i>'
-            };
-            return icons[type] || icons.info;
-        }
-
-        // Format time
-        function formatTime(timestamp) {
-            const date = new Date(timestamp);
-            const now = new Date();
-            const diff = now - date;
-            const days = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-            
-            if (diff < 60000) { // Less than 1 minute
-                return 'Vừa xong';
-            } else if (diff < 3600000) { // Less than 1 hour
-                return Math.floor(diff / 60000) + ' phút trước';
-            } else if (diff < 86400000) { // Less than 1 day
-                return Math.floor(diff / 3600000) + ' giờ trước';
-            } else {
-                const hours = date.getHours().toString().padStart(2, '0');
-                const minutes = date.getMinutes().toString().padStart(2, '0');
-                const day = date.getDate().toString().padStart(2, '0');
-                const month = (date.getMonth() + 1).toString().padStart(2, '0');
-                const year = date.getFullYear();
-                return `${hours}:${minutes} • ${days[date.getDay()]} ${day}/${month}/${year}`;
-            }
-        }
-
-        // Mark notification as read
-        async function markAsRead(notificationId) {
-            try {
-                const response = await fetch(`/api/notifications/${notificationId}/read`, {
-                    method: 'POST'
-                });
-
-                if (response.ok) {
-                    // Update local state
-                    const notification = notifications.find(n => n._id === notificationId);
-                    if (notification && !notification.isRead) {
-                        notification.isRead = true;
-                        const unreadCount = notifications.filter(n => !n.isRead).length;
-                        updateNotificationBadge(unreadCount);
-                        renderNotifications();
-                    }
-                }
-            } catch (error) {
-                console.error('Error marking notification as read:', error);
-            }
-        }
-
-        // Update notification badge
-        function updateNotificationBadge(count) {
-            if (count > 0) {
-                notificationBadge.textContent = count > 99 ? '99+' : count;
-                notificationBadge.style.display = 'flex';
-                notificationCount.textContent = `Mới ${count}`;
-            } else {
-                notificationBadge.style.display = 'none';
-                notificationCount.textContent = 'Không có mới';
-            }
-        }
-
-        // Mobile menu toggle (existing code)
-        const menuToggle = document.getElementById('menuToggle');
-        const navContainer = document.getElementById('navContainer');
-        
-        if (menuToggle && navContainer) {
-            menuToggle.addEventListener('click', function() {
-                navContainer.classList.toggle('active');
-                
-                const spans = this.querySelectorAll('span');
-                if (navContainer.classList.contains('active')) {
-                    spans[0].style.transform = 'translateY(9px) rotate(45deg)';
-                    spans[1].style.opacity = '0';
-                    spans[2].style.transform = 'translateY(-9px) rotate(-45deg)';
-                } else {
-                    spans[0].style.transform = '';
-                    spans[1].style.opacity = '';
-                    spans[2].style.transform = '';
-                }
-            });
-        }
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', function(event) {
-            if (navContainer && menuToggle && 
-                !navContainer.contains(event.target) && 
-                !menuToggle.contains(event.target) && 
-                navContainer.classList.contains('active')) {
-                
-                navContainer.classList.remove('active');
-                
-                const spans = menuToggle.querySelectorAll('span');
-                spans[0].style.transform = '';
-                spans[1].style.opacity = '';
-                spans[2].style.transform = '';
-            }
-        });
-
-        // Initialize map (existing code)
+        // Initialize map
         const map = L.map('dormitory-map').setView([21.007119, 105.843220], 15);
         
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
