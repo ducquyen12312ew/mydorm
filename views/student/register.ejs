@@ -8,702 +8,85 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        :root {
-            --primary-color: #e61a1a;
-            --primary-dark: #c01616;
-            --primary-light: #ff3a3a;
-            --text-color: #333;
-            --bg-color: #f8f3ef;
-            --menu-bg: white;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* Header Styles - Updated to match home.ejs */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 1.2rem 2.5rem;
-            background-color: var(--menu-bg);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 2000;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .header-logo {
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header-logo img {
-            max-height: 3rem;
-            width: auto;
-            transition: transform 0.5s ease;
-        }
-
-        .nav-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-grow: 1;
-            margin-left: 5rem;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 3.5rem;
-        }
-
-        .nav-link {
-            color: var(--text-color);
-            text-decoration: none;
-            font-size: 1.2rem;
-            font-weight: 700;
-            transition: all 0.3s ease;
-            padding: 0.8rem 0;
-            position: relative;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 3px;
-            bottom: 0.5rem;
-            left: -100%;
-            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: -1;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            bottom: 0.4rem;
-            left: 50%;
-            opacity: 0;
-            transform: translateX(-50%) scale(0);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .nav-link:hover {
-            color: var(--primary-color);
-            transform: translateY(-3px);
-            text-shadow: 0 2px 10px rgba(230, 26, 26, 0.2);
-        }
-
-        .nav-link:hover::before {
-            left: 0;
-        }
-
-        .nav-link:hover::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-        }
-
-        .nav-link.active-link {
-            color: var(--primary-color);
-        }
-
-        .nav-link.active-link::after {
-            opacity: 1;
-            transform: translateX(-50%) scale(1);
-        }
-
-        /* Notification Styles */
-        .notification-wrapper {
-            position: relative;
-            margin-right: 20px;
-        }
-
-        .notification-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            position: relative;
-            padding: 12px;
-            border-radius: 50%;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .notification-btn:hover {
-            background: rgba(230, 26, 26, 0.1);
-            transform: scale(1.05);
-        }
-
-        .notification-icon {
-            font-size: 1.4rem;
-            color: var(--primary-color);
-        }
-
-        .notification-badge {
-            position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #ff4757;
-            color: white;
-            border-radius: 50%;
-            min-width: 18px;
-            height: 18px;
-            font-size: 11px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            animation: pulse 2s infinite;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
-
-        .notification-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-            width: 380px;
-            max-height: 500px;
-            overflow-y: auto;
-            z-index: 2001;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
-
-        .notification-dropdown.show {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(5px);
-        }
-
-        .notification-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: linear-gradient(45deg, var(--primary-color), var(--primary-light));
-            color: white;
-            border-radius: 12px 12px 0 0;
-        }
-
-        .notification-header h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .notification-count {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .notification-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-        }
-
-        .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            color: #666;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-            font-weight: 600;
-        }
-
-        .tab-btn.active {
-            color: var(--primary-color);
-            border-bottom-color: var(--primary-color);
-            background: rgba(230, 26, 26, 0.05);
-        }
-
-        .notification-list {
-            max-height: 300px;
-            overflow-y: auto;
-        }
-
-        .notification-item {
-            padding: 16px 20px;
-            border-bottom: 1px solid #f5f5f5;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .notification-item:hover {
-            background: rgba(230, 26, 26, 0.05);
-        }
-
-        .notification-item.unread {
-            background: rgba(230, 26, 26, 0.02);
-            border-left: 3px solid var(--primary-color);
-        }
-
-        .notification-icon-wrapper {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-size: 16px;
-        }
-
-        .notification-icon-wrapper.success {
-            background: rgba(46, 213, 115, 0.1);
-            color: #2ed573;
-        }
-
-        .notification-icon-wrapper.warning {
-            background: rgba(255, 165, 2, 0.1);
-            color: #ffa502;
-        }
-
-        .notification-icon-wrapper.info {
-            background: rgba(230, 26, 26, 0.1);
-            color: var(--primary-color);
-        }
-
-        .notification-icon-wrapper.error {
-            background: rgba(255, 71, 87, 0.1);
-            color: #ff4757;
-        }
-
-        .notification-content {
-            flex: 1;
-        }
-
-        .notification-title {
-            font-weight: 700;
-            color: #333;
-            font-size: 14px;
-            margin-bottom: 4px;
-            font-family: 'Montserrat', sans-serif;
-        }
-
-        .notification-message {
-            color: #666;
-            font-size: 13px;
-            line-height: 1.4;
-            margin-bottom: 6px;
-        }
-
-        .notification-time {
-            color: #999;
-            font-size: 12px;
-        }
-
-        .notification-empty {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
-
-        .notification-empty i {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            opacity: 0.5;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: transparent;
-            z-index: 1999;
-            display: none;
-        }
-
-        .overlay.show {
-            display: block;
-        }
-
-        /* User Profile */
-        .user-profile {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .avatar-container {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            padding: 5px;
-            border-radius: 30px;
-            transition: all 0.3s ease;
-        }
-
-        .avatar-container:hover {
-            background-color: rgba(230, 26, 26, 0.1);
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: var(--primary-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 1.2rem;
-            margin-right: 10px;
-        }
-
-        .user-name {
-            color: var(--text-color);
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .avatar-container:hover .user-name {
-            color: var(--primary-color);
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-            min-width: 180px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(10px);
-            transition: all 0.3s ease;
-            z-index: 1000;
-        }
-
-        .user-profile:hover .dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(5px);
-        }
-
-        .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: var(--text-color);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .dropdown-item:hover {
-            background-color: rgba(230, 26, 26, 0.1);
-            color: var(--primary-color);
-        }
-
-        .dropdown-item i {
-            margin-right: 10px;
-            font-size: 0.9rem;
-        }
-
-        /* Mobile Menu Toggle */
-        .menu-toggle {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 20px;
-            cursor: pointer;
-            z-index: 1000;
-        }
-
-        .menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
-            background-color: var(--primary-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .menu-toggle.active span:nth-child(1) {
-            transform: translateY(8px) rotate(45deg);
-        }
-
-        .menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .menu-toggle.active span:nth-child(3) {
-            transform: translateY(-8px) rotate(-45deg);
-        }
-
-        /* Main content styles */
-        .main-container {
-            padding-top: 120px;
-            padding-bottom: 50px;
-        }
-
-        .registration-card {
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .form-section-title {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            margin-bottom: 20px;
-        }
-
-        /* Room selection styles */
-        .floor-section {
-            margin-top: 30px;
-            margin-bottom: 40px;
-        }
-
-        .floor-title {
-            background-color: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 5px;
-            font-weight: 600;
-            color: var(--primary-color);
-            margin-bottom: 15px;
-            border-left: 4px solid var(--primary-color);
-        }
-
-        .room-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-        }
-
-        .room-card {
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 10px;
-            text-align: center;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .room-card.available {
-            background-color: #e8f4ff;
-            border-color: #abd5ff;
-        }
-
-        .room-card.partial {
-            background-color: #fff8e8;
-            border-color: #ffe0ab;
-        }
-
-        .room-card.full {
-            background-color: #ffe8e8;
-            border-color: #ffabab;
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .room-card:hover:not(.full) {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-        }
-
-        .room-card.selected {
-            background-color: #d1f8d1;
-            border-color: #81e181;
-            transform: translateY(-5px);
-            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
-        }
-
-        .room-card.selected::after {
-            content: '\f00c';
-            font-family: 'Font Awesome 5 Free';
-            font-weight: 900;
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background-color: #28a745;
-            color: white;
-            border-radius: 50%;
-            width: 25px;
-            height: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-        }
-
-        .room-number {
-            font-weight: 600;
-            margin-bottom: 5px;
-        }
-
-        .room-type {
-            font-size: 0.8rem;
-            color: #6c757d;
-            margin-bottom: 5px;
-        }
-
-        .room-capacity {
-            font-size: 0.9rem;
-            margin-bottom: 5px;
-        }
-
-        .room-price {
-            font-weight: 600;
-            color: var(--primary-color);
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 10px 20px;
-            font-weight: 600;
-        }
-
-        .btn-primary:hover {
-            background-color: #c01616;
-            border-color: #c01616;
-        }
-
-        /* Success modal styles */
-        .success-icon {
-            font-size: 4rem;
-            color: #28a745;
-            margin-bottom: 20px;
-        }
-
-        .spinner-border {
-            color: var(--primary-color);
-            width: 3rem;
-            height: 3rem;
-        }
-
-        /* Responsive Styles */
-        @media (max-width: 992px) {
-            .notification-dropdown {
-                width: 320px;
-                right: -20px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 0.8rem 1rem;
-            }
-
-            .menu-toggle {
-                display: flex;
-            }
-
-            .nav-container {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 80%;
-                max-width: 300px;
-                height: 100vh;
-                background-color: white;
-                flex-direction: column;
-                justify-content: flex-start;
-                padding: 5rem 2rem 2rem;
-                transition: right 0.3s ease;
-                margin-left: 0;
-                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-                z-index: 999;
-            }
-
-            .nav-container.active {
-                right: 0;
-            }
-
-            .nav-links {
-                flex-direction: column;
-                gap: 1.5rem;
-                width: 100%;
-                margin-bottom: 2rem;
-            }
-
-            .user-profile {
-                margin-top: 2rem;
-                width: 100%;
-            }
-
-            .dropdown-menu {
-                position: static;
-                opacity: 1;
-                visibility: visible;
-                transform: none;
-                box-shadow: none;
-                margin-top: 1rem;
-                width: 100%;
-            }
-
-            .notification-wrapper {
-                margin-right: 10px;
-            }
-
-            .notification-dropdown {
-                width: 280px;
-                right: -30px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/student.css">
+
+<!-- Style riêng -->
+<style>
+    /* Floor section layout */
+    .floor-section {
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+    
+    .floor-title {
+        background-color: #f8f9fa;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 15px;
+        border-left: 4px solid var(--primary-color);
+    }
+    
+    /* Room card status colors */
+    .room-card.available {
+        background-color: #e8f4ff;
+        border-color: #abd5ff;
+    }
+    
+    .room-card.partial {
+        background-color: #fff8e8;
+        border-color: #ffe0ab;
+    }
+    
+    .room-card.full {
+        background-color: #ffe8e8;
+        border-color: #ffabab;
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    /* Room selection interaction */
+    .room-card.selected {
+        background-color: #d1f8d1;
+        border-color: #81e181;
+        transform: translateY(-5px);
+        box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    }
+    
+    .room-card.selected::after {
+        content: '\f00c';
+        font-family: 'Font Awesome 5 Free';
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background-color: #28a745;
+        color: white;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Success modal */
+    .success-icon {
+        font-size: 4rem;
+        color: #28a745;
+        margin-bottom: 20px;
+        animation: scaleIn 0.5s ease;
+    }
+    
+    @keyframes scaleIn {
+        from {
+            transform: scale(0);
+        }
+        to {
+            transform: scale(1);
+        }
+    }
+</style>
 </head>
 <body>
     <div class="overlay" id="overlay"></div>
@@ -892,7 +275,7 @@
             </div>
         </div>
     </div>
-    
+    <script src="/js/student-common.js"></script>
     <!-- Bootstrap and JavaScript libraries -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
