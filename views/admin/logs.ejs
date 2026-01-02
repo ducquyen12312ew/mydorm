@@ -754,20 +754,39 @@
 
     <script>
         // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('adminNav').classList.toggle('active');
-        });
+        const menuToggle = document.getElementById('menuToggle');
+        const adminNav = document.getElementById('adminNav');
+        
+        if (menuToggle && adminNav) {
+            menuToggle.addEventListener('click', function() {
+                this.classList.toggle('active');
+                adminNav.classList.toggle('active');
+            });
+        }
 
+        // Global variables for pagination
         let currentPage = 1;
         let totalPages = 1;
+        let currentFilters = {};
 
+        // Load logs when page loads
+        window.addEventListener('load', function() {
+            loadLogs(1);
+        });
+
+        // Main function to load activity logs
         async function loadLogs(page = 1) {
-            const action = document.getElementById('action-filter').value;
-            const role = document.getElementById('role-filter').value;
-            const startDate = document.getElementById('start-date-filter').value;
-            const endDate = document.getElementById('end-date-filter').value;
+            const loadingEl = document.getElementById('loading');
+            const logsContent = document.getElementById('logs-content');
+            const noDataEl = document.getElementById('no-data');
+            
+            // Get filter values
+            const action = document.getElementById('action-filter')?.value || '';
+            const role = document.getElementById('role-filter')?.value || '';
+            const startDate = document.getElementById('start-date-filter')?.value || '';
+            const endDate = document.getElementById('end-date-filter')?.value || '';
 
+            // Build URL parameters
             const params = new URLSearchParams({
                 page: page,
                 limit: 20
@@ -778,126 +797,335 @@
             if (startDate) params.append('startDate', startDate);
             if (endDate) params.append('endDate', endDate);
 
-            document.getElementById('loading').style.display = 'block';
-            document.getElementById('logs-content').style.display = 'none';
-            document.getElementById('no-data').style.display = 'none';
+            // Store current filters
+            currentFilters = { action, role, startDate, endDate };
+
+            // Show loading state
+            if (loadingEl) loadingEl.style.display = 'block';
+            if (logsContent) logsContent.style.display = 'none';
+            if (noDataEl) noDataEl.style.display = 'none';
 
             try {
                 const response = await fetch(`/admin/dashboard/activity-logs?${params}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
 
                 if (data.success) {
-                    currentPage = data.pagination.page;
-                    totalPages = data.pagination.pages;
+                    // Update pagination info from response
+                    const pagination = data.pagination || {};
+                    currentPage = pagination.currentPage || page;
+                    totalPages = pagination.totalPages || 1;
 
-                    renderLogs(data.logs);
-                    renderPagination(data.pagination);
-                    document.getElementById('logs-count').textContent = `${data.pagination.total} bản ghi`;
+                    // Render logs and pagination
+                    renderLogs(data.logs || []);
+                    renderPagination(pagination);
 
-                    document.getElementById('loading').style.display = 'none';
-
-                    if (data.logs.length === 0) {
-                        document.getElementById('no-data').style.display = 'block';
-                    } else {
-                        document.getElementById('logs-content').style.display = 'block';
+                    // Update logs count
+                    const logsCount = document.getElementById('logs-count');
+                    if (logsCount) {
+                        const total = pagination.totalItems || 0;
+                        logsCount.textContent = `${total.toLocaleString('vi-VN')} bản ghi`;
                     }
+
+                    // Hide loading
+                    if (loadingEl) loadingEl.style.display = 'none';
+
+                    // Show appropriate content
+                    if (!data.logs || data.logs.length === 0) {
+                        if (noDataEl) noDataEl.style.display = 'block';
+                    } else {
+                        if (logsContent) logsContent.style.display = 'block';
+                    }
+                } else {
+                    throw new Error(data.error || 'Failed to load logs');
                 }
             } catch (error) {
                 console.error('Error loading logs:', error);
-                document.getElementById('loading').innerHTML = '<p>Không thể tải dữ liệu. Vui lòng thử lại.</p>';
+                
+                if (loadingEl) {
+                    loadingEl.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Không thể tải dữ liệu. Vui lòng thử lại.</p>
+                            <button onclick="loadLogs(${page})" class="btn btn-primary mt-2">
+                                <i class="fas fa-redo"></i> Thử lại
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                // Show empty state
+                renderLogs([]);
+                renderPagination({
+                    currentPage: 1,
+                    totalPages: 0,
+                    totalItems: 0
+                });
             }
         }
 
+        // Render logs table
         function renderLogs(logs) {
             const tbody = document.getElementById('logs-tbody');
+            if (!tbody) return;
 
+            if (!logs || logs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Không có dữ liệu</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Action labels and badge classes
             const actionLabels = {
+                'login': { text: 'Đăng nhập', class: 'badge-info' },
+                'logout': { text: 'Đăng xuất', class: 'badge-secondary' },
+                'register_success': { text: 'Đăng ký thành công', class: 'badge-success' },
+                'register_failed': { text: 'Đăng ký thất bại', class: 'badge-danger' },
                 'checked_in': { text: 'Check-in', class: 'badge-checked-in' },
                 'checked_out': { text: 'Check-out', class: 'badge-checked-out' },
                 'room_assigned': { text: 'Phân phòng', class: 'badge-assigned' },
+                'room_changed': { text: 'Đổi phòng', class: 'badge-warning' },
                 'application_approved': { text: 'Duyệt đơn', class: 'badge-approved' },
-                'application_rejected': { text: 'Từ chối đơn', class: 'badge-rejected' }
+                'application_rejected': { text: 'Từ chối đơn', class: 'badge-rejected' },
+                'profile_updated': { text: 'Cập nhật hồ sơ', class: 'badge-info' },
+                'payment_success': { text: 'Thanh toán thành công', class: 'badge-success' },
+                'payment_failed': { text: 'Thanh toán thất bại', class: 'badge-danger' },
+                'password_changed': { text: 'Đổi mật khẩu', class: 'badge-info' },
+                'registration_approved': { text: 'Đăng ký được duyệt', class: 'badge-success' },
+                'registration_rejected': { text: 'Đăng ký bị từ chối', class: 'badge-danger' }
             };
 
+            // Role labels and badge classes
             const roleLabels = {
                 'admin': { text: 'Quản trị viên', class: 'badge-admin' },
+                'user': { text: 'Sinh viên', class: 'badge-student' },
                 'student': { text: 'Sinh viên', class: 'badge-student' },
                 'system': { text: 'Hệ thống', class: 'badge-system' }
             };
 
-            tbody.innerHTML = logs.map(log => {
-                const time = new Date(log.timestamp).toLocaleString('vi-VN');
-                const action = actionLabels[log.action] || { text: log.action, class: 'badge-system' };
-                const role = roleLabels[log.actorRole] || { text: log.actorRole, class: 'badge-system' };
+            tbody.innerHTML = logs.map((log, index) => {
+                // Extract log data with fallbacks
+                const userName = log.userId?.name || log.actor || 'N/A';
+                const studentId = log.userId?.studentId || '';
+                const email = log.userId?.email || '';
+                const userRole = log.userId?.role || log.actorRole || 'user';
+                
+                const timestamp = log.createdAt || log.timestamp;
+                const time = timestamp ? new Date(timestamp).toLocaleString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                }) : 'N/A';
+                
+                const action = actionLabels[log.action] || { 
+                    text: log.action || 'N/A', 
+                    class: 'badge-secondary' 
+                };
+                
+                const role = roleLabels[userRole] || { 
+                    text: userRole, 
+                    class: 'badge-system' 
+                };
 
-                let detail = '';
-                if (log.meta) {
-                    if (log.meta.assigned) {
-                        detail = `Phòng: ${log.meta.assigned.roomNumber}`;
-                    } else if (log.meta.reason) {
-                        detail = log.meta.reason;
+                // Build detail text
+                let detail = log.description || '';
+                
+                if (log.meta || log.details) {
+                    const meta = log.meta || log.details;
+                    
+                    if (meta.assigned) {
+                        detail += ` - Phòng: ${meta.assigned.roomNumber}`;
+                    }
+                    if (meta.roomNumber) {
+                        detail += ` - Phòng: ${meta.roomNumber}`;
+                    }
+                    if (meta.reason) {
+                        detail += ` - Lý do: ${meta.reason}`;
                     }
                 }
 
+                const rowNumber = ((currentPage - 1) * 20) + index + 1;
+
                 return `
                     <tr>
-                        <td>${time}</td>
-                        <td><strong>${log.actor}</strong></td>
-                        <td><span class="badge ${role.class}">${role.text}</span></td>
-                        <td><span class="badge ${action.class}">${action.text}</span></td>
+                        <td class="text-center">${rowNumber}</td>
                         <td>
-                            ${detail}
-                            ${log.meta ? `<div class="log-detail">${JSON.stringify(log.meta).substring(0, 100)}...</div>` : ''}
+                            <div class="user-info">
+                                <strong>${escapeHtml(userName)}</strong>
+                                ${studentId ? `<div class="text-muted small">MSSV: ${escapeHtml(studentId)}</div>` : ''}
+                                ${email ? `<div class="text-muted small">${escapeHtml(email)}</div>` : ''}
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge ${role.class}">${escapeHtml(role.text)}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge ${action.class}">${escapeHtml(action.text)}</span>
+                        </td>
+                        <td>
+                            <div class="log-description">
+                                ${escapeHtml(detail)}
+                            </div>
+                            <div class="text-muted small mt-1">
+                                <i class="far fa-clock"></i> ${time}
+                            </div>
                         </td>
                     </tr>
                 `;
             }).join('');
         }
 
+        // Render pagination controls
         function renderPagination(pagination) {
-            if (pagination.total === 0) {
-                document.getElementById('pagination-section').style.display = 'none';
+            const paginationSection = document.getElementById('pagination-section');
+            if (!paginationSection) return;
+
+            const totalItems = pagination.totalItems || 0;
+            const currentPageNum = pagination.currentPage || 1;
+            const totalPagesNum = pagination.totalPages || 1;
+            const itemsPerPage = pagination.itemsPerPage || 20;
+
+            if (totalItems === 0 || totalPagesNum <= 1) {
+                paginationSection.style.display = 'none';
                 return;
             }
 
-            document.getElementById('pagination-section').style.display = 'flex';
+            paginationSection.style.display = 'flex';
 
+            // Update pagination info
             const info = document.getElementById('pagination-info');
-            const start = (pagination.page - 1) * 20 + 1;
-            const end = Math.min(pagination.page * 20, pagination.total);
-            info.textContent = `Hiển thị ${start}-${end} trong tổng số ${pagination.total}`;
+            if (info) {
+                const start = ((currentPageNum - 1) * itemsPerPage) + 1;
+                const end = Math.min(currentPageNum * itemsPerPage, totalItems);
+                info.textContent = `Hiển thị ${start.toLocaleString('vi-VN')}-${end.toLocaleString('vi-VN')} trong tổng số ${totalItems.toLocaleString('vi-VN')}`;
+            }
 
-            const buttons = document.getElementById('pagination-buttons');
+            // Build pagination buttons
+            const buttonsContainer = document.getElementById('pagination-buttons');
+            if (!buttonsContainer) return;
+
             let html = '';
 
-            html += `<button class="page-btn" ${currentPage === 1 ? 'disabled' : ''} onclick="loadLogs(${currentPage - 1})"><i class="fas fa-chevron-left"></i></button>`;
+            // Previous button
+            const hasPrevPage = currentPageNum > 1;
+            html += `
+                <button class="page-btn" 
+                        ${!hasPrevPage ? 'disabled' : ''} 
+                        onclick="loadLogs(${currentPageNum - 1})"
+                        title="Trang trước">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
 
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
-                    html += `<button class="page-btn ${i === currentPage ? 'active' : ''}" onclick="loadLogs(${i})">${i}</button>`;
-                } else if (i === currentPage - 3 || i === currentPage + 3) {
-                    html += `<span style="padding: 0.5rem">...</span>`;
+            // Page number buttons
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPageNum - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPagesNum, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            // First page button
+            if (startPage > 1) {
+                html += `<button class="page-btn" onclick="loadLogs(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<span class="page-ellipsis">...</span>`;
                 }
             }
 
-            html += `<button class="page-btn" ${currentPage === totalPages ? 'disabled' : ''} onclick="loadLogs(${currentPage + 1})"><i class="fas fa-chevron-right"></i></button>`;
+            // Page number buttons
+            for (let i = startPage; i <= endPage; i++) {
+                html += `
+                    <button class="page-btn ${i === currentPageNum ? 'active' : ''}" 
+                            onclick="loadLogs(${i})"
+                            ${i === currentPageNum ? 'disabled' : ''}>
+                        ${i}
+                    </button>
+                `;
+            }
 
-            buttons.innerHTML = html;
+            // Last page button
+            if (endPage < totalPagesNum) {
+                if (endPage < totalPagesNum - 1) {
+                    html += `<span class="page-ellipsis">...</span>`;
+                }
+                html += `<button class="page-btn" onclick="loadLogs(${totalPagesNum})">${totalPagesNum}</button>`;
+            }
+
+            // Next button
+            const hasNextPage = currentPageNum < totalPagesNum;
+            html += `
+                <button class="page-btn" 
+                        ${!hasNextPage ? 'disabled' : ''} 
+                        onclick="loadLogs(${currentPageNum + 1})"
+                        title="Trang sau">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            buttonsContainer.innerHTML = html;
         }
 
+        // Apply filters and reload logs
         function applyFilters() {
             loadLogs(1);
         }
 
+        // Reset all filters
         function resetFilters() {
-            document.getElementById('action-filter').value = '';
-            document.getElementById('role-filter').value = '';
-            document.getElementById('start-date-filter').value = '';
-            document.getElementById('end-date-filter').value = '';
+            const actionFilter = document.getElementById('action-filter');
+            const roleFilter = document.getElementById('role-filter');
+            const startDateFilter = document.getElementById('start-date-filter');
+            const endDateFilter = document.getElementById('end-date-filter');
+
+            if (actionFilter) actionFilter.value = '';
+            if (roleFilter) roleFilter.value = '';
+            if (startDateFilter) startDateFilter.value = '';
+            if (endDateFilter) endDateFilter.value = '';
+
+            currentFilters = {};
             loadLogs(1);
         }
 
-        window.addEventListener('load', () => loadLogs(1));
+        // Export CSV function (optional)
+        function exportLogs() {
+            alert('Chức năng xuất CSV đang được phát triển');
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Export functions for external use
+        window.loadLogs = loadLogs;
+        window.applyFilters = applyFilters;
+        window.resetFilters = resetFilters;
+        window.exportLogs = exportLogs;
     </script>
+</body>
+</html>
 </body>
 </html>

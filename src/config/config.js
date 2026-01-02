@@ -447,16 +447,54 @@ const ActivityLogSchema = new mongoose.Schema({
     }
 });
 
+const AcademicWindowSchema = new mongoose.Schema({
+    academicYear: {
+        type: String,
+        required: true
+    },
+    semester: {
+        type: String,
+        enum: ['fall', 'spring', 'summer'],
+        required: true
+    },
+    startDate: {
+        type: Date,
+        required: true
+    },
+    endDate: {
+        type: Date,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['upcoming', 'active', 'closed'],
+        default: 'upcoming'
+    },
+    description: {
+        type: String
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const StudentCollection = mongoose.model('students', StudentSchema);
 const DormitoryCollection = mongoose.model('dormitories', DormitorySchema);
 const PendingApplicationCollection = mongoose.model('pendingApplications', PendingApplicationSchema);
 const NotificationCollection = mongoose.model('notifications', NotificationSchema);
 const ActivityLogCollection = mongoose.model('activity_logs', ActivityLogSchema);
+const AcademicWindowCollection = mongoose.model('academic_windows', AcademicWindowSchema);
 
 module.exports = { 
     StudentCollection, 
     DormitoryCollection,
     PendingApplicationCollection,
     NotificationCollection,
-    ActivityLogCollection
+    ActivityLogCollection,
+    AcademicWindowCollection
 };

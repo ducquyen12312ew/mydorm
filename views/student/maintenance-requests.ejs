@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yêu cầu Bảo trì | <%= student.name %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/student.css">
+    <style>
+        body { padding-top: 80px; background: #f5f7fa; }
+        
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        
+        .request-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #e9ecef;
+        }
+        
+        .request-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        
+        .request-card.priority-urgent { border-left-color: #dc3545; }
+        .request-card.priority-high { border-left-color: #ffc107; }
+        .request-card.priority-medium { border-left-color: #17a2b8; }
+        .request-card.priority-low { border-left-color: #28a745; }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .status-submitted { background: #cfe2ff; color: #084298; }
+        .status-assigned { background: #fff3cd; color: #856404; }
+        .status-in_progress { background: #cff4fc; color: #087990; }
+        .status-completed { background: #d4edda; color: #155724; }
+        .status-cancelled { background: #e2e3e5; color: #383d41; }
+        
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .priority-urgent { background: #721c24; color: white; }
+        .priority-high { background: #f8d7da; color: #721c24; }
+        .priority-medium { background: #fff3cd; color: #856404; }
+        .priority-low { background: #d4edda; color: #155724; }
+        
+        .type-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline {
+            position: relative;
+            padding: 1rem 0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            padding-bottom: 1.5rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #17a2b8;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #17a2b8;
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 12px;
+            width: 2px;
+            height: calc(100% - 12px);
+            background: #dee2e6;
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .rating-stars i {
+            color: #ddd;
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: color 0.2s;
+        }
+        
+        .rating-stars i.active,
+        .rating-stars i:hover {
+            color: #ffc107;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">
+            <img src="/image/logo.png" alt="HUST Logo">
+        </div>
+        <div class="nav-container">
+            <nav class="nav-links">
+                <a href="/" class="nav-link">TRANG CHỦ</a>
+                <a href="/map" class="nav-link">BẢN ĐỒ</a>
+                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="/maintenance" class="nav-link active">BẢO TRÌ</a>
+            </nav>
+            <div class="user-profile">
+                <a href="/profile" class="avatar-container">
+                    <div class="avatar"><%= student.name.charAt(0).toUpperCase() %></div>
+                    <span class="user-name"><%= student.name %></span>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="/profile" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> Hồ sơ
+                    </a>
+                    <a href="/logout" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2><i class="fas fa-tools me-2"></i>Yêu cầu Bảo trì</h2>
+                    <p class="text-muted mb-0">Quản lý các yêu cầu sửa chữa và bảo trì phòng ở</p>
+                </div>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createRequestModal">
+                    <i class="fas fa-plus me-2"></i>Tạo yêu cầu mới
+                </button>
+            </div>
+        </div>
+
+        <% if (!student.dormitoryId || !student.roomNumber) { %>
+            <div class="alert alert-warning">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Bạn chưa được phân phòng. Vui lòng đăng ký phòng trước khi tạo yêu cầu bảo trì.
+            </div>
+        <% } %>
+
+        <!-- Filter -->
+        <div class="mb-3">
+            <select class="form-select" id="statusFilter" style="max-width: 250px;">
+                <option value="">Tất cả trạng thái</option>
+                <option value="submitted">Yêu cầu mới</option>
+                <option value="assigned">Đã phân công</option>
+                <option value="in_progress">Đang xử lý</option>
+                <option value="completed">Đã hoàn thành</option>
+                <option value="cancelled">Đã hủy</option>
+            </select>
+        </div>
+
+        <!-- Requests List -->
+        <div id="requestsList">
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Request Modal -->
+    <div class="modal fade" id="createRequestModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tạo yêu cầu bảo trì</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createRequestForm">
+                        <div class="mb-3">
+                            <label class="form-label">Loại sự cố *</label>
+                            <select class="form-select" name="type" required>
+                                <option value="">-- Chọn loại sự cố --</option>
+                                <option value="electrical">⚡ Điện (đèn, ổ cắm, công tắc...)</option>
+                                <option value="plumbing">💧 Nước (vòi, bồn rửa, toilet...)</option>
+                                <option value="hvac">❄️ Điều hòa nhiệt độ</option>
+                                <option value="furniture">🛋️ Nội thất (giường, tủ, bàn ghế...)</option>
+                                <option value="door_lock">🚪 Cửa và khóa</option>
+                                <option value="window">🪟 Cửa sổ</option>
+                                <option value="internet">📡 Mạng internet</option>
+                                <option value="cleaning">🧹 Vấn đề vệ sinh</option>
+                                <option value="pest_control">🐛 Côn trùng</option>
+                                <option value="other">🔧 Khác</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Độ ưu tiên *</label>
+                            <select class="form-select" name="priority" required>
+                                <option value="low">Thấp - Không ảnh hưởng nhiều</option>
+                                <option value="medium" selected>Trung bình - Cần sửa sớm</option>
+                                <option value="high">Cao - Ảnh hưởng sinh hoạt</option>
+                                <option value="urgent">Khẩn cấp - Cần xử lý ngay</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Tiêu đề ngắn gọn *</label>
+                            <input type="text" class="form-control" name="title" 
+                                   placeholder="VD: Đèn phòng không sáng" 
+                                   minlength="5" maxlength="200" required>
+                            <small class="text-muted">Mô tả vấn đề trong 1 câu</small>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả chi tiết *</label>
+                            <textarea class="form-control" name="description" rows="4" 
+                                      placeholder="Mô tả chi tiết vấn đề: khi nào xảy ra, triệu chứng, vị trí cụ thể trong phòng..."
+                                      minlength="10" maxlength="2000" required></textarea>
+                            <small class="text-muted">Mô tả càng chi tiết càng giúp xử lý nhanh</small>
+                        </div>
+                        
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Lưu ý:</strong> Bộ phận bảo trì sẽ liên hệ qua số điện thoại 
+                            <strong><%= student.phone || 'chưa cập nhật' %></strong> trong hồ sơ của bạn.
+                            <% if (!student.phone) { %>
+                                <a href="/profile" class="alert-link">Cập nhật ngay</a>
+                            <% } %>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitRequest()">
+                        <i class="fas fa-paper-plane me-1"></i> Gửi yêu cầu
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Request Modal -->
+    <div class="modal fade" id="viewRequestModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết yêu cầu</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="requestDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="modal fade" id="feedbackModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đánh giá dịch vụ</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="feedbackForm">
+                        <input type="hidden" id="feedbackRequestId">
+                        <div class="mb-3">
+                            <label class="form-label">Đánh giá của bạn *</label>
+                            <div class="rating-stars" id="ratingStars">
+                                <i class="fas fa-star" data-rating="1"></i>
+                                <i class="fas fa-star" data-rating="2"></i>
+                                <i class="fas fa-star" data-rating="3"></i>
+                                <i class="fas fa-star" data-rating="4"></i>
+                                <i class="fas fa-star" data-rating="5"></i>
+                            </div>
+                            <input type="hidden" name="rating" id="ratingValue" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Nhận xét (tùy chọn)</label>
+                            <textarea class="form-control" name="comment" rows="3" 
+                                      placeholder="Chia sẻ trải nghiệm của bạn..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitFeedback()">Gửi đánh giá</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let selectedRating = 0;
+
+        async function loadRequests() {
+            const status = document.getElementById('statusFilter').value;
+            const params = status ? `?status=${status}` : '';
+
+            try {
+                const response = await fetch(`/api/student/maintenance-requests${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderRequests(data.requests);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('requestsList').innerHTML = `
+                    <div class="alert alert-danger">
+                        Không thể tải danh sách yêu cầu. Vui lòng thử lại sau.
+                    </div>
+                `;
+            }
+        }
+
+        function renderRequests(requests) {
+            const container = document.getElementById('requestsList');
+
+            if (requests.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-tools"></i>
+                        <h4>Chưa có yêu cầu bảo trì</h4>
+                        <p class="text-muted">Khi bạn gặp sự cố về phòng ở, hãy tạo yêu cầu bảo trì để được hỗ trợ nhanh chóng.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = requests.map(r => `
+                <div class="request-card priority-${r.priority}" onclick="viewRequest('${r._id}')">
+                    <div class="row">
+                        <div class="col-auto">
+                            <div class="type-icon">
+                                <i class="${getTypeIcon(r.type)}"></i>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h5 class="mb-1">${r.title}</h5>
+                                    <small class="text-muted">Mã: ${r.requestNumber}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="status-badge status-${r.status}">${getStatusLabel(r.status)}</span>
+                                    <br>
+                                    <span class="priority-badge priority-${r.priority}">${getPriorityLabel(r.priority)}</span>
+                                </div>
+                            </div>
+                            <p class="text-muted mb-2">${r.description.substring(0, 150)}${r.description.length > 150 ? '...' : ''}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-clock me-1"></i>
+                                    ${new Date(r.reportedAt).toLocaleDateString('vi-VN')}
+                                </small>
+                                ${r.status === 'completed' && !r.feedbackRating ? `
+                                    <button class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation(); showFeedback('${r._id}')">
+                                        <i class="fas fa-star me-1"></i> Đánh giá
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function submitRequest() {
+            const form = document.getElementById('createRequestForm');
+            
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('/api/student/maintenance-requests', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Đã gửi yêu cầu bảo trì thành công!');
+                    bootstrap.Modal.getInstance(document.getElementById('createRequestModal')).hide();
+                    form.reset();
+                    loadRequests();
+                } else {
+                    alert('Lỗi: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Không thể gửi yêu cầu. Vui lòng thử lại.');
+            }
+        }
+
+        async function viewRequest(id) {
+            try {
+                const response = await fetch(`/api/student/maintenance-requests`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const request = data.requests.find(r => r._id === id);
+                    if (!request) return;
+
+                    const statusSteps = [
+                        { status: 'submitted', label: 'Đã gửi yêu cầu', icon: 'paper-plane' },
+                        { status: 'assigned', label: 'Đã phân công', icon: 'user-check' },
+                        { status: 'in_progress', label: 'Đang xử lý', icon: 'tools' },
+                        { status: 'completed', label: 'Hoàn thành', icon: 'check-circle' }
+                    ];
+
+                    const timeline = statusSteps.map(step => {
+                        const isPassed = getStatusOrder(request.status) >= getStatusOrder(step.status);
+                        return `
+                            <div class="timeline-item">
+                                <strong><i class="fas fa-${step.icon} me-2"></i>${step.label}</strong>
+                                ${isPassed ? '<i class="fas fa-check text-success ms-2"></i>' : ''}
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.getElementById('requestDetails').innerHTML = `
+                        <div class="mb-4">
+                            <h5>${request.title}</h5>
+                            <div class="mb-2">
+                                <span class="status-badge status-${request.status}">${getStatusLabel(request.status)}</span>
+                                <span class="priority-badge priority-${request.priority} ms-2">${getPriorityLabel(request.priority)}</span>
+                            </div>
+                            <small class="text-muted">Mã: ${request.requestNumber}</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Loại sự cố:</strong> ${getTypeLabel(request.type)}
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Mô tả chi tiết:</strong>
+                            <p>${request.description}</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <strong>Tiến trình xử lý:</strong>
+                            <div class="timeline mt-2">${timeline}</div>
+                        </div>
+
+                        ${request.completionNotes ? `
+                            <div class="alert alert-success">
+                                <strong><i class="fas fa-check-circle me-2"></i>Ghi chú hoàn thành:</strong><br>
+                                ${request.completionNotes}
+                            </div>
+                        ` : ''}
+
+                        ${request.feedbackRating ? `
+                            <div class="alert alert-info">
+                                <strong><i class="fas fa-star me-2"></i>Đánh giá của bạn:</strong><br>
+                                ${Array(request.feedbackRating).fill('<i class="fas fa-star text-warning"></i>').join('')}
+                                ${request.feedbackComment ? `<br><small>${request.feedbackComment}</small>` : ''}
+                            </div>
+                        ` : ''}
+
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            Tạo lúc: ${new Date(request.reportedAt).toLocaleString('vi-VN')}
+                        </small>
+                    `;
+
+                    new bootstrap.Modal(document.getElementById('viewRequestModal')).show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function showFeedback(id) {
+            document.getElementById('feedbackRequestId').value = id;
+            selectedRating = 0;
+            document.querySelectorAll('#ratingStars i').forEach(star => {
+                star.classList.remove('active');
+            });
+            new bootstrap.Modal(document.getElementById('feedbackModal')).show();
+        }
+
+        async function submitFeedback() {
+            const id = document.getElementById('feedbackRequestId').value;
+            const form = document.getElementById('feedbackForm');
+            const formData = new FormData(form);
+
+            if (!selectedRating) {
+                alert('Vui lòng chọn số sao đánh giá');
+                return;
+            }
+
+            const data = {
+                rating: selectedRating,
+                comment: formData.get('comment')
+            };
+
+            try {
+                const response = await fetch(`/api/student/maintenance-requests/${id}/feedback`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('Cảm ơn bạn đã đánh giá!');
+                    bootstrap.Modal.getInstance(document.getElementById('feedbackModal')).hide();
+                    form.reset();
+                    loadRequests();
+                } else {
+                    alert('Lỗi: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Không thể gửi đánh giá');
+            }
+        }
+
+        // Rating stars
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('#ratingStars i').forEach(star => {
+                star.addEventListener('click', function() {
+                    selectedRating = parseInt(this.dataset.rating);
+                    document.getElementById('ratingValue').value = selectedRating;
+
+                    document.querySelectorAll('#ratingStars i').forEach((s, i) => {
+                        if (i < selectedRating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+
+                star.addEventListener('mouseenter', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    document.querySelectorAll('#ratingStars i').forEach((s, i) => {
+                        if (i < rating) {
+                            s.classList.add('active');
+                        } else {
+                            s.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            document.getElementById('ratingStars').addEventListener('mouseleave', function() {
+                document.querySelectorAll('#ratingStars i').forEach((s, i) => {
+                    if (i < selectedRating) {
+                        s.classList.add('active');
+                    } else {
+                        s.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // Helpers
+        function getTypeIcon(type) {
+            const icons = {
+                electrical: 'fas fa-bolt',
+                plumbing: 'fas fa-faucet',
+                hvac: 'fas fa-fan',
+                furniture: 'fas fa-couch',
+                door_lock: 'fas fa-door-open',
+                window: 'fas fa-window-restore',
+                internet: 'fas fa-wifi',
+                cleaning: 'fas fa-broom',
+                pest_control: 'fas fa-bug',
+                other: 'fas fa-wrench'
+            };
+            return icons[type] || 'fas fa-tools';
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                electrical: 'Điện', plumbing: 'Nước', hvac: 'Điều hòa',
+                furniture: 'Nội thất', door_lock: 'Cửa/Khóa', window: 'Cửa sổ',
+                internet: 'Mạng', cleaning: 'Vệ sinh', pest_control: 'Diệt côn trùng',
+                other: 'Khác'
+            };
+            return labels[type] || type;
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = { low: 'Thấp', medium: 'Trung bình', high: 'Cao', urgent: 'Khẩn cấp' };
+            return labels[priority] || priority;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                submitted: 'Yêu cầu mới', assigned: 'Đã phân công',
+                in_progress: 'Đang xử lý', completed: 'Hoàn thành',
+                cancelled: 'Đã hủy'
+            };
+            return labels[status] || status;
+        }
+
+        function getStatusOrder(status) {
+            const order = { submitted: 1, assigned: 2, in_progress: 3, completed: 4 };
+            return order[status] || 0;
+        }
+
+        document.getElementById('statusFilter').addEventListener('change', loadRequests);
+        loadRequests();
+    </script>
+</body>
+</html>
