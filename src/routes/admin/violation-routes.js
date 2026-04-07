@@ -1,10 +1,11 @@
-// src/routes/admin/violation-routes.js
 const express = require('express');
 const router = express.Router();
 const { ViolationModel } = require('../../schemas/ViolationSchema');
 const { StudentCollection } = require('../../config/config');
 const { validate, validationRules } = require('../../middleware/security');
 const { body } = require('express-validator');
+const notificationService = require('../../services/notificationService');
+const { logger, logSecurityEvent } = require('../../config/logger');
 
 // Middleware kiểm tra admin
 const isAdmin = (req, res, next) => {
@@ -144,10 +145,56 @@ router.post('/admin/violations',
                 },
                 status: 'pending'
             });
+
+            // ✅ Send violation notification email
+            try {
+                const violationTypes = {
+                    'noise': 'Vi phạm về tiếng ồn',
+                    'alcohol': 'Sử dụng chất cồn',
+                    'smoking': 'Hút thuốc',
+                    'late_return': 'Quay lại muộn',
+                    'unauthorized_guest': 'Khách lạ trái phép',
+                    'damage': 'Gây hư hỏng',
+                    'hygiene': 'Vệ sinh kém',
+                    'theft': 'Trộm cắp',
+                    'violence': 'Bạo lực',
+                    'other': 'Vi phạm khác'
+                };
+
+                const severityLabels = {
+                    'low': 'Thấp',
+                    'medium': 'Trung bình',
+                    'high': 'Cao',
+                    'critical': 'Rất nghiêm trọng'
+                };
+
+                const violationData = {
+                    studentName: student.name,
+                    studentId: student.studentId,
+                    type: violationTypes[type] || type,
+                    severity: severityLabels[severity] || severity,
+                    description: description,
+                    dormitory: dormitoryName,
+                    room: roomNumber,
+                    reportedAt: new Date().toLocaleString('vi-VN'),
+                    reportedBy: req.session.name
+                };
+
+                await notificationService.sendViolationNotification(student.email, violationData);
+                logSecurityEvent(student._id, 'VIOLATION_NOTIFICATION_SENT', { 
+                    violationId: violation._id,
+                    ip: req.ip
+                });
+            } catch (emailError) {
+                logger.error('Failed to send violation notification', { 
+                    violationId: violation._id, 
+                    error: emailError.message 
+                });
+            }
             
             res.status(201).json({ 
                 success: true, 
-                message: 'Đã tạo báo cáo vi phạm',
+                message: 'Đã tạo báo cáo vi phạm và gửi thông báo cho sinh viên',
                 violation 
             });
         } catch (error) {
@@ -163,13 +210,15 @@ router.post('/admin/violations',
 router.patch('/admin/violations/:id/status', 
     isAdmin,
     [
-        body('status').isIn(['pending', 'investigating', 'resolved', 'dismissed'])
+        body('status').isIn(['pending', 'resolved', 'dismissed'])
             .withMessage('Trạng thái không hợp lệ'),
         validate
     ],
     async (req, res) => {
         try {
             const { status } = req.body;
+            
+            console.log(`[PATCH Status] Updating violation ${req.params.id} to status: ${status}`);
             
             const violation = await ViolationModel.findByIdAndUpdate(
                 req.params.id,
@@ -187,6 +236,8 @@ router.patch('/admin/violations/:id/status',
                 });
             }
             
+            console.log(`[PATCH Status] Successfully updated violation to: ${violation.status}`);
+            
             res.json({ 
                 success: true, 
                 message: 'Đã cập nhật trạng thái',
@@ -194,7 +245,7 @@ router.patch('/admin/violations/:id/status',
             });
         } catch (error) {
             console.error('Error updating violation status:', error);
-            res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+            res.status(500).json({ success: false, error: 'Lỗi hệ thống', details: error.message });
         }
     }
 );
@@ -338,6 +389,44 @@ router.get('/admin/violations/stats/summary', isAdmin, async (req, res) => {
     } catch (error) {
         console.error('Error fetching violation stats:', error);
         res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
+});
+
+// ============================================
+// DELETE VIOLATION
+// ============================================
+router.delete('/admin/violations/:id', isAdmin, async (req, res) => {
+    try {
+        const violationId = req.params.id;
+        
+        console.log(`[DELETE] Deleting violation ${violationId}`);
+        
+        const violation = await ViolationModel.findByIdAndDelete(violationId);
+        
+        if (!violation) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Không tìm thấy vi phạm' 
+            });
+        }
+        
+        console.log(`[DELETE] Successfully deleted violation: ${violationId}`);
+        
+        logSecurityEvent(req.session.userId, 'DELETE_VIOLATION', {
+            violationId: violationId,
+            studentId: violation.studentId,
+            type: violation.type,
+            severity: violation.severity,
+            ip: req.ip
+        });
+        
+        res.json({ 
+            success: true, 
+            message: 'Đã xóa vi phạm' 
+        });
+    } catch (error) {
+        console.error('Error deleting violation:', error);
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống', details: error.message });
     }
 });
 

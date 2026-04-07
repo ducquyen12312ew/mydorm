@@ -1,562 +1,121 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KTX HUST - Hệ thống Ký túc xá</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KTX HUST - Trang chủ sinh viên</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    
-    <!-- CSS chung cho tất cả trang student -->
-    <link rel="stylesheet" href="/css/student.css">
-
-    <!-- Style riêng cho trang home -->
-    <style>
-        /* Hero Section với background image */
-        .hero-section {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            color: white;
-        }
-        
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: url('image/background.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: -1;
-        }
-        
-        .hero-content {
-            position: relative;
-            z-index: 10;
-            max-width: 800px;
-            margin-left: 5%;
-            padding: 2rem;
-        }
-        
-        .hero-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 1rem;
-            line-height: 1.2;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.5rem;
-            margin-bottom: 2rem;
-        }
-        
-        /* Campus options styling */
-        .campus-options-container {
-            position: relative;
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            z-index: 5;
-            margin-top: 2rem;
-        }
-        
-        .campus-options {
-            display: flex;
-            gap: 3rem;
-            width: 100%;
-        }
-        
-        .campus-option {
-            position: relative;
-            padding: 1.2rem 2.5rem;
-            background-color: rgba(255, 255, 255, 0.15);
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 12px;
-            color: white;
-            font-weight: 700;
-            font-size: 1.3rem;
-            cursor: pointer;
-            overflow: hidden;
-            transition: all 0.4s ease;
-            font-family: 'Montserrat', sans-serif;
-            z-index: 1;
-            text-align: center;
-            letter-spacing: 1px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .campus-option:hover {
-            background-color: var(--primary-color);
-            transform: translateY(-8px) scale(1.05);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
-            border-color: var(--primary-color);
-        }
-        
-        .campus-option::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .campus-option:hover::before {
-            opacity: 1;
-        }
-
-        .campus-option .tooltip {
-            display: none;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            padding: 5rem 0;
-            background-color: white;
-            text-align: center;
-        }
-        
-        .section-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        .section-subtitle {
-            font-size: 1.1rem;
-            color: #666;
-            margin-bottom: 3rem;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 3rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-        }
-        
-        .stat-item {
-            text-align: center;
-            padding: 2rem;
-            background: linear-gradient(135deg, #fff, #f8f3ef);
-            border-radius: 15px;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .stat-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .stat-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        .stat-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-        
-        .stat-label {
-            font-size: 1.1rem;
-            color: #666;
-            font-weight: 600;
-        }
-        
-        /* Features Section */
-        .features-section {
-            padding: 5rem 0;
-            background-color: var(--bg-color);
-        }
-        
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
-        .feature-item {
-            background-color: white;
-            border-radius: 10px;
-            padding: 2rem;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-top: 3px solid var(--primary-color);
-            text-align: center;
-        }
-        
-        .feature-item:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
-        }
-        
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-        }
-        
-        .feature-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            color: var(--text-color);
-        }
-        
-        .feature-description {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 1rem;
-        }
-        
-        /* Map Section */
-        .map-section {
-            padding: 5rem 0;
-            background-color: white;
-        }
-        
-        .map-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 1rem;
-        }
-        
-        .map-info {
-            padding: 2rem;
-        }
-        
-        .map-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
-        }
-        
-        .map-description {
-            margin-bottom: 2rem;
-            color: #666;
-            line-height: 1.8;
-        }
-        
-        #dormitory-map {
-            width: 100%;
-            height: 400px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Responsive cho home page */
-        @media (max-width: 768px) {
-            .hero-title {
-                font-size: 2rem;
-            }
-
-            .hero-subtitle {
-                font-size: 1.1rem;
-            }
-
-            .campus-options {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .campus-option {
-                font-size: 1.1rem;
-                padding: 1rem 1.5rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 1.5rem;
-            }
-
-            .stat-number {
-                font-size: 2rem;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .map-container {
-                grid-template-columns: 1fr;
-            }
-
-            .section-title {
-                font-size: 1.8rem;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="/css/premium-home.css" />
+    <link rel="stylesheet" href="/css/student-premium-shell.css" />
 </head>
 <body>
-    <div class="overlay" id="overlay"></div>
-    
-    <header class="header">
-        <div class="header-logo">
-            <img src="image/logo.png" alt="HUST Logo">
-        </div>
-        <div class="menu-toggle" id="menuToggle">
-            <span></span><span></span><span></span>
-        </div>
+    <%- include('navbar', { currentPage: 'home', user: user }) %>
 
-        <div class="nav-container" id="navContainer">
-            <nav class="nav-links">
-                <a href="/" class="nav-link active-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link">BẢN ĐỒ</a>
-                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
-
-                <% if (user && user.role === 'student') { %>
-                    <a href="/student/registration-portal" class="nav-link">
-                        <i class="fas fa-door-open"></i> Cổng đăng ký KTX
-                    </a>
-                <% } %>
-            </nav>
-
-            <div style="display: flex; align-items: center;">
-                <!-- Notification System -->
-                <div class="notification-wrapper">
-                    <button class="notification-btn" id="notificationBtn">
-                        <i class="fas fa-bell notification-icon"></i>
-                        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-                    </button>
-
-                    <div class="notification-dropdown" id="notificationDropdown">
-                        <div class="notification-header">
-                            <h3>Thông báo</h3>
-                            <span class="notification-count" id="notificationCount">Mới 0</span>
-                        </div>
-                        <div class="notification-tabs">
-                            <button class="tab-btn active" data-tab="all">Tất cả</button>
-                            <button class="tab-btn" data-tab="unread">Chưa đọc</button>
-                        </div>
-                        <div class="notification-list" id="notificationList">
-                            <div class="notification-empty">
-                                <i class="fas fa-bell-slash"></i>
-                                <p>Chưa có thông báo mới</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- User profile dropdown -->
-                <div class="user-profile">
-                    <a href="/profile" class="avatar-container" title="Xem hồ sơ">
-                        <div class="avatar">
-                            <% if (user && user.name) { %>
-                                <%= user.name.charAt(0).toUpperCase() %>
-                            <% } else { %> U <% } %>
-                        </div>
-                        <span class="user-name">
-                            <% if (user && user.name) { %>
-                                <%= user.name %>
-                            <% } else { %>
-                                Người dùng
-                            <% } %>
-                        </span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a href="/profile" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i> Hồ sơ
-                        </a>
-                        <a href="/logout" class="dropdown-item">
-                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <section class="hero-section">
+    <section class="hero" id="hero">
         <div class="hero-content">
-            <h1 class="hero-title">KÝ TÚC XÁ ĐẠI HỌC BÁCH KHOA</h1>
-            <p class="hero-subtitle">Hệ thống quản lý phòng và hỗ trợ sinh viên ký túc xá - Không gian sống tiện nghi, hiện đại</p>
-            <div class="campus-options-container">
-                <div class="campus-options">
-                    <div class="campus-option" id="campus1" onclick="window.location.href='/map'">
-                        <i class="fas fa-building-circle-check"></i> CƠ SỞ HÀ NỘI
-                        <div class="tooltip">Xem bản đồ KTX cơ sở Hà Nội</div>
-                    </div>
-                    <div class="campus-option" id="campus2">
-                        <i class="fas fa-school"></i> CƠ SỞ HƯNG YÊN
-                        <div class="tooltip">Đang phát triển</div>
+            <h1 class="hero-title">Ký túc xá Đại học Bách Khoa</h1>
+            <p class="hero-subtitle">Không gian sống hiện đại dành cho sinh viên</p>
+        </div>
+        <div class="hero-interactive-zone" aria-label="Open 3D room viewer">
+            <button class="hero-3d-btn" id="open3DViewer" type="button">Xem phòng 3D</button>
+        </div>
+        <div class="hero-viewer-panel" id="heroViewerPanel">
+            <div class="viewer-toolbar">
+                <select class="viewer-control" id="roomSwitch" aria-label="Chuyển không gian phòng"></select>
+                <button class="viewer-control button-control" id="viewerFocus" type="button">Bắt chuột</button>
+                <button class="viewer-control button-control" id="viewerReset" type="button">Reset góc nhìn</button>
+                <button class="viewer-control button-control" id="roomLeft" type="button"><i class="fas fa-arrow-left"></i> Trái</button>
+                <button class="viewer-control button-control" id="roomRight" type="button">Phải <i class="fas fa-arrow-right"></i></button>
+                <button class="viewer-control button-control" id="roomForward" type="button"><i class="fas fa-arrow-up"></i> Tiến</button>
+                <button class="viewer-control button-control" id="roomBackward" type="button"><i class="fas fa-arrow-down"></i> Lùi</button>
+                <span class="viewer-control" id="sceneIndicator" aria-live="polite">Vị trí: Trung tâm</span>
+            </div>
+            <button class="hero-viewer-close" id="closeViewer" type="button" aria-label="Đóng chế độ xem 3D">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="viewer-hint">W/A/S/D: di chuyển giữa các điểm nhìn | Chuột: xoay nhìn | Lăn chuột: zoom | Esc: thả chuột</div>
+            <div id="three-viewer"></div>
+        </div>
+        <div class="hero-image-layer"></div>
+    </section>
+
+    <section class="rooms-section">
+        <div class="container">
+            <h2 class="section-title">Danh mục ký túc xá</h2>
+            <p class="section-subtitle">Xem nhanh toàn bộ khu ký túc xá và chọn nơi ở phù hợp.</p>
+            <div class="dorm-slider-container">
+                <div class="dorm-slider-track" id="roomGrid">
+                    <div class="rooms-loading">
+                        <div class="skeleton-card"><div class="skeleton-media"></div><div class="skeleton-body"></div></div>
+                        <div class="skeleton-card"><div class="skeleton-media"></div><div class="skeleton-body"></div></div>
+                        <div class="skeleton-card"><div class="skeleton-media"></div><div class="skeleton-body"></div></div>
                     </div>
                 </div>
+                <button class="dorm-slider-btn dorm-slider-prev" id="roomPrev" type="button" aria-label="Ổ trước">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="dorm-slider-btn dorm-slider-next" id="roomNext" type="button" aria-label="Ổ sau">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </section>
 
-    <section class="stats-section">
-        <h2 class="section-title">THÔNG TIN KÝ TÚC XÁ</h2>
-        <p class="section-subtitle">Hệ thống ký túc xá đại học Bách Khoa Hà Nội với cơ sở vật chất hiện đại</p>
-        <div class="stats-grid">
-            <div class="stat-item">
-                <i class="fas fa-building stat-icon"></i>
-                <div class="stat-number" id="building-count">12</div>
-                <div class="stat-label">Tòa nhà</div>
-            </div>
-            <div class="stat-item">
-                <i class="fas fa-door-open stat-icon"></i>
-                <div class="stat-number" id="room-count">450</div>
-                <div class="stat-label">Phòng ở</div>
-            </div>
-            <div class="stat-item">
-                <i class="fas fa-user-graduate stat-icon"></i>
-                <div class="stat-number" id="student-count">3500</div>
-                <div class="stat-label">Sinh viên</div>
-            </div>
-            <div class="stat-item">
-                <i class="fas fa-clipboard-check stat-icon"></i>
-                <div class="stat-number" id="satisfaction-rate">98</div>
-                <div class="stat-label">Tỷ lệ hài lòng (%)</div>
-            </div>
-        </div>
-    </section>
-
-    <section class="features-section">
-        <h2 class="section-title">TIỆN ÍCH NỔI BẬT</h2>
-        <p class="section-subtitle">Hệ thống tiện nghi hiện đại phục vụ nhu cầu học tập và sinh hoạt của sinh viên</p>
-
-        <div class="features-grid">
-            <div class="feature-item">
-                <i class="fas fa-wifi feature-icon"></i>
-                <h3 class="feature-title">Wifi Tốc Độ Cao</h3>
-                <p class="feature-description">Phủ sóng toàn bộ khu KTX, đảm bảo kết nối ổn định cho học tập và giải trí.</p>
-            </div>
-
-            <div class="feature-item">
-                <i class="fas fa-shield-alt feature-icon"></i>
-                <h3 class="feature-title">An Ninh 24/7</h3>
-                <p class="feature-description">Hệ thống camera giám sát và bảo vệ trực 24/7, đảm bảo môi trường sống an toàn.</p>
-            </div>
-
-            <div class="feature-item">
-                <i class="fas fa-utensils feature-icon"></i>
-                <h3 class="feature-title">Căng Tin Tiện Lợi</h3>
-                <p class="feature-description">Đa dạng món ăn với giá sinh viên, tiết kiệm thời gian cho sinh viên.</p>
-            </div>
-
-            <div class="feature-item">
-                <i class="fas fa-dumbbell feature-icon"></i>
-                <h3 class="feature-title">Phòng Tập Thể Dục</h3>
-                <p class="feature-description">Trang bị đầy đủ thiết bị, hỗ trợ sinh viên rèn luyện sức khỏe sau giờ học.</p>
-            </div>
-
-            <div class="feature-item">
-                <i class="fas fa-book feature-icon"></i>
-                <h3 class="feature-title">Phòng Tự Học</h3>
-                <p class="feature-description">Không gian yên tĩnh với máy lạnh, tạo môi trường học tập hiệu quả.</p>
-            </div>
-
-            <div class="feature-item">
-                <i class="fas fa-tshirt feature-icon"></i>
-                <h3 class="feature-title">Khu Giặt Ủi</h3>
-                <p class="feature-description">Khu vực giặt ủi tự động, giúp sinh viên tiết kiệm thời gian chăm sóc quần áo.</p>
-            </div>
-
-            <% if (user && user.role === 'student') { %>
-                <div class="feature-item">
-                    <i class="fas fa-door-open feature-icon"></i>
-                    <h3 class="feature-title">Đăng ký phòng</h3>
-                    <p class="feature-description">Kiểm tra điều kiện và đăng ký phòng ký túc xá phù hợp với bạn</p>
-                    <a href="/student/registration-portal" class="btn btn-primary">Bắt đầu đăng ký</a>
+    <section class="benefits-section">
+        <div class="container benefits-layout">
+            <div>
+                <p class="benefits-label">TIỆN ÍCH KÝ TÚC XÁ</p>
+                <h2 class="benefits-title">Vì sao nên chọn ký túc xá?</h2>
+                <p class="benefits-desc">Không gian sống cân bằng giữa học tập và sinh hoạt, tối ưu di chuyển trong khuôn viên và tạo trải nghiệm an toàn cho sinh viên.</p>
+                <div class="benefits-grid">
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text">Wifi tốc độ cao</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text">An ninh 24/7</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text">Phòng tự học</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text">Khu giặt sấy</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text">Gần trường</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text">Không gian xanh</span></article>
                 </div>
-            <% } %>
+            </div>
+            <div class="benefits-image-wrap">
+                <img class="benefits-image" src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg" alt="Không gian ký túc xá" />
+            </div>
         </div>
     </section>
 
     <section class="map-section">
-        <h2 class="section-title">BẢN ĐỒ KÝ TÚC XÁ</h2>
-        <p class="section-subtitle">Xem vị trí và thông tin chi tiết các khu ký túc xá</p>
-        <div class="map-container">
-            <div class="map-info">
-                <h3 class="map-title">Tìm kiếm vị trí phù hợp</h3>
-                <p class="map-description">Bản đồ giúp bạn định vị các khu ký túc xá, đánh giá khoảng cách đến trường và các tiện ích xung quanh. Nhấp vào từng điểm trên bản đồ để xem thông tin chi tiết.</p>
-                <a href="/map" class="btn btn-primary">Xem bản đồ đầy đủ</a>
+        <div class="container">
+            <h2 class="section-title">Bản đồ ký túc xá</h2>
+            <p class="section-subtitle">Tra cứu vị trí nhanh với popup chi tiết, cụm marker thông minh và danh sách tòa nhà liên kết trực tiếp với bản đồ.</p>
+
+            <div class="map-shell">
+                <div class="map-top">
+                    <p>Nhấp vào marker để xem hình ảnh, địa chỉ, thông tin phòng và nút hành động. Bản đồ tự căn khung theo dữ liệu hiện có.</p>
+                </div>
+                <div class="map-wrapper">
+                    <aside class="map-sidebar" id="mapSidebar"></aside>
+                    <div id="dormitory-map"></div>
+                </div>
             </div>
-            <div id="dormitory-map"></div>
         </div>
     </section>
 
-    <!-- Scripts -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div><h4 class="footer-title">Giới thiệu</h4><p>Ký túc xá Đại học Bách Khoa mang đến không gian sống an toàn, hiện đại và tiện nghi cho sinh viên.</p></div>
+                <div><h4 class="footer-title">Đặt chỗ</h4><p><a href="/register">Đăng ký phòng trực tuyến</a></p><p><a href="/room-status">Theo dõi trạng thái hồ sơ</a></p></div>
+                <div><h4 class="footer-title">Giờ mở cửa</h4><p>Thứ 2 - Thứ 6: 08:00 - 20:00</p><p>Thứ 7 - Chủ nhật: 08:00 - 17:00</p></div>
+                <div><h4 class="footer-title">Địa chỉ</h4><p>Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p><p>Email: ktx@hust.edu.vn</p><p>Hotline: 1900 6868</p></div>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="/js/student-common.js"></script>
-    <script>
-        // Initialize map
-        const map = L.map('dormitory-map').setView([21.007119, 105.843220], 15);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-        
-        // Add HUST marker
-        const hust = L.marker([21.007119, 105.843220]).addTo(map);
-        hust.bindPopup("<b>Đại học Bách Khoa Hà Nội</b>").openPopup();
-        
-        // Sample dormitory markers
-        const dormitories = [
-            {
-                name: "KTX Pháp Vân",
-                location: [20.9736, 105.8349],
-                address: "Hoàng Mai, Hà Nội",
-                capacity: "1200 sinh viên"
-            },
-            {
-                name: "KTX Thái Hà",
-                location: [21.0111, 105.8235],
-                address: "Thái Hà, Đống Đa, Hà Nội",
-                capacity: "800 sinh viên"
-            },
-            {
-                name: "KTX Trung tâm",
-                location: [21.0045, 105.8425],
-                address: "Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
-                capacity: "1500 sinh viên"
-            }
-        ];
-        
-        // Add dormitory markers
-        dormitories.forEach(dorm => {
-            const marker = L.marker(dorm.location).addTo(map);
-            marker.bindPopup(`
-                <b>${dorm.name}</b><br>
-                Địa chỉ: ${dorm.address}<br>
-                Sức chứa: ${dorm.capacity}
-            `);
-        });
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+    <script src="/js/premium-home.js"></script>
 </body>
 </html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thực tế quota</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top left, #fff8f1, #f3f6fb 45%); margin: 0; color: #1f2937; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 16px 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+    .header h1 { margin: 0; font-size: 26px; color: #7c2d12; }
+    .meta { color: #6b7280; font-size: 14px; }
+    .card { background: #fff; border: 1px solid #ecdcca; border-radius: 14px; padding: 16px; margin-bottom: 16px; box-shadow: 0 10px 20px rgba(15,23,42,0.06); }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tab { border-radius: 8px; padding: 8px 12px; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .tab.active { background: #9a3412; color: #fff; }
+    .tab.inactive { background: #f1f5f9; color: #334155; }
+    .kpi-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .kpi { border: 1px solid #f0dfcb; border-radius: 10px; padding: 14px; background: linear-gradient(180deg, #fffdfb, #fff7ef); }
+    .kpi .label { font-size: 13px; color: #6b7280; }
+    .kpi .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid #eef2f7; text-align: left; }
+    th { background: #f8f4ee; font-size: 13px; color: #6b3f24; }
+    .status { font-weight: 700; text-transform: uppercase; font-size: 12px; }
+    .status.over_quota { color: #b91c1c; }
+    .status.under_quota { color: #0369a1; }
+    .status.on_target { color: #059669; }
+    .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; font-size: 14px; }
+    .btn-primary { background: #b35a5a; color: #fff; }
+    .btn-secondary { background: #374151; color: #fff; }
+    .btn-warning { background: #9a3412; color: #fff; }
+    .muted { color: #6b7280; font-size: 13px; }
+    .stat-ok { color: #166534; font-weight: 700; }
+    .stat-bad { color: #b91c1c; font-weight: 700; }
+    details.advanced { margin-top: 12px; }
+    details.advanced summary { cursor: pointer; font-size: 13px; color: #7f4a4a; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="tabs">
+      <a class="tab inactive" href="/admin/quotas/<%= quota._id %>/edit">Kế hoạch</a>
+      <span class="tab active">Thực tế</span>
+      <a class="tab inactive" href="/admin/quotas/<%= quota._id %>/preview">Mô phỏng</a>
+    </div>
+
+    <div class="header">
+      <div>
+        <h1>Thực tế</h1>
+        <div class="meta">Năm học: <strong><%= quota.academicYear %></strong> | Phiên bản: <strong>#<%= quota.version %></strong> | <%= quota.isDraft ? 'Nháp' : 'Đã ban hành' %></div>
+      </div>
+      <div class="actions">
+        <a class="btn btn-secondary" href="/admin/quotas/<%= quota._id %>/preview">Mô phỏng</a>
+        <a class="btn btn-secondary" href="/admin/quotas">Quota</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="label">Tổng chỗ</div>
+          <div class="value"><%= capacity.totalSlots %></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Đang sử dụng</div>
+          <div class="value"><%= capacity.occupiedSlots %></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Còn trống</div>
+          <div class="value"><%= capacity.availableSlots %></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Dự kiến còn trống</div>
+          <div class="value"><%= capacity.projectedAvailableSlots %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>So sánh quota và thực tế</h3>
+      <% const yearGroupLabels = { year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3', year4_plus: 'Năm 4 và các năm còn lại' }; %>
+      <table>
+        <thead>
+          <tr>
+            <th>Nhóm năm học</th>
+            <th>Quota %</th>
+            <th>Thực tế %</th>
+            <th>Quota (chỗ)</th>
+            <th>Thực tế (SV)</th>
+            <th>Sử dụng %</th>
+            <th>Còn lại</th>
+            <th>Kết luận</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% (rows || []).forEach(function(row){ %>
+            <% const normalizedQuotaSlot = Number(row.quotaSlot) > 0 ? Number(row.quotaSlot) : Math.round((Number(row.quotaPercentage || 0) * Number(quota.totalCapacity || 0)) / 100); %>
+            <% const normalizedRemaining = normalizedQuotaSlot - Number(row.actual || 0); %>
+            <tr>
+              <td><%= yearGroupLabels[row.yearGroup] || row.yearGroup %></td>
+              <td><%= row.quotaPercentage %>%</td>
+              <td><%= row.actualPercentage %>%</td>
+              <td><%= normalizedQuotaSlot %></td>
+              <td><%= row.actual %></td>
+              <td><%= normalizedQuotaSlot > 0 ? Math.round((Number(row.actual || 0) / normalizedQuotaSlot) * 10000) / 100 + '%' : '-' %></td>
+              <td class="<%= normalizedRemaining < 0 ? 'stat-bad' : 'stat-ok' %>"><%= normalizedRemaining %></td>
+              <td>
+                <% if (normalizedRemaining < 0) { %>
+                  <span class="status over_quota">Vượt quota</span>
+                <% } else if (normalizedRemaining > 0) { %>
+                  <span class="status under_quota">Dư quota</span>
+                <% } else { %>
+                  <span class="status on_target">Đúng quota</span>
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+
+      <details class="advanced">
+        <summary>Chi tiết nâng cao</summary>
+        <div style="margin-top: 10px;">
+          <h4 style="margin: 0 0 10px;">Kiểm tra cho phép vượt trần</h4>
+          <% if (!overCapEvaluation || !overCapEvaluation.enabled) { %>
+            <p class="muted">Chưa bật chính sách cho phép vượt trần cho phiên bản quota này.</p>
+          <% } else if (!overCapEvaluation.violations || overCapEvaluation.violations.length === 0) { %>
+            <p class="muted">Không có nhóm năm nào vi phạm ngưỡng vượt trần đã cấu hình.</p>
+          <% } else { %>
+            <table>
+              <thead>
+                <tr>
+                  <th>Nhóm năm học</th>
+                  <th>Quota</th>
+                  <th>Thực tế</th>
+                  <th>Cho phép tối đa</th>
+                  <th>Mức vượt trần %</th>
+                  <th>Vượt</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% overCapEvaluation.violations.forEach(function(item){ %>
+                  <tr>
+                    <td><%= yearGroupLabels[item.yearGroup] || item.yearGroup %></td>
+                    <td><%= item.quotaSlot %></td>
+                    <td><%= item.actual %></td>
+                    <td><%= item.maxAllowed %></td>
+                    <td><%= item.overCapPercent %>%</td>
+                    <td><%= item.excess %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          <% } %>
+        </div>
+      </details>
+    </div>
+
+  </div>
+</body>
+</html>

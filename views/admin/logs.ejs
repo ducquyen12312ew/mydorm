@@ -3,21 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhật Ký Hệ Thống - Admin KTX</title>
+    <title>Nhật ký hệ thống</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #e61a1a;
-            --primary-hover: #c01515;
-            --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --bg-light: #f8f9fa;
-            --border-color: #e9ecef;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -27,1105 +16,544 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
-            color: var(--text-dark);
+            color: #2c3e50;
         }
 
-        /* ADMIN HEADER */
-        .admin-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* Navigation */
+        .navbar {
             background: white;
-            z-index: 2000;
-            box-shadow: var(--shadow-sm);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
 
-        .admin-header-container {
-            max-width: 1600px;
+        .navbar-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
         }
 
-        .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .admin-logo img {
-            height: 40px;
-            width: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .admin-logo:hover img {
-            transform: scale(1.05);
-        }
-
-        .admin-logo-text {
-            font-size: 1.4rem;
+        .navbar-brand {
+            font-size: 20px;
             font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .admin-nav {
+            color: #2c3e50;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 3rem;
-            flex: 1;
-            margin: 0 3rem;
+            gap: 10px;
         }
 
-        .admin-nav-links {
+        .navbar-menu {
             display: flex;
-            gap: 2.5rem;
+            gap: 5px;
             list-style: none;
+            margin: 0;
+            padding: 0;
         }
 
-        .admin-nav-link {
-            color: var(--text-dark);
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
             text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.5rem 0;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .admin-nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), #ff6b6b);
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .admin-nav-link:hover {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link:hover::before {
-            width: 100%;
-        }
-
-        .admin-nav-link.active {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link.active::before {
-            width: 100%;
-        }
-
-        .admin-nav-link i {
-            margin-right: 8px;
-        }
-
-        .admin-user-section {
-            display: flex;
-            align-items: center;
-        }
-
-        .admin-user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .admin-user-profile:hover {
-            background: var(--bg-light);
-        }
-
-        .admin-user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .admin-user-info {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .admin-user-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .admin-user-role {
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-
-        .admin-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            min-width: 220px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .admin-user-profile:hover .admin-dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .admin-dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 0.85rem 1.25rem;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.9rem;
+            border-radius: 6px;
+            transition: all 0.3s;
             font-weight: 500;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .admin-dropdown-item:hover {
-            background: var(--bg-light);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
+        .navbar-menu a:hover {
+            background: #f8f9fa;
         }
 
-        .admin-dropdown-item i {
-            margin-right: 12px;
-            width: 20px;
-        }
-
-        .admin-dropdown-item.logout {
-            color: #e74c3c;
-        }
-
-        .admin-dropdown-item.logout:hover {
-            background: #ffe6e6;
-            border-left-color: #e74c3c;
-        }
-
-        .admin-menu-toggle {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 28px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .admin-menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
-            background: var(--primary-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .admin-content {
-            padding-top: 90px;
-            min-height: 100vh;
+        .navbar-menu a.active {
+            background: #e74c3c;
+            color: white;
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 20px;
         }
 
-        /* PAGE HEADER */
+        /* Page Header */
         .page-header {
             background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
-        }
-
-        .page-header h1 {
-            color: var(--text-dark);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: var(--text-light);
-            margin: 0;
-        }
-
-        /* FILTER SECTION */
-        .filter-section {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
-        }
-
-        .filter-section h2 {
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-            color: var(--text-dark);
-        }
-
-        .filter-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .form-group label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-            display: block;
-            text-transform: uppercase;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-
-        .filter-actions {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary-color);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-hover);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-sm);
-        }
-
-        .btn-secondary {
-            background: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        .btn-secondary:hover {
-            background: #dee2e6;
-        }
-
-        /* LOGS SECTION */
-        .logs-section {
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-        }
-
-        .logs-header {
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border-color);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .logs-header h2 {
-            font-size: 1.25rem;
-            color: var(--text-dark);
+        .page-header h1 {
+            color: #2c3e50;
+            font-size: 32px;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
         }
 
-        .logs-count {
-            font-size: 0.9rem;
-            color: var(--text-light);
+        .page-header-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        /* Filters */
+        .filters-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .filters-title {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+
+        .filter-controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #95a5a6;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .filter-input,
+        .filter-select {
+            padding: 10px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .filter-input:focus,
+        .filter-select:focus {
+            outline: none;
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Logs Table */
+        .logs-section {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            overflow: auto;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-top: 0;
+        }
+
+        table thead tr {
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
         }
 
         table th {
-            background: var(--bg-light);
-            padding: 1rem;
+            padding: 15px 12px;
             text-align: left;
             font-weight: 600;
-            color: var(--text-dark);
-            font-size: 0.85rem;
+            color: #2c3e50;
+            font-size: 13px;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         table td {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
+            padding: 12px;
+            border-bottom: 1px solid #e9ecef;
+            font-size: 14px;
         }
 
-        table tr:hover {
-            background: var(--bg-light);
+        table tbody tr {
+            transition: all 0.3s;
         }
 
-        .badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 700;
+        table tbody tr:hover {
+            background: linear-gradient(90deg, #fff5f5 0%, #ffe5e5 50%, #fff5f5 100%);
         }
 
-        .badge-admin {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .badge-student {
-            background: #3498db;
-            color: white;
-        }
-
-        .badge-system {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .badge-checked-in {
-            background: #2ecc71;
-            color: white;
-        }
-
-        .badge-checked-out {
-            background: #e67e22;
-            color: white;
-        }
-
-        .badge-assigned {
-            background: #3498db;
-            color: white;
-        }
-
-        .badge-approved {
-            background: #27ae60;
-            color: white;
-        }
-
-        .badge-rejected {
-            background: #c0392b;
-            color: white;
-        }
-
-        /* PAGINATION */
-        .pagination {
-            padding: 1.5rem 2rem;
-            display: flex;
-            justify-content: space-between;
+        .log-action {
+            display: inline-flex;
             align-items: center;
-            border-top: 1px solid var(--border-color);
+            gap: 6px;
+            padding: 5px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
         }
 
-        .pagination-info {
-            font-size: 0.9rem;
-            color: var(--text-light);
+        .log-action.create {
+            background: #e8f5e9;
+            color: #2e7d32;
         }
 
-        .pagination-buttons {
-            display: flex;
-            gap: 0.5rem;
+        .log-action.update {
+            background: #e3f2fd;
+            color: #1565c0;
         }
 
-        .page-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            background: white;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
+        .log-action.delete {
+            background: #ffebee;
+            color: #c62828;
         }
 
-        .page-btn:hover:not(:disabled) {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
+        .log-action.login {
+            background: #f3e5f5;
+            color: #6a1b9a;
         }
 
-        .page-btn.active {
-            background: var(--primary-color);
-            color: white;
-            border-color: var(--primary-color);
+        .log-action.logout {
+            background: #fff3e0;
+            color: #e65100;
         }
 
-        .page-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .log-time {
+            color: #95a5a6;
+            font-size: 13px;
         }
 
-        /* LOADING & EMPTY STATES */
-        .loading {
+        .log-user {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .log-details {
+            color: #555;
+            max-width: 300px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .empty-state {
             text-align: center;
-            padding: 3rem;
-            color: var(--text-light);
+            padding: 60px 20px;
+            color: #999;
         }
 
-        .spinner {
-            border: 3px solid var(--border-color);
-            border-top: 3px solid var(--primary-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .no-data {
-            padding: 3rem;
-            text-align: center;
-            color: var(--text-light);
-        }
-
-        .log-detail {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 0.25rem;
-        }
-
-        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .admin-menu-toggle {
-                display: flex;
+            .container {
+                padding: 10px;
             }
 
-            .admin-nav {
-                position: fixed;
-                top: 70px;
-                right: -100%;
-                width: 280px;
-                height: calc(100vh - 70px);
-                background: white;
+            .navbar-container {
                 flex-direction: column;
-                gap: 0;
-                margin: 0;
-                padding: 2rem 0;
-                box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
-                transition: right 0.3s ease;
+                gap: 15px;
             }
 
-            .admin-nav.active {
-                right: 0;
+            .navbar-menu {
+                flex-wrap: wrap;
+                justify-content: center;
             }
 
-            .admin-nav-links {
+            .page-header {
                 flex-direction: column;
-                gap: 0;
-                width: 100%;
+                gap: 20px;
+                align-items: flex-start;
             }
 
-            .admin-nav-link {
-                padding: 1rem 2rem;
-                border-bottom: 1px solid var(--border-color);
-                width: 100%;
-            }
-
-            .admin-user-info {
-                display: flex;
-            }
-
-            .filter-grid {
+            .filter-controls {
                 grid-template-columns: 1fr;
             }
 
-            .pagination {
+            .filter-buttons {
                 flex-direction: column;
-                gap: 1rem;
-            }
-
-            .container {
-                padding: 0 1rem;
             }
 
             table {
-                font-size: 0.8rem;
+                font-size: 12px;
             }
 
             table th,
             table td {
-                padding: 0.75rem;
+                padding: 8px;
+            }
+
+            .log-details {
+                max-width: 200px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- ADMIN HEADER -->
-    <header class="admin-header">
-        <div class="admin-header-container">
-            <a href="/admin/dashboard" class="admin-logo">
-                <img src="/image/logo.png" alt="Logo">
-                <span class="admin-logo-text">KTX HUST</span>
-            </a>
+    <%- include('navbar', { activeNav: 'logs' }) %>
 
-            <div class="admin-menu-toggle" id="menuToggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-
-            <nav class="admin-nav" id="adminNav">
-                <ul class="admin-nav-links">
-                    <li><a href="/admin/dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/admin/dormitories" class="admin-nav-link"><i class="fas fa-building"></i> Danh sách KTX</a></li>
-                    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
-                    <li><a href="/admin/logs" class="admin-nav-link active"><i class="fas fa-history"></i> Nhật ký</a></li>
-                </ul>
-
-                <div class="admin-user-section">
-                    <div class="admin-user-profile">
-                        <div class="admin-user-avatar">A</div>
-                        <div class="admin-user-info">
-                            <span class="admin-user-name">Admin</span>
-                            <span class="admin-user-role">Quản trị viên</span>
-                        </div>
-                        <div class="admin-dropdown-menu">
-                            <a href="/profile" class="admin-dropdown-item">
-                                <i class="fas fa-user"></i> Hồ sơ cá nhân
-                            </a>
-                            <a href="/admin/settings" class="admin-dropdown-item">
-                                <i class="fas fa-cog"></i> Cài đặt
-                            </a>
-                            <a href="/logout" class="admin-dropdown-item logout">
-                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                            </a>
-                        </div>
-                    </div>
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="page-header-icon">
+                    <i class="fas fa-history"></i>
                 </div>
-            </nav>
+                <h1>Nhật ký hệ thống</h1>
+            </div>
         </div>
-    </header>
 
-    <!-- MAIN CONTENT -->
-    <div class="admin-content">
-        <div class="container">
-            <div class="page-header">
-                <h1><i class="fas fa-history"></i> Nhật Ký Hệ Thống</h1>
-                <p>Theo dõi các hoạt động và thay đổi trong hệ thống</p>
-            </div>
-
-            <div class="filter-section">
-                <h2>Bộ Lọc</h2>
-                <div class="filter-grid">
-                    <div class="form-group">
-                        <label>Loại hoạt động</label>
-                        <select id="action-filter">
-                            <option value="">Tất cả</option>
-                            <option value="checked_in">Check-in</option>
-                            <option value="checked_out">Check-out</option>
-                            <option value="room_assigned">Phân phòng</option>
-                            <option value="application_approved">Duyệt đơn</option>
-                            <option value="application_rejected">Từ chối đơn</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Vai trò</label>
-                        <select id="role-filter">
-                            <option value="">Tất cả</option>
-                            <option value="admin">Quản trị viên</option>
-                            <option value="student">Sinh viên</option>
-                            <option value="system">Hệ thống</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Từ ngày</label>
-                        <input type="date" id="start-date-filter">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Đến ngày</label>
-                        <input type="date" id="end-date-filter">
-                    </div>
+        <!-- Filters -->
+        <div class="filters-section">
+            <div class="filters-title">Bộ lọc</div>
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label class="filter-label">Loại hành động</label>
+                    <select class="filter-select" id="actionFilter">
+                        <option value="">Tất cả</option>
+                        <option value="create">Tạo mới</option>
+                        <option value="update">Cập nhật</option>
+                        <option value="delete">Xóa</option>
+                        <option value="login">Đăng nhập</option>
+                        <option value="logout">Đăng xuất</option>
+                    </select>
                 </div>
 
-                <div class="filter-actions">
+                <div class="filter-group">
+                    <label class="filter-label">Người dùng</label>
+                    <input type="text" class="filter-input" id="userFilter" placeholder="Tìm theo tên...">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Ngày bắt đầu</label>
+                    <input type="date" class="filter-input" id="startDate">
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">Ngày kết thúc</label>
+                    <input type="date" class="filter-input" id="endDate">
+                </div>
+
+                <div class="filter-buttons">
                     <button class="btn btn-primary" onclick="applyFilters()">
-                        <i class="fas fa-search"></i> Áp dụng
+                        <i class="fas fa-search"></i> Tìm kiếm
                     </button>
                     <button class="btn btn-secondary" onclick="resetFilters()">
                         <i class="fas fa-redo"></i> Đặt lại
                     </button>
                 </div>
             </div>
+        </div>
 
-            <div class="logs-section">
-                <div class="logs-header">
-                    <h2>Danh Sách Nhật Ký</h2>
-                    <div class="logs-count" id="logs-count">0 bản ghi</div>
-                </div>
+        <!-- Logs Table -->
+        <div class="logs-section">
+            <h2 class="section-title">Lịch sử hệ thống</h2>
+            
+            <% if (logs && logs.length > 0) { %>
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 150px;">Thời gian</th>
+                            <th style="width: 120px;">Loại</th>
+                            <th style="width: 180px;">Người dùng</th>
+                            <th>Mô tả</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% logs.forEach(function(log, index) { %>
+                            <tr>
+                                <td>
+                                    <div class="log-time">
+                                        <i class="fas fa-clock"></i>
+                                        <% 
+                                        const logDate = log.createdAt || log.timestamp;
+                                        const dateObj = new Date(logDate);
+                                        const formattedDate = dateObj.toLocaleString('vi-VN', {
+                                            year: 'numeric',
+                                            month: '2-digit',
+                                            day: '2-digit',
+                                            hour: '2-digit',
+                                            minute: '2-digit',
+                                            second: '2-digit'
+                                        });
+                                        %>
+                                        <%= formattedDate %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="log-action <%= (log.action || '').toLowerCase() %>">
+                                        <% if (log.action === 'CREATE') { %>
+                                            <i class="fas fa-plus"></i> Tạo
+                                        <% } else if (log.action === 'UPDATE') { %>
+                                            <i class="fas fa-pen"></i> Sửa
+                                        <% } else if (log.action === 'DELETE') { %>
+                                            <i class="fas fa-trash"></i> Xóa
+                                        <% } else if (log.action === 'LOGIN') { %>
+                                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
+                                        <% } else if (log.action === 'LOGOUT') { %>
+                                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                                        <% } else if (log.action === 'APPROVE') { %>
+                                            <i class="fas fa-check"></i> Duyệt
+                                        <% } else if (log.action === 'REJECT') { %>
+                                            <i class="fas fa-times"></i> Từ chối
+                                        <% } else { %>
+                                            <%= log.action || 'N/A' %>
+                                        <% } %>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="log-user">
+                                        <i class="fas fa-user-circle"></i>
+                                        <% 
+                                        let userName = 'N/A';
+                                        if (log.userId && log.userId.name) {
+                                            userName = log.userId.name;
+                                        } else if (log.actor) {
+                                            userName = log.actor;
+                                        }
+                                        %>
+                                        <%= userName %>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="log-details" title="<%= log.description || log.details || '' %>">
+                                        <%= log.description || log.details || 'Không có chi tiết' %>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
 
-                <div id="loading" class="loading" style="display:none;">
-                    <div class="spinner"></div>
-                    <p>Đang tải dữ liệu...</p>
-                </div>
-
-                <div id="logs-content">
-                    <div class="logs-table">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Thời gian</th>
-                                    <th>Người thực hiện</th>
-                                    <th>Vai trò</th>
-                                    <th>Hành động</th>
-                                    <th>Chi tiết</th>
-                                </tr>
-                            </thead>
-                            <tbody id="logs-tbody"></tbody>
-                        </table>
+                <% if (totalPages > 1) { %>
+                    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; padding: 20px;">
+                        <% for (let i = 1; i <= totalPages; i++) { %>
+                            <a href="/admin/logs?page=<%= i %>" 
+                               style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; text-decoration: none; 
+                                       background: <%= i === currentPage ? '#e74c3c' : 'white' %>; 
+                                       color: <%= i === currentPage ? 'white' : '#2c3e50' %>;"
+                               <%= i === currentPage ? 'style="background: #e74c3c; color: white; pointer-events: none;"' : '' %>>
+                                <%= i %>
+                            </a>
+                        <% } %>
                     </div>
-
-                    <div class="pagination" id="pagination-section" style="display:none;">
-                        <div class="pagination-info" id="pagination-info"></div>
-                        <div class="pagination-buttons" id="pagination-buttons"></div>
-                    </div>
+                <% } %>
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p>Chưa có nhật ký nào</p>
                 </div>
-
-                <div id="no-data" class="no-data" style="display:none;">
-                    <i class="fas fa-inbox fa-3x" style="color: var(--border-color); margin-bottom: 1rem;"></i>
-                    <p>Không có dữ liệu phù hợp</p>
-                </div>
-            </div>
+            <% } %>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const adminNav = document.getElementById('adminNav');
-        
-        if (menuToggle && adminNav) {
-            menuToggle.addEventListener('click', function() {
-                this.classList.toggle('active');
-                adminNav.classList.toggle('active');
-            });
-        }
-
-        // Global variables for pagination
-        let currentPage = 1;
-        let totalPages = 1;
-        let currentFilters = {};
-
-        // Load logs when page loads
-        window.addEventListener('load', function() {
-            loadLogs(1);
-        });
-
-        // Main function to load activity logs
-        async function loadLogs(page = 1) {
-            const loadingEl = document.getElementById('loading');
-            const logsContent = document.getElementById('logs-content');
-            const noDataEl = document.getElementById('no-data');
-            
-            // Get filter values
-            const action = document.getElementById('action-filter')?.value || '';
-            const role = document.getElementById('role-filter')?.value || '';
-            const startDate = document.getElementById('start-date-filter')?.value || '';
-            const endDate = document.getElementById('end-date-filter')?.value || '';
-
-            // Build URL parameters
-            const params = new URLSearchParams({
-                page: page,
-                limit: 20
-            });
-
-            if (action) params.append('action', action);
-            if (role) params.append('actorRole', role);
-            if (startDate) params.append('startDate', startDate);
-            if (endDate) params.append('endDate', endDate);
-
-            // Store current filters
-            currentFilters = { action, role, startDate, endDate };
-
-            // Show loading state
-            if (loadingEl) loadingEl.style.display = 'block';
-            if (logsContent) logsContent.style.display = 'none';
-            if (noDataEl) noDataEl.style.display = 'none';
-
-            try {
-                const response = await fetch(`/admin/dashboard/activity-logs?${params}`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-
-                if (data.success) {
-                    // Update pagination info from response
-                    const pagination = data.pagination || {};
-                    currentPage = pagination.currentPage || page;
-                    totalPages = pagination.totalPages || 1;
-
-                    // Render logs and pagination
-                    renderLogs(data.logs || []);
-                    renderPagination(pagination);
-
-                    // Update logs count
-                    const logsCount = document.getElementById('logs-count');
-                    if (logsCount) {
-                        const total = pagination.totalItems || 0;
-                        logsCount.textContent = `${total.toLocaleString('vi-VN')} bản ghi`;
-                    }
-
-                    // Hide loading
-                    if (loadingEl) loadingEl.style.display = 'none';
-
-                    // Show appropriate content
-                    if (!data.logs || data.logs.length === 0) {
-                        if (noDataEl) noDataEl.style.display = 'block';
-                    } else {
-                        if (logsContent) logsContent.style.display = 'block';
-                    }
-                } else {
-                    throw new Error(data.error || 'Failed to load logs');
-                }
-            } catch (error) {
-                console.error('Error loading logs:', error);
-                
-                if (loadingEl) {
-                    loadingEl.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Không thể tải dữ liệu. Vui lòng thử lại.</p>
-                            <button onclick="loadLogs(${page})" class="btn btn-primary mt-2">
-                                <i class="fas fa-redo"></i> Thử lại
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                // Show empty state
-                renderLogs([]);
-                renderPagination({
-                    currentPage: 1,
-                    totalPages: 0,
-                    totalItems: 0
-                });
-            }
-        }
-
-        // Render logs table
-        function renderLogs(logs) {
-            const tbody = document.getElementById('logs-tbody');
-            if (!tbody) return;
-
-            if (!logs || logs.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="5" class="text-center py-5">
-                            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">Không có dữ liệu</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            // Action labels and badge classes
-            const actionLabels = {
-                'login': { text: 'Đăng nhập', class: 'badge-info' },
-                'logout': { text: 'Đăng xuất', class: 'badge-secondary' },
-                'register_success': { text: 'Đăng ký thành công', class: 'badge-success' },
-                'register_failed': { text: 'Đăng ký thất bại', class: 'badge-danger' },
-                'checked_in': { text: 'Check-in', class: 'badge-checked-in' },
-                'checked_out': { text: 'Check-out', class: 'badge-checked-out' },
-                'room_assigned': { text: 'Phân phòng', class: 'badge-assigned' },
-                'room_changed': { text: 'Đổi phòng', class: 'badge-warning' },
-                'application_approved': { text: 'Duyệt đơn', class: 'badge-approved' },
-                'application_rejected': { text: 'Từ chối đơn', class: 'badge-rejected' },
-                'profile_updated': { text: 'Cập nhật hồ sơ', class: 'badge-info' },
-                'payment_success': { text: 'Thanh toán thành công', class: 'badge-success' },
-                'payment_failed': { text: 'Thanh toán thất bại', class: 'badge-danger' },
-                'password_changed': { text: 'Đổi mật khẩu', class: 'badge-info' },
-                'registration_approved': { text: 'Đăng ký được duyệt', class: 'badge-success' },
-                'registration_rejected': { text: 'Đăng ký bị từ chối', class: 'badge-danger' }
-            };
-
-            // Role labels and badge classes
-            const roleLabels = {
-                'admin': { text: 'Quản trị viên', class: 'badge-admin' },
-                'user': { text: 'Sinh viên', class: 'badge-student' },
-                'student': { text: 'Sinh viên', class: 'badge-student' },
-                'system': { text: 'Hệ thống', class: 'badge-system' }
-            };
-
-            tbody.innerHTML = logs.map((log, index) => {
-                // Extract log data with fallbacks
-                const userName = log.userId?.name || log.actor || 'N/A';
-                const studentId = log.userId?.studentId || '';
-                const email = log.userId?.email || '';
-                const userRole = log.userId?.role || log.actorRole || 'user';
-                
-                const timestamp = log.createdAt || log.timestamp;
-                const time = timestamp ? new Date(timestamp).toLocaleString('vi-VN', {
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit'
-                }) : 'N/A';
-                
-                const action = actionLabels[log.action] || { 
-                    text: log.action || 'N/A', 
-                    class: 'badge-secondary' 
-                };
-                
-                const role = roleLabels[userRole] || { 
-                    text: userRole, 
-                    class: 'badge-system' 
-                };
-
-                // Build detail text
-                let detail = log.description || '';
-                
-                if (log.meta || log.details) {
-                    const meta = log.meta || log.details;
-                    
-                    if (meta.assigned) {
-                        detail += ` - Phòng: ${meta.assigned.roomNumber}`;
-                    }
-                    if (meta.roomNumber) {
-                        detail += ` - Phòng: ${meta.roomNumber}`;
-                    }
-                    if (meta.reason) {
-                        detail += ` - Lý do: ${meta.reason}`;
-                    }
-                }
-
-                const rowNumber = ((currentPage - 1) * 20) + index + 1;
-
-                return `
-                    <tr>
-                        <td class="text-center">${rowNumber}</td>
-                        <td>
-                            <div class="user-info">
-                                <strong>${escapeHtml(userName)}</strong>
-                                ${studentId ? `<div class="text-muted small">MSSV: ${escapeHtml(studentId)}</div>` : ''}
-                                ${email ? `<div class="text-muted small">${escapeHtml(email)}</div>` : ''}
-                            </div>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge ${role.class}">${escapeHtml(role.text)}</span>
-                        </td>
-                        <td class="text-center">
-                            <span class="badge ${action.class}">${escapeHtml(action.text)}</span>
-                        </td>
-                        <td>
-                            <div class="log-description">
-                                ${escapeHtml(detail)}
-                            </div>
-                            <div class="text-muted small mt-1">
-                                <i class="far fa-clock"></i> ${time}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Render pagination controls
-        function renderPagination(pagination) {
-            const paginationSection = document.getElementById('pagination-section');
-            if (!paginationSection) return;
-
-            const totalItems = pagination.totalItems || 0;
-            const currentPageNum = pagination.currentPage || 1;
-            const totalPagesNum = pagination.totalPages || 1;
-            const itemsPerPage = pagination.itemsPerPage || 20;
-
-            if (totalItems === 0 || totalPagesNum <= 1) {
-                paginationSection.style.display = 'none';
-                return;
-            }
-
-            paginationSection.style.display = 'flex';
-
-            // Update pagination info
-            const info = document.getElementById('pagination-info');
-            if (info) {
-                const start = ((currentPageNum - 1) * itemsPerPage) + 1;
-                const end = Math.min(currentPageNum * itemsPerPage, totalItems);
-                info.textContent = `Hiển thị ${start.toLocaleString('vi-VN')}-${end.toLocaleString('vi-VN')} trong tổng số ${totalItems.toLocaleString('vi-VN')}`;
-            }
-
-            // Build pagination buttons
-            const buttonsContainer = document.getElementById('pagination-buttons');
-            if (!buttonsContainer) return;
-
-            let html = '';
-
-            // Previous button
-            const hasPrevPage = currentPageNum > 1;
-            html += `
-                <button class="page-btn" 
-                        ${!hasPrevPage ? 'disabled' : ''} 
-                        onclick="loadLogs(${currentPageNum - 1})"
-                        title="Trang trước">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            `;
-
-            // Page number buttons
-            const maxVisiblePages = 5;
-            let startPage = Math.max(1, currentPageNum - Math.floor(maxVisiblePages / 2));
-            let endPage = Math.min(totalPagesNum, startPage + maxVisiblePages - 1);
-
-            if (endPage - startPage < maxVisiblePages - 1) {
-                startPage = Math.max(1, endPage - maxVisiblePages + 1);
-            }
-
-            // First page button
-            if (startPage > 1) {
-                html += `<button class="page-btn" onclick="loadLogs(1)">1</button>`;
-                if (startPage > 2) {
-                    html += `<span class="page-ellipsis">...</span>`;
-                }
-            }
-
-            // Page number buttons
-            for (let i = startPage; i <= endPage; i++) {
-                html += `
-                    <button class="page-btn ${i === currentPageNum ? 'active' : ''}" 
-                            onclick="loadLogs(${i})"
-                            ${i === currentPageNum ? 'disabled' : ''}>
-                        ${i}
-                    </button>
-                `;
-            }
-
-            // Last page button
-            if (endPage < totalPagesNum) {
-                if (endPage < totalPagesNum - 1) {
-                    html += `<span class="page-ellipsis">...</span>`;
-                }
-                html += `<button class="page-btn" onclick="loadLogs(${totalPagesNum})">${totalPagesNum}</button>`;
-            }
-
-            // Next button
-            const hasNextPage = currentPageNum < totalPagesNum;
-            html += `
-                <button class="page-btn" 
-                        ${!hasNextPage ? 'disabled' : ''} 
-                        onclick="loadLogs(${currentPageNum + 1})"
-                        title="Trang sau">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-            `;
-
-            buttonsContainer.innerHTML = html;
-        }
-
-        // Apply filters and reload logs
         function applyFilters() {
-            loadLogs(1);
+            const action = document.getElementById('actionFilter').value;
+            const user = document.getElementById('userFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            let url = '/admin/logs?';
+            if (action) url += `action=${action}&`;
+            if (user) url += `user=${encodeURIComponent(user)}&`;
+            if (startDate) url += `startDate=${startDate}&`;
+            if (endDate) url += `endDate=${endDate}&`;
+
+            window.location.href = url;
         }
 
-        // Reset all filters
         function resetFilters() {
-            const actionFilter = document.getElementById('action-filter');
-            const roleFilter = document.getElementById('role-filter');
-            const startDateFilter = document.getElementById('start-date-filter');
-            const endDateFilter = document.getElementById('end-date-filter');
-
-            if (actionFilter) actionFilter.value = '';
-            if (roleFilter) roleFilter.value = '';
-            if (startDateFilter) startDateFilter.value = '';
-            if (endDateFilter) endDateFilter.value = '';
-
-            currentFilters = {};
-            loadLogs(1);
+            document.getElementById('actionFilter').value = '';
+            document.getElementById('userFilter').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            window.location.href = '/admin/logs';
         }
 
-        // Export CSV function (optional)
-        function exportLogs() {
-            alert('Chức năng xuất CSV đang được phát triển');
-        }
-
-        // Utility function to escape HTML
-        function escapeHtml(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.toString().replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // Export functions for external use
-        window.loadLogs = loadLogs;
-        window.applyFilters = applyFilters;
-        window.resetFilters = resetFilters;
-        window.exportLogs = exportLogs;
+        document.getElementById('userFilter').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') applyFilters();
+        });
     </script>
-</body>
-</html>
 </body>
 </html>

@@ -2,1055 +2,133 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng nhập | KTX HUST</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #e61a1a;
-            --primary-light: #ff3a3a;
-            --primary-dark: #c01616;
-            --text-color: #333;
-            --bg-color: #f8f9fa;
-        }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Quicksand', sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        body {
-            background-color: var(--bg-color);
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-        
-        .login-container {
-            display: flex;
-            width: 100%;
-            max-width: 1000px;
-            margin: auto;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            border-radius: 15px;
-            overflow: hidden;
-            background-color: #fff;
-        }
-        
-        .login-form {
-            flex: 1;
-            padding: 40px;
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .login-image {
-            flex: 1;
-            background-image: url('/image/campus-background.jpg');
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .login-image::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(230, 26, 26, 0.6);
-            z-index: 1;
-        }
-        
-        .image-content {
-            position: relative;
-            z-index: 2;
-            padding: 40px;
-            color: white;
-            text-align: center;
-        }
-        
-        .image-content h2 {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .image-content p {
-            font-size: 18px;
-            margin-bottom: 30px;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-            line-height: 1.6;
-        }
-        
-        .login-form h1 {
-            font-size: 32px;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--primary-color);
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .form-group {
-            margin-bottom: 25px;
-            position: relative;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-color);
-        }
-        
-        .form-group .form-control {
-            width: 100%;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s;
-            -webkit-appearance: none;
-            appearance: none;
-            background-color: #fff;
-        }
-        
-        .form-group .form-control:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(230, 26, 26, 0.2);
-            outline: none;
-        }
-        
-        .form-group .input-with-icon {
-            position: relative;
-        }
-        
-        .form-group .input-with-icon i {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            left: 15px;
-            color: #aaa;
-            z-index: 1;
-        }
-        
-        .form-group .input-with-icon input {
-            padding-left: 45px;
-        }
-        
-        .forgot-password {
-            display: block;
-            text-align: right;
-            color: var(--primary-color);
-            font-weight: 500;
-            text-decoration: none;
-            margin-top: 10px;
-            transition: all 0.3s;
-            touch-action: manipulation;
-        }
-        
-        .forgot-password:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
-        }
-        
-        .login-btn {
-            display: block;
-            width: 100%;
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-transform: uppercase;
-            margin-top: 20px;
-            margin-bottom: 20px;
-            touch-action: manipulation;
-            -webkit-appearance: none;
-            appearance: none;
-            position: relative;
-        }
-        
-        .login-btn:hover {
-            background-color: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
-        }
-        
-        .login-btn:active {
-            transform: translateY(0);
-            background-color: var(--primary-dark);
-        }
-        
-        .login-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .signup-link {
-            text-align: center;
-            font-size: 16px;
-            color: var(--text-color);
-        }
-        
-        .signup-link a {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s;
-            touch-action: manipulation;
-        }
-        
-        .signup-link a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Form divider */
-        .form-divider {
-            display: flex;
-            align-items: center;
-            margin: 20px 0;
-        }
-        
-        .form-divider span {
-            flex: 1;
-            height: 1px;
-            background-color: #ddd;
-        }
-        
-        .form-divider p {
-            margin: 0 15px;
-            color: #666;
-            font-size: 14px;
-        }
-        
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .login-form {
-            animation: fadeIn 0.6s ease-out;
-        }
-        
-        .back-button {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: transparent;
-            border: none;
-            color: var(--primary-color);
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .back-button:hover {
-            transform: translateX(-5px);
-        }
-        
-        .social-login {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .social-btn {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: white;
-            transition: all 0.3s;
-            cursor: pointer;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        .social-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .facebook-btn {
-            background-color: #3b5998;
-        }
-        
-        .google-btn {
-            background-color: #db4437;
-        }
-        
-        .microsoft-btn {
-            background-color: #0078d4;
-        }
-        
-        .remember-me {
-            display: flex;
-            align-items: center;
-            margin-top: 10px;
-            touch-action: manipulation;
-        }
-        
-        .remember-me input {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-        
-        .password-toggle {
-            position: absolute;
-            top: 50%;
-            right: 15px;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #aaa;
-            z-index: 2;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-            padding: 5px;
-        }
-        
-        .alert {
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: none;
-        }
-        
-        .alert-danger {
-            background-color: #ffebee;
-            color: #d32f2f;
-        }
-        
-        .alert-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-        }
-        
-        .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-        
-        /* Validation states */
-        .field-error {
-            border-color: #dc3545 !important;
-            box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2) !important;
-        }
-        
-        .field-valid {
-            border-color: #28a745 !important;
-            box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.2) !important;
-        }
-        
-        /* Keyboard handling */
-        .keyboard-open .login-container {
-            transform: translateY(-50px);
-            transition: transform 0.3s ease;
-        }
-        
-        /* Network status */
-        .network-status {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            z-index: 9999;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-        
-        /* Mobile optimizations */
-        @media (max-width: 992px) {
-            .login-container {
-                flex-direction: column;
-                max-width: 500px;
-                margin: 20px;
-                border-radius: 15px;
-            }
-            
-            .login-image {
-                display: none;
-            }
-            
-            .login-form {
-                padding: 30px 25px;
-            }
-            
-            .login-form h1 {
-                font-size: 28px;
-                margin-bottom: 25px;
-            }
-            
-            .form-group .form-control {
-                padding: 18px 15px;
-                font-size: 16px;
-            }
-            
-            .form-group .input-with-icon input {
-                padding-left: 50px;
-            }
-            
-            .login-btn {
-                padding: 18px;
-                font-size: 16px;
-            }
-            
-            .back-button {
-                top: 15px;
-                left: 15px;
-                font-size: 20px;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            body {
-                padding: 10px;
-            }
-            
-            .login-container {
-                margin: 10px;
-                border-radius: 12px;
-            }
-            
-            .login-form {
-                padding: 25px 20px;
-            }
-            
-            .login-form h1 {
-                font-size: 24px;
-                margin-bottom: 20px;
-            }
-            
-            .form-group {
-                margin-bottom: 20px;
-            }
-            
-            .form-group .form-control {
-                padding: 16px 12px;
-                font-size: 16px;
-            }
-            
-            .form-group .input-with-icon input {
-                padding-left: 45px;
-            }
-            
-            .form-group .input-with-icon i {
-                left: 12px;
-            }
-            
-            .password-toggle {
-                right: 12px;
-            }
-            
-            .login-btn {
-                padding: 16px;
-                font-size: 16px;
-                margin-top: 15px;
-                margin-bottom: 15px;
-            }
-            
-            .social-btn {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-            
-            .back-button {
-                top: 12px;
-                left: 12px;
-                font-size: 18px;
-            }
-        }
-        
-        @media (max-height: 600px) {
-            .login-form {
-                padding: 20px !important;
-            }
-            
-            .login-form h1 {
-                font-size: 24px !important;
-                margin-bottom: 15px !important;
-            }
-            
-            .form-group {
-                margin-bottom: 15px !important;
-            }
-        }
-        
-        /* Fix iOS zoom on input focus */
-        @media screen and (-webkit-min-device-pixel-ratio: 0) {
-            select,
-            textarea,
-            input[type="text"],
-            input[type="password"],
-            input[type="datetime"],
-            input[type="datetime-local"],
-            input[type="date"],
-            input[type="month"],
-            input[type="time"],
-            input[type="week"],
-            input[type="number"],
-            input[type="email"],
-            input[type="url"],
-            input[type="search"],
-            input[type="tel"],
-            input[type="color"] {
-                font-size: 16px;
-            }
-        }
-        
-        /* Prevent zoom on iOS */
-        input[type="text"],
-        input[type="password"] {
-            font-size: 16px !important;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/auth-forms.css">
 </head>
-<body>
-    <div class="login-container">
-        <div class="login-form">
-            <button type="button" onclick="goBack()" class="back-button">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h1>Đăng nhập</h1>
-            
-            <!-- Error message display -->
-            <% if (typeof error !== 'undefined') { %>
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle me-2"></i> <%= error %>
-                </div>
-            <% } %>
-            
-            <!-- Success message display -->
-            <% if (typeof success !== 'undefined') { %>
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle me-2"></i> <%= success %>
-                </div>
-            <% } %>
-            
-            <form action="/login" method="post" id="loginForm" novalidate>
-                <div class="form-group">
-                    <label for="username">Tên đăng nhập</label>
-                    <div class="input-with-icon">
-                        <i class="fas fa-user"></i>
-                        <input 
-                            type="text" 
-                            id="username" 
-                            name="username" 
-                            class="form-control" 
-                            required 
-                            autocomplete="username"
-                            autocapitalize="none"
-                            autocorrect="off"
-                            spellcheck="false"
-                            value="<%= typeof formData !== 'undefined' && formData.username ? formData.username : '' %>"
-                        >
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="auth-layout" aria-label="Trang đăng nhập">
+            <aside class="auth-brand">
+                <div class="brand-visual fade-up" aria-hidden="true">
+                    <div class="brand-media-card">
+                        <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg" alt="Interior preview">
+                        <div class="brand-media-overlay"></div>
+                        <div class="brand-media-copy">
+                            <h3>Discovering the Best Space for Your Home</h3>
+                            <p>Clean, calm and beautifully arranged.</p>
+                        </div>
                     </div>
+                    <span class="brand-orbit orbit-1"></span>
+                    <span class="brand-orbit orbit-2"></span>
+                    <span class="brand-orbit orbit-3"></span>
+                    <span class="brand-orbit orbit-4"></span>
                 </div>
-                
-                <div class="form-group">
-                    <label for="password">Mật khẩu</label>
-                    <div class="input-with-icon position-relative">
-                        <i class="fas fa-lock"></i>
-                        <input 
-                            type="password" 
-                            id="password" 
-                            name="password" 
-                            class="form-control" 
-                            required
-                            autocomplete="current-password"
-                        >
-                        <span class="password-toggle" onclick="togglePassword()">
-                            <i class="far fa-eye"></i>
-                        </span>
+            </aside>
+
+            <section class="auth-panel">
+                <div class="auth-topbar">
+                    <a href="/" class="auth-back" aria-label="Quay lại trang chủ">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </a>
+                    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Đổi giao diện sáng tối">
+                        <i class="fa-regular fa-moon"></i>
+                    </button>
+                </div>
+
+                <h1 class="auth-title">Đăng nhập</h1>
+                <p class="auth-subtitle">Chào mừng quay lại, đăng nhập để tiếp tục quản lý hồ sơ ký túc xá của bạn.</p>
+
+                <% if (typeof error !== 'undefined') { %>
+                    <div class="auth-alert error" role="alert">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span><%= error %></span>
                     </div>
-                </div>
-                
-                <div class="remember-me">
-                    <input type="checkbox" id="remember" name="remember" class="form-check-input" 
-                           <%= typeof formData !== 'undefined' && formData.remember ? 'checked' : '' %>>
-                    <label for="remember" class="form-check-label">Ghi nhớ đăng nhập</label>
-                </div>
-                
-                <a href="/forgot-password" class="forgot-password">Quên mật khẩu?</a>
-                
-                <button type="submit" class="login-btn" id="loginButton">
-                    <span class="loading-spinner"></span>
-                    <span class="button-text">
-                        <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
-                    </span>
-                </button>
-            </form>
-            
-            <div class="form-divider">
-                <span></span>
-                <p>hoặc</p>
-                <span></span>
-            </div>
-            
-            <div class="social-login">
-                <div class="social-btn facebook-btn" title="Đăng nhập bằng Facebook">
-                    <i class="fab fa-facebook-f"></i>
-                </div>
-                <div class="social-btn google-btn" title="Đăng nhập bằng Google">
-                    <i class="fab fa-google"></i>
-                </div>
-                <div class="social-btn microsoft-btn" title="Đăng nhập bằng Microsoft">
-                    <i class="fab fa-microsoft"></i>
-                </div>
-            </div>
-            
-            <div class="signup-link">
-                Chưa có tài khoản? <a href="/signup">Đăng ký ngay</a>
-            </div>
-        </div>
-        
-        <div class="login-image">
-            <div class="image-content">
-                <h2>Chào mừng trở lại!</h2>
-                <p>Đăng nhập để quản lý phòng ký túc xá của bạn và truy cập các dịch vụ dành cho sinh viên Bách Khoa Hà Nội.</p>
-                <img src="/image/logo.png" alt="HUST Logo" style="max-width: 150px; margin-top: 20px;">
-            </div>
-        </div>
-    </div>
+                <% } %>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Mobile Login Handler Class
-        class MobileLoginHandler {
-            constructor() {
-                this.initializeEventListeners();
-                this.setupMobileOptimizations();
-                this.handleNetworkStatus();
-                this.setupFormValidation();
-            }
+                <% if (typeof success !== 'undefined') { %>
+                    <div class="auth-alert success" role="status">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span><%= success %></span>
+                    </div>
+                <% } %>
 
-            initializeEventListeners() {
-                const loginForm = document.getElementById('loginForm');
-                if (loginForm) {
-                    loginForm.addEventListener('submit', this.handleFormSubmit.bind(this));
-                }
+                <form action="/login" method="post" class="auth-form" data-login-form novalidate>
+                    <div class="input-group fade-up">
+                        <div class="field-shell">
+                            <i class="fa-regular fa-user field-icon"></i>
+                            <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder=" "
+                                required
+                                autocomplete="username"
+                                autocapitalize="none"
+                                autocorrect="off"
+                                spellcheck="false"
+                                value="<%= typeof formData !== 'undefined' && formData.username ? formData.username : '' %>"
+                            >
+                            <label for="username">Email hoặc MSSV</label>
+                        </div>
+                        <p class="field-error" aria-live="polite"></p>
+                    </div>
 
-                // Setup social login handlers
-                this.setupSocialLoginHandlers();
-                
-                // Add touch feedback
-                this.addTouchFeedback();
-            }
+                    <div class="input-group fade-up">
+                        <div class="field-shell">
+                            <i class="fa-solid fa-lock field-icon"></i>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder=" "
+                                required
+                                autocomplete="current-password"
+                            >
+                            <label for="password">Mật khẩu</label>
+                            <button type="button" class="field-action" data-password-toggle="password" aria-label="Hiện hoặc ẩn mật khẩu">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <p class="field-error" aria-live="polite"></p>
+                    </div>
 
-            setupMobileOptimizations() {
-                // Prevent zoom on iOS when focusing inputs
-                if (this.isIOS()) {
-                    const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
-                    inputs.forEach(input => {
-                        input.addEventListener('focus', () => {
-                            input.style.fontSize = '16px';
-                        });
-                        input.addEventListener('blur', () => {
-                            input.style.fontSize = '';
-                        });
-                    });
-                }
+                    <div class="row-inline fade-up">
+                        <label class="checkbox-wrap" for="remember">
+                            <input type="checkbox" id="remember" name="remember" <%= typeof formData !== 'undefined' && formData.remember ? 'checked' : '' %>>
+                            <span>Ghi nhớ đăng nhập</span>
+                        </label>
+                        <a href="/forgot-password" class="text-link">Quên mật khẩu?</a>
+                    </div>
 
-                // Handle orientation changes
-                window.addEventListener('orientationchange', () => {
-                    setTimeout(() => {
-                        window.scrollTo(0, 0);
-                        this.adjustViewport();
-                    }, 100);
-                });
+                    <button type="submit" class="primary-btn fade-up">
+                        <span class="btn-loader" aria-hidden="true"></span>
+                        <span>Đăng nhập</span>
+                    </button>
 
-                // Handle virtual keyboard on mobile
-                if (this.isMobile()) {
-                    this.handleVirtualKeyboard();
-                }
-            }
+                    <div class="social-row fade-up" aria-label="Đăng nhập mạng xã hội">
+                        <button type="button" class="social-btn" aria-label="Đăng nhập Google">
+                            <i class="fa-brands fa-google"></i>
+                            <span>Google</span>
+                        </button>
+                        <button type="button" class="social-btn" aria-label="Đăng nhập Facebook">
+                            <i class="fa-brands fa-facebook-f"></i>
+                            <span>Facebook</span>
+                        </button>
+                    </div>
+                </form>
 
-            handleFormSubmit(event) {
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value;
-                const loginButton = document.getElementById('loginButton');
-                
-                // Validate inputs
-                if (!this.validateForm(username, password)) {
-                    event.preventDefault();
-                    return;
-                }
+                <p class="auth-footnote">
+                    Chưa có tài khoản? <a href="/signup">Đăng ký</a>
+                </p>
+            </section>
+        </section>
+    </main>
 
-                // Show loading state
-                this.setLoadingState(loginButton, true);
-
-                // Set timeout to re-enable button if something goes wrong
-                setTimeout(() => {
-                    if (loginButton.disabled) {
-                        this.setLoadingState(loginButton, false);
-                    }
-                }, 10000); // 10 seconds timeout
-            }
-
-            validateForm(username, password) {
-                this.clearErrorMessages();
-
-                let isValid = true;
-                const errors = [];
-
-                if (!username) {
-                    errors.push('Vui lòng nhập tên đăng nhập');
-                    this.highlightField('username');
-                    isValid = false;
-                }
-
-                if (!password) {
-                    errors.push('Vui lòng nhập mật khẩu');
-                    this.highlightField('password');
-                    isValid = false;
-                }
-
-                if (username.length > 0 && username.length < 3) {
-                    errors.push('Tên đăng nhập phải có ít nhất 3 ký tự');
-                    this.highlightField('username');
-                    isValid = false;
-                }
-
-                if (password.length > 0 && password.length < 6) {
-                    errors.push('Mật khẩu phải có ít nhất 6 ký tự');
-                    this.highlightField('password');
-                    isValid = false;
-                }
-
-                if (!isValid) {
-                    this.showValidationErrors(errors);
-                    // Vibrate on mobile if supported
-                    if (navigator.vibrate) {
-                        navigator.vibrate([100, 50, 100]);
-                    }
-                }
-
-                return isValid;
-            }
-
-            setLoadingState(button, isLoading) {
-                const spinner = button.querySelector('.loading-spinner');
-                const buttonText = button.querySelector('.button-text');
-                
-                if (isLoading) {
-                    button.disabled = true;
-                    spinner.style.display = 'inline-block';
-                    buttonText.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Đang đăng nhập...';
-                } else {
-                    button.disabled = false;
-                    spinner.style.display = 'none';
-                    buttonText.innerHTML = '<i class="fas fa-sign-in-alt me-2"></i> Đăng nhập';
-                }
-            }
-
-            showErrorMessage(message) {
-                // Remove existing error messages
-                const existingError = document.querySelector('.dynamic-error');
-                if (existingError) {
-                    existingError.remove();
-                }
-
-                // Create new error message
-                const errorDiv = document.createElement('div');
-                errorDiv.className = 'alert alert-danger dynamic-error';
-                errorDiv.innerHTML = `<i class="fas fa-exclamation-circle me-2"></i> ${message}`;
-                
-                // Insert after the h1 title
-                const title = document.querySelector('.login-form h1');
-                title.parentNode.insertBefore(errorDiv, title.nextSibling);
-
-                // Auto-hide after 5 seconds
-                setTimeout(() => {
-                    if (errorDiv.parentNode) {
-                        errorDiv.remove();
-                    }
-                }, 5000);
-            }
-
-            showValidationErrors(errors) {
-                const errorMessage = errors.join('. ');
-                this.showErrorMessage(errorMessage);
-            }
-
-            clearErrorMessages() {
-                const dynamicErrors = document.querySelectorAll('.dynamic-error');
-                dynamicErrors.forEach(error => error.remove());
-                
-                // Remove field highlights
-                const highlightedFields = document.querySelectorAll('.field-error');
-                highlightedFields.forEach(field => {
-                    field.classList.remove('field-error');
-                });
-            }
-
-            highlightField(fieldId) {
-                const field = document.getElementById(fieldId);
-                if (field) {
-                    field.classList.add('field-error');
-                    setTimeout(() => {
-                        field.classList.remove('field-error');
-                    }, 3000);
-                }
-            }
-
-            setupSocialLoginHandlers() {
-                const socialButtons = document.querySelectorAll('.social-btn');
-                socialButtons.forEach(button => {
-                    button.addEventListener('click', () => {
-                        this.animateButton(button);
-                        setTimeout(() => {
-                            this.showSocialLoginMessage(button);
-                        }, 150);
-                    });
-                });
-            }
-
-            animateButton(button) {
-                button.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    button.style.transform = '';
-                }, 150);
-            }
-
-            showSocialLoginMessage(button) {
-                let service = 'mạng xã hội';
-                if (button.classList.contains('facebook-btn')) service = 'Facebook';
-                else if (button.classList.contains('google-btn')) service = 'Google';
-                else if (button.classList.contains('microsoft-btn')) service = 'Microsoft';
-                
-                this.showErrorMessage(`Tính năng đăng nhập bằng ${service} đang được phát triển!`);
-            }
-
-            handleVirtualKeyboard() {
-                let initialViewportHeight = window.innerHeight;
-                
-                window.addEventListener('resize', () => {
-                    const currentViewportHeight = window.innerHeight;
-                    const viewportHeightDifference = initialViewportHeight - currentViewportHeight;
-                    
-                    // If viewport height decreased significantly, keyboard is likely open
-                    if (viewportHeightDifference > 150) {
-                        document.body.classList.add('keyboard-open');
-                    } else {
-                        document.body.classList.remove('keyboard-open');
-                    }
-                });
-            }
-
-            adjustViewport() {
-                // Adjust viewport for mobile browsers
-                const viewportMeta = document.querySelector('meta[name="viewport"]');
-                if (viewportMeta) {
-                    viewportMeta.content = 'width=device-width, initial-scale=1.0, user-scalable=no';
-                }
-            }
-
-            addTouchFeedback() {
-                const touchElements = document.querySelectorAll('.login-btn, .social-btn, .back-button, .password-toggle, .forgot-password, .signup-link a');
-                
-                touchElements.forEach(element => {
-                    element.addEventListener('touchstart', function() {
-                        this.style.opacity = '0.7';
-                    }, { passive: true });
-                    
-                    element.addEventListener('touchend', function() {
-                        this.style.opacity = '1';
-                    }, { passive: true });
-                    
-                    element.addEventListener('touchcancel', function() {
-                        this.style.opacity = '1';
-                    }, { passive: true });
-                });
-            }
-
-            handleNetworkStatus() {
-                window.addEventListener('online', () => {
-                    this.showNetworkStatus('Kết nối mạng đã được khôi phục', 'success');
-                });
-                
-                window.addEventListener('offline', () => {
-                    this.showNetworkStatus('Mất kết nối mạng. Vui lòng kiểm tra kết nối internet.', 'error');
-                });
-            }
-
-            showNetworkStatus(message, type) {
-                const statusDiv = document.createElement('div');
-                statusDiv.className = `alert alert-${type === 'success' ? 'success' : 'danger'} network-status`;
-                statusDiv.innerHTML = message;
-                
-                document.body.appendChild(statusDiv);
-                
-                setTimeout(() => {
-                    if (statusDiv.parentNode) {
-                        statusDiv.remove();
-                    }
-                }, 3000);
-            }
-
-            setupFormValidation() {
-                const usernameInput = document.getElementById('username');
-                const passwordInput = document.getElementById('password');
-                
-                if (usernameInput) {
-                    usernameInput.addEventListener('input', this.debounce(() => {
-                        this.validateField('username', usernameInput.value.trim());
-                    }, 500));
-                }
-                
-                if (passwordInput) {
-                    passwordInput.addEventListener('input', this.debounce(() => {
-                        this.validateField('password', passwordInput.value);
-                    }, 500));
-                }
-            }
-
-            validateField(fieldName, value) {
-                const field = document.getElementById(fieldName);
-                let isValid = true;
-                
-                if (fieldName === 'username') {
-                    isValid = value.length >= 3;
-                } else if (fieldName === 'password') {
-                    isValid = value.length >= 6;
-                }
-                
-                if (field) {
-                    if (isValid) {
-                        field.classList.remove('field-error');
-                        field.classList.add('field-valid');
-                    } else {
-                        field.classList.remove('field-valid');
-                        if (value.length > 0) {
-                            field.classList.add('field-error');
-                        }
-                    }
-                }
-            }
-
-            // Utility functions
-            isMobile() {
-                return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            }
-
-            isIOS() {
-                return /iPad|iPhone|iPod/.test(navigator.userAgent);
-            }
-
-            debounce(func, wait) {
-                let timeout;
-                return function executedFunction(...args) {
-                    const later = () => {
-                        clearTimeout(timeout);
-                        func(...args);
-                    };
-                    clearTimeout(timeout);
-                    timeout = setTimeout(later, wait);
-                };
-            }
-        }
-
-        // Go back function
-        function goBack() {
-            if (document.referrer && document.referrer !== window.location.href) {
-                window.history.back();
-            } else {
-                window.location.href = '/';
-            }
-        }
-        
-        // Toggle password visibility
-        function togglePassword() {
-            const input = document.getElementById('password');
-            const icon = document.querySelector('.password-toggle i');
-            
-            if (input.type === 'password') {
-                input.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                input.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        // Initialize the mobile login handler when DOM is loaded
-        document.addEventListener('DOMContentLoaded', () => {
-            new MobileLoginHandler();
-            
-            // Auto-focus on username field for desktop, avoid on mobile
-            if (window.innerWidth > 768 && !('ontouchstart' in window)) {
-                const usernameField = document.getElementById('username');
-                if (usernameField) {
-                    setTimeout(() => {
-                        usernameField.focus();
-                    }, 100);
-                }
-            }
-        });
-
-        // Enhanced error handling for network issues
-        window.addEventListener('load', () => {
-            // Check if there's a login error and focus on username field
-            const errorAlert = document.querySelector('.alert-danger');
-            if (errorAlert && window.innerWidth > 768) {
-                const usernameField = document.getElementById('username');
-                if (usernameField) {
-                    usernameField.focus();
-                }
-            }
-        });
-    </script>
+    <script src="/js/auth-ui.js"></script>
 </body>
 </html>

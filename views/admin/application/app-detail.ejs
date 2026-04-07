@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Đơn Đăng Ký - KTX HUST</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #f87171;
+            --primary-dark: #fb7185;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-light: #f9fafb;
+            --border: #e5e7eb;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: white;
+            min-height: 100vh;
+            padding: 0;
+        }
+
+        .container-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .navbar-top {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-menu a:hover {
+            background: #f8f9fa;
+        }
+
+        .navbar-menu a.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .container-wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .page-title i {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-back {
+            background: var(--bg-light);
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-back:hover {
+            background: white;
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .btn-approve {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+        }
+
+        .btn-approve:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-reject {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            color: white;
+        }
+
+        .btn-reject:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-dark);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-dark);
+            transform: translateY(-2px);
+        }
+
+        .alert-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            border-left: 4px solid;
+            box-shadow: var(--shadow);
+        }
+
+        .alert-danger {
+            border-left-color: var(--danger);
+            background: linear-gradient(to right, #fef2f2, white);
+        }
+
+        .alert-warning {
+            border-left-color: var(--warning);
+            background: linear-gradient(to right, #fffbeb, white);
+        }
+
+        .alert-card i {
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .alert-danger i {
+            color: var(--danger);
+        }
+
+        .alert-warning i {
+            color: var(--warning);
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--bg-light), white);
+            border-bottom: 2px solid var(--border);
+            padding: 1.5rem;
+        }
+
+        .card-header-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin: 0;
+        }
+
+        .card-header-title i {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 2rem;
+        }
+
+        .info-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-item {
+            position: relative;
+            padding: 1rem;
+            background: var(--bg-light);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+
+        .info-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            font-weight: 600;
+            word-break: break-word;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge-pending {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            color: #92400e;
+        }
+
+        .badge-approved {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            color: #065f46;
+        }
+
+        .badge-rejected {
+            background: linear-gradient(135deg, #fecaca, #fca5a5);
+            color: #7f1d1d;
+        }
+
+        .priority-box {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .priority-score {
+            font-size: 4rem;
+            font-weight: 900;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .priority-label {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .policy-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .policy-item {
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 600;
+            color: var(--text-dark);
+            transition: all 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .policy-item:hover {
+            background: white;
+            box-shadow: var(--shadow);
+            transform: translateX(4px);
+        }
+
+        .policy-name {
+            flex: 1;
+        }
+
+        .policy-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            margin-left: 1rem;
+        }
+
+        .policy-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(230, 26, 26, 0.3);
+            color: white;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            color: var(--border);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .action-bar {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            padding: 1.5rem 2rem;
+            background: var(--bg-light);
+            border-top: 2px solid var(--border);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem 0.5rem;
+            }
+
+            .page-header {
+                padding: 1.5rem;
+            }
+
+            .page-title {
+                font-size: 1.5rem;
+            }
+
+            .card-body {
+                padding: 1.5rem;
+            }
+
+            .info-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .policy-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .policy-link {
+                margin-left: 0;
+                margin-top: 0.75rem;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .card:nth-child(2) { animation-delay: 0.1s; }
+        .card:nth-child(3) { animation-delay: 0.2s; }
+        .card:nth-child(4) { animation-delay: 0.3s; }
+        .card:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar-top">
+        <div class="navbar-container">
+            <a href="/admin/dashboard" class="navbar-brand">
+                <i class="fas fa-building"></i> KTX HUST
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/admin/dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+                <li><a href="/admin/dormitories">
+                    <i class="fas fa-building"></i> Ký túc xá
+                </a></li>
+                <li><a href="/admin/application" class="active">
+                    <i class="fas fa-file-alt"></i> Đơn đăng ký
+                </a></li>
+                <li><a href="/admin/academic-windows">
+                    <i class="fas fa-calendar-alt"></i> Đợt đăng ký
+                </a></li>
+                <li><a href="/admin/violations">
+                    <i class="fas fa-shield-alt"></i> Vi phạm
+                </a></li>
+                <li><a href="/admin/logs">
+                    <i class="fas fa-history"></i> Nhật ký
+                </a></li>
+                <li><a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container-wrapper">
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-file-alt"></i>
+                Chi Tiết Đơn Đăng Ký
+            </h1>
+        </div>
+
+        <% if (application) { %>
+
+        <!-- Alerts -->
+        <% if (application.studentExistsInfo) { %>
+        <div class="alert-card alert-danger">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>
+                <strong>Cảnh báo:</strong> Sinh viên đã được cấp phòng tại <strong><%= application.studentExistsInfo.dormitoryName %></strong> - Phòng <strong><%= application.studentExistsInfo.roomNumber %></strong>
+            </div>
+        </div>
+        <% } %>
+
+        <% if (application.isRoomFull) { %>
+        <div class="alert-card alert-warning">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>Thông báo:</strong> Phòng <%= application.roomNumber %> đã đầy (<%= application.currentOccupants %>/<%= application.roomCapacity %> chỗ)
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Student Info -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">
+                    <i class="fas fa-user-graduate"></i>
+                    Thông Tin Sinh Viên
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-id-card"></i> Mã Sinh Viên</div>
+                        <div class="info-value"><%= application.studentId %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-user"></i> Họ và Tên</div>
+                        <div class="info-value"><%= application.fullName %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-envelope"></i> Email</div>
+                        <div class="info-value"><%= application.email %></div>
+                    </div>
+                </div>
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-phone"></i> Số Điện Thoại</div>
+                        <div class="info-value"><%= application.phone || 'Chưa cập nhật' %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-graduation-cap"></i> Khoa</div>
+                        <div class="info-value"><%= application.faculty %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-calendar"></i> Niên Khóa</div>
+                        <div class="info-value"><%= application.academicYear %></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Room Info -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">
+                    <i class="fas fa-door-open"></i>
+                    Thông Tin Phòng
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-building"></i> Ký Túc Xá</div>
+                        <div class="info-value"><%= application.dormitoryName %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-door-closed"></i> Số Phòng</div>
+                        <div class="info-value"><%= application.roomNumber %></div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-users"></i> Sức Chứa</div>
+                        <div class="info-value"><%= application.currentOccupants %>/<%= application.roomCapacity %> người</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Application Status -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">
+                    <i class="fas fa-clipboard-check"></i>
+                    Trạng Thái Đơn
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="info-row">
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-info-circle"></i> Trạng Thái</div>
+                        <div class="info-value">
+                            <% 
+                            let badgeClass = 'badge-pending';
+                            let statusText = 'Chờ Duyệt';
+                            if (application.status === 'approved_waiting_payment' || application.status === 'approved') {
+                                badgeClass = 'badge-approved';
+                                statusText = 'Đã Duyệt';
+                            } else if (application.status === 'rejected') {
+                                badgeClass = 'badge-rejected';
+                                statusText = 'Từ Chối';
+                            }
+                            %>
+                            <span class="badge <%= badgeClass %>">
+                                <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                <%= statusText %>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-clock"></i> Ngày Nộp</div>
+                        <div class="info-value"><%= new Date(application.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></div>
+                    </div>
+                    <% if (application.payment && application.payment.paid) { %>
+                    <div class="info-item">
+                        <div class="info-label"><i class="fas fa-credit-card"></i> Thanh Toán</div>
+                        <div class="info-value">
+                            <span class="badge badge-approved">
+                                <i class="fas fa-check-circle"></i>
+                                Đã Thanh Toán
+                            </span>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+
+        <!-- Priority -->
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">
+                    <i class="fas fa-star"></i>
+                    Ưu Tiên & Chính Sách
+                </h2>
+            </div>
+            <div class="card-body">
+                <% if (application.priorityPolicies && application.priorityPolicies.length > 0) { %>
+                <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-dark);">
+                    <i class="fas fa-list-check"></i> Chính Sách Áp Dụng
+                </h3>
+                <div class="policy-list">
+                    <% application.priorityPolicies.forEach((policy, idx) => { 
+                        let policyName = '';
+                        let policyDocument = '';
+                        
+                        if (typeof policy === 'string') {
+                            policyName = policy;
+                        } else if (typeof policy === 'object') {
+                            if (policy.type === 'poor') policyName = 'Hộ Nghèo';
+                            else if (policy.type === 'ethnic') policyName = 'Dân Tộc Thiểu Số' + (policy.ethnicity ? ' - ' + policy.ethnicity : '');
+                            else if (policy.type === 'disability') policyName = 'Người Khuyết Tật';
+                            else if (policy.type === 'orphan') policyName = 'Trẻ Mồ Côi';
+                            else if (policy.type === 'martyr') policyName = 'Con em Liệt Sĩ';
+                            else policyName = policy.name || policy.type || 'Chính sách';
+                            
+                            policyDocument = policy.proofDocument || policy.documentUrl || '';
+                        }
+                    %>
+                    <div class="policy-item">
+                        <span class="policy-name"><%= idx + 1 %>. <%= policyName %></span>
+                        <% if (policyDocument) { %>
+                        <a href="/uploads/priority-claims/<%= policyDocument %>" target="_blank" class="policy-link" title="Tải minh chứng">
+                            <i class="fas fa-download"></i> Minh Chứng
+                        </a>
+                        <% } %>
+                    </div>
+                    <% }); %>
+                </div>
+                <% } else { %>
+                <div class="no-data">
+                    <i class="fas fa-inbox"></i>
+                    <p>Không có chính sách ưu tiên</p>
+                </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <% if (application.comments) { %>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-header-title">
+                    <i class="fas fa-comment-dots"></i>
+                    Ghi Chú
+                </h2>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <div class="info-value"><%= application.comments %></div>
+                </div>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- Actions -->
+        <div class="card">
+            <div class="action-bar">
+                <% if (application.status === 'pending_review' || application.status === 'pending') { %>
+                    <% if (!application.studentExistsInfo && !application.isRoomFull) { %>
+                    <button class="btn btn-approve" onclick="approveApp()">
+                        <i class="fas fa-check-circle"></i> Duyệt Đơn
+                    </button>
+                    <% } %>
+                    <button class="btn btn-reject" onclick="rejectApp()">
+                        <i class="fas fa-times-circle"></i> Từ Chối
+                    </button>
+                <% } %>
+                <a href="/admin/application/<%= application._id %>/review-history" class="btn btn-secondary">
+                    <i class="fas fa-history"></i> Lịch Sử
+                </a>
+            </div>
+        </div>
+
+        <% } else { %>
+        <div class="alert-card alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div>Không tìm thấy thông tin đơn đăng ký</div>
+        </div>
+        <% } %>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const appId = '<%= application ? application._id : "" %>';
+
+        function approveApp() {
+            if (!confirm('Bạn có chắc muốn duyệt đơn này?')) return;
+            
+            fetch(`/admin/applications/${appId}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.ok || d.success) {
+                    alert('Duyệt đơn thành công!');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + (d.error || d.message || 'Không thể duyệt'));
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                alert('Lỗi kết nối: ' + e.message);
+            });
+        }
+
+        function rejectApp() {
+            const reason = prompt('Nhập lý do từ chối:');
+            if (!reason || !reason.trim()) return;
+            
+            fetch(`/admin/applications/${appId}/reject`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason })
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.ok || d.success) {
+                    alert('Từ chối đơn thành công!');
+                    location.reload();
+                } else {
+                    alert('Lỗi: ' + (d.error || d.message || 'Không thể từ chối'));
+                }
+            })
+            .catch(e => {
+                console.error(e);
+                alert('Lỗi kết nối: ' + e.message);
+            });
+        }
+    </script>
+</body>
+</html>

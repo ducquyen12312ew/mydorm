@@ -1,10 +1,12 @@
 // src/routes/maintenance-routes.js
 const express = require('express');
 const router = express.Router();
-const { MaintenanceRequestModel } = require('../schemas/ViolationSchema');
+const { MaintenanceRequestModel } = require('../schemas/MaintenanceRequestSchema');
 const { StudentCollection, DormitoryCollection } = require('../config/config');
 const { validate } = require('../middleware/security');
 const { body } = require('express-validator');
+const notificationService = require('../services/notificationService');
+const { logger, logSecurityEvent } = require('../config/logger');
 
 // Middleware
 const isAuthenticated = (req, res, next) => {
@@ -24,7 +26,7 @@ const isAdmin = (req, res, next) => {
 // ============================================
 // STUDENT: CREATE MAINTENANCE REQUEST
 // ============================================
-router.post('/api/student/maintenance-requests',
+router.post('/student/maintenance-requests',
     isAuthenticated,
     [
         body('title').isLength({ min: 5, max: 200 })
@@ -99,10 +101,50 @@ router.post('/api/student/maintenance-requests',
                 },
                 status: 'submitted'
             });
+
+            // ✅ Send maintenance request confirmation email
+            try {
+                const maintenanceTypes = {
+                    'electrical': 'Sự cố điện',
+                    'plumbing': 'Sự cố cấp nước',
+                    'hvac': 'Sự cố điều hòa',
+                    'furniture': 'Đồ nội thất',
+                    'door_lock': 'Khóa cửa',
+                    'window': 'Cửa sổ',
+                    'internet': 'Kết nối Internet',
+                    'cleaning': 'Vệ sinh',
+                    'pest_control': 'Diệt côn trùng',
+                    'other': 'Khác'
+                };
+
+                const maintenanceData = {
+                    requestId: request._id.toString().slice(-8).toUpperCase(),
+                    studentName: student.name,
+                    dormitory: dormitory.name,
+                    floor: floorNumber,
+                    room: student.roomNumber,
+                    type: maintenanceTypes[type] || type,
+                    title: title,
+                    priority: priority || 'medium',
+                    description: description,
+                    submittedAt: new Date().toLocaleString('vi-VN')
+                };
+
+                await notificationService.sendMaintenanceNotification(student.email, maintenanceData);
+                logSecurityEvent(student._id, 'MAINTENANCE_NOTIFICATION_SENT', { 
+                    requestId: request._id,
+                    ip: req.ip
+                });
+            } catch (emailError) {
+                logger.error('Failed to send maintenance notification', { 
+                    requestId: request._id, 
+                    error: emailError.message 
+                });
+            }
             
             res.status(201).json({
                 success: true,
-                message: 'Đã gửi yêu cầu bảo trì',
+                message: 'Đã gửi yêu cầu bảo trì và xác nhận qua email',
                 request
             });
         } catch (error) {
@@ -115,7 +157,7 @@ router.post('/api/student/maintenance-requests',
 // ============================================
 // STUDENT: GET MY MAINTENANCE REQUESTS
 // ============================================
-router.get('/api/student/maintenance-requests', isAuthenticated, async (req, res) => {
+router.get('/student/maintenance-requests', isAuthenticated, async (req, res) => {
     try {
         const { status, page = 1, limit = 20 } = req.query;
         
@@ -149,7 +191,7 @@ router.get('/api/student/maintenance-requests', isAuthenticated, async (req, res
 // ============================================
 // STUDENT: SUBMIT FEEDBACK
 // ============================================
-router.post('/api/student/maintenance-requests/:id/feedback',
+router.post('/student/maintenance-requests/:id/feedback',
     isAuthenticated,
     [
         body('rating').isInt({ min: 1, max: 5 })

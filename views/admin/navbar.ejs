@@ -1,0 +1,155 @@
+﻿<% const navActive = typeof activeNav !== 'undefined' ? activeNav : ''; %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+    .admin-navbar {
+        background: #ffffff;
+        padding: 20px 0;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        margin-bottom: 24px;
+        border-bottom: 1px solid #e5e7eb;
+        position: relative;
+    }
+
+    .admin-navbar-container {
+        width: 100%;
+        max-width: 1480px;
+        margin: 0 auto;
+        padding: 0 26px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        position: relative;
+    }
+
+    .admin-navbar-menu {
+        display: flex;
+        gap: 8px;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .admin-navbar-link {
+        padding: 13px 18px;
+        color: #1e293b;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.2s;
+        font-weight: 600;
+        font-size: 17px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .admin-navbar-link:hover {
+        background: #f1f5f9;
+    }
+
+    .admin-navbar-link.active {
+        background: #fee2e2;
+        color: #111827;
+    }
+
+    .admin-navbar-link i {
+        color: #111111;
+        font-size: 13px;
+        width: 13px;
+        text-align: center;
+    }
+
+    .admin-avatar-wrap {
+        position: absolute;
+        right: 26px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin-left: 0;
+    }
+
+    .admin-avatar-btn {
+        width: 46px;
+        height: 46px;
+        border-radius: 999px;
+        border: 1px solid #d1d5db;
+        background: #f8fafc;
+        color: #1f2937;
+        font-weight: 600;
+        font-size: 15px;
+        cursor: pointer;
+    }
+
+    .admin-avatar-menu {
+        position: absolute;
+        right: 0;
+        top: 54px;
+        min-width: 190px;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+        display: none;
+        overflow: hidden;
+        z-index: 20;
+    }
+
+    .admin-avatar-menu.open {
+        display: block;
+    }
+
+    .admin-avatar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #1f2937;
+        padding: 11px 12px;
+        font-size: 15px;
+    }
+
+    .admin-avatar-menu a:hover {
+        background: #f9fafb;
+    }
+</style>
+
+<nav class="admin-navbar">
+    <div class="admin-navbar-container">
+        <ul class="admin-navbar-menu">
+            <li><a href="/admin/dashboard" class="admin-navbar-link <%= navActive === 'dashboard' ? 'active' : '' %>"><i class="fas fa-chart-line"></i>Tổng quan</a></li>
+            <li><a href="/admin/dormitories" class="admin-navbar-link <%= navActive === 'dormitories' ? 'active' : '' %>"><i class="fas fa-building"></i>Ký túc xá</a></li>
+            <li><a href="/admin/application" class="admin-navbar-link <%= navActive === 'applications' ? 'active' : '' %>"><i class="fas fa-file-alt"></i>Hồ sơ</a></li>
+            <li><a href="/admin/violations" class="admin-navbar-link <%= navActive === 'violations' ? 'active' : '' %>"><i class="fas fa-shield-alt"></i>Vi phạm</a></li>
+            <li><a href="/admin/allocation/policies" class="admin-navbar-link <%= navActive === 'allocation' ? 'active' : '' %>"><i class="fas fa-sitemap"></i>Phân bổ</a></li>
+            <li><a href="/admin/logs" class="admin-navbar-link <%= navActive === 'logs' ? 'active' : '' %>"><i class="fas fa-history"></i>Nhật ký</a></li>
+        </ul>
+
+        <div class="admin-avatar-wrap">
+            <button id="avatarBtn" class="admin-avatar-btn" type="button">AD</button>
+            <div id="avatarMenu" class="admin-avatar-menu">
+                <a href="/admin/quotas">Quota</a>
+                <a href="/logout">Đăng xuất</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    (function attachAvatarMenu() {
+        const button = document.getElementById('avatarBtn');
+        const menu = document.getElementById('avatarMenu');
+        if (!button || !menu) return;
+
+        button.addEventListener('click', function toggleMenu(event) {
+            event.stopPropagation();
+            menu.classList.toggle('open');
+        });
+
+        document.addEventListener('click', function closeMenu() {
+            menu.classList.remove('open');
+        });
+    })();
+</script>
+

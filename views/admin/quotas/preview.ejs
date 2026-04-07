@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mô phỏng quota</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f3f6fb; margin: 0; color: #1f2937; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 16px 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; }
+    .header h1 { margin: 0; font-size: 24px; }
+    .meta { color: #6b7280; font-size: 14px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0; }
+    .tab { border-radius: 8px; padding: 8px 12px; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .tab.active { background: #1d4ed8; color: #fff; }
+    .tab.inactive { background: #e2e8f0; color: #334155; }
+    .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .kpi { border: 1px solid #eef2f7; border-radius: 10px; padding: 14px; }
+    .kpi .label { font-size: 13px; color: #6b7280; }
+    .kpi .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid #eef2f7; text-align: left; }
+    th { background: #f9fafb; font-size: 13px; color: #4b5563; }
+    .actions { display: flex; gap: 8px; margin-top: 12px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; font-size: 14px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #374151; color: #fff; }
+    .muted { color: #6b7280; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="tabs">
+      <a class="tab inactive" href="/admin/quotas/<%= quota._id %>/edit">Kế hoạch</a>
+      <a class="tab inactive" href="/admin/quotas/<%= quota._id %>/dashboard">Thực tế</a>
+      <span class="tab active">Mô phỏng</span>
+    </div>
+
+    <div class="header">
+      <div>
+        <h1>Mô phỏng quota</h1>
+        <div class="meta">Năm học: <strong><%= quota.academicYear %></strong> | Phiên bản: <strong>#<%= quota.version %></strong> | <%= quota.isDraft ? 'Nháp' : 'Đã ban hành' %></div>
+      </div>
+      <div class="actions">
+        <a class="btn btn-secondary" href="/admin/quotas/<%= quota._id %>/dashboard">Thực tế</a>
+        <a class="btn btn-secondary" href="/admin/quotas">Danh sách quota</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div class="kpi">
+          <div class="label">Tổng sinh viên</div>
+          <div class="value"><%= preview.summary.totalStudents %></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Tổng cần rời KTX (mô phỏng)</div>
+          <div class="value"><%= preview.summary.totalToRemove %></div>
+        </div>
+        <div class="kpi">
+          <div class="label">Tổng sau mô phỏng</div>
+          <div class="value"><%= preview.summary.totalAfter %></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Mô phỏng theo nhóm năm học</h3>
+      <% const yearGroupLabels = { year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3', year4_plus: 'Năm 4 và các năm còn lại' }; %>
+      <table>
+        <thead>
+          <tr>
+            <th>Nhóm năm học</th>
+            <th>Quota</th>
+            <th>Thực tế</th>
+            <th>Vượt</th>
+            <th>Cần rời</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% ['year1','year2','year3','year4_plus'].forEach(function(group){
+               const row = preview.byYearGroup[group] || { quota: 0, actual: 0, overflow: 0, toRemove: 0 };
+          %>
+            <tr>
+              <td><%= yearGroupLabels[group] || group %></td>
+              <td><%= row.quota %></td>
+              <td><%= row.actual %></td>
+              <td><%= row.overflow %></td>
+              <td><%= row.toRemove %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <p class="muted">Trang này chỉ để mô phỏng, không ghi dữ liệu vào hệ thống.</p>
+    </div>
+
+    <div class="card">
+      <h3>Danh sách dự kiến rời KTX</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Mã SV</th>
+            <th>Họ tên</th>
+            <th>Tài khoản</th>
+            <th>Nhóm năm học</th>
+            <th>Điểm ưu tiên</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!preview.removalList || preview.removalList.length === 0) { %>
+            <tr><td colspan="5">Không có sinh viên cần rời KTX trong mô phỏng này.</td></tr>
+          <% } %>
+          <% (preview.removalList || []).forEach(function(item){ %>
+            <tr>
+              <td><%= item.studentId || '-' %></td>
+              <td><%= item.name || '-' %></td>
+              <td><%= item.username || '-' %></td>
+              <td><%= yearGroupLabels[item.yearGroup] || item.yearGroup || '-' %></td>
+              <td><%= Number(item.priorityScore) || 0 %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

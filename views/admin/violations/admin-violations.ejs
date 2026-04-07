@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Vi phạm</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-menu a:hover {
+            background: #f8f9fa;
+        }
+
+        .navbar-menu a.active {
+            background: #d63031;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #d63031;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #b71c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card:nth-child(1) {
+            border-left: 4px solid #f39c12;
+        }
+
+        .stat-card:nth-child(2) {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .stat-card:nth-child(3) {
+            border-left: 4px solid #d63031;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-card:nth-child(1) .stat-value { color: #f39c12; }
+        .stat-card:nth-child(2) .stat-value { color: #2ecc71; }
+        .stat-card:nth-child(3) .stat-value { color: #d63031; }
+
+        .stat-label {
+            font-size: 13px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Filters */
+        .filters-card {
+            background: white;
+            padding: 20px 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .form-select, .form-control {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-select:focus, .form-control:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+            outline: none;
+        }
+
+        /* Table */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .custom-table thead {
+            background: #f8f9fa;
+        }
+
+        .custom-table thead th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .custom-table tbody tr {
+            border-bottom: 1px solid #ecf0f1;
+            transition: all 0.2s;
+        }
+
+        .custom-table tbody tr:hover {
+            background: linear-gradient(90deg, #fff5f5 0%, #ffe5e5 50%, #fff5f5 100%);
+            transform: scale(1.01);
+        }
+
+        .custom-table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+        }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e74c3c, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 2px;
+        }
+
+        .user-id {
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        /* Badges */
+        .badge-custom {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .severity-low { background: #d4edda; color: #155724; }
+        .severity-medium { background: #fff3cd; color: #856404; }
+        .severity-high { background: #f8d7da; color: #721c24; }
+        .severity-critical { background: #721c24; color: white; }
+
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #d4edda; color: #155724; }
+        .status-dismissed { background: #e2e3e5; color: #383d41; }
+
+        /* Action Buttons */
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-view {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .btn-view:hover {
+            background: #1976d2;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .btn-delete {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+            color: white;
+            transform: scale(1.1);
+        }
+
+        /* Pagination */
+        .pagination {
+            margin-top: 20px;
+            gap: 8px;
+        }
+
+        .page-item .page-link {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 15px;
+            color: #2c3e50;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .page-item.active .page-link {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .page-item .page-link:hover {
+            background: #fff5f5;
+        }
+
+        /* Loading */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner-border {
+            color: #e74c3c;
+        }
+
+        /* Modal */
+        .modal-content {
+            border-radius: 10px;
+            border: none;
+        }
+
+        .modal-header {
+            background: #fff5f5;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            padding: 20px 25px;
+        }
+
+        .modal-title {
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #ecf0f1;
+            padding: 15px 25px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .navbar-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include('../navbar', { activeNav: 'violations' }) %>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-shield-alt" style="color: #e74c3c;"></i>
+                Quản lý Vi phạm
+            </h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addViolationModal">
+                    <i class="fas fa-plus"></i>
+                    Báo cáo vi phạm
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="statPending">0</div>
+                <div class="stat-label">Chờ xử lý</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statResolved">0</div>
+                <div class="stat-label">Đã xử lý</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statCritical">0</div>
+                <div class="stat-label">Vi phạm nghiêm trọng</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-card">
+            <div class="filters-grid">
+                <select class="form-select" id="filterStatus">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="pending">Chờ xử lý</option>
+                    <option value="resolved">Đã xử lý</option>
+                    <option value="dismissed">Đã bỏ qua</option>
+                </select>
+                <select class="form-select" id="filterSeverity">
+                    <option value="">Tất cả mức độ</option>
+                    <option value="low">Nhẹ</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="high">Nghiêm trọng</option>
+                    <option value="critical">Rất nghiêm trọng</option>
+                </select>
+                <select class="form-select" id="filterType">
+                    <option value="">Tất cả loại</option>
+                    <option value="noise">Ồn ào</option>
+                    <option value="alcohol">Rượu bia</option>
+                    <option value="smoking">Hút thuốc</option>
+                    <option value="late_return">Về muộn</option>
+                    <option value="unauthorized_guest">Khách không phép</option>
+                    <option value="damage">Hư hỏng tài sản</option>
+                    <option value="hygiene">Vi phạm vệ sinh</option>
+                    <option value="theft">Trộm cắp</option>
+                    <option value="violence">Bạo lực</option>
+                    <option value="other">Khác</option>
+                </select>
+                <input type="text" class="form-control" id="filterSearch" placeholder="Tìm theo MSSV hoặc tên...">
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th>Sinh viên</th>
+                        <th>Loại vi phạm</th>
+                        <th>Mức độ</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày báo cáo</th>
+                        <th style="width: 120px;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="violationsTable">
+                    <tr>
+                        <td colspan="6" class="loading-spinner">
+                            <div class="spinner-border" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination justify-content-center" id="pagination"></ul>
+        </nav>
+    </div>
+
+    <!-- Add Violation Modal -->
+    <div class="modal fade" id="addViolationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Báo cáo vi phạm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addViolationForm">
+                        <div class="mb-3">
+                            <label class="form-label">Mã sinh viên *</label>
+                            <input type="text" class="form-control" name="studentId" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Loại vi phạm *</label>
+                            <select class="form-select" name="type" required>
+                                <option value="">-- Chọn loại vi phạm --</option>
+                                <option value="noise">Ồn ào</option>
+                                <option value="alcohol">Rượu bia</option>
+                                <option value="smoking">Hút thuốc</option>
+                                <option value="late_return">Về muộn</option>
+                                <option value="unauthorized_guest">Khách không phép</option>
+                                <option value="damage">Hư hỏng tài sản</option>
+                                <option value="hygiene">Vi phạm vệ sinh</option>
+                                <option value="theft">Trộm cắp</option>
+                                <option value="violence">Bạo lực</option>
+                                <option value="other">Khác</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mức độ nghiêm trọng *</label>
+                            <select class="form-select" name="severity" required>
+                                <option value="low">Nhẹ</option>
+                                <option value="medium" selected>Trung bình</option>
+                                <option value="high">Nghiêm trọng</option>
+                                <option value="critical">Rất nghiêm trọng</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô tả chi tiết *</label>
+                            <textarea class="form-control" name="description" rows="4" required></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitViolation()">Báo cáo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View/Resolve Modal -->
+    <div class="modal fade" id="viewViolationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chi tiết vi phạm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="violationDetails">
+                    <!-- Content loaded via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resolve Violation Modal -->
+    <div class="modal fade" id="resolveViolationModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xử lý vi phạm</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="resolveViolationForm">
+                        <div class="mb-3">
+                            <label class="form-label">Hành động xử lý *</label>
+                            <select class="form-select" name="action" required>
+                                <option value="">-- Chọn hành động --</option>
+                                <option value="warning">Cảnh cáo</option>
+                                <option value="suspension">Tạm đình chỉ</option>
+                                <option value="expulsion">Khai trừ</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Ghi chú</label>
+                            <textarea class="form-control" name="notes" rows="4" placeholder="Ghi chú chi tiết về xử lý..."></textarea>
+                        </div>
+                        <input type="hidden" name="violationId" id="resolveViolationId">
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitResolution()">Xác nhận xử lý</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentPage = 1;
+        let currentFilters = {};
+
+        async function loadViolations() {
+            const params = new URLSearchParams({
+                page: currentPage,
+                limit: 20,
+                ...currentFilters
+            });
+
+            try {
+                const response = await fetch(`/api/admin/violations?${params}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    renderTable(data.violations);
+                    renderPagination(data.pagination);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/violations/stats/summary');
+                const data = await response.json();
+                
+                console.log('Stats response:', data);
+
+                if (data.success) {
+                    const stats = data.stats;
+                    
+                    console.log('Stats data:', stats);
+                    
+                    const statusMap = stats.byStatus.reduce((acc, item) => {
+                        acc[item._id] = item.count;
+                        return acc;
+                    }, {});
+                    
+                    const severityMap = stats.bySeverity.reduce((acc, item) => {
+                        acc[item._id] = item.count;
+                        return acc;
+                    }, {});
+
+                    console.log('Status map:', statusMap);
+                    console.log('Severity map:', severityMap);
+
+                    document.getElementById('statPending').textContent = statusMap.pending || 0;
+                    document.getElementById('statResolved').textContent = statusMap.resolved || 0;
+                    document.getElementById('statCritical').textContent = severityMap.critical || 0;
+                    
+                    console.log('Stats updated successfully');
+                } else {
+                    console.error('Stats error:', data);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function getInitials(name) {
+            return name
+                .split(' ')
+                .map(word => word[0])
+                .join('')
+                .toUpperCase()
+                .slice(0, 2);
+        }
+
+        function renderTable(violations) {
+            const tbody = document.getElementById('violationsTable');
+            
+            if (violations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="loading-spinner" style="padding: 3rem; color: #999;">Không có dữ liệu</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = violations.map(v => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="avatar-placeholder">${getInitials(v.studentName)}</div>
+                            <div class="user-info">
+                                <span class="user-name">${v.studentName}</span>
+                                <span class="user-id">${v.studentId}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${getTypeLabel(v.type)}</td>
+                    <td><span class="badge-custom severity-${v.severity}">${getSeverityLabel(v.severity)}</span></td>
+                    <td><span class="badge-custom status-${v.status}">${getStatusLabel(v.status)}</span></td>
+                    <td>${new Date(v.reportedAt).toLocaleDateString('vi-VN')}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="btn-icon btn-view" onclick="viewViolation('${v._id}')" title="Xem chi tiết">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon btn-delete" onclick="deleteViolation('${v._id}')" title="Xóa">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderPagination(pagination) {
+            const nav = document.getElementById('pagination');
+            let html = '';
+
+            for (let i = 1; i <= pagination.pages; i++) {
+                html += `
+                    <li class="page-item ${i === pagination.page ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                    </li>
+                `;
+            }
+
+            nav.innerHTML = html;
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            loadViolations();
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                noise: 'Ồn ào', alcohol: 'Rượu bia', smoking: 'Hút thuốc',
+                late_return: 'Về muộn', unauthorized_guest: 'Khách không phép',
+                damage: 'Hư hỏng', hygiene: 'Vệ sinh', theft: 'Trộm cắp',
+                violence: 'Bạo lực', other: 'Khác'
+            };
+            return labels[type] || type;
+        }
+
+        function getSeverityLabel(severity) {
+            const labels = { low: 'Nhẹ', medium: 'TB', high: 'Nghiêm trọng', critical: 'Rất nghiêm trọng' };
+            return labels[severity] || severity;
+        }
+
+        function getStatusLabel(status) {
+            const labels = { pending: 'Chờ xử lý', resolved: 'Đã xử lý', dismissed: 'Bỏ qua' };
+            return labels[status] || status;
+        }
+
+        async function submitViolation() {
+            const form = document.getElementById('addViolationForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            console.log('Submitting violation data:', data);
+
+            try {
+                const response = await fetch('/api/admin/violations', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                console.log('Response:', result);
+
+                if (result.success) {
+                    alert('✓ Đã báo cáo vi phạm thành công');
+                    bootstrap.Modal.getInstance(document.getElementById('addViolationModal')).hide();
+                    form.reset();
+                    loadViolations();
+                    loadStats();
+                } else {
+                    let errorMsg = result.error || 'Lỗi không xác định';
+                    if (result.errors && Array.isArray(result.errors)) {
+                        errorMsg = result.errors.map(e => `${e.field}: ${e.message}`).join('\n');
+                    }
+                    console.error('Validation errors:', errorMsg);
+                    alert('✗ Lỗi:\n' + errorMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('✗ Lỗi hệ thống: ' + error.message);
+            }
+        }
+
+        async function viewViolation(id) {
+            try {
+                const response = await fetch(`/api/admin/violations/${id}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const v = data.violation;
+                    document.getElementById('violationDetails').innerHTML = `
+                        <div class="user-cell mb-4">
+                            <div class="avatar-placeholder" style="width: 60px; height: 60px; font-size: 1.3rem;">${getInitials(v.studentName)}</div>
+                            <div class="user-info">
+                                <h5 class="mb-1">${v.studentName}</h5>
+                                <span class="user-id">${v.studentId} • Phòng ${v.roomNumber || 'N/A'}</span>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Loại:</strong> ${getTypeLabel(v.type)}<br>
+                            <strong>Mức độ:</strong> <span class="badge-custom severity-${v.severity}">${getSeverityLabel(v.severity)}</span><br>
+                            <strong>Trạng thái:</strong> <span class="badge-custom status-${v.status}">${getStatusLabel(v.status)}</span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Mô tả:</strong><br>
+                            <p style="margin-top: 0.5rem; line-height: 1.6;">${v.description}</p>
+                        </div>
+                        <div class="mb-3">
+                            <strong>Báo cáo bởi:</strong> ${v.reportedBy.name}<br>
+                            <strong>Thời gian:</strong> ${new Date(v.reportedAt).toLocaleString('vi-VN')}
+                        </div>
+                        ${v.status === 'pending' ? `
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button class="btn btn-primary" onclick="resolveViolation('${v._id}')">
+                                    <i class="fas fa-check"></i> Xử lý
+                                </button>
+                                <button class="btn btn-secondary" onclick="updateStatus('${v._id}', 'dismissed')">
+                                    <i class="fas fa-times"></i> Bỏ qua
+                                </button>
+                            </div>
+                        ` : ''}
+                    `;
+
+                    new bootstrap.Modal(document.getElementById('viewViolationModal')).show();
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('✗ Lỗi khi tải chi tiết vi phạm');
+            }
+        }
+
+        async function updateStatus(id, status) {
+            try {
+                console.log(`Updating violation ${id} to status: ${status}`);
+                
+                const response = await fetch(`/api/admin/violations/${id}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+
+                console.log(`Response status: ${response.status}`);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    alert('✓ Đã cập nhật trạng thái thành công');
+                    bootstrap.Modal.getInstance(document.getElementById('viewViolationModal')).hide();
+                    loadViolations();
+                    loadStats();
+                } else {
+                    let errorMsg = data.error || 'Lỗi không xác định';
+                    if (data.errors && Array.isArray(data.errors)) {
+                        errorMsg = data.errors.map(e => `${e.field}: ${e.message}`).join('\n');
+                    }
+                    console.error('Error response:', errorMsg);
+                    alert('✗ Lỗi:\n' + errorMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('✗ Lỗi hệ thống: ' + error.message);
+            }
+        }
+
+        async function resolveViolation(id) {
+            document.getElementById('resolveViolationId').value = id;
+            bootstrap.Modal.getInstance(document.getElementById('viewViolationModal')).hide();
+            new bootstrap.Modal(document.getElementById('resolveViolationModal')).show();
+        }
+
+        async function submitResolution() {
+            const form = document.getElementById('resolveViolationForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            const violationId = data.violationId;
+
+            try {
+                const response = await fetch(`/api/admin/violations/${violationId}/resolve`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        action: data.action, 
+                        notes: data.notes 
+                    })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert('✓ Đã xử lý vi phạm thành công');
+                    bootstrap.Modal.getInstance(document.getElementById('resolveViolationModal')).hide();
+                    form.reset();
+                    loadViolations();
+                    loadStats();
+                } else {
+                    let errorMsg = result.error || 'Lỗi không xác định';
+                    if (result.errors && Array.isArray(result.errors)) {
+                        errorMsg = result.errors.map(e => `${e.field}: ${e.message}`).join('\n');
+                    }
+                    alert('✗ Lỗi:\n' + errorMsg);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('✗ Lỗi hệ thống: ' + error.message);
+            }
+        }
+
+        async function deleteViolation(id) {
+            if (!confirm('⚠️ Bạn chắc chắn muốn xóa vi phạm này?\n\nHành động này không thể hoàn tác.')) {
+                return;
+            }
+
+            try {
+                console.log(`Deleting violation ${id}`);
+                
+                const response = await fetch(`/api/admin/violations/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                console.log(`Response status: ${response.status}`);
+                const data = await response.json();
+                console.log('Response data:', data);
+
+                if (data.success) {
+                    alert('✓ Đã xóa vi phạm thành công');
+                    loadViolations();
+                    loadStats();
+                } else {
+                    alert('✗ Lỗi: ' + (data.error || 'Không thể xóa vi phạm'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('✗ Lỗi hệ thống: ' + error.message);
+            }
+        }
+
+        // Event listeners for filters
+        document.getElementById('filterStatus').addEventListener('change', (e) => {
+            currentFilters.status = e.target.value;
+            currentPage = 1;
+            loadViolations();
+        });
+
+        document.getElementById('filterSeverity').addEventListener('change', (e) => {
+            currentFilters.severity = e.target.value;
+            currentPage = 1;
+            loadViolations();
+        });
+
+        document.getElementById('filterType').addEventListener('change', (e) => {
+            currentFilters.type = e.target.value;
+            currentPage = 1;
+            loadViolations();
+        });
+
+        document.getElementById('filterSearch').addEventListener('input', (e) => {
+            currentFilters.studentId = e.target.value;
+            currentPage = 1;
+            loadViolations();
+        });
+
+        // Load initial data
+        loadViolations();
+        loadStats();
+    </script>
+</body>
+</html>

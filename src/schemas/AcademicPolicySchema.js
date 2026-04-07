@@ -49,9 +49,6 @@ const AcademicPolicySchema = new mongoose.Schema({
   notes: { type: String }
 });
 
-// Chỉ giữ index cho active; KHÔNG tạo index trùng academicYear vì đã unique ở field
-AcademicPolicySchema.index({ active: 1 });
-
 AcademicPolicySchema.pre('save', function (next) {
   this.updatedAt = new Date();
   next();

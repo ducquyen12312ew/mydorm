@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const ExcelJS = require('exceljs');
 const { 
     DormitoryCollection, 
     PendingApplicationCollection, 
@@ -12,6 +13,10 @@ const {
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
         return next();
+    }
+    // Check if it's a page request (not API)
+    if (req.headers.accept && req.headers.accept.includes('text/html')) {
+        return res.redirect('/login');
     }
     res.status(403).json({ error: 'Không có quyền truy cập' });
 };
@@ -27,13 +32,70 @@ router.get('/admin/dashboard', isAdmin, (req, res) => {
 });
 
 // Render trang logs
-router.get('/admin/logs', isAdmin, (req, res) => {
-    res.render('admin/logs', {
-        user: { 
-            name: req.session.name, 
-            role: req.session.role 
+router.get('/admin/logs', isAdmin, async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 20;
+        const skip = (page - 1) * limit;
+
+        // Build filter
+        const filter = {};
+        
+        if (req.query.action) {
+            filter.action = req.query.action;
         }
-    });
+        
+        if (req.query.user) {
+            filter.$or = [
+                { 'userId.name': { $regex: req.query.user, $options: 'i' } },
+                { actor: { $regex: req.query.user, $options: 'i' } }
+            ];
+        }
+
+        if (req.query.startDate || req.query.endDate) {
+            filter.createdAt = {};
+            if (req.query.startDate) {
+                filter.createdAt.$gte = new Date(req.query.startDate);
+            }
+            if (req.query.endDate) {
+                const endDate = new Date(req.query.endDate);
+                endDate.setHours(23, 59, 59, 999);
+                filter.createdAt.$lte = endDate;
+            }
+        }
+
+        // Fetch logs
+        const logs = await ActivityLogCollection
+            .find(filter)
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip(skip)
+            .lean();
+
+        const totalLogs = await ActivityLogCollection.countDocuments(filter);
+
+        res.render('admin/logs', {
+            user: { 
+                name: req.session.name, 
+                role: req.session.role 
+            },
+            logs: logs || [],
+            totalLogs: totalLogs,
+            currentPage: page,
+            totalPages: Math.ceil(totalLogs / limit)
+        });
+    } catch (error) {
+        console.error('Error loading logs page:', error);
+        res.render('admin/logs', {
+            user: { 
+                name: req.session.name, 
+                role: req.session.role 
+            },
+            logs: [],
+            totalLogs: 0,
+            currentPage: 1
+        });
+    }
 });
 
 // API: Lấy thống kê dashboard
@@ -45,8 +107,13 @@ router.get('/admin/dashboard/stats', isAdmin, async (req, res) => {
             roomNumber: { $exists: true, $ne: null }
         });
         
-        // Lấy thông tin ký túc xá
-        const dormitories = await DormitoryCollection.find({});
+        // Lấy thông tin ký túc xá (không lấy những cái đã xóa); bao gồm bản ghi cũ chưa có cờ isDeleted
+        const dormitories = await DormitoryCollection.find({
+            $or: [
+                { isDeleted: false },
+                { isDeleted: { $exists: false } }
+            ]
+        });
         
         // Tính toán thống kê
         let totalRooms = 0;
@@ -306,6 +373,607 @@ router.get('/admin/activity-logs', isAdmin, async (req, res) => {
                 totalItems: 0,
                 itemsPerPage: 50
             }
+        });
+    }
+});
+
+// Render trang maintenance requests
+router.get('/admin/maintenance-requests', isAdmin, (req, res) => {
+    res.render('admin/maintenance/admin-maintenance-requests', {
+        user: { 
+            name: req.session.name, 
+            role: req.session.role 
+        }
+    });
+});
+
+// Render trang application
+router.get('/admin/application', isAdmin, (req, res) => {
+    res.render('admin/application/admin-application', {
+        user: { 
+            name: req.session.name, 
+            role: req.session.role 
+        }
+    });
+});
+
+// Render trang view dormitory
+router.get('/admin/dormitories/view/:id', isAdmin, async (req, res) => {
+    try {
+        const dormitory = await DormitoryCollection.findById(req.params.id);
+        if (!dormitory || dormitory.isDeleted) {
+            return res.status(404).render('404', { 
+                message: 'Không tìm thấy ký túc xá' 
+            });
+        }
+        res.render('admin/dormitory/admin-dormitory-view', {
+            user: { 
+                name: req.session.name, 
+                role: req.session.role 
+            },
+            dormitory: dormitory
+        });
+    } catch (error) {
+        res.status(500).render('404', { 
+            message: 'Lỗi hệ thống' 
+        });
+    }
+});
+
+// API: Lấy xu hướng lấp đầy theo kỳ
+router.get('/admin/dashboard/occupancy-trend', isAdmin, async (req, res) => {
+    try {
+        const period = req.query.period || 'month'; // month, quarter, semester
+        const now = new Date();
+        let startDate = new Date();
+        let dataPoints = [];
+
+        if (period === 'month') {
+            startDate.setDate(1);
+            // Get daily data for current month
+            for (let i = 1; i <= new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate(); i++) {
+                dataPoints.push({
+                    date: new Date(now.getFullYear(), now.getMonth(), i),
+                    label: `Ngày ${i}`
+                });
+            }
+        } else if (period === 'quarter') {
+            const quarter = Math.floor(now.getMonth() / 3);
+            startDate = new Date(now.getFullYear(), quarter * 3, 1);
+            // Get weekly data for current quarter
+            for (let i = 0; i < 13; i++) {
+                const date = new Date(startDate);
+                date.setDate(date.getDate() + i * 7);
+                if (date.getMonth() === (quarter * 3) || date.getMonth() === (quarter * 3 + 1) || date.getMonth() === (quarter * 3 + 2)) {
+                    dataPoints.push({
+                        date: date,
+                        label: `Tuần ${i + 1}`
+                    });
+                }
+            }
+        } else if (period === 'semester') {
+            const semester = now.getMonth() < 6 ? 1 : 2;
+            startDate = new Date(now.getFullYear(), semester === 1 ? 0 : 6, 1);
+            // Get monthly data for current semester
+            for (let i = 0; i < 6; i++) {
+                const date = new Date(now.getFullYear(), (semester === 1 ? 0 : 6) + i, 1);
+                dataPoints.push({
+                    date: date,
+                    label: `Tháng ${i + (semester === 1 ? 1 : 7)}`
+                });
+            }
+        }
+
+        // Calculate occupancy rate for each data point
+        const trendData = [];
+        for (const point of dataPoints) {
+            const totalCapacity = await StudentCollection.aggregate([
+                { $group: { _id: null, capacity: { $sum: 1 } } }
+            ]);
+            
+            const occupied = await StudentCollection.countDocuments({
+                dormitoryId: { $exists: true, $ne: null },
+                roomNumber: { $exists: true, $ne: null }
+            });
+
+            const capacity = totalCapacity[0]?.capacity || 1000;
+            const rate = Math.round((occupied / capacity) * 100);
+
+            trendData.push({
+                label: point.label,
+                occupancy: rate,
+                date: point.date.toISOString().split('T')[0]
+            });
+        }
+
+        res.json({
+            success: true,
+            period: period,
+            data: trendData
+        });
+
+    } catch (error) {
+        console.error('Error fetching occupancy trend:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Không thể lấy dữ liệu xu hướng lấp đầy',
+            data: []
+        });
+    }
+});
+
+// API: Lấy phân bố sinh viên theo năm
+router.get('/admin/dashboard/year-distribution', isAdmin, async (req, res) => {
+    try {
+        // Lấy tất cả sinh viên đang ở KTX
+        const students = await StudentCollection.find({
+            dormitoryId: { $exists: true, $ne: null },
+            roomNumber: { $exists: true, $ne: null }
+        }).lean();
+
+        // Đếm sinh viên theo năm
+        const yearCount = {
+            '1': 0,
+            '2': 0,
+            '3': 0,
+            '4': 0,
+            '5': 0,
+            '6': 0
+        };
+
+        students.forEach(student => {
+            // Lấy năm từ mã số sinh viên (4 ký tự đầu tiên)
+            const currentYear = new Date().getFullYear();
+            let admissionYear = parseInt((student.studentId || '').substring(0, 4));
+
+            if (isNaN(admissionYear)) {
+                // fallback 2-digit
+                const code2 = parseInt((student.studentId || '').substring(0, 2));
+                admissionYear = code2 >= 50 ? 1900 + code2 : 2000 + code2;
+            }
+
+            let academicYear = currentYear - admissionYear;
+            if (academicYear < 1 || isNaN(academicYear)) academicYear = 1;
+            if (academicYear > 6) academicYear = 6;
+
+            if (academicYear >= 1 && academicYear <= 6) {
+                yearCount[academicYear.toString()]++;
+            } else if (student.academicYear) {
+                // Fallback: sử dụng academicYear nếu có
+                const year = student.academicYear.toString();
+                if (yearCount.hasOwnProperty(year)) {
+                    yearCount[year]++;
+                }
+            }
+        });
+
+        // Chuẩn bị dữ liệu cho chart
+        const labels = [];
+        const values = [];
+        
+        for (let year = 1; year <= 6; year++) {
+            const count = yearCount[year.toString()];
+            if (count > 0) {
+                labels.push(year === 6 ? 'Sau đại học' : `Năm ${year}`);
+                values.push(count);
+            }
+        }
+
+        res.json({
+            success: true,
+            data: {
+                labels: labels,
+                values: values,
+                total: students.length
+            }
+        });
+
+    } catch (error) {
+        console.error('Error fetching year distribution:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Không thể lấy dữ liệu phân bố năm học',
+            data: { labels: [], values: [], total: 0 }
+        });
+    }
+});
+
+function normalizeCohort(value) {
+    const raw = (value || '').toString().trim();
+    if (!raw) return '';
+    if (/^k\d{2}$/i.test(raw)) return raw.toUpperCase();
+    const numeric = raw.replace(/\D/g, '');
+    if (numeric.length >= 2) return `K${numeric.slice(0, 2)}`;
+    return raw.toUpperCase();
+}
+
+function getStudentCohort(student = {}) {
+    const academic = (student.academicYear || '').toString().trim();
+    if (/^k\d{2}$/i.test(academic)) return academic.toUpperCase();
+
+    const id = (student.studentId || '').toString();
+    const twoDigit = id.match(/^(\d{2})/);
+    if (twoDigit) return `K${twoDigit[1]}`;
+
+    const fourDigit = id.match(/^(\d{4})/);
+    if (fourDigit) {
+        const year = parseInt(fourDigit[1], 10);
+        if (!Number.isNaN(year)) {
+            return `K${String(year).slice(-2)}`;
+        }
+    }
+
+    return 'UNKNOWN';
+}
+
+function toCsvValue(value) {
+    if (value === null || value === undefined) return '';
+    const text = String(value);
+    if (/[",\n]/.test(text)) {
+        return `"${text.replace(/"/g, '""')}"`;
+    }
+    return text;
+}
+
+async function buildMasterDashboardData(options = {}) {
+    const search = (options.search || '').toString().trim().toLowerCase();
+    const cohortFilter = normalizeCohort(options.cohort || '');
+
+    const dormitories = await DormitoryCollection.find({
+        $or: [
+            { isDeleted: false },
+            { isDeleted: { $exists: false } }
+        ]
+    }).lean();
+
+    const occupantIds = [];
+    dormitories.forEach((building) => {
+        (building.floors || []).forEach((floor) => {
+            (floor.rooms || []).forEach((room) => {
+                (room.occupants || []).forEach((occupant) => {
+                    if (occupant && occupant.active && occupant.studentId) {
+                        occupantIds.push(String(occupant.studentId));
+                    }
+                });
+            });
+        });
+    });
+
+    const uniqueStudentIds = [...new Set(occupantIds)];
+    const students = uniqueStudentIds.length
+        ? await StudentCollection.find({ _id: { $in: uniqueStudentIds } }).lean()
+        : [];
+
+    const studentMap = new Map();
+    students.forEach((student) => {
+        studentMap.set(String(student._id), student);
+    });
+
+    const flatStudents = [];
+    const roomSummary = [];
+    const buildings = [];
+    let totalRooms = 0;
+    let availableRooms = 0;
+    let occupiedRooms = 0;
+
+    dormitories.forEach((building) => {
+        const buildingNode = {
+            id: String(building._id),
+            name: building.name,
+            totalRooms: 0,
+            availableRooms: 0,
+            occupiedRooms: 0,
+            floors: []
+        };
+
+        (building.floors || []).forEach((floor) => {
+            const floorNode = {
+                floorNumber: floor.floorNumber,
+                totalRooms: 0,
+                availableRooms: 0,
+                occupiedRooms: 0,
+                rooms: []
+            };
+
+            (floor.rooms || []).forEach((room) => {
+                const activeOccupants = (room.occupants || []).filter((o) => o.active);
+                const roomCapacity = Number(room.maxCapacity || 0);
+                const roomAvailableBeds = Math.max(roomCapacity - activeOccupants.length, 0);
+                const isAvailable = activeOccupants.length < roomCapacity;
+
+                totalRooms += 1;
+                buildingNode.totalRooms += 1;
+                floorNode.totalRooms += 1;
+
+                if (isAvailable) {
+                    availableRooms += 1;
+                    buildingNode.availableRooms += 1;
+                    floorNode.availableRooms += 1;
+                } else {
+                    occupiedRooms += 1;
+                    buildingNode.occupiedRooms += 1;
+                    floorNode.occupiedRooms += 1;
+                }
+
+                const studentsInRoom = activeOccupants.map((occupant, index) => {
+                    const profile = studentMap.get(String(occupant.studentId)) || {};
+                    const cohort = getStudentCohort(profile);
+
+                    const studentInfo = {
+                        bedIndex: index + 1,
+                        studentId: String(occupant.studentId || ''),
+                        studentCode: profile.studentId || '',
+                        name: occupant.name || profile.name || 'Unknown',
+                        email: occupant.email || profile.email || '',
+                        phone: occupant.phone || profile.phone || '',
+                        cohort,
+                        buildingId: buildingNode.id,
+                        buildingName: buildingNode.name,
+                        floorNumber: floor.floorNumber,
+                        roomId: String(room._id),
+                        roomNumber: room.roomNumber,
+                        profileUrl: `/admin/master-dashboard/student/${encodeURIComponent(String(occupant.studentId || ''))}`,
+                        maintenanceUrl: `/admin/maintenance-requests?studentCode=${encodeURIComponent(profile.studentId || '')}&roomNumber=${encodeURIComponent(String(room.roomNumber || ''))}`
+                    };
+
+                    flatStudents.push(studentInfo);
+                    return studentInfo;
+                });
+
+                const beds = Array.from({ length: roomCapacity }, (_, idx) => {
+                    if (idx < studentsInRoom.length) {
+                        return {
+                            bedNumber: idx + 1,
+                            occupied: true,
+                            student: studentsInRoom[idx]
+                        };
+                    }
+                    return {
+                        bedNumber: idx + 1,
+                        occupied: false,
+                        student: null
+                    };
+                });
+
+                floorNode.rooms.push({
+                    roomId: String(room._id),
+                    roomNumber: room.roomNumber,
+                    roomType: room.roomType,
+                    capacity: roomCapacity,
+                    occupiedBeds: studentsInRoom.length,
+                    availableBeds: roomAvailableBeds,
+                    status: isAvailable ? 'AVAILABLE' : 'FULL',
+                    beds,
+                    students: studentsInRoom
+                });
+
+                roomSummary.push({
+                    buildingName: buildingNode.name,
+                    floorNumber: floor.floorNumber,
+                    roomNumber: room.roomNumber,
+                    roomType: room.roomType || '',
+                    capacity: roomCapacity,
+                    occupiedBeds: studentsInRoom.length,
+                    availableBeds: roomAvailableBeds,
+                    occupancyRate: roomCapacity > 0
+                        ? Number(((studentsInRoom.length / roomCapacity) * 100).toFixed(1))
+                        : 0,
+                    status: isAvailable ? 'AVAILABLE' : 'FULL'
+                });
+            });
+
+            buildingNode.floors.push(floorNode);
+        });
+
+        buildings.push(buildingNode);
+    });
+
+    const filteredStudents = flatStudents.filter((student) => {
+        if (cohortFilter && student.cohort !== cohortFilter) {
+            return false;
+        }
+        if (search) {
+            const haystack = `${student.name} ${student.studentCode} ${student.email}`.toLowerCase();
+            if (!haystack.includes(search)) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    return {
+        summary: {
+            totalRooms,
+            availableRooms,
+            occupiedRooms
+        },
+        hierarchy: {
+            buildings
+        },
+        students: filteredStudents,
+        roomSummary,
+        filters: {
+            search: options.search || '',
+            cohort: cohortFilter
+        },
+        generatedAt: new Date()
+    };
+}
+
+router.get('/admin/master-dashboard', isAdmin, async (req, res) => {
+    return res.redirect('/admin/dashboard');
+});
+
+router.get('/admin/master-dashboard/data', isAdmin, async (req, res) => {
+    try {
+        const data = await buildMasterDashboardData({
+            search: req.query.search,
+            cohort: req.query.cohort
+        });
+
+        res.json({
+            success: true,
+            data
+        });
+    } catch (error) {
+        console.error('Error fetching master dashboard data:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Không thể tải dữ liệu master dashboard',
+            message: error.message
+        });
+    }
+});
+
+router.get('/admin/master-dashboard/export', isAdmin, async (req, res) => {
+    try {
+        const data = await buildMasterDashboardData({
+            search: req.query.search,
+            cohort: req.query.cohort
+        });
+
+        const format = (req.query.format || 'csv').toString().toLowerCase();
+
+        if (format === 'xlsx') {
+            const workbook = new ExcelJS.Workbook();
+
+            const studentsSheet = workbook.addWorksheet('Students');
+            studentsSheet.columns = [
+                { header: 'Name', key: 'name' },
+                { header: 'StudentCode', key: 'studentCode' },
+                { header: 'Cohort', key: 'cohort' },
+                { header: 'Building', key: 'buildingName' },
+                { header: 'Floor', key: 'floorNumber' },
+                { header: 'Room', key: 'roomNumber' },
+                { header: 'Bed', key: 'bedIndex' },
+                { header: 'Email', key: 'email' },
+                { header: 'Phone', key: 'phone' }
+            ];
+            (data.students || []).forEach((student) => {
+                studentsSheet.addRow({
+                    name: student.name,
+                    studentCode: student.studentCode,
+                    cohort: student.cohort,
+                    buildingName: student.buildingName,
+                    floorNumber: student.floorNumber,
+                    roomNumber: student.roomNumber,
+                    bedIndex: student.bedIndex,
+                    email: student.email,
+                    phone: student.phone
+                });
+            });
+
+            const roomSummarySheet = workbook.addWorksheet('RoomSummary');
+            roomSummarySheet.columns = [
+                { header: 'Building', key: 'buildingName' },
+                { header: 'Floor', key: 'floorNumber' },
+                { header: 'Room', key: 'roomNumber' },
+                { header: 'RoomType', key: 'roomType' },
+                { header: 'Capacity', key: 'capacity' },
+                { header: 'OccupiedBeds', key: 'occupiedBeds' },
+                { header: 'AvailableBeds', key: 'availableBeds' },
+                { header: 'OccupancyRatePercent', key: 'occupancyRate' },
+                { header: 'Status', key: 'status' }
+            ];
+            (data.roomSummary || []).forEach((room) => {
+                roomSummarySheet.addRow({
+                    buildingName: room.buildingName,
+                    floorNumber: room.floorNumber,
+                    roomNumber: room.roomNumber,
+                    roomType: room.roomType,
+                    capacity: room.capacity,
+                    occupiedBeds: room.occupiedBeds,
+                    availableBeds: room.availableBeds,
+                    occupancyRate: room.occupancyRate,
+                    status: room.status
+                });
+            });
+
+            const xlsxBuffer = await workbook.xlsx.writeBuffer();
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader('Content-Disposition', 'attachment; filename="master-dashboard-export.xlsx"');
+            return res.send(xlsxBuffer);
+        }
+
+        const header = [
+            'name',
+            'studentCode',
+            'cohort',
+            'building',
+            'floor',
+            'room',
+            'bed',
+            'email',
+            'phone'
+        ];
+
+        const lines = [header.join(',')];
+        (data.students || []).forEach((student) => {
+            lines.push([
+                toCsvValue(student.name),
+                toCsvValue(student.studentCode),
+                toCsvValue(student.cohort),
+                toCsvValue(student.buildingName),
+                toCsvValue(student.floorNumber),
+                toCsvValue(student.roomNumber),
+                toCsvValue(student.bedIndex),
+                toCsvValue(student.email),
+                toCsvValue(student.phone)
+            ].join(','));
+        });
+
+        const csv = lines.join('\n');
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', 'attachment; filename="master-dashboard-export.csv"');
+        res.send(csv);
+    } catch (error) {
+        console.error('Error exporting master dashboard data:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Không thể export dữ liệu',
+            message: error.message
+        });
+    }
+});
+
+router.get('/admin/master-dashboard/student/:studentId', isAdmin, async (req, res) => {
+    try {
+        const requestedStudentId = String(req.params.studentId || '').trim();
+        let student = null;
+
+        if (requestedStudentId) {
+            student = await StudentCollection.findById(requestedStudentId).lean().catch(() => null);
+        }
+
+        if (!student && requestedStudentId) {
+            student = await StudentCollection.findOne({ studentId: requestedStudentId }).lean();
+        }
+
+        if (!student) {
+            return res.status(404).render('404', {
+                message: 'Không tìm thấy sinh viên'
+            });
+        }
+
+        let dormitoryName = '';
+        if (student.dormitoryId) {
+            const dormitory = await DormitoryCollection.findById(student.dormitoryId).select('name').lean();
+            dormitoryName = dormitory?.name || '';
+        }
+
+        res.render('admin/master-dashboard-student', {
+            user: {
+                name: req.session.name,
+                role: req.session.role
+            },
+            student,
+            dormitoryName,
+            backUrl: req.get('referer') || '/admin/master-dashboard'
+        });
+    } catch (error) {
+        console.error('Error rendering student quick profile:', error);
+        res.status(500).render('404', {
+            message: 'Không thể tải hồ sơ sinh viên'
         });
     }
 });

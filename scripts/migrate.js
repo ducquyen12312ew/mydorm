@@ -82,11 +82,23 @@ async function runMigration() {
             }
         }
 
+        console.log('Migrating violations with investigating status...');
+        const { ViolationModel } = require('../src/schemas/ViolationSchema');
+        const investigatingCount = await ViolationModel.countDocuments({ status: 'investigating' });
+        if (investigatingCount > 0) {
+            await ViolationModel.updateMany(
+                { status: 'investigating' },
+                { $set: { status: 'pending' } }
+            );
+            console.log(`✓ Updated ${investigatingCount} violations from 'investigating' to 'pending'`);
+        }
+
         console.log('Migration completed successfully!');
         
         const stats = {
             studentsUpdated: await StudentCollection.countDocuments({}),
-            dormitoriesUpdated: await DormitoryCollection.countDocuments({})
+            dormitoriesUpdated: await DormitoryCollection.countDocuments({}),
+            violationsUpdated: investigatingCount
         };
         
         console.log('Migration statistics:', stats);

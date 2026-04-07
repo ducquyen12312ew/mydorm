@@ -1,0 +1,63 @@
+<%
+  const _colors = { year1:'#4361ee', year2:'#3a0ca3', year3:'#7209b7', year4_plus:'#f72585' };
+  const _labels = { year1:'Năm 1', year2:'Năm 2', year3:'Năm 3', year4_plus:'Năm 4+' };
+%>
+<div class="ct-scroll">
+  <table class="ct-table">
+    <thead>
+      <tr>
+        <th>Cohort</th>
+        <th>Năm nhập học</th>
+        <th>Nhóm năm</th>
+        <th>Quota</th>
+        <th>Thực tế</th>
+        <th>Sử dụng</th>
+        <th>Sinh viên</th>
+        <th>Ghi chú</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% if (!snap || !snap.cohorts || !snap.cohorts.length) { %>
+        <tr>
+          <td colspan="8" class="ct-empty">
+            <i class="fas fa-inbox"></i> Không có dữ liệu cohort
+          </td>
+        </tr>
+      <% } else {
+         snap.cohorts.forEach(c => {
+           const util = c.quota > 0 ? Math.min(Math.round((c.allocated / c.quota) * 100), 100) : 0;
+           const color = _colors[c.yearGroup] || '#888';
+      %>
+      <tr class="<%= c.yearInSchool >= 5 ? 'ct-row-edge' : '' %>">
+        <td>
+          <span class="ct-code"><%= c.code %></span>
+        </td>
+        <td class="ct-enroll-year"><%= c.enrollmentYear %></td>
+        <td>
+          <span class="ct-year-badge" style="background:<%=color%>22;color:<%=color%>">
+            <%= _labels[c.yearGroup] || c.yearGroup %>
+          </span>
+        </td>
+        <td class="ct-num"><%= c.quota %></td>
+        <td class="ct-num ct-alloc"><%= c.allocated %></td>
+        <td>
+          <div class="ct-prog-wrap">
+            <div class="ct-prog-bg">
+              <div class="ct-prog-fill" style="width:<%= util %>%;background:<%=color%>"></div>
+            </div>
+            <span class="ct-util-lbl"><%= util %>%</span>
+          </div>
+        </td>
+        <td class="ct-num"><%= c.studentCount %></td>
+        <td>
+          <% if (c.yearInSchool >= 5) { %>
+            <span class="edge-warn"><i class="fas fa-triangle-exclamation"></i> Năm <%= c.yearInSchool %></span>
+          <% } else { %>
+            <span class="ct-na">—</span>
+          <% } %>
+        </td>
+      </tr>
+      <% }) } %>
+    </tbody>
+  </table>
+</div>

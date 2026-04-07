@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Ranking | Dormitory Allocation System</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #999;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+
+    .card-value {
+      font-size: 42px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .card-subtext {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .percentile-chart {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .percentile-chart h2 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .score-breakdown {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .score-breakdown h2 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .score-item {
+      margin-bottom: 20px;
+    }
+
+    .score-item-label {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .score-item-name {
+      font-weight: 600;
+      color: #333;
+    }
+
+    .score-item-score {
+      color: #667eea;
+      font-weight: 700;
+    }
+
+    .score-item-bar {
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .score-item-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    .explanation {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .explanation h2 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .explanation-item {
+      padding: 15px;
+      background: #f9f9ff;
+      border-left: 4px solid #667eea;
+      border-radius: 6px;
+      margin-bottom: 15px;
+    }
+
+    .explanation-item h3 {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .explanation-item p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    .timeline {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .timeline h2 {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .timeline-item {
+      padding-left: 30px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 12px;
+      height: 12px;
+      background: #667eea;
+      border-radius: 50%;
+      border: 3px solid white;
+      box-shadow: 0 0 0 2px #667eea;
+    }
+
+    .timeline-item.completed::before {
+      background: #4caf50;
+      box-shadow: 0 0 0 2px #4caf50;
+    }
+
+    .timeline-item.active::before {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        box-shadow: 0 0 0 2px #667eea;
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(102, 126, 234, 0.3);
+      }
+    }
+
+    .timeline-item-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .timeline-item-desc {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .message {
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .message.success {
+      background: #c8e6c9;
+      color: #2e7d32;
+      border-left: 4px solid #2e7d32;
+    }
+
+    .message.warning {
+      background: #fff3cd;
+      color: #856404;
+      border-left: 4px solid #ffc107;
+    }
+
+    .message.info {
+      background: #e3f2fd;
+      color: #1565c0;
+      border-left: 4px solid #2196f3;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-secondary:hover {
+      background: #f9f9ff;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .card-value {
+        font-size: 32px;
+      }
+
+      .header {
+        padding: 20px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>📊 My Allocation Ranking</h1>
+      <p>Transparent priority-based dormitory allocation system</p>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="grid">
+      <div class="card">
+        <div class="card-title">Total Score</div>
+        <div class="card-value" id="totalScore">0</div>
+        <div class="card-subtext">Out of 100 points</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Your Rank</div>
+        <div class="card-value" id="studentRank">-</div>
+        <div class="card-subtext" id="rankDesc">Loading...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Percentile</div>
+        <div class="card-value" id="percentile">-</div>
+        <div class="card-subtext" id="percentileDesc">Loading...</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Status</div>
+        <div class="card-value" id="status" style="font-size: 20px;">-</div>
+        <div class="card-subtext" id="statusDesc">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Status Message -->
+    <div id="statusMessage"></div>
+
+    <!-- Score Distribution Chart -->
+    <div class="percentile-chart">
+      <h2>📈 Score Distribution (All Students)</h2>
+      <canvas id="percentileChart"></canvas>
+    </div>
+
+    <!-- Score Breakdown -->
+    <div class="score-breakdown">
+      <h2>🎯 Your Score Breakdown (35-35-30 Weighting)</h2>
+
+      <div class="score-item">
+        <div class="score-item-label">
+          <span class="score-item-name">📍 Distance Score (35%)</span>
+          <span class="score-item-score" id="distanceScore">0</span>
+        </div>
+        <div class="score-item-bar">
+          <div class="score-item-fill" id="distanceFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-item-label">
+          <span class="score-item-name">💰 Financial Score (35%)</span>
+          <span class="score-item-score" id="financialScore">0</span>
+        </div>
+        <div class="score-item-bar">
+          <div class="score-item-fill" id="financialFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="score-item">
+        <div class="score-item-label">
+          <span class="score-item-name">⭐ Priority Score (30%)</span>
+          <span class="score-item-score" id="priorityScore">0</span>
+        </div>
+        <div class="score-item-bar">
+          <div class="score-item-fill" id="priorityFill" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Explanations -->
+    <div class="explanation">
+      <h2>💡 How Your Score is Calculated</h2>
+
+      <div class="explanation-item">
+        <h3>📍 Distance from Campus (35% weight)</h3>
+        <p>
+          Students farther from campus receive higher scores to ensure fair allocation. Distance is measured from your
+          home to campus. <br />
+          <strong>Formula:</strong> 0km=10pts → 500+km=100pts
+        </p>
+      </div>
+
+      <div class="explanation-item">
+        <h3>💰 Financial Condition (35% weight)</h3>
+        <p>
+          Students experiencing financial difficulty receive higher priority to support equitable access. <br />
+          Tiers: Critical (100) → High (75) → Moderate (50) → Good (20)
+        </p>
+      </div>
+
+      <div class="explanation-item">
+        <h3>⭐ Priority Level (30% weight)</h3>
+        <p>
+          Special circumstances receive recognition: orphans, medical needs, disabilities, etc. <br />
+          Categories: Special (100) → High (75) → Medium (50) → Low (25)
+        </p>
+      </div>
+
+      <div class="explanation-item">
+        <h3>✅ Fair & Transparent Process</h3>
+        <p>
+          All allocations use this ranking system. Top 50% are auto-approved; remaining undergo manual review for special
+          cases. No random selection—your ranking directly affects your chances.
+        </p>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+    <div class="timeline">
+      <h2>📅 Allocation Timeline</h2>
+
+      <div class="timeline-item completed">
+        <div class="timeline-item-title">Application Submitted</div>
+        <div class="timeline-item-desc">Your application has been received and scored</div>
+      </div>
+
+      <div class="timeline-item active" id="reviewStatus">
+        <div class="timeline-item-title">Under Review</div>
+        <div class="timeline-item-desc">Your ranking is being processed</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-item-title">Allocation Result</div>
+        <div class="timeline-item-desc">Decision will be sent within 2 weeks</div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-item-title">Room Assignment</div>
+        <div class="timeline-item-desc">Successful applicants receive room details</div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="actions" style="justify-content: center; margin-top: 40px;">
+      <button class="btn-secondary" onclick="location.href='/student/home'">← Back to Home</button>
+      <button class="btn-primary" onclick="location.href='/student/explore-rooms'">🏠 Explore Rooms</button>
+    </div>
+  </div>
+
+  <script>
+    // Load ranking data
+    async function loadRanking() {
+      try {
+        const response = await fetch('/api/allocation/student/my-ranking');
+        const data = await response.json();
+
+        if (!response.ok) {
+          document.getElementById('statusMessage').innerHTML =
+            `<div class="message info">ℹ️ ${data.error || 'No ranking found yet'}</div>`;
+          return;
+        }
+
+        const ranking = data.ranking;
+
+        // Update cards
+        document.getElementById('totalScore').textContent = ranking.score.toFixed(1);
+        document.getElementById('studentRank').textContent = ranking.rank;
+        document.getElementById('rankDesc').textContent = `of ${ranking.totalApplications} students`;
+        document.getElementById('percentile').textContent = ranking.percentile.toFixed(1) + '%';
+        document.getElementById('percentileDesc').textContent =
+          ranking.percentile <= 50 ? '✅ Top 50% - Auto-approve zone' : '⏳ Under manual review';
+
+        // Status
+        const statusEmoji = ranking.percentile <= 50 ? '✅' : '⏳';
+        const statusText = ranking.percentile <= 50 ? 'Likely Approved' : 'Under Review';
+        document.getElementById('status').textContent = statusEmoji;
+        document.getElementById('statusDesc').textContent = statusText;
+
+        // Status message
+        const messageHTML = ranking.percentile <= 50
+          ? `<div class="message success">✅ ${data.message}</div>`
+          : `<div class="message warning">⏳ ${data.message}</div>`;
+        document.getElementById('statusMessage').innerHTML = messageHTML;
+
+        // Score breakdown
+        const breakdown = ranking.breakdown;
+        document.getElementById('distanceScore').textContent = breakdown.distance.toFixed(1);
+        document.getElementById('financialScore').textContent = breakdown.financial.toFixed(1);
+        document.getElementById('priorityScore').textContent = breakdown.priority.toFixed(1);
+
+        // Fill bars
+        document.getElementById('distanceFill').style.width = (breakdown.distance / 100) * 100 + '%';
+        document.getElementById('financialFill').style.width = (breakdown.financial / 100) * 100 + '%';
+        document.getElementById('priorityFill').style.width = (breakdown.priority / 100) * 100 + '%';
+
+        // Load comparison stats for chart
+        loadComparisonChart();
+      } catch (error) {
+        console.error('Error loading ranking:', error);
+        document.getElementById('statusMessage').innerHTML =
+          `<div class="message info">ℹ️ Unable to load ranking data</div>`;
+      }
+    }
+
+    async function loadComparisonChart() {
+      try {
+        const response = await fetch('/api/allocation/student/compare-rankings');
+        const data = await response.json();
+
+        if (response.ok) {
+          const ctx = document.getElementById('percentileChart').getContext('2d');
+          new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: ['All Students', 'Top 75%', 'Top 50%', 'Top 25%'],
+              datasets: [
+                {
+                  label: 'Score Range',
+                  data: [
+                    { x: '0-' + data.stats.maxScore.toFixed(0), y: 1 },
+                    { x: '0-' + data.stats.top75Threshold.toFixed(0), y: 2 },
+                    { x: '0-' + data.stats.top50Threshold.toFixed(0), y: 3 },
+                    { x: data.stats.top25Threshold.toFixed(0) + '+', y: 4 }
+                  ],
+                  backgroundColor: ['#e0e0e0', '#ffb74d', '#66bb6a', '#667eea'],
+                  borderRadius: 6
+                }
+              ]
+            },
+            options: {
+              indexAxis: 'y',
+              responsive: true,
+              plugins: {
+                legend: { display: false }
+              }
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error loading comparison:', error);
+      }
+    }
+
+    // Load on page load
+    loadRanking();
+  </script>
+</body>
+</html>

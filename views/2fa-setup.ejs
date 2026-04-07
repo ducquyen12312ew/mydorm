@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cấu Hình 2FA - Hệ Thống Ký Túc Xá</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .method {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .method:hover {
+            border-color: #667eea;
+            background: #f9f9f9;
+        }
+
+        .method.active {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .method-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .method-icon {
+            font-size: 32px;
+        }
+
+        .method-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .method-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .setup-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .setup-section.active {
+            display: block;
+        }
+
+        .qr-code {
+            text-align: center;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .qr-code img {
+            max-width: 250px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .code-display {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            word-break: break-all;
+            border: 1px solid #ddd;
+        }
+
+        .backup-codes {
+            background: #fffbea;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .backup-codes h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .backup-codes p {
+            color: #856404;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .backup-codes-list {
+            background: white;
+            padding: 15px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 2;
+            border: 1px solid #ffc107;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .step {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-left: 3px solid #667eea;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .step-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Cấu Hình Xác Minh 2 Yếu Tố</h1>
+            <p>Bảo vệ tài khoản của bạn với xác minh hai yếu tố</p>
+        </div>
+
+        <div class="content">
+            <div id="alert"></div>
+
+            <!-- TOTP Method -->
+            <div class="method" data-method="totp">
+                <div class="method-header">
+                    <div class="method-icon">📱</div>
+                    <div>
+                        <div class="method-title">Google Authenticator</div>
+                    </div>
+                </div>
+                <div class="method-description">
+                    Sử dụng ứng dụng authenticator trên điện thoại của bạn để tạo mã xác minh. Phương pháp này an toàn nhất.
+                </div>
+                <div class="setup-section" id="totp-setup">
+                    <div class="step">
+                        <div class="step-title">Bước 1: Tải Ứng Dụng</div>
+                        <div class="step-content">
+                            Tải ứng dụng Google Authenticator hoặc Authy từ App Store hoặc Play Store.
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">Bước 2: Quét Mã QR</div>
+                        <div class="step-content">
+                            <button class="btn btn-primary" onclick="generateTOTPQR()">Tạo Mã QR</button>
+                            <div id="qr-container"></div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">Bước 3: Hoặc Nhập Thủ Công</div>
+                        <div class="step-content">
+                            Nếu bạn không thể quét QR, nhập khóa này vào ứng dụng:
+                            <div class="code-display" id="manual-key" style="margin-top: 10px;"></div>
+                        </div>
+                    </div>
+
+                    <div class="step">
+                        <div class="step-title">Bước 4: Xác Minh Mã</div>
+                        <div class="step-content">
+                            <div class="form-group">
+                                <label>Nhập mã 6 chữ số từ ứng dụng của bạn:</label>
+                                <input type="text" id="totp-verify-code" placeholder="000000" maxlength="6" inputmode="numeric">
+                            </div>
+                            <button class="btn btn-primary" onclick="verifyTOTP()">Xác Minh</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SMS OTP Method -->
+            <div class="method" data-method="sms">
+                <div class="method-header">
+                    <div class="method-icon">📲</div>
+                    <div>
+                        <div class="method-title">SMS OTP</div>
+                    </div>
+                </div>
+                <div class="method-description">
+                    Nhận mã xác minh qua tin nhắn SMS. Cần có số điện thoại hợp lệ.
+                </div>
+                <div class="setup-section" id="sms-setup">
+                    <div class="form-group">
+                        <label>Số Điện Thoại:</label>
+                        <input type="tel" id="sms-phone" placeholder="+84912345678">
+                    </div>
+                    <button class="btn btn-primary" onclick="setupSMSOTP()">Gửi OTP</button>
+                    
+                    <div id="sms-verify" style="display: none; margin-top: 20px;">
+                        <div class="form-group">
+                            <label>Nhập mã OTP đã nhận:</label>
+                            <input type="text" id="sms-verify-code" placeholder="000000" maxlength="6" inputmode="numeric">
+                        </div>
+                        <button class="btn btn-primary" onclick="verifySMSOTP()">Xác Minh</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="backup-codes-section" style="display: none;">
+                <div class="backup-codes">
+                    <h4>⚠️ Lưu Các Mã Backup</h4>
+                    <p>Lưu các mã này ở nơi an toàn. Bạn sẽ cần chúng nếu mất quyền truy cập vào thiết bị của mình.</p>
+                    <div class="backup-codes-list" id="backup-codes-list"></div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn btn-secondary" onclick="copyBackupCodes()">Sao Chép</button>
+                        <button class="btn btn-secondary" onclick="downloadBackupCodes()">Tải Xuống</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="completeTwoFactorSetup()">Hoàn Thành</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentMethod = 'totp';
+        let backupCodes = [];
+        const userEmail = '<%= user.email %>';
+
+        // Method selection
+        document.querySelectorAll('.method').forEach(method => {
+            method.addEventListener('click', () => {
+                document.querySelectorAll('.method').forEach(m => m.classList.remove('active'));
+                document.querySelectorAll('.setup-section').forEach(s => s.classList.remove('active'));
+                
+                method.classList.add('active');
+                currentMethod = method.dataset.method;
+                document.getElementById(currentMethod + '-setup').classList.add('active');
+            });
+        });
+
+        // Select first method by default
+        document.querySelector('.method').click();
+
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        async function generateTOTPQR() {
+            try {
+                const response = await fetch('/api/2fa/setup/totp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: document.body.dataset.userEmail || 'user@example.com' })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    document.getElementById('qr-container').innerHTML = 
+                        `<div class="qr-code"><img src="${data.qrCode}" alt="QR Code"></div>`;
+                    document.getElementById('manual-key').textContent = data.manualEntry;
+                } else {
+                    showAlert('Lỗi: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        async function verifyTOTP() {
+            const code = document.getElementById('totp-verify-code').value;
+            if (!code || code.length !== 6) {
+                showAlert('Vui lòng nhập mã 6 chữ số', 'danger');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/2fa/verify/totp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        token: code,
+                        email: userEmail
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    backupCodes = data.backupCodes;
+                    document.getElementById('backup-codes-list').textContent = backupCodes.join('\n');
+                    document.getElementById('backup-codes-section').style.display = 'block';
+                    document.querySelectorAll('.method').forEach(m => m.style.display = 'none');
+                    showAlert('✓ TOTP đã được kích hoạt thành công! Vui lòng lưu các mã backup.', 'success');
+                } else {
+                    showAlert('Lỗi: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        async function setupSMSOTP() {
+            const phone = document.getElementById('sms-phone').value;
+            if (!phone) {
+                showAlert('Vui lòng nhập số điện thoại', 'danger');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/2fa/setup/sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone: phone })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showAlert('✓ OTP đã gửi đến số điện thoại của bạn', 'success');
+                    document.getElementById('sms-verify').style.display = 'block';
+                } else {
+                    showAlert('Lỗi: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        async function verifySMSOTP() {
+            const code = document.getElementById('sms-verify-code').value;
+            if (!code || code.length !== 6) {
+                showAlert('Vui lòng nhập mã 6 chữ số', 'danger');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/2fa/verify/sms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    backupCodes = data.backupCodes;
+                    document.getElementById('backup-codes-list').textContent = backupCodes.join('\n');
+                    document.getElementById('backup-codes-section').style.display = 'block';
+                    document.querySelectorAll('.method').forEach(m => m.style.display = 'none');
+                    showAlert('✓ SMS OTP xác minh thành công!', 'success');
+                } else {
+                    showAlert('Lỗi: ' + data.error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Lỗi: ' + error.message, 'danger');
+            }
+        }
+
+        function copyBackupCodes() {
+            const text = backupCodes.join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                showAlert('✓ Đã sao chép vào bộ nhớ tạm', 'success');
+            });
+        }
+
+        function downloadBackupCodes() {
+            const element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(backupCodes.join('\n')));
+            element.setAttribute('download', '2fa-backup-codes.txt');
+            element.style.display = 'none';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        function completeTwoFactorSetup() {
+            showAlert('✓ 2FA đã được cấu hình thành công!', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

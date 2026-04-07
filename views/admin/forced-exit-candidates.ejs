@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Forced Exit Candidates | Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .info-box {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #856404;
+    }
+
+    .controls {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .control-group label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+      margin-right: 8px;
+    }
+
+    .control-group input,
+    .control-group select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #5568d3;
+    }
+
+    .btn-danger {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #d32f2f;
+    }
+
+    .btn-secondary {
+      background: #757575;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background: #616161;
+    }
+
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #f5f5f5;
+      border-bottom: 2px solid #ddd;
+    }
+
+    th {
+      padding: 15px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    td {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      font-size: 13px;
+    }
+
+    tbody tr:hover {
+      background: #f9f9f9;
+    }
+
+    .rank-badge {
+      display: inline-block;
+      min-width: 40px;
+      padding: 6px 10px;
+      background: #667eea;
+      color: white;
+      border-radius: 4px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .score-cell {
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    .status-critical {
+      background: #ffebee;
+      color: #c62828;
+    }
+
+    .status-warning {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
+    .status-safe {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .score-components {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .percentile-bar {
+      background: #e0e0e0;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 5px 0;
+    }
+
+    .percentile-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-small {
+      padding: 6px 10px;
+      font-size: 11px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-review {
+      background: #2196f3;
+      color: white;
+    }
+
+    .btn-review:hover {
+      background: #1976d2;
+    }
+
+    .btn-approve {
+      background: #4caf50;
+      color: white;
+    }
+
+    .btn-approve:hover {
+      background: #388e3c;
+    }
+
+    .btn-reject {
+      background: #f44336;
+      color: white;
+    }
+
+    .btn-reject:hover {
+      background: #d32f2f;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 10px;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+      padding: 20px;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      color: #333;
+      border-radius: 4px;
+    }
+
+    .pagination button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .tooltip {
+      position: relative;
+      cursor: help;
+      border-bottom: 1px dotted #667eea;
+    }
+
+    .tooltip:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 125%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      table {
+        font-size: 12px;
+      }
+
+      th,
+      td {
+        padding: 10px;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🚨 Forced Exit Candidates</h1>
+      <p>Students with lowest ranking scores - prioritized for reallocation if needed</p>
+    </div>
+
+    <!-- Info -->
+    <div class="info-box">
+      ⚠️ <strong>Important:</strong> These students have the lowest combined ranking scores and will be considered for
+      reallocation/forced exit if dormitory capacity needs rebalancing. This is based on fair ranking (distance, financial,
+      priority) - NOT random selection.
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="control-group">
+        <label>Academic Year:</label>
+        <select id="yearFilter">
+          <option value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>">
+            <%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>
+          </option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label>Show:</label>
+        <select id="countFilter">
+          <option value="10">Top 10</option>
+          <option value="20" selected>Top 20</option>
+          <option value="50">Top 50</option>
+          <option value="100">Top 100</option>
+        </select>
+      </div>
+
+      <button class="btn-primary" onclick="loadCandidates()">🔄 Refresh</button>
+      <button class="btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats" id="statsContainer"></div>
+
+    <!-- Table -->
+    <div class="table-container">
+      <table id="candidatesTable">
+        <thead>
+          <tr>
+            <th style="width: 50px">Rank</th>
+            <th>Student ID</th>
+            <th>Name</th>
+            <th style="width: 80px">
+              <span class="tooltip" data-tip="Total ranking score (100 max)">Score</span>
+            </th>
+            <th style="width: 280px">Score Breakdown</th>
+            <th style="width: 60px">
+              <span class="tooltip" data-tip="Percentile vs all students">Percentile</span>
+            </th>
+            <th>Current Room</th>
+            <th style="width: 150px">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 40px; color: #999">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Load candidates
+    async function loadCandidates() {
+      const year = document.getElementById('yearFilter').value;
+      const count = document.getElementById('countFilter').value;
+
+      try {
+        const response = await fetch(`/api/allocation/admin/forced-exit-candidates?count=${count}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          alert('Error loading candidates: ' + data.error);
+          return;
+        }
+
+        displayCandidates(data.candidates);
+        displayStats(data.candidates);
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to load candidates');
+      }
+    }
+
+    function displayStats(candidates) {
+      if (!candidates || candidates.length === 0) {
+        return;
+      }
+
+      const minScore = Math.min(...candidates.map(c => c.score));
+      const maxScore = Math.max(...candidates.map(c => c.score));
+      const avgScore = (candidates.reduce((sum, c) => sum + c.score, 0) / candidates.length).toFixed(1);
+
+      const html = `
+        <div class="stat-card">
+          <div class="stat-value">${candidates.length}</div>
+          <div class="stat-label">Total Candidates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${minScore.toFixed(1)}</div>
+          <div class="stat-label">Lowest Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${avgScore}</div>
+          <div class="stat-label">Average Score</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">${maxScore.toFixed(1)}</div>
+          <div class="stat-label">Highest Score</div>
+        </div>
+      `;
+
+      document.getElementById('statsContainer').innerHTML = html;
+    }
+
+    function displayCandidates(candidates) {
+      const tbody = document.getElementById('tableBody');
+
+      if (!candidates || candidates.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <div class="empty-state-icon">📊</div>
+                <h3>No Candidates</h3>
+                <p>No forced exit candidates available for this period</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = candidates
+        .map(
+          (candidate, index) => `
+        <tr>
+          <td>
+            <span class="rank-badge">#${index + 1}</span>
+          </td>
+          <td>${candidate.studentId || '-'}</td>
+          <td><strong>${candidate.name || 'Student ' + (index + 1)}</strong></td>
+          <td class="score-cell">${candidate.score.toFixed(1)}</td>
+          <td>
+            <div class="score-components">
+              🎯 Distance: ${candidate.components.distance.toFixed(1)}<br />
+              💰 Financial: ${candidate.components.financial.toFixed(1)}<br />
+              ⭐ Priority: ${candidate.components.priority.toFixed(1)}
+            </div>
+            <div class="percentile-bar">
+              <div class="percentile-fill" style="width: ${Math.min(candidate.score, 100)}%"></div>
+            </div>
+          </td>
+          <td>${candidate.percentile.toFixed(1)}%</td>
+          <td>${candidate.currentRoom || 'N/A'}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn-small btn-review" onclick="reviewStudent('${candidate.studentId}')">Review</button>
+              <button class="btn-small btn-approve" onclick="approveExit('${candidate.studentId}')">Approve Exit</button>
+            </div>
+          </td>
+        </tr>
+      `
+        )
+        .join('');
+    }
+
+    function reviewStudent(studentId) {
+      alert('Reviewing student: ' + studentId);
+      // Implement review modal
+    }
+
+    function approveExit(studentId) {
+      if (confirm('Approve forced exit for student ' + studentId + '? This action cannot be undone.')) {
+        alert('Exit approved for: ' + studentId);
+        // Implement exit approval
+      }
+    }
+
+    function exportCSV() {
+      const table = document.getElementById('candidatesTable');
+      let csv = [];
+      for (let row of table.rows) {
+        let rowData = [];
+        for (let cell of row.cells) {
+          rowData.push('"' + cell.textContent.replace(/"/g, '""') + '"');
+        }
+        csv.push(rowData.join(','));
+      }
+
+      const csvContent = csv.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'forced-exit-candidates-' + new Date().toISOString() + '.csv';
+      a.click();
+    }
+
+    // Load on page load
+    loadCandidates();
+  </script>
+</body>
+</html>

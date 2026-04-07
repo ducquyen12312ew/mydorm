@@ -58,6 +58,25 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         enum: ['male', 'female', 'other']
     },
+    nationality: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    citizenship: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    country: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    isInternational: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],
@@ -69,6 +88,14 @@ const StudentSchema = new mongoose.Schema({
     },
     roomNumber: {
         type: String
+    },
+    priorityScore: {
+        type: Number,
+        default: 0
+    },
+    priorityDetails: {
+        type: Object,
+        default: {}
     },
     createdAt: {
         type: Date,
@@ -242,6 +269,14 @@ const DormitorySchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
 });
 
@@ -316,9 +351,37 @@ const PendingApplicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    priorityPolicies: [{
+        type: {
+            type: String
+        },
+        ethnicity: {
+            type: String
+        },
+        proofDocument: {
+            type: String
+        }
+    }],
+    priorityScore: {
+        type: Number,
+        default: 0
+    },
+    priorityBreakdown: {
+        type: Object,
+        default: {}
+    },
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
+        enum: [
+            'pending',
+            'pending_review',
+            'approved_waiting_payment',
+            'approved',
+            'rejected',
+            'waitlist',
+            'expired',
+            'checked_out'
+        ],
         default: 'pending'
     },
     comments: {
@@ -452,11 +515,6 @@ const AcademicWindowSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    semester: {
-        type: String,
-        enum: ['fall', 'spring', 'summer'],
-        required: true
-    },
     startDate: {
         type: Date,
         required: true
@@ -469,6 +527,12 @@ const AcademicWindowSchema = new mongoose.Schema({
         type: String,
         enum: ['upcoming', 'active', 'closed'],
         default: 'upcoming'
+    },
+    // Danh sách năm học được phép đăng ký (1, 2, 3, 4, 5, 6 hoặc 'all')
+    allowedAcademicYears: {
+        type: [String],
+        default: ['1', '2', '3', '4', '5', '6'],
+        enum: ['1', '2', '3', '4', '5', '6', 'all']
     },
     description: {
         type: String
