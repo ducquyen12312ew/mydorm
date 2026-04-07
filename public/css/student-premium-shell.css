@@ -1,0 +1,509 @@
+:root {
+    --student-brand: #c08157;
+    --student-brand-strong: #9d5f38;
+    --student-ink: #1f232a;
+    --student-ink-soft: #596170;
+    --student-surface: #f7f5f2;
+    --student-card: rgba(255, 255, 255, 0.94);
+    --student-line: rgba(205, 197, 184, 0.48);
+    --student-shadow: 0 18px 40px rgba(22, 24, 29, 0.09);
+    --student-shadow-strong: 0 26px 52px rgba(18, 20, 26, 0.14);
+}
+
+.header .header-content {
+    width: min(1220px, 92%);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 18, 24, 0.45);
+    backdrop-filter: blur(3px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s ease;
+    z-index: 1800;
+}
+
+.overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.student-shell-page {
+    color: var(--student-ink);
+    background:
+        radial-gradient(circle at 12% 12%, rgba(192, 129, 87, 0.16), transparent 24%),
+        radial-gradient(circle at 88% 4%, rgba(33, 61, 84, 0.08), transparent 20%),
+        linear-gradient(180deg, #ffffff 0%, #faf8f3 38%, #f3efe7 100%);
+}
+
+body.student-shell-page .main-content,
+body.student-shell-page .portal-container,
+body.student-shell-page .container {
+    width: min(1220px, 92%);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.student-page-hero {
+    width: min(1220px, 92%);
+    margin: 112px auto 2rem;
+    padding: 2.15rem 2.2rem;
+    border: 1px solid var(--student-line);
+    border-radius: 28px;
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(246, 241, 233, 0.92)),
+        linear-gradient(90deg, rgba(192, 129, 87, 0.18), transparent 55%);
+    box-shadow: var(--student-shadow);
+    position: relative;
+    overflow: hidden;
+}
+
+.student-page-hero::before {
+    content: '';
+    position: absolute;
+    inset: auto -6% -42% auto;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(192, 129, 87, 0.22), transparent 70%);
+}
+
+.student-page-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.48rem 0.95rem;
+    border-radius: 999px;
+    background: rgba(192, 129, 87, 0.1);
+    color: var(--student-brand-strong);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.student-page-title {
+    margin-top: 1rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(2rem, 3vw, 3.25rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+}
+
+.student-page-subtitle {
+    max-width: 760px;
+    margin-top: 0.9rem;
+    color: var(--student-ink-soft);
+    font-size: 1.02rem;
+    line-height: 1.75;
+}
+
+.student-page-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-top: 1.7rem;
+}
+
+.student-page-meta-card {
+    padding: 1rem 1.1rem;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(205, 197, 184, 0.42);
+    backdrop-filter: blur(6px);
+}
+
+.student-page-meta-card strong {
+    display: block;
+    margin-bottom: 0.28rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--student-brand-strong);
+}
+
+.student-page-meta-card span {
+    color: var(--student-ink-soft);
+    line-height: 1.55;
+}
+
+.student-shell-section {
+    width: min(1220px, 92%);
+    margin: 0 auto 2.4rem;
+}
+
+.student-panel,
+body.student-shell-page .content-card,
+body.student-shell-page .main-card,
+body.student-shell-page .page-header,
+body.student-shell-page .registration-card,
+body.student-shell-page .status-card,
+body.student-shell-page .eligibility-card {
+    border: 1px solid rgba(205, 197, 184, 0.44);
+    border-radius: 24px;
+    background: var(--student-card);
+    box-shadow: var(--student-shadow);
+}
+
+body.student-shell-page .content-card,
+body.student-shell-page .main-card,
+body.student-shell-page .registration-card,
+body.student-shell-page .status-card,
+body.student-shell-page .eligibility-card {
+    overflow: hidden;
+}
+
+body.student-shell-page .page-header,
+body.student-shell-page .content-card,
+body.student-shell-page .main-card {
+    box-shadow: var(--student-shadow);
+}
+
+body.student-shell-page .card-header,
+body.student-shell-page .profile-header,
+body.student-shell-page .portal-header {
+    background: linear-gradient(135deg, #1f2732, #314052);
+    color: #fff;
+}
+
+body.student-shell-page .portal-header {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    margin-top: 0;
+    padding: 1.8rem 2rem;
+    border-radius: 24px;
+    box-shadow: none;
+}
+
+body.student-shell-page .card-header h2,
+body.student-shell-page .card-header h1,
+body.student-shell-page .profile-header h2,
+body.student-shell-page .portal-header h1 {
+    color: #fff;
+}
+
+body.student-shell-page .main-content {
+    margin-top: 0;
+    padding: 0;
+    max-width: none;
+}
+
+body.student-shell-page .page-title {
+    color: var(--student-ink);
+    background: none;
+    -webkit-text-fill-color: initial;
+}
+
+.student-accent-grid {
+    width: min(1220px, 92%);
+    margin: 0 auto 3rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.1rem;
+}
+
+.student-accent-card {
+    padding: 1.3rem 1.25rem;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(205, 197, 184, 0.44);
+    box-shadow: 0 14px 30px rgba(20, 22, 27, 0.07);
+}
+
+.student-accent-card i {
+    color: var(--student-brand);
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
+}
+
+.student-accent-card h3 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.student-accent-card p {
+    color: var(--student-ink-soft);
+    line-height: 1.65;
+    font-size: 0.96rem;
+}
+
+.student-cta-strip {
+    width: min(1220px, 92%);
+    margin: 0 auto 4rem;
+    padding: 1.5rem 1.7rem;
+    border-radius: 24px;
+    background: linear-gradient(135deg, rgba(192, 129, 87, 0.14), rgba(255, 255, 255, 0.88));
+    border: 1px solid rgba(192, 129, 87, 0.28);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.student-cta-strip p {
+    color: var(--student-ink-soft);
+    max-width: 720px;
+    line-height: 1.65;
+}
+
+.student-cta-strip a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.95rem 1.45rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--student-brand), var(--student-brand-strong));
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+@media (max-width: 960px) {
+    .header .header-content {
+        width: calc(100% - 2.4rem);
+    }
+
+    .student-page-hero,
+    .student-shell-section,
+    .student-accent-grid,
+    .student-cta-strip {
+        width: min(1220px, calc(100% - 2rem));
+    }
+
+    .student-cta-strip {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 768px) {
+    .header .header-content {
+        width: calc(100% - 1.8rem);
+    }
+
+    .student-page-hero {
+        margin-top: 92px;
+        padding: 1.45rem 1.2rem;
+        border-radius: 22px;
+    }
+
+    .student-page-meta {
+        grid-template-columns: 1fr;
+    }
+
+    body.student-shell-page .container,
+    body.student-shell-page .main-content,
+    .student-shell-section,
+    .student-accent-grid,
+    .student-cta-strip {
+        width: calc(100% - 1rem);
+    }
+}
+
+/* Shared student navbar skin applied across all student pages. */
+body.student-shell-page .header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    padding: 1rem 2.4rem !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    background-color: rgba(255, 255, 255, 0.9) !important;
+    border-bottom: 1px solid rgba(205, 197, 184, 0.36) !important;
+    backdrop-filter: blur(12px) !important;
+    z-index: 2000 !important;
+    box-shadow: 0 12px 30px rgba(19, 20, 22, 0.08) !important;
+}
+
+body.student-shell-page .header-logo img {
+    max-height: 3rem !important;
+    width: auto !important;
+}
+
+body.student-shell-page .nav-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex-grow: 1 !important;
+    margin-left: 4rem !important;
+}
+
+body.student-shell-page .nav-links {
+    display: flex !important;
+    gap: 2.8rem !important;
+}
+
+body.student-shell-page .nav-link {
+    color: #2e3138 !important;
+    text-decoration: none !important;
+    font-size: 0.95rem !important;
+    font-weight: 700 !important;
+    transition: all 0.25s ease !important;
+    padding: 0.8rem 0 !important;
+    position: relative !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    font-family: 'Montserrat', sans-serif !important;
+}
+
+body.student-shell-page .nav-link::after {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    bottom: 0.35rem !important;
+    width: 0 !important;
+    height: 2px !important;
+    background: var(--student-brand) !important;
+    transition: width 0.25s ease !important;
+}
+
+body.student-shell-page .nav-link:hover,
+body.student-shell-page .nav-link.active-link {
+    color: var(--student-brand-strong) !important;
+}
+
+body.student-shell-page .nav-link:hover::after,
+body.student-shell-page .nav-link.active-link::after {
+    width: 100% !important;
+    opacity: 1 !important;
+    transform: none !important;
+}
+
+body.student-shell-page .user-profile {
+    display: flex !important;
+    align-items: center !important;
+    margin-left: auto !important;
+    position: relative !important;
+}
+
+body.student-shell-page .avatar-container {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.8rem !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+    color: var(--student-ink) !important;
+}
+
+body.student-shell-page .avatar {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--student-brand), var(--student-brand-strong)) !important;
+    color: #fff !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-weight: 700 !important;
+    font-size: 1.2rem !important;
+}
+
+body.student-shell-page .dropdown-menu {
+    position: absolute !important;
+    top: 100% !important;
+    right: 0 !important;
+    background: #fff !important;
+    border-radius: 10px !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15) !important;
+    display: none !important;
+    min-width: 210px !important;
+    z-index: 2200 !important;
+    margin-top: 0.5rem !important;
+}
+
+body.student-shell-page .dropdown-menu.show {
+    display: block !important;
+}
+
+body.student-shell-page .dropdown-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.8rem !important;
+    padding: 0.8rem 1rem !important;
+    color: var(--student-ink) !important;
+    text-decoration: none !important;
+    border-bottom: 1px solid #eee !important;
+}
+
+body.student-shell-page .dropdown-item:last-child {
+    border-bottom: none !important;
+}
+
+body.student-shell-page .dropdown-item:hover {
+    background: #f7f7f7 !important;
+    color: var(--student-brand-strong) !important;
+}
+
+body.student-shell-page .menu-toggle {
+    display: none !important;
+    flex-direction: column !important;
+    cursor: pointer !important;
+    z-index: 2100 !important;
+}
+
+body.student-shell-page .menu-toggle span {
+    width: 25px !important;
+    height: 3px !important;
+    background-color: var(--student-brand-strong) !important;
+    margin: 3px 0 !important;
+    border-radius: 2px !important;
+}
+
+@media (max-width: 980px) {
+    body.student-shell-page .header {
+        padding: 0.9rem 1rem !important;
+    }
+
+    body.student-shell-page .menu-toggle {
+        display: flex !important;
+    }
+
+    body.student-shell-page .nav-container {
+        position: fixed !important;
+        top: 0 !important;
+        right: -100% !important;
+        width: min(80vw, 320px) !important;
+        height: 100vh !important;
+        background: #fff !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 0 !important;
+        padding: 4.8rem 1.2rem 1.2rem !important;
+        transition: right 0.25s ease !important;
+        margin-left: 0 !important;
+        box-shadow: -16px 0 32px rgba(16, 18, 24, 0.14) !important;
+        z-index: 1999 !important;
+        overflow-y: auto !important;
+    }
+
+    body.student-shell-page .nav-container.active {
+        right: 0 !important;
+    }
+
+    body.student-shell-page .nav-links {
+        flex-direction: column !important;
+        gap: 0.9rem !important;
+        width: 100% !important;
+    }
+
+    body.student-shell-page .user-profile {
+        margin-top: 1rem !important;
+        width: 100% !important;
+    }
+}

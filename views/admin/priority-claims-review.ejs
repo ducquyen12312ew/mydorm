@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duyệt Yêu Cầu Ưu Tiên - Admin KTX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 0;
+        }
+
+        .header h1 i {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            justify-content: space-between;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            flex: 1;
+            margin: 0;
+        }
+
+        .filter-badge {
+            background: rgba(255,255,255,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .claims-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .claim-item {
+            padding: 20px 30px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .claim-item:hover {
+            background: #f9f9f9;
+        }
+
+        .claim-item.active {
+            background: #f0f0f0;
+            border-left: 4px solid #667eea;
+            padding-left: 26px;
+        }
+
+        .claim-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .student-id {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .claim-types {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .type-badge {
+            background: #667eea;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .type-badge.minority {
+            background: #17a2b8;
+        }
+
+        .type-badge.scholarship {
+            background: #6c757d;
+        }
+
+        .type-badge.orphan {
+            background: #e83e8c;
+        }
+
+        .type-badge.disability {
+            background: #fd7e14;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .detail-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .detail-panel.active {
+            display: block;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-header h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .detail-body {
+            padding: 30px;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .detail-section h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .claim-detail {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .claim-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .claim-detail-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .claim-detail-status {
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .detail-row {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 10px;
+        }
+
+        .detail-field {
+            flex: 1;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            color: #333;
+            font-size: 14px;
+        }
+
+        .document-preview {
+            background: white;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .document-link {
+            color: #667eea;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .document-link:hover {
+            text-decoration: underline;
+        }
+
+        .review-section {
+            background: #f0f7ff;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group select,
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-approve {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-approve:hover {
+            background: #218838;
+        }
+
+        .btn-reject {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reject:hover {
+            background: #c82333;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .review-history {
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .history-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .history-admin {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .history-action {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .history-action.approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .history-action.rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .history-notes {
+            color: #666;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 30px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin: 0;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .stats {
+                width: 100%;
+                margin-top: 15px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px;
+            }
+
+            .claim-item {
+                padding: 15px 20px;
+            }
+
+            .card-header {
+                padding: 15px 20px;
+            }
+
+            .detail-body {
+                padding: 20px;
+            }
+
+            .detail-row {
+                gap: 15px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <i class="fas fa-check-circle"></i>
+                Duyệt Yêu Cầu Ưu Tiên
+            </h1>
+            <div class="stats" id="stats"></div>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="main-grid">
+            <!-- Claims List -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Danh Sách Yêu Cầu</h2>
+                    <div class="filter-badge" id="filter-badge">Chờ Duyệt</div>
+                </div>
+
+                <div class="claims-list" id="claims-list">
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Đang tải...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail Panel -->
+            <div class="detail-panel" id="detail-panel">
+                <div class="detail-header">
+                    <div>
+                        <h3 id="detail-student-name">Sinh Viên</h3>
+                        <p style="margin: 5px 0 0 0; font-size: 12px; opacity: 0.9;" id="detail-student-id">ID</p>
+                    </div>
+                    <button onclick="closeDetail()" class="btn btn-cancel" style="flex: 0; width: auto;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+
+                <div class="detail-body">
+                    <!-- Claims Details -->
+                    <div class="detail-section" id="claims-details"></div>
+
+                    <!-- Review Section -->
+                    <div class="review-section">
+                        <h4 style="color: #333; margin-bottom: 15px;">
+                            <i class="fas fa-pen-fancy"></i> Duyệt Yêu Cầu
+                        </h4>
+
+                        <div class="form-group">
+                            <label>Chọn Yêu Cầu Để Duyệt:</label>
+                            <select id="claim-select" onchange="loadSelectedClaim()">
+                                <option value="">-- Chọn yêu cầu --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Quyết Định:</label>
+                                <select id="decision">
+                                    <option value="">-- Chọn quyết định --</option>
+                                    <option value="FULLY_APPROVED">Phê Duyệt</option>
+                                    <option value="REJECTED">Từ Chối</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Điểm Cấp (nếu phê duyệt):</label>
+                                <input type="number" id="score-input" min="0" max="100" placeholder="Ví dụ: 20">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ghi Chú Duyệt:</label>
+                            <textarea id="review-notes" rows="3" placeholder="Lý do duyệt hoặc từ chối..."></textarea>
+                        </div>
+
+                        <div class="actions">
+                            <button class="btn btn-approve" onclick="approveClaim()">
+                                <i class="fas fa-check"></i> Phê Duyệt
+                            </button>
+                            <button class="btn btn-reject" onclick="rejectClaim()">
+                                <i class="fas fa-times"></i> Từ Chối
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Review History -->
+                    <div class="review-history" id="review-history" style="display: none;">
+                        <h4>
+                            <i class="fas fa-history"></i> Lịch Sử Duyệt
+                        </h4>
+                        <div id="history-list"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let claims = [];
+        let selectedClaim = null;
+        let currentStudent = null;
+
+        async function loadClaims() {
+            try {
+                const response = await fetch('/admin/api/claims/pending-claims');
+                const data = await response.json();
+
+                if (!data.success) throw new Error(data.error);
+
+                claims = data.claims;
+                renderClaimsList();
+                loadStatistics();
+            } catch (error) {
+                showMessage('Lỗi tải danh sách: ' + error.message, 'error');
+                renderEmpty();
+            }
+        }
+
+        function renderClaimsList() {
+            const list = document.getElementById('claims-list');
+
+            if (claims.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-check-double"></i>
+                        <p>Không có yêu cầu chờ duyệt</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = claims.map((claim, idx) => `
+                <div class="claim-item ${idx === 0 ? 'active' : ''}" onclick="selectClaim(${idx})">
+                    <div class="claim-header">
+                        <div class="student-info">
+                            <div class="student-name">${claim.studentName || 'N/A'}</div>
+                            <div class="student-id">MSSV: ${claim.studentId}</div>
+                        </div>
+                        <span class="status-badge status-pending">Chờ Duyệt</span>
+                    </div>
+                    <div class="claim-types">
+                        ${Object.entries(claim.claims)
+                            .filter(([_, v]) => v.claimed)
+                            .map(([type]) => {
+                                const labels = {
+                                    'financialHardship': 'Khó khăn',
+                                    'minority': 'Dân tộc',
+                                    'scholarship': 'Học bổng',
+                                    'orphan': 'Mồ côi',
+                                    'disability': 'Khuyết tật'
+                                };
+                                return `<span class="type-badge ${type}">${labels[type]}</span>`;
+                            })
+                            .join('')}
+                    </div>
+                </div>
+            `).join('');
+
+            if (claims.length > 0) {
+                selectClaim(0);
+            }
+        }
+
+        function selectClaim(idx) {
+            selectedClaim = claims[idx];
+            document.querySelectorAll('.claim-item').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+            });
+            loadClaimDetail();
+        }
+
+        async function loadClaimDetail() {
+            if (!selectedClaim) return;
+
+            try {
+                const response = await fetch(`/admin/api/claims/claim/${selectedClaim._id}`);
+                const data = await response.json();
+
+                if (!data.success) throw new Error(data.error);
+
+                currentStudent = data.claim;
+                renderDetailPanel();
+                document.getElementById('detail-panel').classList.add('active');
+            } catch (error) {
+                showMessage('Lỗi tải chi tiết: ' + error.message, 'error');
+            }
+        }
+
+        function renderDetailPanel() {
+            document.getElementById('detail-student-name').textContent = currentStudent.studentName || 'N/A';
+            document.getElementById('detail-student-id').textContent = `MSSV: ${currentStudent.studentId}`;
+
+            // Render claims details
+            let claimsHtml = '';
+            Object.entries(currentStudent.claims).forEach(([type, claim]) => {
+                if (!claim.claimed) return;
+
+                const labels = {
+                    'financialHardship': 'Diện Khó Khăn Tài Chính',
+                    'minority': 'Dân Tộc Thiểu Số',
+                    'scholarship': 'Học Bổng',
+                    'orphan': 'Trẻ Mồ Côi',
+                    'disability': 'Khuyết Tật'
+                };
+
+                const statusColor = claim.status === 'PENDING_REVIEW' ? '#ffc107' : 
+                                   claim.status === 'FULLY_APPROVED' ? '#28a745' : '#dc3545';
+
+                claimsHtml += `
+                    <div class="claim-detail">
+                        <div class="claim-detail-header">
+                            <div class="claim-detail-title">${labels[type]}</div>
+                            <div class="claim-detail-status" style="background: ${statusColor}20; color: ${statusColor};">
+                                ${claim.status}
+                            </div>
+                        </div>
+                        <div class="detail-row">
+                            <div class="detail-field">
+                                <div class="detail-label">Ngày Gửi</div>
+                                <div class="detail-value">${new Date(claim.submittedAt).toLocaleDateString('vi-VN')}</div>
+                            </div>
+                            <div class="detail-field">
+                                <div class="detail-label">Điểm</div>
+                                <div class="detail-value">${claim.calculatedScore || 0} điểm</div>
+                            </div>
+                        </div>
+                        ${claim.documentUrl ? `
+                            <div class="document-preview">
+                                <a href="${claim.documentUrl}" target="_blank" class="document-link">
+                                    <i class="fas fa-file-pdf"></i> Xem Tài Liệu
+                                </a>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            document.getElementById('claims-details').innerHTML = claimsHtml;
+
+            // Populate claim select
+            const select = document.getElementById('claim-select');
+            select.innerHTML = '<option value="">-- Chọn yêu cầu --</option>';
+            Object.entries(currentStudent.claims).forEach(([type, claim]) => {
+                if (!claim.claimed) return;
+                const labels = {
+                    'financialHardship': 'Diện Khó Khăn',
+                    'minority': 'Dân Tộc Thiểu Số',
+                    'scholarship': 'Học Bổng',
+                    'orphan': 'Trẻ Mồ Côi',
+                    'disability': 'Khuyết Tật'
+                };
+                select.innerHTML += `<option value="${type}">${labels[type]}</option>`;
+            });
+
+            // Render review history
+            if (currentStudent.reviews && currentStudent.reviews.length > 0) {
+                document.getElementById('review-history').style.display = 'block';
+                const historyHtml = currentStudent.reviews.map(review => `
+                    <div class="history-item">
+                        <div class="history-header">
+                            <span class="history-admin">${review.adminName || 'Admin'}</span>
+                            <span class="history-date">${new Date(review.reviewedAt).toLocaleDateString('vi-VN')}</span>
+                        </div>
+                        <div class="history-action ${review.decision.toLowerCase()}">
+                            ${review.decision === 'APPROVED' ? 'Phê Duyệt' : 'Từ Chối'}
+                            ${review.score ? ` (+${review.score} điểm)` : ''}
+                        </div>
+                        ${review.notes ? `<div class="history-notes">${review.notes}</div>` : ''}
+                    </div>
+                `).join('');
+                document.getElementById('history-list').innerHTML = historyHtml;
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/admin/api/claims/statistics');
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.statistics;
+                    document.getElementById('stats').innerHTML = `
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.pending || 0}</div>
+                            <div class="stat-label">Chờ Duyệt</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.approved || 0}</div>
+                            <div class="stat-label">Phê Duyệt</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value">${stats.rejected || 0}</div>
+                            <div class="stat-label">Từ Chối</div>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Lỗi tải thống kê:', error);
+            }
+        }
+
+        async function approveClaim() {
+            const claimType = document.getElementById('claim-select').value;
+            const score = document.getElementById('score-input').value;
+            const notes = document.getElementById('review-notes').value;
+
+            if (!claimType) {
+                showMessage('Vui lòng chọn yêu cầu để duyệt', 'error');
+                return;
+            }
+
+            if (!score) {
+                showMessage('Vui lòng nhập điểm cấp', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/api/claims/review-claim/${currentStudent._id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        claimType,
+                        decision: 'APPROVED',
+                        score: parseInt(score),
+                        notes
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.error);
+
+                showMessage('Đã phê duyệt yêu cầu!', 'success');
+                loadClaims();
+            } catch (error) {
+                showMessage('Lỗi phê duyệt: ' + error.message, 'error');
+            }
+        }
+
+        async function rejectClaim() {
+            const claimType = document.getElementById('claim-select').value;
+            const notes = document.getElementById('review-notes').value;
+
+            if (!claimType) {
+                showMessage('Vui lòng chọn yêu cầu để từ chối', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/api/claims/review-claim/${currentStudent._id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        claimType,
+                        decision: 'REJECTED',
+                        notes
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.error);
+
+                showMessage('Đã từ chối yêu cầu!', 'success');
+                loadClaims();
+            } catch (error) {
+                showMessage('Lỗi từ chối: ' + error.message, 'error');
+            }
+        }
+
+        function loadSelectedClaim() {
+            // Optional: load specific claim details
+        }
+
+        function closeDetail() {
+            document.getElementById('detail-panel').classList.remove('active');
+        }
+
+        function renderEmpty() {
+            document.getElementById('claims-list').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <p>Lỗi tải danh sách</p>
+                </div>
+            `;
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = `message ${type}`;
+            setTimeout(() => {
+                msgDiv.className = 'message';
+            }, 5000);
+        }
+
+        // Load on startup
+        loadClaims();
+    </script>
+</body>
+</html>

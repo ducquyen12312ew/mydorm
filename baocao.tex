@@ -1,0 +1,354 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{vietnam}
+\usepackage[left=2.5cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{titlesec}
+\usepackage{hyperref}
+
+% Cấu hình listing
+\lstset{
+    basicstyle=\ttfamily\footnotesize,
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray},
+    showstringspaces=false,
+    tabsize=2,
+    backgroundcolor=\color{gray!5}
+}
+
+% Cấu hình footer
+\pagestyle{fancy}
+\fancyhf{}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Cấu hình section
+\titleformat{\section}
+  {\normalfont\large\bfseries\color{blue!70!black}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\normalsize\bfseries\color{blue!60!black}}{\thesubsection}{1em}{}
+\titleformat{\subsubsection}
+  {\normalfont\small\bfseries\color{blue!50!black}}{\thesubsection}{1em}{}
+
+% Cấu hình hyperlink
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,      
+    urlcolor=cyan,
+    citecolor=black
+}
+
+% Giảm khoảng cách
+\setlist{noitemsep,topsep=3pt}
+\setlength{\parskip}{3pt}
+
+\begin{document}
+
+% Trang bìa
+\begin{titlepage}
+    \centering
+    \vspace*{2cm}
+    
+    {\fontsize{28}{34}\selectfont\bfseries BÁO CÁO GR2\par}
+    \vspace{1cm}
+    {\fontsize{20}{24}\selectfont Hệ Thống Quản Lý Ký Túc Xá\par}
+    \vspace{0.8cm}
+    {\fontsize{14}{18}\selectfont Ngày 5 tháng 1 năm 2026\par}
+    
+    \vfill
+    
+    {\normalsize 
+    \t\textbf{Giảng viên hướng dẫn:} Cao Tuấn Dũng\par
+    \vspace{0.3cm}
+    \t\textbf{Sinh viên thực hiện:} Phan Đức Quyền\par
+    }
+    
+    \vfill
+    
+\end{titlepage}
+
+\newpage
+
+\section*{PHẦN 1: TÓM TẮT CÔNG VIỆC ĐÃ LÀM}
+
+Hệ thống Quản Lý Ký Túc Xá được phát triển như một giải pháp quản lý toàn diện cho các cơ sở ký túc xá. Toàn bộ hệ thống bao gồm 6 module chính:
+
+\subsection*{1. Module Vi Phạm (Violations)}
+\begin{itemize}[nosep]
+    \item Quản lý 10 loại vi phạm: hút thuốc, tiếng ồn, khách không phép, không giữ vệ sinh, uống rượu bia
+    \item 4 mức độ vi phạm: Low, Medium, High, Critical
+    \item Trạng thái xử lý: Chờ xử lý, Đang điều tra, Đã xử lý
+    \item Gửi email thông báo tự động khi tạo/xử lý vi phạm
+    \item Chi tiết API: 5 endpoints (GET list, GET detail, POST create, PATCH status, PATCH resolve)
+\end{itemize}
+
+\subsection*{2. Module Bảo Trì (Maintenance)}
+\begin{itemize}[nosep]
+    \item Xử lý 10 loại yêu cầu: khóa cửa, điện, nước, điều hòa, tường bị hỏng
+    \item 4 mức độ ưu tiên: Low, Medium, High, Urgent
+    \item Workflow 3 giai đoạn: sinh viên tạo → admin phân công → kỹ thuật viên hoàn thành
+    \item Hỗ trợ tải lên hình ảnh minh chứng
+    \item Email thông báo ở 3 bước: tạo yêu cầu, phân công, hoàn thành
+\end{itemize}
+
+\subsection*{3. Module Đơn Đăng Ký (Applications)}
+\begin{itemize}[nosep]
+    \item Xử lý đơn đăng ký phòng từ sinh viên
+    \item Kiểm tra trùng lặp bằng MongoDB Aggregation Pipeline
+    \item Tìm phòng phù hợp dựa vào giới tính và sức chứa
+    \item Thống kê API cung cấp dữ liệu dashboard
+\end{itemize}
+
+\subsection*{4. Module Đợt Đăng Ký \& Ưu Tiên Đăng Ký (Academic Windows \& Priority Queue)}
+\begin{itemize}[nosep]
+    \item Admin mở/đóng đợt đăng ký theo \t\textbf{năm học, học kỳ, thời gian bắt đầu/kết thúc}
+    \item Giới hạn đối tượng được đăng ký theo \t\textbf{allowedAcademicYears} (năm 1..6 hoặc all)
+    \item Chính sách theo nhóm năm (năm 1, năm 2--3, năm 4+) và cửa sổ lựa chọn phòng (selection window)
+    \item Xếp hàng ưu tiên dựa trên \t\textbf{điểm ưu tiên} (năm học, lịch sử ở KTX, giữ phòng cũ)
+    \item API hỗ trợ: lấy hàng đợi ưu tiên, phân phòng tự động (auto-assign) cho sinh viên theo chính sách
+\end{itemize}
+
+\subsection*{5. Hệ Thống Bảo Mật (Security)}
+\begin{itemize}[nosep]
+    \item Helmet.js: Content Security Policy, X-Frame-Options, HSTS headers
+    \item Rate Limiting: 5 lần/15 phút cho auth, 100 lần/15 phút cho API
+    \item Input Validation: Express-validator kiểm tra độ dài, định dạng, enum
+    \item XSS Protection: Loại bỏ \texttt{<>}, \texttt{javascript:}, event handlers
+    \item Audit Logging: Ghi lại sự kiện an toàn với IP, thời gian, người dùng
+\end{itemize}
+
+\subsection*{6. Hệ Thống 2FA (Two-Factor Authentication)}
+\begin{itemize}[nosep]
+    \item TOTP via Speakeasy: Tạo secret 32 byte, QR code 6 chữ số
+    \item SMS OTP: 10 phút hết hạn, tối đa 5 lần thử
+    \item Email OTP: Sử dụng Nodemailer + Gmail SMTP
+    \item Backup Codes: 10 mã phục hồi tài khoản
+\end{itemize}
+
+\newpage
+
+
+\section*{PHẦN 2: CHI TIẾT CÔNG VIỆC TRIỂN KHAI}
+
+\section{Module Vi Phạm (Violations)}
+
+Module này quản lý các vi phạm quy định ở ký túc xá với quy trình báo cáo, điều tra và xử lý. Hệ thống lưu trữ thông tin vi phạm bao gồm sinh viên vi phạm, loại vi phạm (10 loại), mức độ nghiêm trọng (4 mức), trạng thái xử lý, mô tả chi tiết và bằng chứng hình ảnh.
+
+
+\subsection{API Endpoints}
+
+Hệ thống cung cấp các endpoint RESTful để quản lý vi phạm, hỗ trợ lọc theo trạng thái/mức độ, tạo mới, cập nhật và xử lý. Mọi thao tác quan trọng đều được kiểm tra dữ liệu đầu vào và ghi nhật ký để phục vụ audit.
+
+            	\textbf{Các endpoint chính:}
+\begin{itemize}[nosep]
+    \item \t\textbf{GET /admin/violations}: danh sách vi phạm (filter theo status/severity)
+    \item \t\textbf{POST /admin/violations}: tạo vi phạm mới và thông báo cho sinh viên
+    \item \t\textbf{GET /admin/violations/:id}: xem chi tiết
+    \item \t\textbf{PUT /admin/violations/:id}: cập nhật thông tin
+    \item \t\textbf{PATCH /admin/violations/:id/resolve}: đánh dấu đã xử lý
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{2.png}
+\end{center}
+
+\subsection{Logic Xử Lý}
+
+Khi admin đánh dấu vi phạm đã xử lý, hệ thống cập nhật trạng thái, ghi log và (tuỳ theo mức độ nghiêm trọng) có thể kích hoạt các bước xử lý tiếp theo theo chính sách nhà trường.
+
+\t\textbf{Luồng xử lý vi phạm tuân theo quy trình:}
+
+\begin{enumerate}[nosep]
+    \item \t\textbf{Ghi nhận vi phạm}: Admin đăng nhập vào dashboard, tìm sinh viên, cập nhập loại và mức độ vi phạm
+    \item \t\textbf{Xác nhận}: Hệ thống kiểm tra dữ liệu hợp lệ, lưu vào database
+    \item \t\textbf{Thông báo}: Tự động gửi email cho sinh viên
+    \item \t\textbf{Theo dõi}: Sinh viên có thể xem lịch sử vi phạm trong thông tin cá nhân
+    \item \t\textbf{Giải quyết}: Admin đánh dấu vi phạm đã xử lý
+\end{enumerate}
+
+
+\section{Nhật Ký Hoạt Động (Audit Logging)}
+
+Winston logger ghi lại tất cả các hoạt động bảo mật, giúp phát hiện hoạt động bất thường và duy trì audit trail đầy đủ.
+
+\subsection{Cơ Chế \& Sự Kiện Ghi Nhật Ký}
+
+Mọi hành động quan trọng được ghi lại kèm thông tin người dùng, địa chỉ IP, User-Agent, thời gian và kết quả. Audit logging giúp:
+\begin{itemize}[nosep]
+    \item \t\textbf{Phát hiện bất thường}: nhiều lần đăng nhập sai, vượt giới hạn truy cập
+    \item \t\textbf{Điều tra sự cố}: truy vết thao tác theo thời điểm
+    \item \t\textbf{Tuân thủ}: lưu lịch sử phục vụ kiểm toán
+\end{itemize}
+
+            	\textbf{Các sự kiện tiêu biểu:}
+\begin{itemize}[nosep]
+    \item \t\textbf{LOGIN\_SUCCESS, LOGIN\_FAILED}
+    \item \t\textbf{2FA\_ENABLED, 2FA\_DISABLED, 2FA\_VERIFIED, 2FA\_FAILED, 2FA\_LOCKED}
+    \item \t\textbf{VIOLATION\_CREATED, VIOLATION\_RESOLVED}
+    \item \t\textbf{MAINTENANCE\_COMPLETED}
+    \item \t\textbf{RATE\_LIMIT\_EXCEEDED, SUSPICIOUS\_ACTIVITY}
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{3.png}
+\end{center}
+
+\section{Module Bảo Trì (Maintenance)}
+
+Module bảo trì cho phép sinh viên gửi yêu cầu sửa chữa trực tiếp từ portal và theo dõi tiến độ xử lý. Admin tiếp nhận yêu cầu, chuyển sang \t\textbf{đang xử lý} và kết thúc bằng \t\textbf{đã xử lý} hoặc \t\textbf{từ chối}.
+
+\subsection{Luồng xử lý}
+\begin{enumerate}[nosep]
+    \item \t\textbf{Tạo yêu cầu}: sinh viên chọn loại sự cố, mô tả tình trạng
+    \item \t\textbf{Xử lý}: admin/đội kỹ thuật cập nhật trạng thái trong quá trình sửa chữa
+    \item \t\textbf{Kết thúc}: đánh dấu hoàn thành hoặc từ chối (kèm lý do)
+\end{enumerate}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{4.png}
+\end{center}
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{5.png}
+\end{center}
+
+\subsection{Minh hoạ}
+\begin{center}
+\begin{minipage}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{sinhvien1.png}
+\end{minipage}
+\begin{minipage}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{sinhvien2.png}
+\end{minipage}
+\begin{minipage}{0.32\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{sinhvien3.png}
+\end{minipage}
+\end{center}
+
+\section{Module Đợt Đăng Ký \& Ưu Tiên Đăng Ký (Academic Windows \& Priority Queue)}
+
+Module này giúp admin chủ động \t\textbf{mở đợt đăng ký KTX} theo từng năm học/học kỳ, đồng thời \t\textbf{xếp thứ tự ưu tiên} sinh viên để hỗ trợ phân phòng tự động và kiểm soát công bằng theo chính sách.
+
+\subsection{Đợt đăng ký (Academic Window)}
+
+Admin tạo đợt đăng ký với thông tin: \t\textbf{academicYear}, \t\textbf{semester}, \t\textbf{startDate/endDate}, \t\textbf{status} (upcoming/active/closed) và danh sách \t\textbf{allowedAcademicYears}. Chỉ có đợt ở trạng thái \t\textbf{active} mới cho phép sinh viên đăng ký.
+
+            	\textbf{Ý nghĩa triển khai:} admin có thể chủ động bật/tắt đăng ký theo thời gian, giới hạn theo khoá/năm học, đảm bảo sinh viên chỉ đăng ký trong đúng giai đoạn cho phép.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{12.png}
+\end{center}
+
+\subsection{Ưu tiên đăng ký (Priority Queue)}
+
+Để đảm bảo công bằng và đúng chính sách, hệ thống tính \t\textbf{điểm ưu tiên} và sắp xếp sinh viên theo thứ tự giảm dần. Điểm ưu tiên được tổng hợp từ các yếu tố như nhóm năm học, lịch sử đăng ký và trạng thái ở hiện tại. Danh sách này được dùng làm đầu vào cho các thao tác \t\textbf{phân phòng hàng loạt} và hỗ trợ admin kiểm soát thứ tự xử lý.
+
+\section{Bảo Mật (Security Architecture)}
+
+Hệ thống áp dụng nhiều lớp bảo mật để chống lại các tấn công phổ biến.
+
+\subsection{HTTP Headers Bảo Mật}
+
+Helmet.js được dùng để thiết lập các HTTP security headers. Trong đó, Content Security Policy (CSP) giới hạn nguồn tài nguyên hợp lệ, giúp giảm rủi ro XSS và clickjacking.
+
+\t\textbf{CSP bảo vệ chống:}
+
+\begin{itemize}[nosep]
+    \item \t\textbf{XSS attacks}: Chặn inline scripts độc hại, chỉ cho phép scripts từ whitelist domains
+    \item \t\textbf{Clickjacking}: Ngăn trang bị nhúng vào iframe từ domain khác
+    \item \t\textbf{Data injection}: Giới hạn nguồn tải nguyên giảm thiểu SQL injection
+\end{itemize}
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{7.png}
+\end{center}
+
+\subsection{XSS Protection}
+
+Hệ thống lọc/sanitize dữ liệu đầu vào để loại bỏ thẻ HTML và các chuỗi nguy hiểm (ví dụ \texttt{javascript:}), giảm nguy cơ chèn mã độc qua form.
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{8.png}
+\end{center}
+
+\subsection{Validation Và Rate Limiting}
+
+Hệ thống kiểm tra dữ liệu đầu vào (format/độ dài/enum) để tránh dữ liệu sai và giảm rủi ro injection. Đồng thời, rate limiting giới hạn số lần thử đăng nhập và số request API trong một khoảng thời gian để chống brute-force.
+
+\section{Xác Thực 2 Lớp (Two-Factor Authentication)}
+
+Module 2FA sử dụng 3 phương pháp xác thực kết hợp với mã backup.
+
+\subsection{TOTP (Time-based One-Time Password)}
+
+TOTP tạo mã OTP offline trên thiết bị và tự thay đổi theo thời gian, hạn chế nguy cơ bị nghe lén và replay.
+
+\begin{center}
+\includegraphics[width=0.65\textwidth]{9.png}
+\end{center}
+
+Xác thực có độ dung sai nhỏ để tránh lệch thời gian giữa thiết bị và máy chủ.
+
+\subsection{SMS OTP}
+
+SMS OTP phù hợp khi người dùng không tiện dùng ứng dụng xác thực. Hệ thống tạo mã OTP ngẫu nhiên, có \t\textbf{thời gian hết hạn} và chỉ cho phép \t\textbf{số lần thử giới hạn}.
+
+            	\textbf{Cơ chế bảo vệ chính:}
+\begin{itemize}[nosep]
+    \item \t\textbf{Hết hạn nhanh}: OTP tự vô hiệu sau một khoảng thời gian (ví dụ 10 phút)
+    \item \t\textbf{Giới hạn thử sai}: khoá tạm thời sau nhiều lần nhập sai để chống brute-force
+    \item \t\textbf{Rate limit gửi lại}: giới hạn tần suất resend để tránh spam SMS
+    \item \t\textbf{Audit logging}: ghi nhận sự kiện gửi/xác thực OTP và địa chỉ IP
+\end{itemize}
+
+\subsection{Email OTP}
+
+Email OTP là phương án dự phòng khi không thể nhận SMS hoặc không dùng ứng dụng TOTP. OTP được gửi qua email kèm thời hạn sử dụng và được kiểm soát tần suất gửi.
+
+            	\textbf{Điểm triển khai:}
+\begin{itemize}[nosep]
+    \item \t\textbf{Template email}: nội dung rõ ràng, nhấn mạnh thời gian hết hạn
+    \item \t\textbf{Chống lạm dụng}: giới hạn gửi lại và giới hạn số lần xác thực sai
+    \item \t\textbf{Theo dõi}: log sự kiện gửi email OTP để phục vụ truy vết
+\end{itemize}
+
+\subsection{2FA Login Flow}
+
+Luồng đăng nhập: Username/Password → nhập mã 2FA → tạo session và thiết lập cookie bảo mật.
+
+            	\textbf{Các bước chính:}
+\begin{enumerate}[nosep]
+    \item Người dùng đăng nhập bằng tài khoản/mật khẩu
+    \item Hệ thống yêu cầu mã 2FA (TOTP/SMS/Email)
+    \item Xác thực mã 2FA thành công mới cho phép tạo session
+    \item Session được lưu an toàn và trả về cookie (ưu tiên \texttt{httpOnly}, \texttt{secure})
+\end{enumerate}
+
+\begin{center}
+\includegraphics[width=0.65\textwidth]{10.png}
+\\
+                	\textit{Minh hoạ luồng đăng nhập có 2FA}
+\end{center}
+
+\subsection{Backup Codes}
+
+Khi thiết lập 2FA, hệ thống tạo backup codes (mỗi mã dùng 1 lần) để phục hồi khi mất thiết bị.
+
+\begin{center}
+\includegraphics[width=0.75\textwidth]{11.png}
+\end{center}
+
+\end{document}

@@ -8,125 +8,252 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary: #e61a1a;
-            --success: #28a745;
-            --warning: #ffc107;
-            --danger: #dc3545;
-            --info: #17a2b8;
+            --primary: #e74c3c;
         }
         
-        body { background: #f5f7fa; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f5f7fa; font-family: 'Segoe UI', sans-serif; color: #2c3e50; }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
         
         .priority-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
-        .priority-low { background: #d4edda; color: #155724; }
-        .priority-medium { background: #fff3cd; color: #856404; }
-        .priority-high { background: #f8d7da; color: #721c24; }
-        .priority-urgent { background: #721c24; color: white; }
+        .priority-low { background: #f3f3f3; color: #2c2c2c; }
+        .priority-medium { background: #ededed; color: #2c2c2c; }
+        .priority-high { background: #e7e7e7; color: #2c2c2c; }
+        .priority-urgent { background: var(--primary); color: #ffffff; }
         
         .status-badge { padding: 4px 12px; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
-        .status-submitted { background: #cfe2ff; color: #084298; }
-        .status-assigned { background: #fff3cd; color: #856404; }
-        .status-in_progress { background: #cff4fc; color: #087990; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-cancelled { background: #e2e3e5; color: #383d41; }
+        .status-submitted { background: #f2f2f2; color: #1f1f1f; }
+        .status-in_progress { background: #e7e7e7; color: #1f1f1f; }
+        .status-completed { background: #e3e3e3; color: #1f1f1f; }
+        .status-cancelled { background: #e0e0e0; color: #1f1f1f; }
         
-        .stat-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s; }
-        .stat-card:hover { transform: translateY(-2px); }
-        .stat-value { font-size: 2rem; font-weight: 700; }
-        .stat-label { color: #6c757d; font-size: 0.9rem; margin-top: 5px; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        /* Red + neutral palette (no blue/green) */
+        .stat-card:nth-child(1) { border-left: 4px solid var(--primary); }
+        .stat-card:nth-child(2) { border-left: 4px solid #2c3e50; }
+        .stat-card:nth-child(3) { border-left: 4px solid #7f8c8d; }
+        .stat-card:nth-child(4) { border-left: 4px solid #111111; }
+
+        .stat-label { font-size: 13px; color: #95a5a6; text-transform: uppercase; font-weight: 700; margin-bottom: 10px; }
+        .stat-value { font-size: 32px; font-weight: 800; color: #2c3e50; }
+
+        .stat-card:nth-child(1) .stat-value { color: var(--primary); }
+        .stat-card:nth-child(2) .stat-value { color: #2c3e50; }
+        .stat-card:nth-child(3) .stat-value { color: #7f8c8d; }
+        .stat-card:nth-child(4) .stat-value { color: #111111; }
         
-        .filter-card { background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .filters-bar {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .filter-label {
+            font-weight: 700;
+            font-size: 14px;
+            color: #2c3e50;
+            white-space: nowrap;
+        }
         
-        .table-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+        .table-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         
         .action-btn { padding: 5px 12px; font-size: 0.85rem; border-radius: 6px; margin: 2px; }
         
         .type-icon { font-size: 1.2rem; margin-right: 5px; }
+
+        .page-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: #c0392b;
+            border-color: #c0392b;
+        }
+
+        /* Modal styling: clean, modern, red/neutral only */
+        .modal-content {
+            border-radius: 14px;
+            border: 1px solid #ececec;
+            border-top: 4px solid var(--primary);
+            box-shadow: 0 14px 40px rgba(0,0,0,0.16);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #ececec;
+            padding: 16px 18px;
+        }
+
+        .modal-title {
+            font-weight: 800;
+            color: #2c3e50;
+        }
+
+        .modal-body {
+            padding: 18px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #ececec;
+            padding: 14px 18px;
+        }
+
+        .btn-dark {
+            background: #111111;
+            border-color: #111111;
+        }
+
+        .btn-dark:hover {
+            background: #000000;
+            border-color: #000000;
+        }
     </style>
 </head>
 <body>
-    <div class="container-fluid mt-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><i class="fas fa-tools me-2"></i>Quản lý Yêu cầu Bảo trì</h2>
-            <a href="/admin/dashboard" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Quay lại Dashboard
-            </a>
+    <%- include('../navbar.ejs', { activeNav: 'maintenance' }) %>
+
+    <div class="container">
+        <div class="page-header">
+            <div>
+                <h1>
+                    <span class="page-header-icon"><i class="fas fa-tools"></i></span>
+                    Quản lý bảo trì
+                </h1>
+            </div>
         </div>
 
         <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-md-3">
-                <div class="stat-card border-start border-4 border-info">
-                    <div class="stat-value text-info" id="statSubmitted">0</div>
-                    <div class="stat-label">Yêu cầu mới</div>
-                </div>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Yêu cầu mới</div>
+                <div class="stat-value" id="statSubmitted">0</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card border-start border-4 border-warning">
-                    <div class="stat-value text-warning" id="statAssigned">0</div>
-                    <div class="stat-label">Đã phân công</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Đang xử lý</div>
+                <div class="stat-value" id="statInProgress">0</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card border-start border-4 border-primary">
-                    <div class="stat-value text-primary" id="statInProgress">0</div>
-                    <div class="stat-label">Đang xử lý</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Đã hoàn thành</div>
+                <div class="stat-value" id="statCompleted">0</div>
             </div>
-            <div class="col-md-3">
-                <div class="stat-card border-start border-4 border-success">
-                    <div class="stat-value text-success" id="statCompleted">0</div>
-                    <div class="stat-label">Đã hoàn thành</div>
-                </div>
+            <div class="stat-card">
+                <div class="stat-label">Từ chối</div>
+                <div class="stat-value" id="statRejected">0</div>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="filter-card">
-            <div class="row g-3">
-                <div class="col-md-2">
-                    <select class="form-select" id="filterStatus">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="submitted">Yêu cầu mới</option>
-                        <option value="assigned">Đã phân công</option>
-                        <option value="in_progress">Đang xử lý</option>
-                        <option value="completed">Đã hoàn thành</option>
-                        <option value="cancelled">Đã hủy</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="filterPriority">
-                        <option value="">Tất cả độ ưu tiên</option>
-                        <option value="low">Thấp</option>
-                        <option value="medium">Trung bình</option>
-                        <option value="high">Cao</option>
-                        <option value="urgent">Khẩn cấp</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <select class="form-select" id="filterType">
-                        <option value="">Tất cả loại</option>
-                        <option value="electrical">Điện</option>
-                        <option value="plumbing">Nước</option>
-                        <option value="hvac">Điều hòa</option>
-                        <option value="furniture">Nội thất</option>
-                        <option value="door_lock">Cửa/Khóa</option>
-                        <option value="window">Cửa sổ</option>
-                        <option value="internet">Mạng</option>
-                        <option value="cleaning">Vệ sinh</option>
-                        <option value="pest_control">Diệt côn trùng</option>
-                        <option value="other">Khác</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <input type="text" class="form-control" id="filterSearch" placeholder="Tìm theo mã yêu cầu, phòng...">
-                </div>
-                <div class="col-md-3">
-                    <button class="btn btn-primary w-100" onclick="loadRequests()">
-                        <i class="fas fa-search me-1"></i> Tìm kiếm
-                    </button>
-                </div>
+        <div class="filters-bar">
+            <div class="filter-group">
+                <span class="filter-label">Trạng thái</span>
+                <select class="form-select" id="filterStatus" style="width: 190px;">
+                    <option value="">Tất cả</option>
+                    <option value="submitted">Yêu cầu mới</option>
+                    <option value="in_progress">Đang xử lý</option>
+                    <option value="completed">Đã hoàn thành</option>
+                    <option value="cancelled">Từ chối</option>
+                </select>
             </div>
+            <div class="filter-group">
+                <span class="filter-label">Ưu tiên</span>
+                <select class="form-select" id="filterPriority" style="width: 170px;">
+                    <option value="">Tất cả</option>
+                    <option value="low">Thấp</option>
+                    <option value="medium">Trung bình</option>
+                    <option value="high">Cao</option>
+                    <option value="urgent">Khẩn cấp</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <span class="filter-label">Loại</span>
+                <select class="form-select" id="filterType" style="width: 200px;">
+                    <option value="">Tất cả</option>
+                    <option value="electrical">Điện</option>
+                    <option value="plumbing">Nước</option>
+                    <option value="hvac">Điều hòa</option>
+                    <option value="furniture">Nội thất</option>
+                    <option value="door_lock">Cửa/Khóa</option>
+                    <option value="window">Cửa sổ</option>
+                    <option value="internet">Mạng</option>
+                    <option value="cleaning">Vệ sinh</option>
+                    <option value="pest_control">Diệt côn trùng</option>
+                    <option value="other">Khác</option>
+                </select>
+            </div>
+            <div class="filter-group" style="flex: 1; min-width: 220px;">
+                <span class="filter-label">Tìm</span>
+                <input type="text" class="form-control" id="filterSearch" placeholder="Mã yêu cầu, phòng...">
+            </div>
+            <button class="btn btn-primary" onclick="loadRequests()">
+                <i class="fas fa-search me-1"></i> Tìm kiếm
+            </button>
         </div>
 
         <!-- Table -->
@@ -149,7 +276,7 @@
                     <tbody id="requestsTable">
                         <tr>
                             <td colspan="9" class="text-center py-4">
-                                <div class="spinner-border text-primary" role="status">
+                                <div class="spinner-border text-dark" role="status">
                                     <span class="visually-hidden">Loading...</span>
                                 </div>
                             </td>
@@ -180,35 +307,6 @@
         </div>
     </div>
 
-    <!-- Assign Staff Modal -->
-    <div class="modal fade" id="assignStaffModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Phân công nhân viên</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="assignStaffForm">
-                        <input type="hidden" id="assignRequestId">
-                        <div class="mb-3">
-                            <label class="form-label">Tên nhân viên *</label>
-                            <input type="text" class="form-control" name="staffName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control" name="staffPhone">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-primary" onclick="submitAssignment()">Phân công</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Complete Modal -->
     <div class="modal fade" id="completeModal" tabindex="-1">
         <div class="modal-dialog">
@@ -224,15 +322,11 @@
                             <label class="form-label">Ghi chú hoàn thành</label>
                             <textarea class="form-control" name="completionNotes" rows="3"></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Chi phí thực tế (VNĐ)</label>
-                            <input type="number" class="form-control" name="actualCost" min="0" step="1000">
-                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-success" onclick="submitComplete()">Hoàn thành</button>
+                    <button type="button" class="btn btn-primary" onclick="submitComplete()">Đã xử lý</button>
                 </div>
             </div>
         </div>
@@ -242,6 +336,69 @@
     <script>
         let currentPage = 1;
         let currentFilters = {};
+
+        // Demo data shown if API chưa có dữ liệu hoặc lỗi
+        const sampleRequests = [
+            {
+                _id: 'demo-1',
+                requestNumber: 'MT-2401',
+                type: 'electrical',
+                title: 'Cháy bóng đèn hành lang tầng 3',
+                dormitoryName: 'KTX A1',
+                roomNumber: 'Hành lang tầng 3',
+                floorNumber: 3,
+                reportedBy: { name: 'Nguyễn Văn A', studentId: '20200001' },
+                priority: 'medium',
+                status: 'submitted',
+                reportedAt: new Date().toISOString()
+            },
+            {
+                _id: 'demo-2',
+                requestNumber: 'MT-2402',
+                type: 'plumbing',
+                title: 'Rò rỉ nước tại phòng 203',
+                dormitoryName: 'KTX B2',
+                roomNumber: '203',
+                floorNumber: 2,
+                reportedBy: { name: 'Trần Thị B', studentId: '20201234' },
+                priority: 'high',
+                status: 'in_progress',
+                reportedAt: new Date(Date.now() - 86400000).toISOString()
+            },
+            {
+                _id: 'demo-3',
+                requestNumber: 'MT-2403',
+                type: 'internet',
+                title: 'Wi-Fi chập chờn khu B1',
+                dormitoryName: 'KTX B1',
+                roomNumber: 'Tầng 5',
+                floorNumber: 5,
+                reportedBy: { name: 'Lê C', studentId: '20209999' },
+                priority: 'urgent',
+                status: 'cancelled',
+                reportedAt: new Date(Date.now() - 2 * 86400000).toISOString()
+            },
+            {
+                _id: 'demo-4',
+                requestNumber: 'MT-2404',
+                type: 'furniture',
+                title: 'Bàn học gãy chân phòng 402',
+                dormitoryName: 'KTX C',
+                roomNumber: '402',
+                floorNumber: 4,
+                reportedBy: { name: 'Phạm D', studentId: '20208888' },
+                priority: 'low',
+                status: 'completed',
+                reportedAt: new Date(Date.now() - 5 * 86400000).toISOString()
+            }
+        ];
+
+        const sampleStats = {
+            submitted: 1,
+            in_progress: 1,
+            completed: 1,
+            cancelled: 1
+        };
 
         async function loadRequests() {
             currentFilters = {
@@ -257,21 +414,27 @@
             });
 
             try {
-                const response = await fetch(`/admin/maintenance-requests?${params}`);
+                const response = await fetch(`/api/admin/maintenance-requests?${params}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
                 const data = await response.json();
 
-                if (data.success) {
+                if (data.success && Array.isArray(data.requests) && data.requests.length > 0) {
                     renderTable(data.requests);
                     renderPagination(data.pagination);
+                } else {
+                    renderSampleData();
                 }
             } catch (error) {
                 console.error('Error:', error);
+                renderSampleData();
             }
         }
 
         async function loadStats() {
             try {
-                const response = await fetch('/admin/maintenance-requests/stats/summary');
+                const response = await fetch('/api/admin/maintenance-requests/stats/summary');
                 const data = await response.json();
 
                 if (data.success) {
@@ -280,14 +443,19 @@
                         return acc;
                     }, {});
 
-                    document.getElementById('statSubmitted').textContent = statusMap.submitted || 0;
-                    document.getElementById('statAssigned').textContent = statusMap.assigned || 0;
-                    document.getElementById('statInProgress').textContent = statusMap.in_progress || 0;
-                    document.getElementById('statCompleted').textContent = statusMap.completed || 0;
+                    applyStats(statusMap);
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error loading stats:', error);
+                applyStats(sampleStats);
             }
+        }
+
+        function applyStats(map) {
+            document.getElementById('statSubmitted').textContent = map.submitted || 0;
+            document.getElementById('statInProgress').textContent = map.in_progress || 0;
+            document.getElementById('statCompleted').textContent = map.completed || 0;
+            document.getElementById('statRejected').textContent = map.cancelled || 0;
         }
 
         function renderTable(requests) {
@@ -298,7 +466,7 @@
                 return;
             }
 
-            tbody.innerHTML = requests.map(r => `
+            const rows = requests.map(r => `
                 <tr>
                     <td><code>${r.requestNumber}</code></td>
                     <td><i class="${getTypeIcon(r.type)} type-icon"></i>${getTypeLabel(r.type)}</td>
@@ -315,6 +483,8 @@
                     </td>
                 </tr>
             `).join('');
+
+            tbody.innerHTML = rows;
         }
 
         function renderPagination(pagination) {
@@ -330,6 +500,12 @@
             }
 
             nav.innerHTML = html;
+        }
+
+        function renderSampleData() {
+            renderTable(sampleRequests);
+            renderPagination({ pages: 1, page: 1 });
+            applyStats(sampleStats);
         }
 
         function changePage(page) {
@@ -370,16 +546,17 @@
 
         function getStatusLabel(status) {
             const labels = {
-                submitted: 'Mới', assigned: 'Đã phân', 
-                in_progress: 'Đang xử lý', completed: 'Hoàn thành', 
-                cancelled: 'Đã hủy'
+                submitted: 'Mới',
+                in_progress: 'Đang xử lý',
+                completed: 'Đã xử lý',
+                cancelled: 'Từ chối'
             };
             return labels[status] || status;
         }
 
         async function viewRequest(id) {
             try {
-                const response = await fetch(`/admin/maintenance-requests/${id}`);
+                const response = await fetch(`/api/admin/maintenance-requests/${id}`);
                 const data = await response.json();
 
                 if (data.success) {
@@ -388,23 +565,20 @@
 
                     if (r.status === 'submitted') {
                         actionsHTML = `
-                            <button class="btn btn-primary" onclick="showAssignModal('${r._id}')">
-                                <i class="fas fa-user-plus me-1"></i> Phân công
+                            <button class="btn btn-dark" onclick="updateStatus('${r._id}', 'in_progress')">
+                                <i class="fas fa-play me-1"></i> Đang xử lý
                             </button>
                             <button class="btn btn-secondary" onclick="updateStatus('${r._id}', 'cancelled')">
-                                <i class="fas fa-times me-1"></i> Hủy
-                            </button>
-                        `;
-                    } else if (r.status === 'assigned') {
-                        actionsHTML = `
-                            <button class="btn btn-info" onclick="updateStatus('${r._id}', 'in_progress')">
-                                <i class="fas fa-play me-1"></i> Bắt đầu xử lý
+                                <i class="fas fa-ban me-1"></i> Từ chối
                             </button>
                         `;
                     } else if (r.status === 'in_progress') {
                         actionsHTML = `
-                            <button class="btn btn-success" onclick="showCompleteModal('${r._id}')">
-                                <i class="fas fa-check me-1"></i> Hoàn thành
+                            <button class="btn btn-primary" onclick="showCompleteModal('${r._id}')">
+                                <i class="fas fa-check me-1"></i> Đã xử lý
+                            </button>
+                            <button class="btn btn-secondary" onclick="updateStatus('${r._id}', 'cancelled')">
+                                <i class="fas fa-ban me-1"></i> Từ chối
                             </button>
                         `;
                     }
@@ -441,24 +615,10 @@
                             <small class="text-muted">Thời gian: ${new Date(r.reportedAt).toLocaleString('vi-VN')}</small>
                         </div>
                         
-                        ${r.assignedTo ? `
-                            <div class="mb-3">
-                                <strong>Nhân viên phụ trách:</strong><br>
-                                ${r.assignedTo.name}<br>
-                                <small class="text-muted">SĐT: ${r.assignedTo.phone || 'N/A'}</small>
-                            </div>
-                        ` : ''}
-                        
                         ${r.completionNotes ? `
                             <div class="mb-3">
                                 <strong>Ghi chú hoàn thành:</strong><br>
                                 <p>${r.completionNotes}</p>
-                            </div>
-                        ` : ''}
-                        
-                        ${r.actualCost ? `
-                            <div class="mb-3">
-                                <strong>Chi phí:</strong> ${r.actualCost.toLocaleString()} VNĐ
                             </div>
                         ` : ''}
                         
@@ -474,63 +634,23 @@
             }
         }
 
-        function showAssignModal(id) {
-            document.getElementById('assignRequestId').value = id;
-            bootstrap.Modal.getInstance(document.getElementById('viewRequestModal')).hide();
-            new bootstrap.Modal(document.getElementById('assignStaffModal')).show();
-        }
-
         function showCompleteModal(id) {
             document.getElementById('completeRequestId').value = id;
             bootstrap.Modal.getInstance(document.getElementById('viewRequestModal')).hide();
             new bootstrap.Modal(document.getElementById('completeModal')).show();
         }
 
-        async function submitAssignment() {
-            const form = document.getElementById('assignStaffForm');
-            const formData = new FormData(form);
-            const data = {
-                staffId: Date.now().toString(), // Temporary ID
-                staffName: formData.get('staffName'),
-                staffPhone: formData.get('staffPhone')
-            };
-            const id = document.getElementById('assignRequestId').value;
-
-            try {
-                const response = await fetch(`/admin/maintenance-requests/${id}/assign`, {
-                    method: 'PATCH',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    alert('Đã phân công nhân viên');
-                    bootstrap.Modal.getInstance(document.getElementById('assignStaffModal')).hide();
-                    form.reset();
-                    loadRequests();
-                    loadStats();
-                } else {
-                    alert('Lỗi: ' + result.error);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Lỗi hệ thống');
-            }
-        }
 
         async function submitComplete() {
             const form = document.getElementById('completeForm');
             const formData = new FormData(form);
             const data = {
-                completionNotes: formData.get('completionNotes'),
-                actualCost: parseFloat(formData.get('actualCost')) || 0
+                completionNotes: formData.get('completionNotes')
             };
             const id = document.getElementById('completeRequestId').value;
 
             try {
-                const response = await fetch(`/admin/maintenance-requests/${id}/complete`, {
+                const response = await fetch(`/api/admin/maintenance-requests/${id}/complete`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
@@ -555,7 +675,7 @@
 
         async function updateStatus(id, status) {
             try {
-                const response = await fetch(`/admin/maintenance-requests/${id}/status`, {
+                const response = await fetch(`/api/admin/maintenance-requests/${id}/status`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ status })
@@ -574,7 +694,7 @@
             }
         }
 
-        // Load initial data
+        // Load initial data (fallback to demo nếu API lỗi)
         loadRequests();
         loadStats();
     </script>

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { DormitoryCollection } = require('./config');
+const { DormitoryCollection } = require('./config/config');
+const notDeletedQuery = { $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }] };
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
         return next();
@@ -59,7 +60,7 @@ async function checkStudentExistsInSystem(studentId, name) {
 // Helper function để xóa sinh viên khỏi hệ thống (khi cần chuyển phòng)
 async function removeStudentFromSystem(studentId) {
     try {
-        const dormitories = await DormitoryCollection.find({});
+        const dormitories = await DormitoryCollection.find(notDeletedQuery);
         
         for (const dorm of dormitories) {
             let dormUpdated = false;
@@ -94,7 +95,7 @@ async function removeStudentFromSystem(studentId) {
 
 router.get('/dormitories', async (req, res) => {
     try {
-        const dormitories = await DormitoryCollection.find();
+        const dormitories = await DormitoryCollection.find(notDeletedQuery);
         res.json(dormitories);
     } catch (error) {
         console.error('Error fetching dormitories:', error);
@@ -104,7 +105,7 @@ router.get('/dormitories', async (req, res) => {
 
 router.get('/dormitories/filter', async (req, res) => {
     try {
-        const filter = {};
+        const filter = { ...notDeletedQuery };
         if (req.query.category) {
             filter['details.category'] = req.query.category;
         }
@@ -147,6 +148,7 @@ router.get('/dormitories/search', async (req, res) => {
         }
         const searchPattern = new RegExp(searchQuery, 'i');
         const dormitories = await DormitoryCollection.find({
+            ...notDeletedQuery,
             $or: [
                 { name: searchPattern },
                 { address: searchPattern }
@@ -169,17 +171,28 @@ router.get('/dormitories/search', async (req, res) => {
 router.get('/dormitories/registration', async (req, res) => {
     try {
         const { showAll } = req.query;
-        const dormitories = await DormitoryCollection.find({}, {
-            name: 1,
-            address: 1,
-            'details.type': 1,
-            'details.category': 1,
-            'details.available': 1,
-            imageUrl: 1
-        });
+        console.log('[Registration] Fetching dormitories, showAll:', showAll);
+        
+        const dormitories = await DormitoryCollection.find(
+            notDeletedQuery,
+            {
+                name: 1,
+                address: 1,
+                'details.type': 1,
+                'details.category': 1,
+                'details.available': 1,
+                imageUrl: 1
+            }
+        );
+        
+        console.log('[Registration] Found', dormitories.length, 'total dormitories');
+        
         const result = showAll === 'true' 
             ? dormitories 
             : dormitories.filter(dorm => dorm.details && dorm.details.available === true);
+        
+        console.log('[Registration] Returning', result.length, 'dormitories (available only)');
+        console.log('[Registration] Dormitory names:', result.map(d => d.name));
         
         res.status(200).json(result);
     } catch (error) {
@@ -190,7 +203,7 @@ router.get('/dormitories/registration', async (req, res) => {
 
 router.get('/map-data', async (req, res) => {
     try {
-        const dormitories = await DormitoryCollection.find({}, {
+        const dormitories = await DormitoryCollection.find(notDeletedQuery, {
             name: 1,
             address: 1,
             location: 1,
@@ -378,15 +391,61 @@ router.put('/dormitories/:id', isAdmin, async (req, res) => {
 
 router.delete('/dormitories/:id', isAdmin, async (req, res) => {
     try {
+        const deletedDormitory = await DormitoryCollection.findByIdAndUpdate(
+            req.params.id,
+            { 
+                isDeleted: true, 
+                deletedAt: new Date() 
+            },
+            { new: true }
+        );
+        
+        if (!deletedDormitory) {
+            return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
+        }
+        
+        res.json({ success: true, message: 'Xóa ký túc xá thành công (có thể khôi phục)' });
+    } catch (error) {
+        console.error('Error deleting dormitory:', error);
+        res.status(500).json({ success: false, error: 'Không thể xóa ký túc xá' });
+    }
+});
+
+// Restore deleted dormitory
+router.put('/dormitories/:id/restore', isAdmin, async (req, res) => {
+    try {
+        const restoredDormitory = await DormitoryCollection.findByIdAndUpdate(
+            req.params.id,
+            { 
+                isDeleted: false, 
+                deletedAt: null 
+            },
+            { new: true }
+        );
+        
+        if (!restoredDormitory) {
+            return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
+        }
+        
+        res.json({ success: true, message: 'Khôi phục ký túc xá thành công', dormitory: restoredDormitory });
+    } catch (error) {
+        console.error('Error restoring dormitory:', error);
+        res.status(500).json({ success: false, error: 'Không thể khôi phục ký túc xá' });
+    }
+});
+
+// Xóa vĩnh viễn (chỉ dành cho admin)
+router.delete('/dormitories/:id/permanent-delete', isAdmin, async (req, res) => {
+    try {
         const deletedDormitory = await DormitoryCollection.findByIdAndDelete(req.params.id);
         
         if (!deletedDormitory) {
             return res.status(404).json({ success: false, error: 'Không tìm thấy ký túc xá' });
         }
         
-        res.json({ success: true, message: 'Xóa ký túc xá thành công' });
+        res.json({ success: true, message: 'Đã xóa vĩnh viễn ký túc xá' });
     } catch (error) {
-        console.error('Error deleting dormitory:', error);
+        console.error('Error permanently deleting dormitory:', error);
         res.status(500).json({ success: false, error: 'Không thể xóa ký túc xá' });
     }
 });

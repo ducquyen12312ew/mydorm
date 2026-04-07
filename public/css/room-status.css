@@ -1,0 +1,247 @@
+/* room-status.css - Styles riêng cho trang Trạng thái phòng.
+   Mục tiêu: tránh conflict với student.css/Bootstrap bằng cách scope theo body.room-status.
+*/
+
+body.room-status .room-status-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+/* Make the big red card headers compact + neutral on this page */
+body.room-status .card {
+    border-radius: 16px;
+    margin-bottom: 1.25rem;
+}
+
+body.room-status .card-header {
+    background: white;
+    color: var(--text-color);
+    padding: 1.1rem 1.25rem;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+body.room-status .card-header h2 {
+    font-size: 1.15rem;
+    font-weight: 900;
+    text-transform: none;
+    letter-spacing: 0;
+    margin: 0;
+    line-height: 1.2;
+}
+
+body.room-status .card-header .card-icon {
+    font-size: 1.15rem;
+    margin: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(230, 26, 26, 0.10);
+    color: var(--primary-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+}
+
+body.room-status .card-content {
+    padding: 1.25rem;
+}
+
+body.room-status .rs-page-strip {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(230, 26, 26, 0.12);
+    border: 1px solid rgba(230, 26, 26, 0.18);
+    margin: 0.25rem 0 1.25rem;
+}
+
+body.room-status .rs-card-meta {
+    margin-left: auto;
+    font-weight: 800;
+    color: rgba(51, 51, 51, 0.7);
+    font-size: 0.9rem;
+}
+
+/* Current room section */
+body.room-status .rs-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 1.5rem 0 1rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+body.room-status .rs-roommates {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+}
+
+body.room-status .rs-roommate-card {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+body.room-status .rs-roommate-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(230, 26, 26, 0.35);
+}
+
+body.room-status .rs-roommate-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    background: rgba(230, 26, 26, 0.12);
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+}
+
+body.room-status .rs-roommate-name {
+    font-weight: 800;
+    color: var(--text-color);
+}
+
+body.room-status .rs-roommate-sub {
+    color: rgba(51, 51, 51, 0.75);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+
+/* Tabs */
+body.room-status .rs-tabs {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+body.room-status .rs-tab {
+    border: 2px solid var(--border-color);
+    background: white;
+    color: rgba(51, 51, 51, 0.8);
+    font-weight: 800;
+    padding: 0.6rem 1.1rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+body.room-status .rs-tab:hover {
+    border-color: rgba(230, 26, 26, 0.35);
+    color: var(--primary-color);
+}
+
+body.room-status .rs-tab.active {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    color: white;
+}
+
+/* Status badge */
+body.room-status .rs-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+
+body.room-status .rs-status.pending {
+    background: rgba(255, 193, 7, 0.18);
+    color: #8a5a00;
+}
+
+body.room-status .rs-status.approved {
+    background: rgba(40, 167, 69, 0.18);
+    color: #1b6b2d;
+}
+
+body.room-status .rs-status.rejected {
+    background: rgba(220, 53, 69, 0.18);
+    color: #8b1d28;
+}
+
+/* Application layout helpers (keeps using student.css .application-item) */
+body.room-status .rs-application-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+body.room-status .rs-application-id {
+    font-weight: 800;
+    color: rgba(51, 51, 51, 0.75);
+    font-size: 0.95rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+body.room-status .rs-application-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+body.room-status .rs-muted {
+    color: rgba(51, 51, 51, 0.7);
+    font-weight: 700;
+}
+
+body.room-status .rs-empty {
+    background: var(--bg-color);
+    border: 2px dashed var(--border-color);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+}
+
+body.room-status .rs-empty i {
+    font-size: 2.2rem;
+    color: rgba(230, 26, 26, 0.65);
+    margin-bottom: 0.8rem;
+}
+
+body.room-status .rs-empty h3 {
+    margin: 0 0 0.5rem;
+    font-weight: 900;
+    color: var(--text-color);
+}
+
+body.room-status .rs-empty p {
+    margin: 0;
+    font-weight: 700;
+    color: rgba(51, 51, 51, 0.75);
+}
+
+@media (max-width: 768px) {
+    body.room-status .rs-application-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

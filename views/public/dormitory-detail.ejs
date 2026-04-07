@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết ký túc xá</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand: #ff5a5f;
+            --brand-dark: #e0484e;
+            --ink-900: #101014;
+            --ink-700: #2f323a;
+            --ink-500: #68707b;
+            --line: #e6e8ef;
+            --surface: #ffffff;
+            --surface-soft: #f7f8fb;
+            --success: #1f9d5c;
+            --warning: #f4ab2f;
+            --bg: radial-gradient(circle at 16% -20%, #ffd9cf 0%, transparent 36%), radial-gradient(circle at 93% -12%, #ffe8ca 0%, transparent 34%), #f3f5f7;
+            --shadow-soft: 0 10px 28px rgba(16, 16, 20, 0.08);
+            --shadow-strong: 0 18px 46px rgba(16, 16, 20, 0.14);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--bg);
+            color: var(--ink-900);
+            line-height: 1.55;
+            min-height: 100vh;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.93);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 24px rgba(16, 16, 20, 0.06);
+        }
+
+        .header-logo { display: flex; align-items: center; }
+        .header-logo img { max-height: 2.5rem; width: auto; }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            margin-left: 3rem;
+        }
+
+        .nav-links { display: flex; gap: 2.1rem; }
+
+        .nav-link {
+            color: var(--ink-700);
+            text-decoration: none;
+            font-size: 0.98rem;
+            font-weight: 700;
+            transition: all 0.25s ease;
+            padding: 0.5rem 0;
+            position: relative;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -2px;
+            width: 100%;
+            height: 2px;
+            transform: scaleX(0);
+            transform-origin: left;
+            background: var(--brand);
+            transition: transform 0.25s ease;
+        }
+
+        .nav-link:hover,
+        .nav-link.active-link { color: var(--brand); }
+
+        .nav-link:hover::after,
+        .nav-link.active-link::after { transform: scaleX(1); }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            position: relative;
+        }
+
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            text-decoration: none;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 6px 10px 6px 6px;
+        }
+
+        .avatar {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff7b63, #ff4a53);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .user-name {
+            color: var(--ink-700);
+            font-weight: 700;
+            max-width: 125px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            background: #fff;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-soft);
+            display: none;
+            min-width: 200px;
+            z-index: 2001;
+            border: 1px solid var(--line);
+            overflow: hidden;
+        }
+
+        .dropdown-menu.show { display: block; }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.8rem 1rem;
+            color: var(--ink-700);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-bottom: 1px solid var(--line);
+            font-weight: 600;
+        }
+
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background-color: var(--surface-soft); color: var(--brand); }
+
+        .menu-toggle { display: none; flex-direction: column; cursor: pointer; gap: 4px; }
+        .menu-toggle span { width: 25px; height: 3px; background-color: var(--brand); border-radius: 3px; }
+
+        .main-content {
+            width: min(1440px, 100% - 40px);
+            margin: 96px auto 40px;
+        }
+
+        .page-shell { display: flex; flex-direction: column; gap: 24px; }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 385px;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .viewer-card {
+            position: relative;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            min-height: 540px;
+            box-shadow: var(--shadow-strong);
+            background: #0f1419;
+            isolation: isolate;
+        }
+
+        .custom-vr-viewer {
+            width: 100%;
+            min-height: 540px;
+            position: relative;
+            overflow: hidden;
+            background: #0f1419;
+            cursor: grab;
+            user-select: none;
+        }
+
+        .custom-vr-viewer.dragging {
+            cursor: grabbing;
+        }
+
+        .vr-track {
+            position: absolute;
+            inset: 0;
+            width: 160%;
+            height: 100%;
+            transform-origin: center center;
+            will-change: transform;
+        }
+
+        .vr-track img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: saturate(1.06) contrast(1.03);
+        }
+
+        .viewer-overlay-top {
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            top: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 6;
+            pointer-events: none;
+        }
+
+        .viewer-badge,
+        .viewer-fullscreen,
+        .viewer-reset {
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.44);
+            background: rgba(16, 20, 25, 0.33);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .viewer-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .viewer-tour-strip {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 112px;
+            z-index: 6;
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .tour-chip {
+            border: 1px solid rgba(255, 255, 255, 0.42);
+            background: rgba(14, 18, 24, 0.45);
+            color: #fff;
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .tour-chip.active {
+            background: rgba(255, 90, 95, 0.3);
+            border-color: rgba(255, 140, 140, 0.65);
+        }
+
+        .vr-hotspot-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .vr-hotspot {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+            border: 1px solid rgba(255, 255, 255, 0.65);
+            background: rgba(18, 23, 28, 0.45);
+            color: #fff;
+            border-radius: 999px;
+            padding: 7px 10px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        .viewer-fullscreen,
+        .viewer-reset {
+            cursor: pointer;
+            transition: transform 0.18s ease, background 0.2s ease;
+            border-radius: 999px;
+        }
+
+        .viewer-fullscreen:hover,
+        .viewer-reset:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.22);
+        }
+
+        .viewer-gradient {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 150px;
+            background: linear-gradient(0deg, rgba(10, 13, 17, 0.64) 0%, rgba(10, 13, 17, 0) 100%);
+            z-index: 4;
+            pointer-events: none;
+        }
+
+        .viewer-meta {
+            position: absolute;
+            left: 24px;
+            right: 24px;
+            bottom: 24px;
+            z-index: 5;
+            color: #fff;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 16px;
+        }
+
+        .viewer-title {
+            font-size: clamp(1.25rem, 2vw, 1.9rem);
+            font-weight: 800;
+            line-height: 1.2;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+        }
+
+        .viewer-subtitle { opacity: 0.92; font-size: 0.95rem; }
+
+        .viewer-guide {
+            font-size: 0.78rem;
+            opacity: 0.9;
+            margin-top: 6px;
+        }
+
+        .booking-panel {
+            position: sticky;
+            top: 106px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .booking-status {
+            display: inline-flex;
+            align-self: flex-start;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(31, 157, 92, 0.12);
+            color: var(--success);
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .booking-title {
+            font-size: 1.64rem;
+            line-height: 1.2;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 12px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+            padding: 14px 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            color: var(--ink-700);
+            font-weight: 600;
+        }
+
+        .feature-item i { color: var(--ink-500); width: 18px; }
+
+        .cta-row { display: flex; gap: 10px; }
+
+        .btn {
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn:hover { transform: translateY(-1px); }
+
+        .btn-secondary {
+            width: 100%;
+            background: #fff;
+            color: var(--brand);
+            border: 1px solid rgba(255, 90, 95, 0.45);
+        }
+
+        .btn-secondary:hover { border-color: var(--brand); background: #fff5f5; }
+
+        .local-nav {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 2px;
+        }
+
+        .nav-chip {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink-700);
+            border-radius: 999px;
+            padding: 10px 14px;
+            font-size: 0.86rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .nav-chip:hover,
+        .nav-chip.active {
+            border-color: rgba(255, 90, 95, 0.35);
+            color: var(--brand);
+            background: rgba(255, 90, 95, 0.08);
+        }
+
+        .section-card {
+            background: #fff;
+            border: 1px solid var(--line);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            padding: 22px;
+        }
+
+        .section-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 1.45rem;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .tab-btn {
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink-700);
+            border-radius: 999px;
+            padding: 9px 14px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn .count { margin-left: 6px; opacity: 0.75; }
+
+        .tab-btn.active,
+        .tab-btn:hover {
+            border-color: rgba(255, 90, 95, 0.45);
+            color: var(--brand);
+            background: rgba(255, 90, 95, 0.08);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .gallery-item {
+            position: relative;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            min-height: 165px;
+            cursor: pointer;
+            grid-column: span 4;
+            background: #ddd;
+            transform: translateY(0);
+            transition: transform 0.2s ease, box-shadow 0.25s ease;
+            box-shadow: 0 6px 18px rgba(17, 17, 17, 0.08);
+        }
+
+        .gallery-item.large { grid-column: span 8; min-height: 270px; }
+        .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 14px 24px rgba(17, 17, 17, 0.16); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+        .gallery-meta {
+            position: absolute;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #fff;
+            z-index: 2;
+            gap: 10px;
+        }
+
+        .gallery-chip {
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            background: rgba(17, 17, 17, 0.35);
+            backdrop-filter: blur(6px);
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 6px 10px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .gallery-label {
+            font-weight: 700;
+            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .gallery-item::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 45%;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0));
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .amenity-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+
+        .amenity-pill {
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--ink-700);
+            background: #fff;
+        }
+
+        .review-summary {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 14px;
+            margin-bottom: 12px;
+        }
+
+        .review-score-card,
+        .review-tag-card {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            background: var(--surface-soft);
+        }
+
+        .score-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            line-height: 1;
+        }
+
+        .score-stars { color: var(--warning); margin-top: 4px; font-size: 0.94rem; }
+
+        .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+        .tag-chip {
+            border: 1px solid rgba(31, 157, 92, 0.2);
+            background: rgba(31, 157, 92, 0.08);
+            color: #127447;
+            border-radius: 999px;
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .reviews { display: grid; gap: 12px; }
+
+        .review-card {
+            border: 1px solid var(--line);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            background: #fff;
+        }
+
+        .review-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .review-profile { display: flex; align-items: center; gap: 10px; }
+
+        .review-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #ff9f83, #ff5a5f);
+            color: #fff;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .review-name { font-weight: 800; }
+        .review-stars { color: var(--warning); font-size: 0.9rem; }
+        .review-text { color: var(--ink-700); font-size: 0.95rem; }
+
+        .review-form {
+            margin-top: 16px;
+            border-top: 1px solid var(--line);
+            padding-top: 14px;
+            display: grid;
+            gap: 10px;
+        }
+
+        .review-form textarea,
+        .review-form select,
+        .review-form input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font: inherit;
+            color: var(--ink-700);
+            background: #fff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            font-size: 1.1rem;
+            color: var(--ink-500);
+        }
+
+        .loading i {
+            font-size: 2.6rem;
+            color: var(--brand);
+            animation: spin 1s linear infinite;
+            margin-bottom: 14px;
+        }
+
+        .error-note {
+            margin-top: 10px;
+            font-size: 0.84rem;
+            color: #ffd7d9;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1180px) {
+            .hero-grid { grid-template-columns: 1fr; }
+            .booking-panel { position: static; }
+            .custom-vr-viewer { min-height: 440px; }
+        }
+
+        @media (max-width: 900px) {
+            .menu-toggle { display: flex; }
+
+            .nav-container {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 82%;
+                max-width: 320px;
+                height: 100vh;
+                background-color: #fff;
+                flex-direction: column;
+                padding: 5rem 1.5rem 2rem;
+                transition: right 0.28s ease;
+                margin-left: 0;
+                box-shadow: -10px 0 24px rgba(17, 17, 17, 0.15);
+                z-index: 1999;
+                overflow-y: auto;
+                border-left: 1px solid var(--line);
+            }
+
+            .nav-container.active { right: 0; }
+            .nav-links { flex-direction: column; gap: 0.9rem; width: 100%; margin-bottom: 1.8rem; }
+            .user-name { display: none; }
+            .main-content { width: min(1440px, 100% - 20px); }
+            .custom-vr-viewer { min-height: 320px; }
+            .viewer-overlay-top { left: 12px; right: 12px; top: 12px; }
+            .viewer-meta { left: 14px; right: 14px; bottom: 14px; }
+            .gallery-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+            .gallery-item { grid-column: span 3; min-height: 132px; }
+            .gallery-item.large { grid-column: span 6; min-height: 190px; }
+            .cta-row { flex-direction: column; }
+            .viewer-tour-strip { bottom: 96px; }
+            .review-summary { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 560px) {
+            .header { padding: 10px 12px; }
+            .header-logo img { max-height: 2rem; }
+            .main-content { margin-top: 78px; }
+            .section-card { padding: 16px; border-radius: 18px; }
+            .booking-panel { padding: 16px; }
+            .viewer-badge, .viewer-fullscreen, .viewer-reset, .tour-chip { font-size: 0.7rem; padding: 8px 10px; }
+            .viewer-title { font-size: 1.05rem; }
+            .tabs { gap: 6px; }
+            .tab-btn { font-size: 0.82rem; padding: 8px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-logo">
+            <img src="/image/logo.png" alt="HUST">
+        </div>
+        <nav class="nav-container">
+            <div class="nav-links">
+                <a href="/home" class="nav-link">Trang chủ</a>
+                <a href="/map" class="nav-link">Bản đồ</a>
+                <a href="/register" class="nav-link active-link">Đăng ký</a>
+                <a href="/room-status" class="nav-link">Phòng</a>
+                <a href="/maintenance-requests" class="nav-link">Bảo trì</a>
+            </div>
+        </nav>
+        <div class="user-profile">
+            <div class="avatar-container" onclick="toggleDropdown()">
+                <div class="avatar" id="userAvatar">U</div>
+                <span class="user-name" id="userName">Sinh viên</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="/profile" class="dropdown-item">
+                    <i class="fas fa-user"></i> Hồ sơ
+                </a>
+                <a href="#" class="dropdown-item" onclick="logout(); return false;">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a>
+            </div>
+        </div>
+        <div class="menu-toggle" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Đang tải thông tin...</p>
+        </div>
+
+        <div id="content" style="display:none;">
+            <div class="page-shell">
+                <div class="hero-grid">
+                    <section class="viewer-card" id="viewerCard">
+                        <div class="custom-vr-viewer" id="customVrViewer">
+                            <div class="vr-track" id="vrTrack">
+                                <img id="vrImage" src="/image/camp1.png" alt="Không gian phòng">
+                            </div>
+                            <div class="vr-hotspot-layer" id="vrHotspotLayer"></div>
+                        </div>
+                        <div class="viewer-overlay-top">
+                            <span class="viewer-badge"><i class="fas fa-vr-cardboard"></i> Trải nghiệm 360</span>
+                            <div class="viewer-controls">
+                                <button class="viewer-reset" id="resetVrBtn" type="button"><i class="fas fa-rotate-left"></i> Đặt lại</button>
+                                <button class="viewer-fullscreen" id="fullscreenBtn" type="button"><i class="fas fa-expand"></i> Toàn màn hình</button>
+                            </div>
+                        </div>
+                        <div class="viewer-tour-strip" id="viewerTourStrip"></div>
+                        <div class="viewer-gradient"></div>
+                        <div class="viewer-meta">
+                            <div>
+                                <h1 class="viewer-title" id="heroDormName">Phòng KTX tiêu chuẩn</h1>
+                                <p class="viewer-subtitle" id="heroDormAddress">Hệ thống ký túc xá chất lượng cao</p>
+                                <p class="viewer-guide">Giữ chuột và kéo để xoay góc nhìn, cuộn để phóng to/thu nhỏ.</p>
+                            </div>
+                            <div class="viewer-subtitle">VR nội bộ</div>
+                        </div>
+                    </section>
+
+                    <aside class="booking-panel" id="bookingPanel">
+                        <span class="booking-status" id="availabilityBadge">Còn phòng</span>
+                        <h2 class="booking-title" id="selectedRoomName">Phòng KTX tiêu chuẩn</h2>
+
+                        <div class="feature-list">
+                            <div class="feature-item"><span><i class="fas fa-bed"></i> Tổng số giường</span><span id="featureBeds">2</span></div>
+                            <div class="feature-item"><span><i class="fas fa-user-check"></i> Đang sử dụng</span><span id="featureOccupiedBeds">0</span></div>
+                            <div class="feature-item"><span><i class="fas fa-circle-check"></i> Còn trống</span><span id="featureAvailableBeds">2</span></div>
+                        </div>
+
+                        <div class="cta-row">
+                            <button class="btn btn-secondary" type="button" onclick="askMore()">Hỏi ngay</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <nav class="local-nav">
+                    <button class="nav-chip active" data-target="sectionGallery">Bộ sưu tập</button>
+                    <button class="nav-chip" data-target="sectionAmenities">Tiện ích</button>
+                    <button class="nav-chip" data-target="sectionReviews">Đánh giá</button>
+                </nav>
+
+                <section class="section-card" id="sectionGallery">
+                    <div class="section-title-row">
+                        <h3 class="section-title">Image / VR Gallery</h3>
+                    </div>
+                    <div class="tabs" id="galleryTabs">
+                        <button class="tab-btn active" data-filter="all">Tất cả <span class="count" id="countAll">0</span></button>
+                        <button class="tab-btn" data-filter="vr">VR <span class="count" id="countVr">0</span></button>
+                        <button class="tab-btn" data-filter="room">Ảnh phòng <span class="count" id="countRoom">0</span></button>
+                        <button class="tab-btn" data-filter="amenity">Tiện ích <span class="count" id="countAmenity">0</span></button>
+                        <button class="tab-btn" data-filter="community">Cộng đồng <span class="count" id="countCommunity">0</span></button>
+                    </div>
+                    <div class="gallery-grid" id="galleryGrid"></div>
+                </section>
+
+                <section class="section-card" id="sectionAmenities">
+                    <div class="section-title-row">
+                        <h3 class="section-title">Hệ thống tiện ích</h3>
+                    </div>
+                    <div class="amenity-cloud" id="amenityCloud"></div>
+                </section>
+
+                <section class="section-card" id="sectionReviews">
+                    <div class="section-title-row">
+                        <h3 class="section-title">Hệ thống đánh giá</h3>
+                    </div>
+
+                    <div class="review-summary">
+                        <div class="review-score-card">
+                            <div class="score-value" id="reviewScoreValue">4.5</div>
+                            <div class="score-stars" id="reviewScoreStars">★★★★☆</div>
+                            <div style="font-size:0.88rem; color:var(--ink-500); margin-top:6px;" id="reviewScoreCaption">Được đánh giá bởi 2 sinh viên</div>
+                        </div>
+                        <div class="review-tag-card">
+                            <div style="font-weight:800; font-size:0.92rem;">Thẻ nổi bật</div>
+                            <div class="tag-cloud" id="highlightTags"></div>
+                        </div>
+                    </div>
+
+                    <div class="reviews" id="reviewsList"></div>
+
+                    <form class="review-form" id="reviewForm">
+                        <input id="reviewerName" type="text" placeholder="Tên của bạn" required>
+                        <select id="reviewRating" required>
+                            <option value="">Chọn số sao</option>
+                            <option value="5">5 sao</option>
+                            <option value="4">4 sao</option>
+                            <option value="3">3 sao</option>
+                            <option value="2">2 sao</option>
+                            <option value="1">1 sao</option>
+                        </select>
+                        <textarea id="reviewText" rows="4" placeholder="Chia sẻ trải nghiệm của bạn" required></textarea>
+                        <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
+                    </form>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let dormitoryData = null;
+        let roomVariants = [];
+        let galleryItems = [];
+        let currentGalleryFilter = 'all';
+        let vrScenes = [];
+        let currentVrSceneIndex = 0;
+
+        const vrState = {
+            x: -20,
+            y: 0,
+            scale: 1,
+            dragging: false,
+            startX: 0,
+            startY: 0,
+            originX: -20,
+            originY: 0
+        };
+
+        const dormId = window.location.pathname.split('/').pop();
+
+        const fallbackReviews = [
+            {
+                name: 'Nguyễn Minh Anh',
+                stars: 5,
+                text: 'Không gian sạch, phần VR giúp mình hình dung phòng rất rõ trước khi đăng ký.'
+            },
+            {
+                name: 'Trần Bảo Châu',
+                stars: 4,
+                text: 'Tiện ích ổn, khu vực chung an toàn, quy trình đăng ký khá nhanh gọn.'
+            }
+        ];
+
+        const defaultHighlightTags = ['Wifi tốt', 'An ninh tốt', 'Phòng sạch', 'Đăng ký nhanh'];
+
+        async function loadDormitoryData() {
+            try {
+                const response = await fetch(`/api/dormitories/${dormId}`);
+                const data = await response.json();
+
+                if (!data.success || !data.dormitory) {
+                    throw new Error('Không tìm thấy thông tin ký túc xá');
+                }
+
+                dormitoryData = data.dormitory;
+                hydrateHeaderInfo();
+                buildRoomVariants();
+                buildGalleryItems();
+                renderGalleryTabs();
+                renderGallery();
+                renderAmenities();
+                renderReviews(fallbackReviews);
+                renderReviewSummary();
+                initCustomVr();
+                wireLocalNav();
+                wireGalleryTabs();
+                initFullscreenButton();
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading dormitory detail:', error);
+                document.getElementById('loading').innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="color:#dc3545"></i>
+                    <p style="color:#dc3545">Không thể tải thông tin. Vui lòng thử lại.</p>
+                `;
+            }
+        }
+
+        function hydrateHeaderInfo() {
+            const dormName = dormitoryData.name || 'Phòng KTX tiêu chuẩn';
+            const dormAddress = dormitoryData.address || 'Khu ký túc xá hiện đại';
+            document.getElementById('heroDormName').textContent = dormName;
+            document.getElementById('heroDormAddress').textContent = dormAddress;
+
+            const available = dormitoryData.details?.available !== false;
+            const badge = document.getElementById('availabilityBadge');
+            badge.textContent = available ? 'Còn phòng' : 'Tạm hết';
+            badge.style.background = available ? 'rgba(31, 157, 92, 0.12)' : 'rgba(220, 53, 69, 0.12)';
+            badge.style.color = available ? 'var(--success)' : '#dc3545';
+        }
+
+        function collectRoomsFromFloors() {
+            const rooms = [];
+            (dormitoryData.floors || []).forEach((floor, floorIndex) => {
+                (floor.rooms || []).forEach((room, roomIndex) => {
+                    const activeOccupants = Array.isArray(room.occupants)
+                        ? room.occupants.filter(item => item && item.active !== false).length
+                        : 0;
+                    rooms.push({
+                        id: room._id || `floor-${floorIndex}-room-${roomIndex}`,
+                        name: room.name || room.roomNumber || `Phòng ${roomIndex + 1}`,
+                        beds: room.maxCapacity || room.capacity || room.beds || 2,
+                        occupiedBeds: activeOccupants,
+                        imageUrl: room.imageUrl || null,
+                        roomNumber: room.roomNumber || `P${roomIndex + 1}`
+                    });
+                });
+            });
+            return rooms;
+        }
+
+        function buildRoomVariants() {
+            const apiRooms = collectRoomsFromFloors();
+            if (apiRooms.length > 0) {
+                roomVariants = apiRooms.slice(0, 12).map((room) => {
+                    return {
+                        ...room,
+                        beds: Number(room.beds) || 2
+                    };
+                });
+            } else {
+                roomVariants = [
+                    {
+                        id: 'std-double',
+                        name: 'Phòng KTX tiêu chuẩn',
+                        beds: 2,
+                        occupiedBeds: 0,
+                        imageUrl: dormitoryData.imageUrl || '/image/camp1.png',
+                        roomNumber: 'P1'
+                    }
+                ];
+            }
+
+            applyRoomToBookingPanel(roomVariants[0]);
+        }
+
+        function buildGalleryItems() {
+            const baseImages = [];
+            if (dormitoryData.imageUrl) {
+                baseImages.push(dormitoryData.imageUrl);
+            }
+
+            roomVariants.forEach(room => {
+                if (room.imageUrl) {
+                    baseImages.push(room.imageUrl);
+                }
+            });
+
+            const uniqueImages = [...new Set(baseImages.filter(Boolean))];
+            const imagePool = uniqueImages.length > 0 ? uniqueImages : ['/image/camp1.png'];
+
+            const categories = ['room', 'amenity', 'community'];
+            galleryItems = imagePool.map((src, index) => ({
+                id: `img-${index}`,
+                type: categories[index % categories.length],
+                src,
+                label: `${categories[index % categories.length] === 'room' ? 'Ảnh phòng' : categories[index % categories.length] === 'amenity' ? 'Tiện ích' : 'Cộng đồng'} #${index + 1}`
+            }));
+
+            galleryItems.unshift({
+                id: 'vr-main',
+                type: 'vr',
+                src: imagePool[0],
+                label: 'Trải nghiệm 360'
+            });
+        }
+
+        function renderGalleryTabs() {
+            const counts = {
+                all: galleryItems.length,
+                vr: galleryItems.filter(item => item.type === 'vr').length,
+                room: galleryItems.filter(item => item.type === 'room').length,
+                amenity: galleryItems.filter(item => item.type === 'amenity').length,
+                community: galleryItems.filter(item => item.type === 'community').length
+            };
+
+            document.getElementById('countAll').textContent = counts.all;
+            document.getElementById('countVr').textContent = counts.vr;
+            document.getElementById('countRoom').textContent = counts.room;
+            document.getElementById('countAmenity').textContent = counts.amenity;
+            document.getElementById('countCommunity').textContent = counts.community;
+        }
+
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const filtered = currentGalleryFilter === 'all'
+                ? galleryItems
+                : galleryItems.filter(item => item.type === currentGalleryFilter);
+
+            grid.innerHTML = filtered.map((item, index) => `
+                <article class="gallery-item ${index % 5 === 0 ? 'large' : ''}" data-type="${item.type}">
+                    <img src="${item.src}" alt="${item.label}">
+                    <div class="gallery-meta">
+                        <span class="gallery-chip">${item.type === 'vr' ? 'VR Tour' : item.type === 'room' ? 'Ảnh phòng' : item.type === 'amenity' ? 'Tiện ích' : 'Cộng đồng'}</span>
+                        <span class="gallery-label">${item.label}</span>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        function wireGalleryTabs() {
+            const tabContainer = document.getElementById('galleryTabs');
+            tabContainer.addEventListener('click', (event) => {
+                const button = event.target.closest('.tab-btn');
+                if (!button) return;
+                tabContainer.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
+                button.classList.add('active');
+                currentGalleryFilter = button.dataset.filter;
+                renderGallery();
+            });
+        }
+
+        function applyRoomToBookingPanel(room) {
+            document.getElementById('selectedRoomName').textContent = room.name || 'Phòng KTX tiêu chuẩn';
+            const totalBeds = Number(room.beds) || 2;
+            const occupiedBeds = Number(room.occupiedBeds) || 0;
+            const availableBeds = Math.max(0, totalBeds - occupiedBeds);
+            document.getElementById('featureBeds').textContent = `${totalBeds} giường`;
+            document.getElementById('featureOccupiedBeds').textContent = `${occupiedBeds} giường`;
+            document.getElementById('featureAvailableBeds').textContent = `${availableBeds} giường`;
+        }
+
+        function renderAmenities() {
+            const amenities = dormitoryData.details?.amenities?.length
+                ? dormitoryData.details.amenities
+                : ['Internet tốc độ cao', 'Khu học nhóm', 'Máy giặt chung', 'Bảo vệ 24/7', 'Khu để xe trong nhà', 'Thang máy'];
+            const cloud = document.getElementById('amenityCloud');
+            cloud.innerHTML = amenities.map(item => `<span class="amenity-pill">${escapeHtml(item)}</span>`).join('');
+        }
+
+        function renderReviews(list) {
+            const reviewsList = document.getElementById('reviewsList');
+            reviewsList.innerHTML = list.map(review => {
+                const initial = (review.name || 'U').charAt(0).toUpperCase();
+                return `
+                    <article class="review-card">
+                        <div class="review-head">
+                            <div class="review-profile">
+                                <div class="review-avatar">${escapeHtml(initial)}</div>
+                                <div>
+                                    <div class="review-name">${escapeHtml(review.name)}</div>
+                                    <div style="font-size:0.78rem; color:var(--ink-500);">Sinh viên</div>
+                                </div>
+                            </div>
+                            <span class="review-stars">${'★'.repeat(review.stars)}${'☆'.repeat(5 - review.stars)}</span>
+                        </div>
+                        <p class="review-text">${escapeHtml(review.text)}</p>
+                    </article>
+                `;
+            }).join('');
+        }
+
+        function renderReviewSummary() {
+            const score = fallbackReviews.reduce((sum, item) => sum + item.stars, 0) / Math.max(fallbackReviews.length, 1);
+            const fixedScore = Math.round(score * 10) / 10;
+            const fullStars = Math.floor(fixedScore);
+            const starsDisplay = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
+            document.getElementById('reviewScoreValue').textContent = fixedScore.toFixed(1);
+            document.getElementById('reviewScoreStars').textContent = starsDisplay;
+            document.getElementById('reviewScoreCaption').textContent = `Được đánh giá bởi ${fallbackReviews.length} sinh viên`;
+            document.getElementById('highlightTags').innerHTML = defaultHighlightTags.map(tag => `<span class="tag-chip">${tag}</span>`).join('');
+        }
+
+        function initCustomVr() {
+            const viewer = document.getElementById('customVrViewer');
+            const track = document.getElementById('vrTrack');
+            const image = document.getElementById('vrImage');
+            const tourStrip = document.getElementById('viewerTourStrip');
+            const hotspotLayer = document.getElementById('vrHotspotLayer');
+
+            const uniqueImages = [...new Set(roomVariants.map(item => item.imageUrl).filter(Boolean))];
+            const pool = uniqueImages.length > 0 ? uniqueImages : [dormitoryData.imageUrl || '/image/camp1.png'];
+
+            vrScenes = pool.slice(0, 5).map((src, index) => ({
+                id: `scene-${index}`,
+                label: index === 0 ? 'Phòng chính' : `Góc ${index + 1}`,
+                src,
+                hotspots: []
+            }));
+
+            if (vrScenes.length > 1) {
+                vrScenes.forEach((scene, index) => {
+                    const next = (index + 1) % vrScenes.length;
+                    const prev = (index - 1 + vrScenes.length) % vrScenes.length;
+                    scene.hotspots = [
+                        { to: next, x: 78, y: 58, label: 'Sang góc kế tiếp' },
+                        { to: prev, x: 20, y: 56, label: 'Quay lại góc trước' }
+                    ];
+                });
+            }
+
+            function setScene(index) {
+                currentVrSceneIndex = index;
+                const scene = vrScenes[index];
+                image.src = scene.src;
+                renderTourStrip();
+                renderHotspots();
+            }
+
+            function renderTourStrip() {
+                tourStrip.innerHTML = vrScenes.map((scene, index) => `
+                    <button type="button" class="tour-chip ${index === currentVrSceneIndex ? 'active' : ''}" data-scene-index="${index}">${scene.label}</button>
+                `).join('');
+
+                tourStrip.querySelectorAll('[data-scene-index]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const index = Number(button.dataset.sceneIndex);
+                        if (!Number.isFinite(index)) return;
+                        setScene(index);
+                    });
+                });
+            }
+
+            function renderHotspots() {
+                const scene = vrScenes[currentVrSceneIndex];
+                hotspotLayer.innerHTML = (scene.hotspots || []).map((hotspot) => `
+                    <button
+                        type="button"
+                        class="vr-hotspot"
+                        style="left:${hotspot.x}%; top:${hotspot.y}%;"
+                        data-hotspot-target="${hotspot.to}"
+                    >${hotspot.label}</button>
+                `).join('');
+
+                hotspotLayer.querySelectorAll('[data-hotspot-target]').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const target = Number(button.dataset.hotspotTarget);
+                        if (!Number.isFinite(target)) return;
+                        setScene(target);
+                    });
+                });
+            }
+
+            function applyTransform() {
+                track.style.transform = `translate(${vrState.x}%, ${vrState.y}%) scale(${vrState.scale})`;
+            }
+
+            function clamp() {
+                vrState.scale = Math.max(1, Math.min(2.2, vrState.scale));
+                vrState.x = Math.max(-52, Math.min(0, vrState.x));
+                vrState.y = Math.max(-10, Math.min(10, vrState.y));
+            }
+
+            viewer.addEventListener('mousedown', (event) => {
+                vrState.dragging = true;
+                vrState.startX = event.clientX;
+                vrState.startY = event.clientY;
+                vrState.originX = vrState.x;
+                vrState.originY = vrState.y;
+                viewer.classList.add('dragging');
+            });
+
+            window.addEventListener('mouseup', () => {
+                vrState.dragging = false;
+                viewer.classList.remove('dragging');
+            });
+
+            window.addEventListener('mousemove', (event) => {
+                if (!vrState.dragging) return;
+                const dx = event.clientX - vrState.startX;
+                const dy = event.clientY - vrState.startY;
+                vrState.x = vrState.originX + dx * 0.04;
+                vrState.y = vrState.originY + dy * 0.02;
+                clamp();
+                applyTransform();
+            });
+
+            viewer.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                vrState.scale += event.deltaY > 0 ? -0.06 : 0.06;
+                clamp();
+                applyTransform();
+            }, { passive: false });
+
+            viewer.addEventListener('touchstart', (event) => {
+                if (!event.touches || event.touches.length !== 1) return;
+                const touch = event.touches[0];
+                vrState.dragging = true;
+                vrState.startX = touch.clientX;
+                vrState.startY = touch.clientY;
+                vrState.originX = vrState.x;
+                vrState.originY = vrState.y;
+            }, { passive: true });
+
+            viewer.addEventListener('touchmove', (event) => {
+                if (!vrState.dragging || !event.touches || event.touches.length !== 1) return;
+                const touch = event.touches[0];
+                const dx = touch.clientX - vrState.startX;
+                const dy = touch.clientY - vrState.startY;
+                vrState.x = vrState.originX + dx * 0.06;
+                vrState.y = vrState.originY + dy * 0.02;
+                clamp();
+                applyTransform();
+            }, { passive: true });
+
+            viewer.addEventListener('touchend', () => {
+                vrState.dragging = false;
+            });
+
+            window.addEventListener('keydown', (event) => {
+                if (event.key === 'ArrowLeft') {
+                    vrState.x = Math.min(0, vrState.x + 2.5);
+                    applyTransform();
+                }
+                if (event.key === 'ArrowRight') {
+                    vrState.x = Math.max(-52, vrState.x - 2.5);
+                    applyTransform();
+                }
+                if (event.key === 'ArrowUp') {
+                    vrState.y = Math.min(10, vrState.y + 1.5);
+                    applyTransform();
+                }
+                if (event.key === 'ArrowDown') {
+                    vrState.y = Math.max(-10, vrState.y - 1.5);
+                    applyTransform();
+                }
+            });
+
+            document.getElementById('resetVrBtn').addEventListener('click', () => {
+                vrState.x = -20;
+                vrState.y = 0;
+                vrState.scale = 1;
+                applyTransform();
+            });
+
+            setScene(0);
+            applyTransform();
+        }
+
+        function wireLocalNav() {
+            const chips = Array.from(document.querySelectorAll('.nav-chip'));
+            chips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    chips.forEach(item => item.classList.remove('active'));
+                    chip.classList.add('active');
+                    const targetId = chip.dataset.target;
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+        }
+
+        function initFullscreenButton() {
+            const fullscreenBtn = document.getElementById('fullscreenBtn');
+            const viewerCard = document.getElementById('viewerCard');
+            fullscreenBtn.addEventListener('click', async () => {
+                try {
+                    if (!document.fullscreenElement) {
+                        await viewerCard.requestFullscreen();
+                    } else {
+                        await document.exitFullscreen();
+                    }
+                } catch (error) {
+                    console.error('Fullscreen error:', error);
+                }
+            });
+        }
+
+        function askMore() {
+            const message = encodeURIComponent('Tôi muốn tìm hiểu thêm về phòng này');
+            window.location.href = `/maintenance-requests?topic=${message}`;
+        }
+
+        function escapeHtml(text) {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function toggleDropdown() {
+            document.getElementById('dropdownMenu').classList.toggle('show');
+        }
+
+        function toggleMenu() {
+            document.querySelector('.nav-container').classList.toggle('active');
+        }
+
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('dropdownMenu');
+            if (userProfile && dropdown && !userProfile.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.classList.remove('show');
+            }
+        });
+
+        async function loadStudentInfo() {
+            try {
+                const response = await fetch('/api/student/profile');
+                const data = await response.json();
+                if (data.success && data.student) {
+                    const student = data.student;
+                    const label = student.fullName || student.name || 'U';
+                    document.getElementById('userAvatar').textContent = label.charAt(0).toUpperCase();
+                    document.getElementById('userName').textContent = label;
+                }
+            } catch (error) {
+                console.error('Error loading student info:', error);
+            }
+        }
+
+        function logout() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        function wireReviewForm() {
+            const form = document.getElementById('reviewForm');
+            form.addEventListener('submit', (event) => {
+                event.preventDefault();
+                const name = document.getElementById('reviewerName').value.trim();
+                const rating = Number(document.getElementById('reviewRating').value);
+                const text = document.getElementById('reviewText').value.trim();
+
+                if (!name || !rating || !text) return;
+
+                fallbackReviews.unshift({ name, stars: rating, text });
+                renderReviews(fallbackReviews);
+                renderReviewSummary();
+                form.reset();
+            });
+        }
+
+        window.onload = function() {
+            loadStudentInfo();
+            wireReviewForm();
+            loadDormitoryData();
+        };
+    </script>
+</body>
+</html>

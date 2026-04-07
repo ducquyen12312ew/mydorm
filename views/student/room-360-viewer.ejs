@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>360° Room Viewer | <%= roomView.roomNumber %> - <%= roomView.building %></title>
+
+  <!-- Photo Sphere Viewer -->
+  <script src="https://cdn.jsdelivr.net/npm/three@r128/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/photo-sphere-viewer@5.5.0/dist/photo-sphere-viewer.min.js"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/photo-sphere-viewer@5.5.0/dist/photo-sphere-viewer.min.css"
+  />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: #1a1a1a;
+      color: #333;
+      overflow: hidden;
+    }
+
+    .viewer-container {
+      display: flex;
+      height: 100vh;
+    }
+
+    #viewer {
+      flex: 1;
+      height: 100%;
+      background: #000;
+    }
+
+    .sidebar {
+      width: 320px;
+      background: white;
+      box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .sidebar-header h1 {
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .sidebar-header p {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .room-info {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .room-info-item {
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+
+    .room-info-label {
+      color: #999;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .room-info-value {
+      color: #333;
+      font-weight: 600;
+    }
+
+    .section-title {
+      padding: 15px 20px 10px;
+      font-weight: 600;
+      color: #333;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .facilities-list {
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .facility-badge {
+      background: #f0f2ff;
+      color: #667eea;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .panorama-selector {
+      padding: 0 20px 20px;
+      flex: 1;
+    }
+
+    .panorama-item {
+      padding: 12px 15px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .panorama-item:hover {
+      background: #e8e8e8;
+    }
+
+    .panorama-item.active {
+      background: #e8e8ff;
+      border-left-color: #667eea;
+    }
+
+    .panorama-item-name {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 3px;
+      font-size: 13px;
+    }
+
+    .panorama-item-hotspots {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .controls-info {
+      padding: 15px 20px;
+      background: #f9f9ff;
+      border-top: 1px solid #e0e0e0;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .controls-info h3 {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .control-item {
+      margin-bottom: 6px;
+      padding: 4px 0;
+    }
+
+    .control-key {
+      background: #e0e0e0;
+      color: #333;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-block;
+      min-width: 25px;
+      text-align: center;
+      margin-right: 5px;
+    }
+
+    .info-box {
+      margin: 10px 0;
+      padding: 10px;
+      background: #e3f2fd;
+      border-left: 3px solid #2196f3;
+      border-radius: 3px;
+      font-size: 12px;
+      color: #1565c0;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      z-index: 100;
+      transition: all 0.3s ease;
+    }
+
+    .close-btn:hover {
+      background: white;
+      transform: scale(1.05);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .viewer-container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: 40vh;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      #viewer {
+        height: 60vh;
+      }
+
+      .close-btn {
+        display: none;
+      }
+    }
+
+    /* Loading spinner */
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      z-index: 50;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="viewer-container">
+    <!-- Panorama Viewer -->
+    <div id="viewer"></div>
+
+    <a href="/student/explore-rooms" class="close-btn">← Back</a>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Header -->
+      <div class="sidebar-header">
+        <h1>🏠 Room 360° Viewer</h1>
+        <p>Explore bedrooms interactively</p>
+      </div>
+
+      <!-- Room Information -->
+      <div class="room-info">
+        <div class="room-info-item">
+          <div class="room-info-label">Building</div>
+          <div class="room-info-value"><%= roomView.building %></div>
+        </div>
+        <div class="room-info-item">
+          <div class="room-info-label">Room Number</div>
+          <div class="room-info-value"><%= roomView.roomNumber %></div>
+        </div>
+        <div class="room-info-item">
+          <div class="room-info-label">Floor</div>
+          <div class="room-info-value"><%= roomView.floor %>F</div>
+        </div>
+        <div class="room-info-item">
+          <div class="room-info-label">Type</div>
+          <div class="room-info-value"><%= roomView.type %></div>
+        </div>
+        <div class="room-info-item">
+          <div class="room-info-label">Capacity</div>
+          <div class="room-info-value"><%= roomView.capacity %> students</div>
+        </div>
+      </div>
+
+      <!-- Facilities -->
+      <% if (roomView.facilities && roomView.facilities.length > 0) { %>
+        <div class="section-title">✨ Facilities</div>
+        <div class="facilities-list">
+          <% roomView.facilities.forEach(facility => { %>
+            <span class="facility-badge"><%= facility %></span>
+          <% }); %>
+        </div>
+      <% } %>
+
+      <!-- Info Box -->
+      <div style="padding: 15px 20px;">
+        <div class="info-box">
+          Use your mouse or touch to explore the room. Click points of interest for more information.
+        </div>
+      </div>
+
+      <!-- Panorama Selector -->
+      <% if (roomView.panoramas && roomView.panoramas.length > 1) { %>
+        <div class="section-title">📸 Views</div>
+        <div class="panorama-selector" id="panoramaSelector">
+          <!-- Filled by JavaScript -->
+        </div>
+      <% } %>
+
+      <!-- Controls -->
+      <div class="controls-info">
+        <h3>🎮 Controls</h3>
+        <div class="control-item">
+          <span class="control-key">🖱 Drag</span>
+          <span>or use trackpad to rotate</span>
+        </div>
+        <div class="control-item">
+          <span class="control-key">+/-</span>
+          <span>or scroll wheel to zoom</span>
+        </div>
+        <div class="control-item">
+          <span class="control-key">⬆ Arrow</span>
+          <span>up for autorotate</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Room data
+    const roomData = <%- JSON.stringify(roomView) %>;
+    const viewerEmbed = <%- JSON.stringify(viewerEmbed) %>;
+
+    // Initialize Photo Sphere Viewer
+    const viewer = new PhotoSphereViewer.Viewer({
+      container: 'viewer',
+      panorama: roomData.imageUrl || '/default-room-360.jpg',
+      caption: `${roomData.building} - Room ${roomData.roomNumber}`,
+      defaultYaw: 0,
+      defaultPitch: 0,
+      defaultZoomLvl: 101,
+      navbar: ['zoom', 'move', 'fullscreen'],
+      loadingIndicator: true,
+      plugins: [
+        [PhotoSphereViewer.MarkersPlugin, {
+          markers: roomData.hotspots || []
+        }]
+      ]
+    });
+
+    // Handle markers (hotspots)
+    const markersPlugin = viewer.getPlugin(PhotoSphereViewer.MarkersPlugin);
+
+    if (markersPlugin && roomData.hotspots) {
+      roomData.hotspots.forEach(hotspot => {
+        markersPlugin.addEventListener('marker-click', e => {
+          console.log('Marker clicked:', e.marker);
+        });
+      });
+    }
+
+    // Panorama selector (if multiple views)
+    <% if (roomView.panoramas && roomView.panoramas.length > 1) { %>
+      const selectorContainer = document.getElementById('panoramaSelector');
+
+      <%- JSON.stringify(roomView.panoramas).split('],[').forEach((view, index) => { %>
+        const panoramaItem = document.createElement('div');
+        panoramaItem.className = 'panorama-item <%= index === 0 ? "active" : "" %>';
+        panoramaItem.innerHTML = `
+          <div class="panorama-item-name"><%= view.name || 'View ' + (index + 1) %></div>
+          <div class="panorama-item-hotspots"><%= (view.hotspots || []).length %> points of interest</div>
+        `;
+        panoramaItem.addEventListener('click', () => {
+          viewer.setPanorama('<%= view.url %>');
+          document.querySelectorAll('.panorama-item').forEach(el => el.classList.remove('active'));
+          panoramaItem.classList.add('active');
+        });
+        selectorContainer.appendChild(panoramaItem);
+      });
+    <% } %>
+
+    // Keyboard controls
+    document.addEventListener('keydown', e => {
+      if (e.key === '⬆' || e.code === 'ArrowUp') {
+        viewer.animate({
+          speed: '2rpm',
+          latitude: Math.PI
+        }, 'linear', 5000);
+      }
+    });
+
+    // Error handling
+    viewer.addEventListener('error', () => {
+      const loading = document.querySelector('.psv-loading-indicator');
+      if (loading) {
+        loading.innerHTML = '<div class="loading"><div>⚠️ Could not load panorama</div></div>';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -3,608 +3,706 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý phòng - <%= dormitory.name %></title>
-    <!-- Bootstrap CSS -->
+    <title>Quản lý <%= dormitory.name %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .admin-header {
-            background-color: #f8f9fa;
-            padding: 15px 0;
-            margin-bottom: 30px;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .floor-container {
-            margin-bottom: 30px;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            color: #2c3e50;
         }
-        .floor-header {
-            background-color: #f8f9fa;
-            padding: 10px 15px;
-            border-radius: 5px;
-            margin-bottom: 15px;
-            border-left: 4px solid #0d6efd;
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 0;
+            border-bottom: 3px solid #e61a1a;
         }
-        .room-card {
-            border: 1px solid #dee2e6;
-            border-radius: 5px;
-            padding: 15px;
-            margin-bottom: 15px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .room-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        .room-header {
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .room-title {
-            font-weight: 600;
-            color: #0d6efd;
-        }
-        .room-type {
-            font-size: 0.85rem;
-            padding: 3px 8px;
-            border-radius: 20px;
-            background-color: #e9ecef;
-        }
-        .room-info {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 10px;
-            font-size: 0.9rem;
-        }
-        .room-info span {
-            display: flex;
-            align-items: center;
-        }
-        .room-info i {
-            margin-right: 5px;
-        }
-        .occupants-container {
-            display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 20px;
         }
-        .occupant-spot {
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #e61a1a;
+            text-decoration: none;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            padding: 5px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            gap: 8px;
         }
-        .occupant-spot:hover {
-            background-color: #f8f9fa;
-        }
-        .occupant-icon {
-            font-size: 24px;
-            margin-bottom: 5px;
-        }
-        .occupant-icon.occupied {
-            color: #dc3545;
-        }
-        .occupant-icon.vacant {
-            color: #adb5bd;
-        }
-        .occupant-name {
-            font-size: 0.8rem;
-            text-align: center;
-            max-width: 70px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .floor-tabs {
+
+        .navbar-menu {
             display: flex;
-            overflow-x: auto;
-            gap: 5px;
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            gap: 0;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
-        .floor-tab {
-            padding: 8px 15px;
-            border-radius: 5px;
-            background-color: #f8f9fa;
+
+        .navbar-menu li {
+            margin: 0;
+        }
+
+        .navbar-menu a {
+            padding: 12px 16px;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 0;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 3px solid transparent;
+        }
+
+        .navbar-menu a:hover {
+            background: #f8f9fa;
+            color: #e61a1a;
+        }
+
+        .navbar-menu a.active {
+            background: #fff;
+            color: #e61a1a;
+            border-bottom-color: #e61a1a;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        /* Header */
+        .page-header {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .page-header h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .page-header-image {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #e61a1a 0%, #c01515 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(230, 26, 26, 0.2);
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
-        .floor-tab.active {
-            background-color: #0d6efd;
+
+        .btn-primary {
+            background: #e61a1a;
             color: white;
         }
-        .floor-tab:hover:not(.active) {
-            background-color: #e9ecef;
+
+        .btn-primary:hover {
+            background: #c01515;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(230, 26, 26, 0.3);
         }
-        .dormitory-header {
-            margin-bottom: 20px;
+
+        .btn-back {
+            background: #95a5a6;
+            color: white;
         }
-        .dormitory-title {
-            margin-bottom: 5px;
+
+        .btn-back:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
         }
-        .dormitory-address {
-            color: #6c757d;
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+
+        .btn-delete {
+            background: #e61a1a;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c01515;
+            transform: translateY(-2px);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .btn.flex-fill {
+            flex: 1;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        /* Info Grid */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .info-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-left: 4px solid #e61a1a;
+            transition: all 0.3s;
+        }
+
+        .info-box:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        /* Floors Section */
+        .floors-section {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #e61a1a;
+        }
+
+        .floor-container {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #e61a1a;
+        }
+
+        .floor-header {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .floor-header i {
+            color: #e61a1a;
+            font-size: 18px;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .room-card {
+            background: white;
+            padding: 18px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            border-top: 3px solid #e61a1a;
+            transition: all 0.3s;
+        }
+
+        .room-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+        }
+
+        .room-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 12px;
+        }
+
+        .room-stat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 8px;
+        }
+
+        .room-stat i {
+            width: 18px;
+            color: #e61a1a;
+            font-size: 14px;
+        }
+
+        .capacity-bar {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .capacity-label {
+            font-size: 12px;
+            color: #95a5a6;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+        }
+
+        .progress {
+            height: 6px;
+            background: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #e61a1a 0%, #c01515 100%);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .occupants-section {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .occupants-title {
+            font-size: 12px;
+            color: #95a5a6;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .occupant-item {
+            font-size: 13px;
+            color: #2c3e50;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .occupant-avatar {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e61a1a 0%, #c01515 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
             margin-bottom: 15px;
         }
-        .dormitory-stats {
+
+        .room-actions {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 8px;
         }
-        .stat-item {
-            text-align: center;
-            padding: 10px 15px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            min-width: 120px;
+
+        .btn-danger {
+            background: #e61a1a;
+            color: white;
         }
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #0d6efd;
+
+        .btn-danger:hover {
+            background: #c01515;
+            transform: translateY(-2px);
         }
-        .stat-label {
-            font-size: 0.85rem;
-            color: #6c757d;
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px 10px;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .navbar-menu {
+                flex-wrap: wrap;
+                justify-content: flex-start;
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-actions {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .btn {
+                flex: 1;
+                min-width: 80px;
+            }
+
+            .info-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .rooms-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .room-actions {
+                flex-direction: column;
+            }
+
+            .btn.flex-fill {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <header class="admin-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1>Quản lý Ký túc xá</h1>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/admin/dashboard" class="navbar-brand">
+                <i class="fas fa-building"></i> KTX HUST
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/admin/dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+                <li><a href="/admin/dormitories" class="active">
+                    <i class="fas fa-building"></i> Ký túc xá
+                </a></li>
+                <li><a href="/admin/application">
+                    <i class="fas fa-file-alt"></i> Đơn đăng ký
+                </a></li>
+                <li><a href="/admin/violations">
+                    <i class="fas fa-shield-alt"></i> Vi phạm
+                </a></li>
+                <li><a href="/admin/logs">
+                    <i class="fas fa-history"></i> Nhật ký
+                </a></li>
+                <li><a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div class="page-header-image">
+                    <i class="fas fa-building"></i>
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="/logout" class="btn btn-outline-secondary btn-sm">Đăng xuất</a>
+                <div>
+                    <h1><%= dormitory.name %></h1>
+                    <p style="color: #95a5a6; margin: 5px 0 0 0;"><%= dormitory.address || 'N/A' %></p>
                 </div>
             </div>
-        </div>
-    </header>
-
-    <div class="container mb-5">
-        <!-- Thông tin ký túc xá -->
-        <div class="dormitory-header">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div>
-                    <h2 class="dormitory-title"><%= dormitory.name %></h2>
-                </div>
-                <a href="/admin/dormitories" class="btn btn-outline-secondary">
-                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+            <div class="header-actions">
+                <a href="/admin/dormitories/edit/<%= dormitory._id %>" class="btn btn-edit">
+                    <i class="fas fa-pen"></i> Sửa
+                </a>
+                <button onclick="deleteDormitory('<%= dormitory._id %>')" class="btn btn-delete">
+                    <i class="fas fa-trash"></i> Xóa
+                </button>
+                <a href="/admin/dormitories" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i> Quay lại
                 </a>
             </div>
-            
-            <!-- Thống kê ký túc xá -->
-            <div class="dormitory-stats">
-                <% 
-                // Tính toán thống kê
-                let totalRooms = 0;
-                let totalCapacity = 0;
-                let totalOccupants = 0;
-                
-                if (dormitory.floors && dormitory.floors.length > 0) {
-                    dormitory.floors.forEach(floor => {
-                        if (floor.rooms && floor.rooms.length > 0) {
-                            totalRooms += floor.rooms.length;
-                            
-                            floor.rooms.forEach(room => {
-                                if (room.maxCapacity) {
-                                    totalCapacity += room.maxCapacity;
-                                }
-                                
-                                if (room.occupants && Array.isArray(room.occupants)) {
-                                    totalOccupants += room.occupants.filter(o => o.active).length;
-                                }
-                            });
-                        }
-                    });
-                }
-                
-                const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupants / totalCapacity) * 100) : 0;
-                %>
-                
-                <div class="stat-item">
-                    <div class="stat-value"><%= dormitory.floors.length %></div>
-                    <div class="stat-label">Tổng số tầng</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value"><%= totalRooms %></div>
-                    <div class="stat-label">Tổng số phòng</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value"><%= totalCapacity %></div>
-                    <div class="stat-label">Tổng sức chứa</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value"><%= totalOccupants %></div>
-                    <div class="stat-label">Đang ở</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value"><%= occupancyRate %>%</div>
-                    <div class="stat-label">Tỷ lệ lấp đầy</div>
+        </div>
+
+        <!-- Info Grid -->
+        <div class="info-grid">
+            <% 
+            let totalFloors = dormitory.floors ? dormitory.floors.length : 0;
+            let totalRooms = 0;
+            let totalCapacity = 0;
+            let occupiedSpots = 0;
+
+            if (dormitory.floors) {
+                dormitory.floors.forEach(floor => {
+                    if (floor.rooms) {
+                        totalRooms += floor.rooms.length;
+                        floor.rooms.forEach(room => {
+                            totalCapacity += room.maxCapacity || 0;
+                            if (room.occupants) {
+                                occupiedSpots += room.occupants.filter(o => o.active).length;
+                            }
+                        });
+                    }
+                });
+            }
+
+            const occupancyRate = totalCapacity > 0 ? Math.round((occupiedSpots / totalCapacity) * 100) : 0;
+            %>
+
+            <div class="info-box">
+                <div class="info-label">Tổng số tầng</div>
+                <div class="info-value"><%= totalFloors %></div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Tổng số phòng</div>
+                <div class="info-value"><%= totalRooms %></div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Sức chứa tối đa</div>
+                <div class="info-value"><%= totalCapacity %> chỗ</div>
+            </div>
+
+            <div class="info-box">
+                <div class="info-label">Tỷ lệ lấp đầy</div>
+                <div class="info-value" style="color: <%= occupancyRate > 80 ? '#e74c3c' : occupancyRate > 50 ? '#f39c12' : '#2ecc71' %>;">
+                    <%= occupancyRate %>%
                 </div>
             </div>
         </div>
-        
-        <!-- Tabs tầng -->
-        <div class="floor-tabs" id="floorTabs">
-            <% dormitory.floors.forEach((floor, index) => { %>
-                <div class="floor-tab <%= index === 0 ? 'active' : '' %>" 
-                     data-floor-number="<%= floor.floorNumber %>"
-                     onclick="showFloor(<%= floor.floorNumber %>)">
-                    Tầng <%= floor.floorNumber %>
-                </div>
-            <% }); %>
-        </div>
-        
-        <!-- Nội dung từng tầng -->
-        <% dormitory.floors.forEach((floor, floorIndex) => { %>
-            <div class="floor-container" id="floor-<%= floor.floorNumber %>" style="<%= floorIndex === 0 ? '' : 'display: none;' %>">
-                <div class="floor-header">
-                    <h3>Tầng <%= floor.floorNumber %></h3>
-                </div>
-                
-                <div class="row">
-                    <% floor.rooms.forEach(room => { %>
-                        <div class="col-md-6 col-lg-4">
-                            <div class="room-card" data-room-number="<%= room.roomNumber %>">
-                                <div class="room-header">
-                                    <div class="room-title"><%= room.roomNumber %></div>
-                                    <div class="room-type">
-                                        <% let roomTypeLabel = '';
-                                        switch(room.roomType) {
-                                            case '8-person': roomTypeLabel = 'Phòng 8 người'; break;
-                                            case '4-person-service': roomTypeLabel = 'Phòng 4 người (dịch vụ)'; break;
-                                            case '5-person': roomTypeLabel = 'Phòng 5 người'; break;
-                                            case '10-person': roomTypeLabel = 'Phòng 10 người'; break;
-                                            default: roomTypeLabel = room.roomType;
-                                        } %>
-                                        <%= roomTypeLabel %>
+
+        <!-- Floors Section -->
+        <div class="floors-section">
+            <h2 class="section-title">
+                <i class="fas fa-layer-group"></i> Danh sách phòng theo tầng
+            </h2>
+
+            <% if (dormitory.floors && dormitory.floors.length > 0) { %>
+                <% dormitory.floors.forEach(function(floor) { %>
+                    <div class="floor-container">
+                        <div class="floor-header">
+                            <i class="fas fa-arrows-alt-v"></i>
+                            Tầng <%= floor.floorNumber %>
+                        </div>
+
+                        <% if (floor.rooms && floor.rooms.length > 0) { %>
+                            <div class="rooms-grid">
+                                <% floor.rooms.forEach(function(room) { %>
+                                    <% 
+                                    const occupied = room.occupants ? room.occupants.filter(o => o.active).length : 0;
+                                    const occupancyPercent = room.maxCapacity > 0 ? Math.round((occupied / room.maxCapacity) * 100) : 0;
+                                    %>
+                                    <div class="room-card">
+                                        <div class="room-name">Phòng <%= room.roomNumber %></div>
+
+                                        <div class="room-stat">
+                                            <i class="fas fa-users"></i>
+                                            <span><%= occupied %>/<%= room.maxCapacity %> chỗ</span>
+                                        </div>
+
+                                        <div class="capacity-bar">
+                                            <div class="capacity-label">
+                                                <span>Lấp đầy</span>
+                                                <span><strong><%= occupancyPercent %>%</strong></span>
+                                            </div>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: <%= occupancyPercent %>%"></div>
+                                            </div>
+                                        </div>
+
+                                        <% if (room.occupants && room.occupants.length > 0) { %>
+                                            <div class="occupants-section">
+                                                <div class="occupants-title">Cư dân</div>
+                                                <% room.occupants.forEach(function(occ) { %>
+                                                    <% if (occ.active) { %>
+                                                        <div class="occupant-item">
+                                                            <div class="occupant-avatar">
+                                                                <%= occ.name ? occ.name.charAt(0).toUpperCase() : 'U' %>
+                                                            </div>
+                                                            <span><%= occ.name || 'N/A' %></span>
+                                                        </div>
+                                                    <% } %>
+                                                <% }); %>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <!-- Room action buttons -->
+                                        <div class="room-actions">
+                                            <button class="btn btn-primary flex-fill" 
+                                                    onclick="viewRoomDetails('<%= dormitory._id %>', <%= floor.floorNumber %>, '<%= room.roomNumber %>')">
+                                                <i class="fas fa-eye"></i> Chi tiết
+                                            </button>
+                                            <% if (occupied > 0) { %>
+                                                <button class="btn btn-danger" 
+                                                        onclick="clearRoom('<%= dormitory._id %>', <%= floor.floorNumber %>, '<%= room.roomNumber %>')">
+                                                    <i class="fas fa-trash"></i> Xóa
+                                                </button>
+                                            <% } %>
+                                        </div>
                                     </div>
-                                </div>
-                                
-                                <div class="<div class="room-info">
-    <span>
-        <i class="fas fa-users"></i>
-        <% 
-        let roomActiveOccupants = 0;
-        if (room.occupants && Array.isArray(room.occupants)) {
-            roomActiveOccupants = room.occupants.filter(o => o.active).length;
-        }
-        %>
-        <%= roomActiveOccupants %>/<%= room.maxCapacity %>
-    </span>
-   
-</div>
-
-<!-- Đối với phần hiển thị người ở trong phòng -->
-<div class="occupants-container">
-    <% 
-    // Lấy danh sách người ở đang active
-    let roomOccupants = [];
-    if (room.occupants && Array.isArray(room.occupants)) {
-        roomOccupants = room.occupants.filter(o => o.active);
-    }
-    
-    // Tạo các vị trí đến max capacity
-    for (let i = 0; i < room.maxCapacity; i++) {
-        const occupant = i < roomOccupants.length ? roomOccupants[i] : null;
-        const spotId = `${room.roomNumber}-spot-${i}`;
-    %>
-        <div class="occupant-spot" 
-             data-room-number="<%= room.roomNumber %>" 
-             data-spot-index="<%= i %>" 
-             data-floor-number="<%= floor.floorNumber %>"
-             data-dormitory-id="<%= dormitory._id %>"
-             data-bs-toggle="modal" 
-             data-bs-target="#occupantModal"
-             onclick="selectSpot(this)">
-            <i class="fas fa-user occupant-icon <%= occupant ? 'occupied' : 'vacant' %>"></i>
-            <div class="occupant-name"><%= occupant ? occupant.name : 'Trống' %></div>
-        </div>
-    <% } %>
-</div>
+                                <% }); %>
                             </div>
-                        </div>
-                    <% }); %>
-                </div>
-            </div>
-        <% }); %>
-    </div>
-    
-    <!-- Modal quản lý người ở -->
-    <div class="modal fade" id="occupantModal" tabindex="-1" aria-labelledby="occupantModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="occupantModalLabel">Quản lý sinh viên</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="occupantStatus">
-                        <!-- Sẽ được điền bởi JavaScript -->
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="fas fa-door-open"></i>
+                                <p>Không có phòng trên tầng này</p>
+                            </div>
+                        <% } %>
                     </div>
-                    
-                    <form id="occupantForm" class="mt-3">
-                        <input type="hidden" id="dormitoryId">
-                        <input type="hidden" id="floorNumber">
-                        <input type="hidden" id="roomNumber">
-                        <input type="hidden" id="spotIndex">
-                        
-                        <div class="mb-3">
-                            <label for="studentId" class="form-label">Mã sinh viên</label>
-                            <input type="text" class="form-control" id="studentId" placeholder="Nhập mã sinh viên">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="studentName" class="form-label">Tên sinh viên</label>
-                            <input type="text" class="form-control" id="studentName" placeholder="Nhập tên sinh viên">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="studentPhone" class="form-label">Số điện thoại</label>
-                            <input type="text" class="form-control" id="studentPhone" placeholder="Nhập số điện thoại">
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="studentEmail" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="studentEmail" placeholder="Nhập email">
-                        </div>
-                    </form>
+                <% }); %>
+            <% } else { %>
+                <div class="empty-state">
+                    <i class="fas fa-layer-group"></i>
+                    <p>Chưa có tầng nào</p>
                 </div>
-                <div class="modal-footer" id="modalFooter">
-                    <!-- Sẽ được điền bởi JavaScript -->
-                </div>
-            </div>
+            <% } %>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
     <script>
-        // Hiển thị tầng được chọn
-        function showFloor(floorNumber) {
-            // Ẩn tất cả các tầng
-            document.querySelectorAll('.floor-container').forEach(floor => {
-                floor.style.display = 'none';
-            });
-            
-            // Hiển thị tầng được chọn
-            document.getElementById(`floor-${floorNumber}`).style.display = 'block';
-            
-            // Cập nhật tab đang active
-            document.querySelectorAll('.floor-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            document.querySelector(`.floor-tab[data-floor-number="${floorNumber}"]`).classList.add('active');
-        }
-        
-        // Xử lý khi chọn một vị trí
-        function selectSpot(spotElement) {
-            const dormitoryId = spotElement.getAttribute('data-dormitory-id');
-            const floorNumber = spotElement.getAttribute('data-floor-number');
-            const roomNumber = spotElement.getAttribute('data-room-number');
-            const spotIndex = spotElement.getAttribute('data-spot-index');
-            const isOccupied = spotElement.querySelector('.occupant-icon').classList.contains('occupied');
-            
-            // Cập nhật các trường ẩn trong form
-            document.getElementById('dormitoryId').value = dormitoryId;
-            document.getElementById('floorNumber').value = floorNumber;
-            document.getElementById('roomNumber').value = roomNumber;
-            document.getElementById('spotIndex').value = spotIndex;
-            
-            // Reset form
-            document.getElementById('occupantForm').reset();
-            
-            // Cập nhật tiêu đề modal
-            document.getElementById('occupantModalLabel').textContent = 
-                `Quản lý sinh viên - Phòng ${roomNumber} - Vị trí ${parseInt(spotIndex) + 1}`;
-            
-            // Cập nhật phần trạng thái
-            const statusElement = document.getElementById('occupantStatus');
-            if (isOccupied) {
-                // Lấy tên người ở từ vị trí được chọn
-                const occupantName = spotElement.querySelector('.occupant-name').textContent;
-                
-                statusElement.innerHTML = `
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Vị trí này đang được <strong>${occupantName}</strong> sử dụng.
-                    </div>
-                `;
-                
-                // Cập nhật các nút trong footer
-                document.getElementById('modalFooter').innerHTML = `
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-danger" onclick="removeOccupant()">
-                        <i class="fas fa-user-minus me-1"></i> Xóa người ở
-                    </button>
-                    <button type="button" class="btn btn-primary" onclick="updateOccupant()">
-                        <i class="fas fa-save me-1"></i> Cập nhật thông tin
-                    </button>
-                `;
-                
-                // TODO: Có thể thêm code để lấy thông tin chi tiết của người ở và điền vào form
-            } else {
-                statusElement.innerHTML = `
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        Vị trí này đang trống. Hãy thêm sinh viên mới.
-                    </div>
-                `;
-                
-                // Cập nhật các nút trong footer
-                document.getElementById('modalFooter').innerHTML = `
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-success" onclick="addOccupant()">
-                        <i class="fas fa-user-plus me-1"></i> Thêm sinh viên
-                    </button>
-                `;
-            }
-        }
-        
-        // Thêm người ở mới
-        function addOccupant() {
-            const dormitoryId = document.getElementById('dormitoryId').value;
-            const floorNumber = document.getElementById('floorNumber').value;
-            const roomNumber = document.getElementById('roomNumber').value;
-            const spotIndex = document.getElementById('spotIndex').value;
-            
-            const studentId = document.getElementById('studentId').value.trim();
-            const name = document.getElementById('studentName').value.trim();
-            const phone = document.getElementById('studentPhone').value.trim();
-            const email = document.getElementById('studentEmail').value.trim();
-            
-            // Kiểm tra các trường bắt buộc
-            if (!studentId || !name) {
-                alert('Vui lòng nhập mã sinh viên và tên sinh viên');
-                return;
-            }
-            
-            // Gọi API để thêm người ở
-            fetch(`/api/dormitories/${dormitoryId}/floors/${floorNumber}/rooms/${roomNumber}/toggle-spot/${spotIndex}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    studentId: studentId,
-                    name: name,
-                    phone: phone,
-                    email: email
+        function deleteDormitory(dormitoryId) {
+            if (confirm('Bạn chắc chắn muốn xóa ký túc xá này? Hành động này không thể hoàn tác.')) {
+                fetch(`/dormitories/${dormitoryId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert('Lỗi: ' + data.error);
-                } else {
-                    alert(data.message || 'Thêm sinh viên thành công!');
-                    // Đóng modal và tải lại trang
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('occupantModal'));
-                    modal.hide();
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Đã xảy ra lỗi khi thêm sinh viên!');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Xóa ký túc xá thành công!');
+                        window.location.href = '/admin/dormitories';
+                    } else {
+                        alert('Lỗi: ' + (data.message || data.error || 'Không thể xóa ký túc xá'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Lỗi khi xóa ký túc xá');
+                });
+            }
         }
         
-       // Xóa người ở
-function removeOccupant() {
-    const dormitoryId = document.getElementById('dormitoryId').value;
-    const floorNumber = document.getElementById('floorNumber').value;
-    const roomNumber = document.getElementById('roomNumber').value;
-    const spotIndex = document.getElementById('spotIndex').value;
-    
-    if (confirm('Bạn có chắc chắn muốn xóa sinh viên này khỏi phòng?')) {
-        // Gọi API để xóa người ở (không gửi body data)
-        fetch(`/api/dormitories/${dormitoryId}/floors/${floorNumber}/rooms/${roomNumber}/toggle-spot/${spotIndex}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
+        function viewRoomDetails(dormId, floorNumber, roomNumber) {
+            // Navigate to room details page
+            console.log('Navigating to room details:', {dormId, floorNumber, roomNumber});
+            const url = `/admin/dormitories/${dormId}/rooms/${floorNumber}/${roomNumber}`;
+            console.log('URL:', url);
+            window.location.href = url;
+        }
+        
+        function clearRoom(dormId, floorNumber, roomNumber) {
+            if (confirm('Bạn chắc chắn muốn xóa tất cả sinh viên khỏi phòng này?')) {
+                // Implement clearing all occupants from room
+                alert('Tính năng này sẽ được thêm vào. Vui lòng xóa từng sinh viên một.');
             }
-            // Không gửi body để backend hiểu đây là lệnh xóa
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert('Lỗi: ' + data.error);
-            } else {
-                alert(data.message || 'Xóa sinh viên thành công!');
-                // Đóng modal và tải lại trang
-                const modal = bootstrap.Modal.getInstance(document.getElementById('occupantModal'));
-                modal.hide();
-                location.reload();
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Đã xảy ra lỗi khi xóa sinh viên!');
-        });
-    }
-}
-function selectSpot(spotElement) {
-    const dormitoryId = spotElement.getAttribute('data-dormitory-id');
-    const floorNumber = spotElement.getAttribute('data-floor-number');
-    const roomNumber = spotElement.getAttribute('data-room-number');
-    const spotIndex = spotElement.getAttribute('data-spot-index');
-    const isOccupied = spotElement.querySelector('.occupant-icon').classList.contains('occupied');
-    
-    // Cập nhật các trường ẩn trong form
-    document.getElementById('dormitoryId').value = dormitoryId;
-    document.getElementById('floorNumber').value = floorNumber;
-    document.getElementById('roomNumber').value = roomNumber;
-    document.getElementById('spotIndex').value = spotIndex;
-    
-    // Reset form
-    document.getElementById('occupantForm').reset();
-    
-    // Cập nhật tiêu đề modal
-    document.getElementById('occupantModalLabel').textContent = 
-        `Quản lý sinh viên - Phòng ${roomNumber} - Vị trí ${parseInt(spotIndex) + 1}`;
-    
-    // Cập nhật phần trạng thái
-    const statusElement = document.getElementById('occupantStatus');
-    if (isOccupied) {
-        // Lấy tên người ở từ vị trí được chọn
-        const occupantName = spotElement.querySelector('.occupant-name').textContent;
-        
-        statusElement.innerHTML = `
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                Vị trí này đang được <strong>${occupantName}</strong> sử dụng.
-            </div>
-        `;
-        
-        // Hiển thị form để có thể xem/chỉnh sửa thông tin (tùy chọn)
-        // TODO: Có thể fetch thông tin chi tiết và điền vào form
-        
-        // Cập nhật các nút trong footer
-        document.getElementById('modalFooter').innerHTML = `
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-danger" onclick="removeOccupant()">
-                <i class="fas fa-user-minus me-1"></i> Xóa người ở
-            </button>
-        `;
-        
-    } else {
-        statusElement.innerHTML = `
-            <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle me-2"></i>
-                Vị trí này đang trống. Hãy thêm sinh viên mới.
-            </div>
-        `;
-        
-        // Cập nhật các nút trong footer
-        document.getElementById('modalFooter').innerHTML = `
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-            <button type="button" class="btn btn-success" onclick="addOccupant()">
-                <i class="fas fa-user-plus me-1"></i> Thêm sinh viên
-            </button>
-        `;
-    }
-}
-        // Cập nhật thông tin người ở
-        function updateOccupant() {
-            // Chức năng này có thể được phát triển thêm
-            alert('Chức năng này đang được phát triển!');
         }
     </script>
 </body>

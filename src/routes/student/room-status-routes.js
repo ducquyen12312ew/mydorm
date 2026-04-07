@@ -17,12 +17,13 @@ router.get('/room-status', isAuthenticated, (req, res) => {
         return res.redirect('/admin/dormitories');
     }
     
-    res.render('room-status', {
+    res.render('student/room-status', {
         user: {
             name: req.session.name,
             role: req.session.role,
             id: req.session.userId
-        }
+        },
+        student: null
     });
 });
 
@@ -33,9 +34,12 @@ router.get('/api/student/current-room', isAuthenticated, async (req, res) => {
         
         // Tìm phòng mà sinh viên đang ở
         const dormitories = await DormitoryCollection.find();
+        const applications = await PendingApplicationCollection.find({
+            studentId: studentId
+        }).sort({ createdAt: -1 });
         let currentRoom = null;
-        let dormitoryInfo = null;
-        
+        let latestApprovedApplication = null;
+
         for (const dormitory of dormitories) {
             for (const floor of dormitory.floors) {
                 for (const room of floor.rooms) {
@@ -72,10 +76,60 @@ router.get('/api/student/current-room', isAuthenticated, async (req, res) => {
         }
         
         if (currentRoom) {
-            res.json({ success: true, room: currentRoom });
-        } else {
-            res.json({ success: false, message: 'Không tìm thấy phòng hiện tại' });
+            return res.json({ success: true, room: currentRoom });
         }
+
+        if (applications && applications.length > 0) {
+            latestApprovedApplication = applications.find(app => ['approved', 'approved_waiting_payment'].includes(app.status));
+        }
+
+        if (latestApprovedApplication) {
+            const dormitory = dormitories.find(d => d._id.toString() === latestApprovedApplication.dormitoryId?.toString());
+            
+            // Tìm phòng từ đơn đã duyệt để lấy thông tin đầy đủ
+            let approvedRoomDetails = null;
+            if (dormitory) {
+                for (const floor of dormitory.floors) {
+                    const room = floor.rooms.find(r => r.roomNumber === latestApprovedApplication.roomNumber);
+                    if (room) {
+                        approvedRoomDetails = {
+                            dormitoryName: dormitory.name,
+                            dormitoryImage: dormitory.images?.[0] || null,
+                            roomNumber: room.roomNumber,
+                            maxCapacity: room.maxCapacity,
+                            currentOccupants: room.occupants.filter(o => o.active).length,
+                            checkInDate: latestApprovedApplication.createdAt,
+                            roommates: [],
+                            pricePerMonth: room.pricePerMonth || 0,
+                            roomType: room.roomType || 'Phòng thường',
+                            isPending: true
+                        };
+                        break;
+                    }
+                }
+            }
+            
+            // Trả về thông tin phòng đầy đủ nếu tìm thấy, nếu không thì trả về thông tin cơ bản
+            if (approvedRoomDetails) {
+                return res.json({
+                    success: true,
+                    room: approvedRoomDetails
+                });
+            } else {
+                return res.json({
+                    success: true,
+                    latestApprovedApplication: {
+                        dormitoryName: dormitory ? dormitory.name : 'Không xác định',
+                        roomNumber: latestApprovedApplication.roomNumber,
+                        status: latestApprovedApplication.status,
+                        createdAt: latestApprovedApplication.createdAt,
+                        comments: latestApprovedApplication.comments || ''
+                    }
+                });
+            }
+        }
+
+        res.json({ success: false, message: 'Không tìm thấy phòng hiện tại' });
     } catch (error) {
         console.error('Error getting current room:', error);
         res.status(500).json({ success: false, error: 'Lỗi hệ thống' });

@@ -30,230 +30,186 @@
             color: var(--text-dark);
         }
 
-        /* ADMIN HEADER */
-        .admin-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* Modern Navigation */
+        .navbar {
             background: white;
-            z-index: 2000;
-            box-shadow: var(--shadow-sm);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
 
-        .admin-header-container {
-            max-width: 1600px;
+        .navbar-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-menu a:hover {
+            background: #f8f9fa;
+        }
+
+        .navbar-menu a.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* ADMIN HEADER (kept for compatibility, hidden) */
+        .admin-header {
+            display: none;
+        }
+
+        .admin-header-container {
+            display: none;
         }
 
         .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            display: none;
         }
 
         .admin-logo img {
-            height: 40px;
-            width: auto;
-            transition: transform 0.3s ease;
+            display: none;
         }
 
         .admin-logo:hover img {
-            transform: scale(1.05);
+            display: none;
         }
 
         .admin-logo-text {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-nav {
-            display: flex;
-            align-items: center;
-            gap: 3rem;
-            flex: 1;
-            margin: 0 3rem;
+            display: none;
         }
 
         .admin-nav-links {
-            display: flex;
-            gap: 2.5rem;
-            list-style: none;
+            display: none;
         }
 
         .admin-nav-link {
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.5rem 0;
-            position: relative;
-            transition: color 0.3s ease;
+            display: none;
         }
 
         .admin-nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), #ff6b6b);
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
         }
 
         .admin-nav-link:hover {
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-nav-link:hover::before {
-            width: 100%;
+            display: none;
         }
 
         .admin-nav-link.active {
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-nav-link.active::before {
-            width: 100%;
+            display: none;
         }
 
         .admin-nav-link i {
-            margin-right: 8px;
+            display: none;
         }
 
         .admin-user-section {
-            display: flex;
-            align-items: center;
+            display: none;
         }
 
         .admin-user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .admin-user-profile:hover {
-            background: var(--bg-light);
+            display: none;
         }
 
         .admin-user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: var(--shadow-sm);
+            display: none;
         }
 
         .admin-user-info {
-            display: flex;
-            flex-direction: column;
+            display: none;
         }
 
         .admin-user-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-dark);
+            display: none;
         }
 
         .admin-user-role {
-            font-size: 0.8rem;
-            color: var(--text-light);
+            display: none;
         }
 
         .admin-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            min-width: 220px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            overflow: hidden;
+            display: none;
         }
 
         .admin-user-profile:hover .admin-dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+            display: none;
         }
 
         .admin-dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 0.85rem 1.25rem;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
+            display: none;
         }
 
         .admin-dropdown-item:hover {
-            background: var(--bg-light);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-dropdown-item i {
-            margin-right: 12px;
-            width: 20px;
+            display: none;
         }
 
         .admin-dropdown-item.logout {
-            color: #e74c3c;
+            display: none;
         }
 
         .admin-dropdown-item.logout:hover {
-            background: #ffe6e6;
-            border-left-color: #e74c3c;
+            display: none;
         }
 
         .admin-menu-toggle {
             display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 28px;
-            height: 20px;
-            cursor: pointer;
         }
 
         .admin-menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
-            background: var(--primary-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
+            display: none;
         }
 
         .admin-content {
-            padding-top: 90px;
+            padding-top: 0;
             min-height: 100vh;
         }
 
@@ -506,6 +462,71 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Dropdown styles for Academic Year menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle::after {
+            content: '';
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+            border-top: 4px solid;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: var(--bg-light);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu .dropdown-item i {
+            margin-right: 10px;
+            width: 18px;
+        }
+
+        /* Active state for navigation */
+        .admin-nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .admin-nav-link.active::before {
+            width: 100%;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .admin-menu-toggle {
@@ -560,55 +581,20 @@
             .container {
                 padding: 0 1rem;
             }
+
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                background: #f8f9fa;
+                border-left: 3px solid var(--primary-color);
+                margin-left: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- ADMIN HEADER -->
-    <header class="admin-header">
-        <div class="admin-header-container">
-            <a href="/admin/dashboard" class="admin-logo">
-                <img src="/image/logo.png" alt="Logo">
-                <span class="admin-logo-text">KTX HUST</span>
-            </a>
+    <%- include('navbar', { activeNav: 'dashboard' }) %>
 
-            <div class="admin-menu-toggle" id="menuToggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-
-            <nav class="admin-nav" id="adminNav">
-                <ul class="admin-nav-links">
-                    <li><a href="/admin/dashboard" class="admin-nav-link active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/admin/dormitories" class="admin-nav-link"><i class="fas fa-building"></i> Danh sách KTX</a></li>
-                    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
-                    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
-                </ul>
-
-                <div class="admin-user-section">
-                    <div class="admin-user-profile">
-                        <div class="admin-user-avatar">A</div>
-                        <div class="admin-user-info">
-                            <span class="admin-user-name">Admin</span>
-                            <span class="admin-user-role">Quản trị viên</span>
-                        </div>
-                        <div class="admin-dropdown-menu">
-                            <a href="/profile" class="admin-dropdown-item">
-                                <i class="fas fa-user"></i> Hồ sơ cá nhân
-                            </a>
-                            <a href="/admin/settings" class="admin-dropdown-item">
-                                <i class="fas fa-cog"></i> Cài đặt
-                            </a>
-                            <a href="/logout" class="admin-dropdown-item logout">
-                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
 
     <!-- MAIN CONTENT -->
     <div class="admin-content">
@@ -647,17 +633,11 @@
 
                 <div class="chart-section">
                     <div class="chart-header">
-                        <h2>Xu Hướng Hoạt Động Theo Thời Gian</h2>
-                        <div class="chart-filters">
-                            <select id="period-filter">
-                                <option value="week">7 ngày qua</option>
-                                <option value="month" selected>30 ngày qua</option>
-                                <option value="quarter">3 tháng qua</option>
-                                <option value="year">1 năm qua</option>
-                            </select>
-                        </div>
+                        <h2>Phân Bố Sinh Viên Theo Năm</h2>
                     </div>
-                    <canvas id="trend-chart" height="80"></canvas>
+                    <div style="position: relative; height: 500px;">
+                        <canvas id="year-distribution-chart"></canvas>
+                    </div>
                 </div>
 
                 <div class="activity-section">
@@ -671,18 +651,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
-        // Mobile menu toggle
-        const menuToggle = document.getElementById('menuToggle');
-        const adminNav = document.getElementById('adminNav');
-        
-        if (menuToggle && adminNav) {
-            menuToggle.addEventListener('click', function() {
-                this.classList.toggle('active');
-                adminNav.classList.toggle('active');
-            });
-        }
-
-        let trendChart = null;
+        let yearDistributionChart = null;
 
         // Load dashboard stats on page load
         window.addEventListener('load', function() {
@@ -715,8 +684,8 @@
                     renderActivities(data.stats.recentActivity || []);
                     renderApplicationStats(data.stats.applications || {});
                     
-                    // Load trend chart if available
-                    await loadTrendChart();
+                    // Load year distribution chart
+                    await loadYearDistributionChart();
 
                     if (loadingEl) loadingEl.style.display = 'none';
                     if (dashboardContent) dashboardContent.style.display = 'block';
@@ -898,86 +867,118 @@
             `;
         }
 
-        // Load and render trend chart
-        async function loadTrendChart() {
-            const periodSelect = document.getElementById('period-filter');
-            if (!periodSelect) return;
-            
-            const period = periodSelect.value || '7days';
-            
+        // Load and render year distribution chart
+        async function loadYearDistributionChart() {
             try {
-                const response = await fetch(`/admin/dashboard/occupancy-trend?period=${period}`);
+                const response = await fetch('/admin/dashboard/year-distribution');
                 
                 if (!response.ok) return; // Silently fail if endpoint not available
                 
                 const result = await response.json();
 
-                if (result.success && result.data && result.data.labels && result.data.labels.length > 0) {
-                    renderTrendChart(result.data);
+                if (result.success && result.data) {
+                    renderYearDistributionChart(result.data);
                 }
             } catch (error) {
-                console.warn('Trend chart not available:', error);
-                // Hide chart container if endpoint doesn't exist
-                const chartContainer = document.getElementById('trend-chart-container');
-                if (chartContainer) chartContainer.style.display = 'none';
+                console.warn('Year distribution chart not available:', error);
             }
         }
 
-        // Render trend chart using Chart.js
-        function renderTrendChart(data) {
-            const canvas = document.getElementById('trend-chart');
+        // Render year distribution chart using vertical bars
+        function renderYearDistributionChart(data) {
+            const canvas = document.getElementById('year-distribution-chart');
             if (!canvas) return;
             
             // Destroy existing chart
-            if (trendChart) {
-                trendChart.destroy();
+            if (yearDistributionChart) {
+                yearDistributionChart.destroy();
             }
 
-            trendChart = new Chart(canvas, {
-                type: 'line',
+            const yearColors = {
+                'Năm 1': '#FF6B6B',
+                'Năm 2': '#9E9E9E',
+                'Năm 3': '#FFC107',
+                'Năm 4': '#FF9800',
+                'Năm 5': '#9C27B0',
+                'Năm 6': '#4CAF50',
+                'Sau đại học': '#2196F3'
+            };
+
+            const ctx = canvas.getContext('2d');
+            yearDistributionChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
                     labels: data.labels || [],
-                    datasets: (data.series || []).map((series, index) => {
-                        const colors = ['#3498db', '#2ecc71', '#e74c3c', '#f39c12', '#9b59b6'];
-                        const color = colors[index % colors.length];
-                        
-                        return {
-                            label: series.name || `Series ${index + 1}`,
-                            data: series.data || [],
-                            borderColor: color,
-                            backgroundColor: color + '20',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        };
-                    })
+                    datasets: [{
+                        label: 'Số sinh viên',
+                        data: data.values || [],
+                        backgroundColor: data.labels?.map(label => yearColors[label] || '#95a5a6') || [],
+                        borderColor: data.labels?.map(label => yearColors[label] || '#95a5a6') || [],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top'
+                            display: false
                         },
                         tooltip: {
-                            mode: 'index',
-                            intersect: false
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value + '%';
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.x || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${value} sinh viên (${percentage}%)`;
                                 }
                             }
                         }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value;
+                                }
+                            },
+                            grid: {
+                                color: '#f0f0f0'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'dataLabels',
+                    afterDatasetsDraw(chart) {
+                        const { ctx, data, scales } = chart;
+                        ctx.font = 'bold 13px Arial';
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.textAlign = 'start';
+                        ctx.textBaseline = 'middle';
+
+                        data.datasets.forEach((dataset) => {
+                            const xScale = scales.x;
+                            const yScale = scales.y;
+                            const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                            dataset.data.forEach((value, index) => {
+                                const x = xScale.getPixelForValue(value);
+                                const y = yScale.getPixelForValue(index);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                ctx.fillText(`${percentage}%`, x + 8, y);
+                            });
+                        });
+                    }
+                }]
             });
         }
 
@@ -1084,8 +1085,24 @@
         // Export functions for external use
         window.loadDashboardStats = loadDashboardStats;
         window.loadTrendChart = loadTrendChart;
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('adminNav').classList.toggle('active');
+        });
+        // Set active state based on current page - for modern navbar
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-menu a');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href)) {
+                    link.classList.add('active');
+                }
+            });
+        });
     </script>
-</body>
-</html>
 </body>
 </html>

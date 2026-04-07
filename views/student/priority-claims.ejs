@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khai báo điểm ưu tiên - KTX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/student-premium-shell.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .claims-header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .claims-header h1 {
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .claims-header h1 i {
+            color: #667eea;
+            font-size: 28px;
+        }
+
+        .claims-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .card-header h2 {
+            font-size: 20px;
+            flex: 1;
+        }
+
+        .claim-item {
+            border-bottom: 1px solid #eee;
+            padding: 25px 30px;
+        }
+
+        .claim-item:last-child {
+            border-bottom: none;
+        }
+
+        .claim-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .claim-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .claim-title i {
+            font-size: 20px;
+            color: #667eea;
+        }
+
+        .claim-description {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+            margin-left: 30px;
+        }
+
+        .form-group {
+            margin: 15px 0;
+            margin-left: 30px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            display: none;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px 16px;
+            background: #f5f5f5;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            color: #667eea;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #f0f0f0;
+        }
+
+        .file-name {
+            display: block;
+            color: #666;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-submitted {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-draft {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0 15px 30px;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0 0 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-upload {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-upload:hover {
+            background: #5568d3;
+        }
+
+        .btn-delete {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .btn-submit {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background: #218838;
+        }
+
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .summary {
+            background: #f9f9f9;
+            padding: 20px 30px;
+            border-top: 1px solid #eee;
+        }
+
+        .summary h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .summary-item strong {
+            color: #333;
+        }
+
+        .total-score {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-top: 1px solid #ddd;
+            margin-top: 12px;
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .score-value {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            display: block;
+        }
+
+        .disclaimer {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #856404;
+        }
+
+        .disclaimer strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .claims-header {
+                padding: 20px;
+            }
+
+            .claim-item {
+                padding: 20px;
+            }
+
+            .card-header {
+                padding: 15px 20px;
+            }
+
+            .form-group,
+            .checkbox-wrapper,
+            .actions {
+                margin-left: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="student-shell-page">
+    <%- include('navbar', { currentPage: 'priority-claims', user: user }) %>
+
+    <section class="student-page-hero">
+        <div class="student-page-badge"><i class="fas fa-file-certificate"></i> Điểm ưu tiên</div>
+        <h1 class="student-page-title">Khai báo các yếu tố ưu tiên trong cùng trải nghiệm sinh viên thống nhất</h1>
+        <p class="student-page-subtitle">Trang điểm ưu tiên đã được nối lại với navbar chung và lớp giao diện mới để không còn bị tách vibe khỏi trang chủ. Bạn vẫn giữ nguyên luồng nộp minh chứng và theo dõi trạng thái duyệt như trước.</p>
+    </section>
+
+    <div class="container">
+        <div class="claims-header">
+            <h1>
+                <i class="fas fa-file-certificate"></i>
+                Khai báo các yếu tố ưu tiên
+            </h1>
+            <p>Vui lòng cung cấp thông tin về các yếu tố ưu tiên để tính điểm phân bổ phòng. Yêu cầu sẽ được admin duyệt trong 3-5 ngày làm việc.</p>
+        </div>
+
+        <div id="message" class="message"></div>
+
+        <div class="main-card">
+            <div class="card-header">
+                <i class="fas fa-exclamation-circle"></i>
+                <h2>Các Yếu Tố Ưu Tiên</h2>
+            </div>
+
+            <!-- Diện Khó Khăn -->
+            <div class="claim-item">
+                <div class="claim-header">
+                    <div class="claim-title">
+                        <i class="fas fa-hand-holding-heart"></i>
+                        Diện Khó Khăn Tài Chính
+                    </div>
+                    <span id="hardship-status" class="status-badge status-draft">CHƯA CLAIM</span>
+                </div>
+                <p class="claim-description">
+                    Dành cho sinh viên có hoàn cảnh gia đình khó khăn, có hộ khẩu hoặc giấy tờ xác nhận từ địa phương.
+                </p>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="hardship-checkbox" name="hardship">
+                    <label for="hardship-checkbox">Tôi muốn khai báo diện khó khăn tài chính</label>
+                </div>
+
+                <div id="hardship-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Lý do yêu cầu:</label>
+                        <textarea id="hardship-reason" placeholder="Mô tả hoàn cảnh khó khăn của bạn..." rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload giấy tờ minh chứng (PDF, JPG, PNG, DOC, DOCX - Max 5MB):</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="hardship-file" name="hardship" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <label for="hardship-file" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i> Click để chọn file hoặc kéo thả
+                                <span id="hardship-filename" class="file-name"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-upload" onclick="submitClaim('financialHardship')">
+                            <i class="fas fa-upload"></i> Gửi Yêu Cầu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dân Tộc Thiểu Số -->
+            <div class="claim-item">
+                <div class="claim-header">
+                    <div class="claim-title">
+                        <i class="fas fa-users"></i>
+                        Dân Tộc Thiểu Số
+                    </div>
+                    <span id="minority-status" class="status-badge status-draft">CHƯA CLAIM</span>
+                </div>
+                <p class="claim-description">
+                    Dành cho sinh viên thuộc dân tộc thiểu số (không phải Kinh). Cần cung cấp giấy tờ chứng thực.
+                </p>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="minority-checkbox" name="minority">
+                    <label for="minority-checkbox">Tôi muốn khai báo dân tộc thiểu số</label>
+                </div>
+
+                <div id="minority-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Dân tộc:</label>
+                        <input type="text" id="minority-ethnicity" placeholder="Ví dụ: Tày, Mường, Thái...">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload giấy tờ minh chứng:</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="minority-file" name="minority" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <label for="minority-file" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i> Click để chọn file hoặc kéo thả
+                                <span id="minority-filename" class="file-name"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-upload" onclick="submitClaim('minority')">
+                            <i class="fas fa-upload"></i> Gửi Yêu Cầu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Học Bổng -->
+            <div class="claim-item">
+                <div class="claim-header">
+                    <div class="claim-title">
+                        <i class="fas fa-graduation-cap"></i>
+                        Học Bổng / Hỗ Trợ Học Tập
+                    </div>
+                    <span id="scholarship-status" class="status-badge status-draft">CHƯA CLAIM</span>
+                </div>
+                <p class="claim-description">
+                    Dành cho sinh viên đang nhận học bổng hoặc hỗ trợ học tập từ nhà trường/bên ngoài.
+                </p>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="scholarship-checkbox" name="scholarship">
+                    <label for="scholarship-checkbox">Tôi muốn khai báo học bổng</label>
+                </div>
+
+                <div id="scholarship-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Loại học bổng:</label>
+                        <select id="scholarship-type">
+                            <option value="">-- Chọn loại --</option>
+                            <option value="government">Học bổng nhà nước</option>
+                            <option value="university">Học bổng nhà trường</option>
+                            <option value="sponsor">Học bổng bên thứ ba</option>
+                            <option value="merit">Học bổng thành tích</option>
+                            <option value="other">Khác</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload giấy tờ minh chứng:</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="scholarship-file" name="scholarship" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <label for="scholarship-file" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i> Click để chọn file hoặc kéo thả
+                                <span id="scholarship-filename" class="file-name"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-upload" onclick="submitClaim('scholarship')">
+                            <i class="fas fa-upload"></i> Gửi Yêu Cầu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trẻ Mồ Côi -->
+            <div class="claim-item">
+                <div class="claim-header">
+                    <div class="claim-title">
+                        <i class="fas fa-heart-broken"></i>
+                        Trẻ Mồ Côi
+                    </div>
+                    <span id="orphan-status" class="status-badge status-draft">CHƯA CLAIM</span>
+                </div>
+                <p class="claim-description">
+                    Dành cho sinh viên mồ côi cha hoặc mẹ. Cần cung cấp giấy chứng thực từ công an hoặc địa phương.
+                </p>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="orphan-checkbox" name="orphan">
+                    <label for="orphan-checkbox">Tôi muốn khai báo tình trạng mồ côi</label>
+                </div>
+
+                <div id="orphan-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Upload giấy tờ minh chứng:</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="orphan-file" name="orphan" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <label for="orphan-file" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i> Click để chọn file hoặc kéo thả
+                                <span id="orphan-filename" class="file-name"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-upload" onclick="submitClaim('orphan')">
+                            <i class="fas fa-upload"></i> Gửi Yêu Cầu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inva lidity -->
+            <div class="claim-item">
+                <div class="claim-header">
+                    <div class="claim-title">
+                        <i class="fas fa-wheelchair"></i>
+                        Khuyết Tật / Khó Khăn Về Sức Khỏe
+                    </div>
+                    <span id="disability-status" class="status-badge status-draft">CHƯA CLAIM</span>
+                </div>
+                <p class="claim-description">
+                    Dành cho sinh viên có khuyết tật hoặc tình trạng sức khỏe đặc biệt. Cần cung cấp giấy xác nhận từ cơ quan y tế.
+                </p>
+
+                <div class="checkbox-wrapper">
+                    <input type="checkbox" id="disability-checkbox" name="disability">
+                    <label for="disability-checkbox">Tôi muốn khai báo khuyết tật/khó khăn sức khỏe</label>
+                </div>
+
+                <div id="disability-form" style="display: none;">
+                    <div class="form-group">
+                        <label>Mức độ khuyết tật:</label>
+                        <select id="disability-level">
+                            <option value="">-- Chọn mức độ --</option>
+                            <option value="mild">Nhẹ</option>
+                            <option value="moderate">Trung bình</option>
+                            <option value="severe">Nặng</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload giấy xác nhận từ bệnh viện/cơ sở y tế:</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="disability-file" name="disability" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                            <label for="disability-file" class="file-input-label">
+                                <i class="fas fa-cloud-upload-alt"></i> Click để chọn file hoặc kéo thả
+                                <span id="disability-filename" class="file-name"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-upload" onclick="submitClaim('disability')">
+                            <i class="fas fa-upload"></i> Gửi Yêu Cầu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary -->
+            <div class="summary">
+                <h3>Tóm Tắt</h3>
+                <div id="summary-content">
+                    <p>Hãy chọn các yếu tố ưu tiên và gửi yêu cầu.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>⚠️ Thông báo quan trọng:</strong>
+            Tất cả thông tin và giấy tờ minh chứng sẽ được kiểm tra bởi admin. Những giấy tờ không hợp lệ hoặc giả mạo sẽ bị từ chối. 
+            Chỉ khi được admin phê duyệt, các yếu tố mới được tính vào điểm ưu tiên phân bổ phòng.
+        </div>
+    </div>
+
+    <script>
+        let currentClaim = null;
+
+        // Checkbox handlers
+        ['hardship', 'minority', 'scholarship', 'orphan', 'disability'].forEach(type => {
+            const checkbox = document.getElementById(`${type}-checkbox`);
+            const form = document.getElementById(`${type}-form`);
+            checkbox.addEventListener('change', (e) => {
+                form.style.display = e.target.checked ? 'block' : 'none';
+            });
+        });
+
+        // File name display
+        ['hardship', 'minority', 'scholarship', 'orphan', 'disability'].forEach(type => {
+            const fileInput = document.getElementById(`${type}-file`);
+            const filenameSpan = document.getElementById(`${type}-filename`);
+            fileInput.addEventListener('change', (e) => {
+                filenameSpan.textContent = e.target.files[0]?.name || '';
+            });
+        });
+
+        // Load current claims
+        async function loadClaims() {
+            try {
+                const response = await fetch('/api/priority-claims/my-claims');
+                const data = await response.json();
+                
+                if (!data.success) throw new Error(data.error);
+                
+                currentClaim = data.claim;
+                updateUI();
+            } catch (error) {
+                showMessage('Lỗi tải dữ liệu: ' + error.message, 'error');
+            }
+        }
+
+        function updateUI() {
+            if (!currentClaim) return;
+
+            ['hardship', 'minority', 'scholarship', 'orphan', 'disability'].forEach(type => {
+                const claimData = currentClaim.claims[type === 'hardship' ? 'financialHardship' : type];
+                if (!claimData) return;
+
+                const checkbox = document.getElementById(`${type}-checkbox`);
+                const form = document.getElementById(`${type}-form`);
+                const status = document.getElementById(`${type}-status`);
+
+                checkbox.checked = claimData.claimed;
+                form.style.display = claimData.claimed ? 'block' : 'none';
+
+                // Update status badge
+                const statusClass = `status-${claimData.status.toLowerCase()}`;
+                status.className = `status-badge ${statusClass}`;
+                status.textContent = claimData.status;
+            });
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            let html = '';
+            let totalScore = 0;
+
+            Object.keys(currentClaim.claims).forEach(type => {
+                const claim = currentClaim.claims[type];
+                if (claim.claimed) {
+                    const typeLabel = {
+                        'financialHardship': 'Diện khó khăn tài chính',
+                        'minority': 'Dân tộc thiểu số',
+                        'scholarship': 'Học bổng',
+                        'orphan': 'Trẻ mồ côi',
+                        'disability': 'Khuyết tật'
+                    }[type];
+
+                    const score = currentClaim.calculatedScore[type] || 0;
+                    totalScore += score;
+
+                    html += `
+                        <div class="summary-item">
+                            <span>${typeLabel}: <strong>${claim.status}</strong></span>
+                            <span>+${score} điểm</span>
+                        </div>
+                    `;
+                }
+            });
+
+            if (html) {
+                html += `<div class="total-score">
+                    <span>Tổng điểm ưu tiên:</span>
+                    <span class="score-value">+${totalScore}</span>
+                </div>`;
+            } else {
+                html = '<p>Chưa có yêu cầu nào được gửi.</p>';
+            }
+
+            document.getElementById('summary-content').innerHTML = html;
+        }
+
+        async function submitClaim(claimType) {
+            const typeKey = claimType === 'financialHardship' ? 'hardship' : claimType;
+            const fileInput = document.getElementById(`${typeKey}-file`);
+
+            if (!fileInput.files[0]) {
+                showMessage('Vui lòng chọn file minh chứng', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+            formData.append('claimType', claimType);
+
+            // Add additional data
+            if (claimType === 'financialHardship') {
+                formData.append('reason', document.getElementById('hardship-reason').value);
+            } else if (claimType === 'minority') {
+                formData.append('ethnicity', document.getElementById('minority-ethnicity').value);
+            } else if (claimType === 'scholarship') {
+                formData.append('scholarshipType', document.getElementById('scholarship-type').value);
+            } else if (claimType === 'disability') {
+                formData.append('disabilityLevel', document.getElementById('disability-level').value);
+            }
+
+            try {
+                const response = await fetch('/api/priority-claims/submit-claim', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (!data.success) throw new Error(data.error);
+
+                currentClaim = data.claim;
+                updateUI();
+                showMessage('Đã gửi yêu cầu! Admin sẽ duyệt trong 3-5 ngày.', 'success');
+                
+                // Clear form
+                document.getElementById(`${typeKey}-checkbox`).checked = false;
+                document.getElementById(`${typeKey}-form`).style.display = 'none';
+            } catch (error) {
+                showMessage('Lỗi gửi yêu cầu: ' + error.message, 'error');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const msgDiv = document.getElementById('message');
+            msgDiv.textContent = msg;
+            msgDiv.className = `message ${type}`;
+            setTimeout(() => {
+                msgDiv.className = 'message';
+            }, 5000);
+        }
+
+        // Load on startup
+        loadClaims();
+    </script>
+</body>
+</html>

@@ -5,8 +5,10 @@ const {
     PendingApplicationCollection, 
     StudentCollection, 
     ActivityLogCollection,
-    AcademicWindowCollection 
+    AcademicWindowCollection
 } = require('../../config/config');
+const Notification = require('../../schemas/NotificationSchema');
+const ApplicationReviewHistory = require('../../schemas/ApplicationReviewHistorySchema');
 const { isValidObjectId } = require('mongoose');
 
 const isAdmin = (req, res, next) => {
@@ -125,21 +127,59 @@ router.get('/admin/applications/statistics', isAdmin, async (req, res) => {
     }
 });
 
-// API lấy danh sách đơn đăng ký
+// HTML Route - Render applications list page
 router.get('/admin/applications', isAdmin, async (req, res) => {
     try {
-        const { status, academicYear } = req.query;
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.render('admin/application/admin-application', { 
+            user: req.session || { name: 'Admin' }
+        });
+    } catch (error) {
+        console.error('[Admin Applications List] Render error:', error);
+        res.status(500).render('500', { 
+            error: 'Lỗi hệ thống',
+            message: 'Không thể tải trang danh sách đơn đăng ký'
+        });
+    }
+});
+
+// API lấy danh sách đơn đăng ký
+router.get('/admin/applications/list', isAdmin, async (req, res) => {
+    try {
+        const { status, academicYear, search = '' } = req.query;
 
         const filter = {};
-        if (status) {
+        
+        // Only filter by status if it's not 'all'
+        if (status && status !== 'all') {
             filter.status = status;
         }
+        
         if (academicYear) {
             filter.academicYear = academicYear;
         }
 
+        // Add search by student name or ID or email
+        if (search) {
+            filter.$or = [
+                { fullName: { $regex: search, $options: 'i' } },
+                { studentId: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        console.log('[Admin Applications Route] Query:', { status, academicYear, search });
+        console.log('[Admin Applications Route] MongoDB filter:', JSON.stringify(filter, null, 2));
+
+        // Count all docs first
+        const totalDocs = await PendingApplicationCollection.countDocuments({});
+        console.log('[Admin Applications Route] Total docs in collection:', totalDocs);
+
         const applications = await PendingApplicationCollection.find(filter)
             .sort({ createdAt: -1 });
+        
+        console.log('[Admin Applications Route] Found after filter:', applications.length);
+        console.log('[Admin Applications Route] Sample app statuses:', applications.slice(0, 3).map(a => ({ _id: a._id, status: a.status, fullName: a.fullName })));
             
         const applicationData = await Promise.all(applications.map(async (app) => {
             const dormitory = await DormitoryCollection.findById(app.dormitoryId);
@@ -174,7 +214,10 @@ router.get('/admin/applications', isAdmin, async (req, res) => {
                 comments: app.comments,
                 payment: app.payment || { paid: false },
                 roomCapacity: roomInfo.capacity,
-                currentOccupants: roomInfo.occupants
+                currentOccupants: roomInfo.occupants,
+                priorityScore: app.priorityScore,
+                priorityBreakdown: app.priorityBreakdown,
+                priorityPolicies: app.priorityPolicies
             };
         }));
         
@@ -234,6 +277,8 @@ router.get('/admin/applications/:id', isAdmin, validateObjectId, async (req, res
             console.error('Error checking student existence:', error);
         }
         
+        console.log('[Admin Application Detail] priorityPolicies from DB:', application.priorityPolicies);
+        
         const applicationDetails = {
             _id: application._id,
             studentId: application.studentId,
@@ -256,6 +301,8 @@ router.get('/admin/applications/:id', isAdmin, validateObjectId, async (req, res
             preferredDormitories: application.preferredDormitories || [],
             preferredGenderPolicy: application.preferredGenderPolicy || 'any',
             roomType: application.roomType || 'any',
+            priorityPolicies: application.priorityPolicies || [],
+            priorityScore: application.priorityScore || 0,
             studentExistsInfo: studentExistsInfo,
             canApprove: !studentExistsInfo && currentOccupants < roomCapacity
         };
@@ -270,27 +317,101 @@ router.get('/admin/applications/:id', isAdmin, validateObjectId, async (req, res
     }
 });
 
+// HTML Page Route - Render detail page
+router.get('/admin/application/:id', isAdmin, validateObjectId, async (req, res) => {
+    try {
+        const application = await PendingApplicationCollection.findById(req.params.id);
+        
+        if (!application) {
+            return res.status(404).render('404', { 
+                message: 'Không tìm thấy đơn đăng ký' 
+            });
+        }
+        
+        const dormitory = await DormitoryCollection.findById(application.dormitoryId);
+        let room = null;
+        let floor = null;
+        
+        if (dormitory) {
+            for (const f of dormitory.floors) {
+                const r = f.rooms.find(r => r.roomNumber === application.roomNumber);
+                if (r) {
+                    room = r;
+                    floor = f;
+                    break;
+                }
+            }
+        }
+ 
+        let roomCapacity = 0;
+        let currentOccupants = 0;
+        
+        if (room) {
+            roomCapacity = room.maxCapacity;
+            currentOccupants = room.occupants.filter(o => o.active).length;
+        }
+
+        // Kiểm tra sinh viên đã tồn tại trong hệ thống chưa
+        let studentExistsInfo = null;
+        try {
+            const existingStudent = await checkStudentExistsInSystem(application.studentId, application.fullName || application.name);
+            if (existingStudent.exists) {
+                studentExistsInfo = existingStudent.location;
+            }
+        } catch (error) {
+            console.error('Error checking student existence:', error);
+        }
+        
+        const applicationDetails = {
+            _id: application._id,
+            studentId: application.studentId,
+            fullName: application.fullName || application.name,
+            email: application.email,
+            phone: application.phone,
+            faculty: application.faculty,
+            academicYear: application.academicYear,
+            gender: application.gender,
+            dormitoryId: application.dormitoryId,
+            dormitoryName: dormitory ? dormitory.name : 'Không xác định',
+            roomNumber: application.roomNumber,
+            roomCapacity: roomCapacity,
+            currentOccupants: currentOccupants,
+            isRoomFull: currentOccupants >= roomCapacity,
+            status: application.status,
+            createdAt: application.createdAt,
+            comments: application.comments,
+            payment: application.payment || { paid: false },
+            preferredDormitories: application.preferredDormitories || [],
+            preferredGenderPolicy: application.preferredGenderPolicy || 'any',
+            roomType: application.roomType || 'any',
+            priorityPolicies: application.priorityPolicies || [],
+            priorityScore: application.priorityScore || 0,
+            studentExistsInfo: studentExistsInfo,
+            canApprove: !studentExistsInfo && currentOccupants < roomCapacity
+        };
+
+        res.setHeader('Content-Type', 'text/html; charset=utf-8');
+        res.render('admin/application/app-detail', { 
+            user: req.session || { name: 'Admin' },
+            application: applicationDetails
+        });
+    } catch (error) {
+        console.error('[Admin Application Detail Page] Render error:', error);
+        res.status(500).render('500', { 
+            error: 'Lỗi hệ thống',
+            message: 'Không thể tải trang chi tiết đơn đăng ký'
+        });
+    }
+});
+
 // API duyệt/từ chối đơn đăng ký
 router.post('/admin/applications/:id/approve', isAdmin, validateObjectId, async (req, res) => {
     try {
         const appDoc = await PendingApplicationCollection.findById(req.params.id);
         if (!appDoc) return res.status(404).json({ error: 'Not found' });
         
-        if (!['pending_review', 'waitlist'].includes(appDoc.status)) 
+        if (!['pending_review', 'pending', 'waitlist'].includes(appDoc.status)) 
             return res.status(400).json({ error: 'Invalid state' });
-        
-        // Kiểm tra sinh viên đã tồn tại trong hệ thống chưa
-        const existingStudent = await checkStudentExistsInSystem(appDoc.studentId, appDoc.name || appDoc.fullName);
-        if (existingStudent.exists) {
-            const location = existingStudent.location;
-            const fieldType = existingStudent.type === 'studentId' ? 'Mã sinh viên' : 'Tên sinh viên';
-            const fieldValue = existingStudent.type === 'studentId' ? appDoc.studentId : (appDoc.name || appDoc.fullName);
-            
-            return res.status(400).json({ 
-                success: false, 
-                error: `${fieldType} "${fieldValue}" đã được đăng ký tại ${location.dormitoryName} - Tầng ${location.floorNumber} - Phòng ${location.roomNumber}. Không thể duyệt đơn đăng ký này!` 
-            });
-        }
         
         // Cập nhật trạng thái đơn
         appDoc.status = 'approved_waiting_payment';
@@ -308,14 +429,19 @@ router.post('/admin/applications/:id/approve', isAdmin, validateObjectId, async 
         
         // Ghi log hoạt động
         await ActivityLogCollection.create({ 
-            actorId: req.session.userId || null, 
-            actorRole: 'admin', 
+            userId: req.session.userId || null, 
             action: 'application_approved', 
-            meta: { applicationId: appDoc._id } 
+            description: `Admin approved application for ${appDoc.fullName} (${appDoc.studentId})`,
+            details: { 
+                applicationId: appDoc._id,
+                studentId: appDoc.studentId,
+                dormitoryId: appDoc.dormitoryId,
+                roomNumber: appDoc.roomNumber
+            } 
         });
         
-        // Gửi thông báo cho sinh viên (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
+        // Gửi thông báo cho sinh viên (nếu có bản ghi sinh viên)
+        if (student && typeof global.sendNotificationOnEvent === 'function') {
             await global.sendNotificationOnEvent('registration_approved', student._id, {
                 applicationId: appDoc._id
             });
@@ -354,10 +480,14 @@ router.post('/admin/applications/:id/reject', isAdmin, validateObjectId, async (
         
         // Ghi log hoạt động
         await ActivityLogCollection.create({ 
-            actorId: req.session.userId || null, 
-            actorRole: 'admin', 
+            userId: req.session.userId || null, 
             action: 'application_rejected', 
-            meta: { applicationId: appDoc._id, reason: req.body.reason } 
+            description: `Admin rejected application for ${appDoc.fullName} (${appDoc.studentId})`,
+            details: { 
+                applicationId: appDoc._id,
+                studentId: appDoc.studentId,
+                reason: req.body.reason || 'Không đáp ứng điều kiện'
+            } 
         });
         
         // Gửi thông báo cho sinh viên (nếu có)
@@ -722,9 +852,9 @@ router.post('/admin/applications/:id/check-out', isAdmin, validateObjectId, asyn
 });
 
 // API quản lý niên học
-router.get('/admin/academic-windows', isAdmin, async (req, res) => {
+router.get('/api/admin/academic-windows', isAdmin, async (req, res) => {
     try {
-        const items = await AcademicWindowCollection.find({}).sort({ year: -1 });
+        const items = await AcademicWindowCollection.find({}).sort({ createdAt: -1 });
         res.json(items);
     } catch (error) {
         console.error('Error fetching academic windows:', error);
@@ -732,8 +862,196 @@ router.get('/admin/academic-windows', isAdmin, async (req, res) => {
     }
 });
 
-// API tạo/cập nhật niên học
-router.post('/admin/academic-windows/upsert', isAdmin, async (req, res) => {
+// API tạo niên học
+router.post('/api/admin/academic-windows', isAdmin, async (req, res) => {
+    try {
+        const { 
+            academicYear,
+            startDate, 
+            endDate,
+            status = 'upcoming',
+            description,
+            allowedAcademicYears
+        } = req.body;
+        
+        const doc = await AcademicWindowCollection.create({
+            academicYear,
+            startDate: new Date(startDate), 
+            endDate: new Date(endDate), 
+            status,
+            description,
+            allowedAcademicYears: allowedAcademicYears || ['1', '2', '3', '4', '5', '6']
+        });
+        
+        res.json(doc);
+    } catch (error) {
+        console.error('Error creating academic window:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API cập nhật niên học
+router.put('/api/admin/academic-windows/:id', isAdmin, async (req, res) => {
+    try {
+        const { 
+            academicYear,
+            startDate, 
+            endDate,
+            status,
+            description,
+            allowedAcademicYears
+        } = req.body;
+        
+        const doc = await AcademicWindowCollection.findByIdAndUpdate(
+            req.params.id,
+            { 
+                academicYear,
+                startDate: new Date(startDate), 
+                endDate: new Date(endDate), 
+                status,
+                description,
+                allowedAcademicYears: allowedAcademicYears || ['1', '2', '3', '4', '5', '6'],
+                updatedAt: new Date()
+            },
+            { new: true }
+        );
+        
+        if (!doc) {
+            return res.status(404).json({ error: 'Không tìm thấy' });
+        }
+        
+        res.json(doc);
+    } catch (error) {
+        console.error('Error updating academic window:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API xóa niên học
+router.delete('/api/admin/academic-windows/:id', isAdmin, async (req, res) => {
+    try {
+        const doc = await AcademicWindowCollection.findByIdAndDelete(req.params.id);
+        
+        if (!doc) {
+            return res.status(404).json({ error: 'Không tìm thấy' });
+        }
+        
+        res.json({ success: true, message: 'Đã xóa' });
+    } catch (error) {
+        console.error('Error deleting academic window:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API kích hoạt niên học (set status = active, các cái khác về upcoming)
+router.post('/api/admin/academic-windows/:id/activate', isAdmin, async (req, res) => {
+    try {
+        // Check if there's already an active window
+        const activeWindow = await AcademicWindowCollection.findOne({ 
+            status: 'active',
+            _id: { $ne: req.params.id }
+        });
+        
+        if (activeWindow) {
+            return res.status(400).json({ 
+                error: 'Đã có đợt đăng ký đang mở. Vui lòng đóng đợt hiện tại trước khi mở đợt mới.',
+                activeWindow: activeWindow
+            });
+        }
+        
+        // Set all others to upcoming
+        await AcademicWindowCollection.updateMany(
+            { _id: { $ne: req.params.id } },
+            { $set: { status: 'upcoming', updatedAt: new Date() } }
+        );
+        
+        // Set this one to active
+        const doc = await AcademicWindowCollection.findByIdAndUpdate(
+            req.params.id,
+            { $set: { status: 'active', updatedAt: new Date() } },
+            { new: true }
+        );
+        
+        if (!doc) {
+            return res.status(404).json({ error: 'Không tìm thấy' });
+        }
+        
+        // Send notifications to eligible students
+        try {
+            const allowedYears = doc.allowedAcademicYears || ['1', '2', '3', '4', '5', '6'];
+            let query = {};
+            
+            if (!allowedYears.includes('all')) {
+                query.academicYear = { $in: allowedYears };
+            }
+            
+            const eligibleStudents = await StudentCollection.find(query);
+            
+            if (eligibleStudents && eligibleStudents.length > 0) {
+                const startDate = new Date(doc.startDate).toLocaleDateString('vi-VN');
+                const endDate = new Date(doc.endDate).toLocaleDateString('vi-VN');
+                const notificationMessage = `Đợt đăng ký KTX năm học ${doc.academicYear} đã mở từ ${startDate} đến ${endDate}. Vui lòng đăng ký kịp thời!`;
+                
+                // Create notifications for each eligible student
+                const notificationPromises = eligibleStudents.map(student => {
+                    return Notification.create({
+                        userId: student._id,
+                        type: 'system',
+                        title: `Đợt đăng ký KTX ${doc.academicYear} đã mở`,
+                        message: notificationMessage,
+                        channels: {
+                            inApp: {
+                                sent: true,
+                                sentAt: new Date(),
+                                read: false
+                            }
+                        },
+                        data: {
+                            windowId: doc._id,
+                            academicYear: doc.academicYear,
+                            startDate: doc.startDate,
+                            endDate: doc.endDate
+                        }
+                    });
+                });
+                
+                await Promise.all(notificationPromises);
+                console.log(`Sent registration window notifications to ${eligibleStudents.length} students`);
+            }
+        } catch (notificationError) {
+            console.error('Error sending notifications:', notificationError);
+            // Don't fail the request if notification fails
+        }
+        
+        res.json(doc);
+    } catch (error) {
+        console.error('Error activating academic window:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API đóng niên học
+router.post('/api/admin/academic-windows/:id/deactivate', isAdmin, async (req, res) => {
+    try {
+        const doc = await AcademicWindowCollection.findByIdAndUpdate(
+            req.params.id,
+            { $set: { status: 'closed', updatedAt: new Date() } },
+            { new: true }
+        );
+        
+        if (!doc) {
+            return res.status(404).json({ error: 'Không tìm thấy' });
+        }
+        
+        res.json(doc);
+    } catch (error) {
+        console.error('Error deactivating academic window:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API tạo/cập nhật niên học (legacy, kept for compatibility)
+router.post('/api/admin/academic-windows/upsert', isAdmin, async (req, res) => {
     try {
         const { 
             year, 
@@ -1009,6 +1327,262 @@ router.get('/admin/dormitories/:dormId/students', isAdmin, async (req, res) => {
     } catch (error) {
         console.error('Error fetching dormitory students:', error);
         res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API: Get room details
+router.get('/dormitories/:dormId/rooms/:floorNumber/:roomNumber', isAdmin, async (req, res) => {
+    try {
+        const { dormId, floorNumber, roomNumber } = req.params;
+
+        console.log('[Room Details API] params', { dormId, floorNumber, roomNumber });
+
+        const dorm = await DormitoryCollection.findById(dormId);
+        if (!dorm) {
+            console.log('[Room Details API] dorm not found', dormId);
+            return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
+        }
+
+        console.log('[Room Details API] available floors', dorm.floors?.map(f => f.floorNumber));
+        const normalizedFloor = String(floorNumber).trim();
+        const floor = dorm.floors.find(f => String(f.floorNumber) === normalizedFloor);
+        if (!floor) {
+            console.log('[Room Details API] floor not found', { requested: normalizedFloor, available: dorm.floors?.map(f => String(f.floorNumber)) });
+            return res.status(404).json({ error: 'Không tìm thấy tầng' });
+        }
+
+        console.log('[Room Details API] floor rooms', floor.rooms?.map(r => r.roomNumber));
+        const normalizedRoom = String(roomNumber).trim();
+        const room = floor.rooms.find(r => String(r.roomNumber) === normalizedRoom);
+        if (!room) {
+            console.log('[Room Details API] room not found', { requested: normalizedRoom, available: floor.rooms?.map(r => String(r.roomNumber)) });
+            return res.status(404).json({ error: 'Không tìm thấy phòng' });
+        }
+
+        // Get student details for occupants
+        // Check if occupants have 'active' field, default to true if missing
+        const activeOccupants = room.occupants.filter(o => o.active !== false);
+        const occupantIds = activeOccupants.map(o => o.studentId);
+        const studentDetails = await StudentCollection.find({ studentId: { $in: occupantIds } });
+
+        const occupantsWithDetails = activeOccupants
+            .map(occupant => {
+                const student = studentDetails.find(s => s.studentId === occupant.studentId);
+                return {
+                    _id: occupant._id,
+                    studentId: occupant.studentId,
+                    name: occupant.name,
+                    email: student?.email || '',
+                    phone: student?.phone || '',
+                    academicYear: student?.academicYear || '',
+                    checkInDate: occupant.checkInDate,
+                    status: occupant.status
+                };
+            });
+
+        res.status(200).json({
+            success: true,
+            dormitory: {
+                _id: dorm._id,
+                name: dorm.name
+            },
+            room: {
+                floorNumber: floor.floorNumber,
+                roomNumber: room.roomNumber,
+                roomType: room.roomType || room.type,
+                maxCapacity: room.maxCapacity,
+                currentOccupants: occupantsWithDetails.length,
+                status: room.status,
+                genderPolicy: room.genderPolicy,
+                pricePerMonth: room.pricePerMonth,
+                occupants: occupantsWithDetails
+            }
+        });
+    } catch (error) {
+        console.error('Error fetching room details:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API: Remove student from room
+router.delete('/dormitories/:dormId/rooms/:floorNumber/:roomNumber/occupants/:occupantId', isAdmin, async (req, res) => {
+    try {
+        const { dormId, floorNumber, roomNumber, occupantId } = req.params;
+
+        const dorm = await DormitoryCollection.findById(dormId);
+        if (!dorm) {
+            return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
+        }
+
+        const floor = dorm.floors.find(f => f.floorNumber === parseInt(floorNumber));
+        if (!floor) {
+            return res.status(404).json({ error: 'Không tìm thấy tầng' });
+        }
+
+        const room = floor.rooms.find(r => r.roomNumber === roomNumber);
+        if (!room) {
+            return res.status(404).json({ error: 'Không tìm thấy phòng' });
+        }
+
+        // Find and remove occupant
+        const occupantIndex = room.occupants.findIndex(o => o._id.toString() === occupantId);
+        if (occupantIndex === -1) {
+            return res.status(404).json({ error: 'Không tìm thấy sinh viên trong phòng' });
+        }
+
+        const removedOccupant = room.occupants[occupantIndex];
+        room.occupants[occupantIndex].active = false;
+        room.occupants[occupantIndex].checkOutDate = new Date();
+
+        await dorm.save();
+
+        // Update student record
+        const student = await StudentCollection.findOne({ studentId: removedOccupant.studentId });
+        if (student) {
+            student.registrationStatus = null;
+            student.assignedRoom = null;
+            student.assignedDormitory = null;
+            await student.save();
+        }
+
+        res.status(200).json({
+            success: true,
+            message: `Đã xóa sinh viên ${removedOccupant.name} khỏi phòng`
+        });
+    } catch (error) {
+        console.error('Error removing student from room:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API: Delete all pending and approved applications
+router.post('/admin/cleanup/applications', isAdmin, async (req, res) => {
+    try {
+        const result = await PendingApplicationCollection.deleteMany({
+            status: { $in: ['pending', 'approved'] }
+        });
+        res.json({ success: true, message: `Deleted ${result.deletedCount} applications` });
+    } catch (error) {
+        console.error('Error deleting applications:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API: Clear all occupants from dormitories
+router.post('/admin/cleanup/occupants', isAdmin, async (req, res) => {
+    try {
+        const dorms = await DormitoryCollection.find({});
+        let totalRemoved = 0;
+
+        for (const dorm of dorms) {
+            for (const floor of dorm.floors) {
+                for (const room of floor.rooms) {
+                    const activeCount = room.occupants.filter(o => o.active).length;
+                    // Mark occupants as inactive instead of removing them
+                    room.occupants.forEach(occ => {
+                        if (occ.active) {
+                            occ.active = false;
+                            occ.checkOutDate = new Date();
+                        }
+                    });
+                    totalRemoved += activeCount;
+                }
+            }
+            // Use updateOne to avoid validation issues
+            await DormitoryCollection.updateOne(
+                { _id: dorm._id },
+                { $set: { floors: dorm.floors } }
+            );
+        }
+
+        // Reset all students
+        await StudentCollection.updateMany(
+            {},
+            {
+                $set: {
+                    registrationStatus: null,
+                    assignedRoom: null,
+                    assignedDormitory: null
+                }
+            }
+        );
+
+        res.json({ success: true, message: `Removed ${totalRemoved} occupants from all rooms` });
+    } catch (error) {
+        console.error('Error clearing occupants:', error);
+        res.status(500).json({ error: 'Lỗi hệ thống' });
+    }
+});
+
+// API: Save approval/rejection and add to history
+router.post('/admin/application/:id/review', isAdmin, validateObjectId, async (req, res) => {
+    try {
+        const { action, reason, comments } = req.body;
+        const applicationId = req.params.id;
+
+        if (!['approved', 'rejected'].includes(action)) {
+            return res.status(400).json({ 
+                success: false, 
+                error: 'Action không hợp lệ' 
+            });
+        }
+
+        // Get application details
+        const application = await PendingApplicationCollection.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ 
+                success: false, 
+                error: 'Đơn đăng ký không tồn tại' 
+            });
+        }
+
+        // Save to review history
+        const reviewHistory = new ApplicationReviewHistory({
+            applicationId: applicationId,
+            studentId: application.studentId,
+            studentName: application.fullName,
+            action: action,
+            reviewedBy: req.session.userId,
+            reviewedByName: req.session.name || 'Admin',
+            reviewedByEmail: req.session.email || '',
+            reason: reason,
+            comments: comments
+        });
+
+        await reviewHistory.save();
+
+        // Update application status
+        await PendingApplicationCollection.findByIdAndUpdate(
+            applicationId,
+            { 
+                status: action === 'approved' ? 'approved' : 'rejected',
+                rejectionReason: action === 'rejected' ? reason : undefined
+            }
+        );
+
+        res.json({ 
+            success: true, 
+            message: `Đơn ${action === 'approved' ? 'đã duyệt' : 'bị từ chối'} thành công` 
+        });
+    } catch (error) {
+        console.error('Error reviewing application:', error);
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
+});
+
+// API: Get review history for an application
+router.get('/admin/application/:id/review-history', isAdmin, validateObjectId, async (req, res) => {
+    try {
+        const applicationId = req.params.id;
+        
+        const history = await ApplicationReviewHistory
+            .find({ applicationId: applicationId })
+            .sort({ createdAt: -1 });
+
+        res.json({ success: true, history });
+    } catch (error) {
+        console.error('Error getting review history:', error);
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
     }
 });
 

@@ -3,22 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Ký túc xá - Admin</title>
+    <title>Quản lý Ký túc xá</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #e61a1a;
-            --primary-hover: #c01515;
-            --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --bg-light: #f8f9fa;
-            --border-color: #e9ecef;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-        }
-
         * {
             margin: 0;
             padding: 0;
@@ -28,560 +16,469 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #f5f7fa;
-            color: var(--text-dark);
+            color: #2c3e50;
         }
 
-        /* ADMIN HEADER */
-        .admin-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            background: white;
-            z-index: 2000;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .admin-header-container {
-            max-width: 1600px;
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 20px;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
         }
 
-        .admin-logo {
+        .header h1 {
+            color: #2c3e50;
+            font-size: 28px;
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            gap: 10px;
+            margin: 0;
         }
 
-        .admin-logo img {
-            height: 40px;
-            width: auto;
-            transition: transform 0.3s ease;
-        }
-
-        .admin-logo:hover img {
-            transform: scale(1.05);
-        }
-
-        .admin-logo-text {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .admin-nav {
+        .header-actions {
             display: flex;
-            align-items: center;
-            gap: 3rem;
-            flex: 1;
-            margin: 0 3rem;
+            gap: 10px;
         }
 
-        .admin-nav-links {
-            display: flex;
-            gap: 2.5rem;
-            list-style: none;
-        }
-
-        .admin-nav-link {
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.5rem 0;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .admin-nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), #ff6b6b);
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .admin-nav-link:hover {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link:hover::before {
-            width: 100%;
-        }
-
-        .admin-nav-link.active {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link.active::before {
-            width: 100%;
-        }
-
-        .admin-nav-link i {
-            margin-right: 8px;
-        }
-
-        .admin-user-section {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .admin-user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
             cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .admin-user-profile:hover {
-            background: var(--bg-light);
+        .btn-primary {
+            background: #d63031;
+            color: white;
         }
 
-        .admin-user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
+        .btn-primary:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(214, 48, 49, 0.3);
+            color: white;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card:nth-child(1) {
+            border-left: 4px solid #3498db;
+        }
+
+        .stat-card:nth-child(2) {
+            border-left: 4px solid #2ecc71;
+        }
+
+        .stat-card:nth-child(3) {
+            border-left: 4px solid #f39c12;
+        }
+
+        .stat-card:nth-child(4) {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .stat-card:nth-child(1) .stat-value { color: #3498db; }
+        .stat-card:nth-child(2) .stat-value { color: #2ecc71; }
+        .stat-card:nth-child(3) .stat-value { color: #f39c12; }
+        .stat-card:nth-child(4) .stat-value { color: #d63031; }
+
+        .stat-label {
+            font-size: 13px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Dormitories Grid */
+        .dormitories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .dormitory-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .dormitory-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            background: linear-gradient(135deg, #fff 0%, #fff5f5 100%);
+        }
+
+        .dormitory-card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .dormitory-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .dormitory-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .dormitory-image.no-image {
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: var(--shadow-sm);
         }
 
-        .admin-user-info {
+        .dormitory-image.no-image i {
+            font-size: 64px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .dormitory-content {
+            padding: 20px;
+        }
+
+        .dormitory-header {
             display: flex;
-            flex-direction: column;
-        }
-
-        .admin-user-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        .admin-user-role {
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-
-        .admin-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            min-width: 220px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            overflow: hidden;
-        }
-
-        .admin-user-profile:hover .admin-dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .admin-dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 0.85rem 1.25rem;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .admin-dropdown-item:hover {
-            background: var(--bg-light);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .admin-dropdown-item i {
-            margin-right: 12px;
-            width: 20px;
-        }
-
-        .admin-dropdown-item.logout {
-            color: #e74c3c;
-        }
-
-        .admin-dropdown-item.logout:hover {
-            background: #ffe6e6;
-            border-left-color: #e74c3c;
-        }
-
-        .admin-menu-toggle {
-            display: none;
-            flex-direction: column;
             justify-content: space-between;
-            width: 28px;
-            height: 20px;
-            cursor: pointer;
+            align-items: start;
+            margin-bottom: 15px;
         }
 
-        .admin-menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
-            background: var(--primary-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
+        .dormitory-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
         }
 
-        .admin-content {
-            padding-top: 90px;
-            min-height: 100vh;
+        .dormitory-address {
+            color: #999;
+            font-size: 0.85rem;
         }
 
-        /* DORMITORY CARDS */
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .dorm-card {
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            margin-bottom: 20px;
-            box-shadow: var(--shadow-sm);
-            background: white;
-        }
-
-        .dorm-card:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-5px);
-        }
-
-        .dorm-header {
-            padding: 15px 20px;
-            background: var(--bg-light);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .dorm-title {
-            margin: 0;
-            font-weight: 600;
-            color: var(--primary-color);
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
-
-        .dorm-title:hover {
-            text-decoration: underline;
-        }
-
-        .type-badge, .category-badge {
-            padding: 5px 12px;
+        .dormitory-status {
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 0.75rem;
             font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-full {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .type-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-top: 5px;
+            margin-right: 5px;
         }
 
         .type-school {
-            background-color: #d4edda;
+            background: #d4edda;
             color: #155724;
         }
 
         .type-private {
-            background-color: #f8d7da;
-            color: #721c24;
+            background: #fff3cd;
+            color: #856404;
         }
 
         .category-basic {
-            background-color: #d1ecf1;
+            background: #d1ecf1;
             color: #0c5460;
         }
 
         .category-premium {
-            background-color: #e2d9f3;
+            background: #e2d9f3;
             color: #563d7c;
         }
 
         .category-international {
-            background-color: #fff3cd;
+            background: #fff3cd;
             color: #856404;
         }
 
-        .stat-box {
-            background: var(--bg-light);
-            padding: 12px;
-            border-radius: 8px;
-            text-align: center;
+        .dormitory-info {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 15px 0;
         }
 
-        .stat-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .stat-label {
-            font-size: 0.8rem;
-            color: var(--text-light);
-            margin-top: 4px;
-        }
-
-        .occupancy-bar {
-            height: 8px;
-            background: #e9ecef;
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .occupancy-fill {
-            height: 100%;
-            background: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-
-        .room-preview {
+        .info-item {
             display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .info-item i {
+            color: #d63031;
+            width: 20px;
+        }
+
+        .progress-section {
+            margin: 15px 0;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            color: #666;
+        }
+
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: #ecf0f1;
+        }
+
+        .progress-bar {
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .dormitory-actions {
+            display: none;
+        }
+
+        .btn-info, .btn-warning, .btn-danger {
+            display: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 10px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: #555;
             margin-bottom: 10px;
         }
 
-        .room-box {
-            width: 32px;
-            height: 32px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 11px;
-            color: white;
-            font-weight: 700;
+        .empty-state p {
+            color: #999;
         }
 
-        .room-empty {
-            background: #28a745;
-        }
-
-        .room-partial {
-            background: #ffc107;
-        }
-
-        .room-full {
-            background: #dc3545;
-        }
-
-        .dropdown {
-    position: relative;
-}
-
-.dropdown-toggle::after {
-    content: '';
-    display: inline-block;
-    margin-left: 8px;
-    vertical-align: middle;
-    border-top: 4px solid;
-    border-right: 4px solid transparent;
-    border-left: 4px solid transparent;
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    min-width: 220px;
-    padding: 0.5rem 0;
-    margin-top: 0.5rem;
-    z-index: 1000;
-    display: none;
-}
-
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
-
-.dropdown-menu .dropdown-item {
-    display: flex;
-    align-items: center;
-    padding: 0.75rem 1.25rem;
-    color: var(--text-dark);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    border-left: 3px solid transparent;
-}
-
-.dropdown-menu .dropdown-item:hover {
-    background: var(--bg-light);
-    border-left-color: var(--primary-color);
-    color: var(--primary-color);
-}
-
-.dropdown-menu .dropdown-item i {
-    margin-right: 10px;
-    width: 18px;
-}
-
-        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .admin-menu-toggle {
-                display: flex;
+            .container {
+                padding: 10px;
             }
 
-            .admin-nav {
-                position: fixed;
-                top: 70px;
-                right: -100%;
-                width: 280px;
-                height: calc(100vh - 70px);
-                background: white;
+            .header {
                 flex-direction: column;
-                gap: 0;
-                margin: 0;
-                padding: 2rem 0;
-                box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
-                transition: right 0.3s ease;
+                gap: 15px;
             }
 
-            .admin-nav.active {
-                right: 0;
+            .stats-grid {
+                grid-template-columns: 1fr;
             }
 
-            .admin-nav-links {
-                flex-direction: column;
-                gap: 0;
-                width: 100%;
-            }
-
-            .admin-nav-link {
-                padding: 1rem 2rem;
-                border-bottom: 1px solid var(--border-color);
-                width: 100%;
-            }
-
-            .admin-user-info {
-                display: flex;
+            .dormitories-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <!-- ADMIN HEADER -->
-    <header class="admin-header">
-        <div class="admin-header-container">
-            <a href="/admin/dashboard" class="admin-logo">
-                <img src="/image/logo.png" alt="Logo">
-                <span class="admin-logo-text">KTX HUST</span>
-            </a>
+    <%- include('../navbar', { activeNav: 'dormitories' }) %>
 
-            <div class="admin-menu-toggle" id="menuToggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-
-            <nav class="admin-nav" id="adminNav">
-                <ul class="admin-nav-links">
-    <li><a href="/admin/dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-    <li><a href="/admin/dormitories" class="admin-nav-link active"><i class="fas fa-building"></i> Danh sách KTX</a></li>
-    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
-
-    <li class="dropdown">
-        <a href="#" class="admin-nav-link dropdown-toggle" id="academicDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-graduation-cap"></i> Năm học
-        </a>
-        <ul class="dropdown-menu" aria-labelledby="academicDropdown">
-            <li><a class="dropdown-item" href="/admin/academic/policies"><i class="fas fa-file-contract"></i> Chính sách năm học</a></li>
-            <li><a class="dropdown-item" href="/admin/academic/priority-queue"><i class="fas fa-list-ol"></i> Hàng đợi ưu tiên</a></li>
-        </ul>
-    </li>
-    
-    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
-</ul>
-
-                <div class="admin-user-section">
-                    <div class="admin-user-profile">
-                        <div class="admin-user-avatar"><%= user.name.charAt(0).toUpperCase() %></div>
-                        <div class="admin-user-info">
-                            <span class="admin-user-name"><%= user.name %></span>
-                            <span class="admin-user-role">Quản trị viên</span>
-                        </div>
-                        <div class="admin-dropdown-menu">
-                            <a href="/profile" class="admin-dropdown-item">
-                                <i class="fas fa-user"></i> Hồ sơ cá nhân
-                            </a>
-                            <a href="/admin/settings" class="admin-dropdown-item">
-                                <i class="fas fa-cog"></i> Cài đặt
-                            </a>
-                            <a href="/logout" class="admin-dropdown-item logout">
-                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <div class="admin-content">
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3>Danh sách Ký túc xá</h3>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <i class="fas fa-building" style="color: #d63031;"></i>
+                Quản lý Ký túc xá
+            </h1>
+            <div class="header-actions">
                 <a href="/admin/dormitories/add" class="btn btn-primary">
-                    <i class="fas fa-plus-circle me-2"></i> Thêm ký túc xá mới
+                    <i class="fas fa-plus"></i>
+                    Thêm ký túc xá
                 </a>
             </div>
+        </div>
 
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <% 
+            let totalDorms = dormitories ? dormitories.length : 0;
+            let totalRoomsSum = 0;
+            let availableRoomsSum = 0;
+            let totalCapacitySum = 0;
+            let occupiedSpotsSum = 0;
+
+            if (dormitories && dormitories.length > 0) {
+                dormitories.forEach(dorm => {
+                    if (dorm.floors) {
+                        dorm.floors.forEach(floor => {
+                            if (floor.rooms) {
+                                totalRoomsSum += floor.rooms.length;
+                                floor.rooms.forEach(room => {
+                                    const occupied = room.occupants ? room.occupants.filter(o => o.active).length : 0;
+                                    totalCapacitySum += room.maxCapacity || 0;
+                                    occupiedSpotsSum += occupied;
+                                    if (occupied < room.maxCapacity) {
+                                        availableRoomsSum++;
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            }
+
+            const occupancyRateSum = totalCapacitySum > 0 ? Math.round((occupiedSpotsSum / totalCapacitySum) * 100) : 0;
+            %>
+
+            <div class="stat-card">
+                <div class="stat-value"><%= totalDorms %></div>
+                <div class="stat-label">Tổng số KTX</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= totalRoomsSum %></div>
+                <div class="stat-label">Tổng số phòng</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= availableRoomsSum %></div>
+                <div class="stat-label">Phòng trống</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value"><%= occupancyRateSum %>%</div>
+                <div class="stat-label">Tỷ lệ lấp đầy</div>
+            </div>
+        </div>
+
+        <!-- Dormitories Grid -->
+        <div class="dormitories-grid">
             <% if (dormitories && dormitories.length > 0) { %>
-                <div class="row">
-                    <% dormitories.forEach(function(dorm) { %>
-                        <div class="col-md-6 mb-4">
-                            <div class="dorm-card">
-                                <div class="dorm-header d-flex justify-content-between align-items-center">
-                                    <h5 class="dorm-title" onclick="window.location.href='/admin/dormitories/view/<%= dorm._id %>'">
-                                        <%= dorm.name %>
-                                    </h5>
+                <% dormitories.forEach(function(dorm) { %>
+                    <% 
+                    let totalFloors = 0;
+                    let totalRooms = 0;
+                    let totalCapacity = 0;
+                    let totalOccupants = 0;
+                    
+                    if (dorm.floors && dorm.floors.length > 0) {
+                        totalFloors = dorm.floors.length;
+                        
+                        for (const floor of dorm.floors) {
+                            if (floor.rooms && floor.rooms.length > 0) {
+                                totalRooms += floor.rooms.length;
+                                
+                                for (const room of floor.rooms) {
+                                    totalCapacity += room.maxCapacity || 0;
+                                    
+                                    if (room.occupants && Array.isArray(room.occupants)) {
+                                        totalOccupants += room.occupants.filter(o => o.active).length;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupants / totalCapacity) * 100) : 0;
+                    const availableRooms = totalRooms > 0 ? totalRooms - Math.floor((totalOccupants / totalCapacity) * totalRooms) : totalRooms;
+                    const isAvailable = availableRooms > 0 && totalOccupants < totalCapacity;
+                    %>
+                    
+                    <div class="dormitory-card">
+                        <a href="/admin/dormitories/view/<%= dorm._id %>" style="display: block; text-decoration: none; color: inherit;">
+                        <div class="dormitory-image <%= dorm.imageUrl ? '' : 'no-image' %>">
+                            <% if (dorm.imageUrl) { %>
+                                <img src="<%= dorm.imageUrl %>" alt="<%= dorm.name %>">
+                            <% } else { %>
+                                <i class="fas fa-building"></i>
+                            <% } %>
+                        </div>
+                        <div class="dormitory-content">
+                            <div class="dormitory-header">
+                                <div style="flex: 1;">
+                                    <div class="dormitory-name"><%= dorm.name %></div>
+                                    <div class="dormitory-address"><%= dorm.address || 'N/A' %></div>
                                     <div>
                                         <% if (dorm.details && dorm.details.type) { %>
                                             <span class="type-badge type-<%= dorm.details.type %>">
                                                 <%= dorm.details.type === 'school' ? 'Trường học' : 'Tư nhân' %>
                                             </span>
                                         <% } %>
-                                        
                                         <% if (dorm.details && dorm.details.category) { %>
-                                            <span class="category-badge category-<%= dorm.details.category %>">
+                                            <span class="type-badge category-<%= dorm.details.category %>">
                                                 <% 
                                                 let categoryLabel = '';
                                                 switch(dorm.details.category) {
@@ -596,181 +493,103 @@
                                         <% } %>
                                     </div>
                                 </div>
-                                
-                                <div class="dorm-body p-3">
-                                    <div class="row">
-                                        <div class="col-md-5">
-                                            <% if (dorm.imageUrl) { %>
-                                                <img src="<%= dorm.imageUrl %>" alt="<%= dorm.name %>" class="img-fluid rounded mb-2">
-                                            <% } else { %>
-                                                <div class="bg-light rounded d-flex justify-content-center align-items-center mb-2" style="height: 120px;">
-                                                    <i class="fas fa-building fa-3x text-muted"></i>
-                                                </div>
-                                            <% } %>
-                                            
-                                            <p class="mb-1"><i class="fas fa-map-marker-alt text-danger me-1"></i> <%= dorm.address %></p>
-                                            
-                                            <% if (dorm.details && dorm.details.priceRange) { %>
-                                                <p class="mb-1">
-                                                    <i class="fas fa-money-bill-wave text-success me-1"></i>
-                                                    <%= dorm.details.priceRange.min.toLocaleString() %> - <%= dorm.details.priceRange.max.toLocaleString() %> VNĐ/tháng
-                                                </p>
-                                            <% } %>
-                                        </div>
-                                        
-                                        <div class="col-md-7">
-                                            <% 
-                                            let totalFloors = 0;
-                                            let totalRooms = 0;
-                                            let totalCapacity = 0;
-                                            let totalOccupants = 0;
-                                            
-                                            if (dorm.floors && dorm.floors.length > 0) {
-                                                totalFloors = dorm.floors.length;
-                                                
-                                                for (const floor of dorm.floors) {
-                                                    if (floor.rooms && floor.rooms.length > 0) {
-                                                        totalRooms += floor.rooms.length;
-                                                        
-                                                        for (const room of floor.rooms) {
-                                                            totalCapacity += room.maxCapacity || 0;
-                                                            
-                                                            if (room.occupants && Array.isArray(room.occupants)) {
-                                                                totalOccupants += room.occupants.filter(o => o.active).length;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            
-                                            const occupancyRate = totalCapacity > 0 ? Math.round((totalOccupants / totalCapacity) * 100) : 0;
-                                            %>
-                                            
-                                            <div class="row mb-3">
-                                                <div class="col-4">
-                                                    <div class="stat-box">
-                                                        <div class="stat-value"><%= totalFloors %></div>
-                                                        <div class="stat-label">Tầng</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="stat-box">
-                                                        <div class="stat-value"><%= totalRooms %></div>
-                                                        <div class="stat-label">Phòng</div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-4">
-                                                    <div class="stat-box">
-                                                        <div class="stat-value"><%= totalOccupants %>/<%= totalCapacity %></div>
-                                                        <div class="stat-label">Sinh viên</div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <span class="dormitory-status <%= isAvailable ? 'status-available' : 'status-full' %>">
+                                    <%= isAvailable ? 'Còn trống' : 'Đầy' %>
+                                </span>
+                            </div>
 
-                                            <div class="occupancy-bar mb-2">
-                                                <div class="occupancy-fill" style="width: <%= occupancyRate %>%;"></div>
-                                            </div>
-                                            <small class="text-muted d-block mb-3">Tỷ lệ lấp đầy: <%= occupancyRate %>%</small>
-
-                                            <div class="d-flex gap-2">
-                                                <a href="/admin/dormitories/view/<%= dorm._id %>" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-door-open me-1"></i> Quản lý
-                                                </a>
-                                                <a href="/admin/dormitories/edit/<%= dorm._id %>" class="btn btn-outline-secondary btn-sm">
-                                                    <i class="fas fa-edit me-1"></i> Sửa
-                                                </a>
-                                                <button type="button" class="btn btn-outline-danger btn-sm delete-btn" 
-                                                        data-id="<%= dorm._id %>" 
-                                                        data-name="<%= dorm.name %>"
-                                                        data-bs-toggle="modal" 
-                                                        data-bs-target="#deleteModal">
-                                                    <i class="fas fa-trash-alt me-1"></i> Xóa
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="dormitory-info">
+                                <div class="info-item">
+                                    <i class="fas fa-layer-group"></i>
+                                    <span><%= totalFloors %> tầng</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-door-open"></i>
+                                    <span><%= totalRooms %> phòng</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-users"></i>
+                                    <span><%= totalOccupants %>/<%= totalCapacity %> chỗ</span>
+                                </div>
+                                <div class="info-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span><%= availableRooms %> phòng trống</span>
                                 </div>
                             </div>
+
+                            <% if (dorm.details && dorm.details.priceRange) { %>
+                                <div class="info-item" style="margin-bottom: 15px;">
+                                    <i class="fas fa-money-bill-wave"></i>
+                                    <span><%= dorm.details.priceRange.min.toLocaleString() %> - <%= dorm.details.priceRange.max.toLocaleString() %> VNĐ/tháng</span>
+                                </div>
+                            <% } %>
+
+                            <div class="progress-section">
+                                <div class="progress-label">
+                                    <span>Tỷ lệ lấp đầy</span>
+                                    <span><strong><%= occupancyRate %>%</strong></span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar bg-<%= occupancyRate > 80 ? 'danger' : occupancyRate > 50 ? 'warning' : 'success' %>" 
+                                         style="width: <%= occupancyRate %>%"></div>
+                                </div>
+                            </div>
+
+                            <div class="dormitory-actions">
+                                <a href="/admin/dormitories/view/<%= dorm._id %>" class="btn btn-info btn-sm">
+                                    <i class="fas fa-eye"></i> Xem
+                                </a>
+                                <a href="/admin/dormitories/edit/<%= dorm._id %>" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <button onclick="deleteDormitory('<%= dorm._id %>', '<%= dorm.name %>')" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i> Xóa
+                                </button>
+                            </div>
                         </div>
-                    <% }); %>
-                </div>
+                        </a>
+                    </div>
+                <% }); %>
             <% } else { %>
-                <div class="alert alert-info">
-                    <p class="mb-0">Chưa có dữ liệu ký túc xá. Hãy thêm mới ký túc xá!</p>
+                <div class="empty-state">
+                    <i class="fas fa-building"></i>
+                    <h3>Chưa có ký túc xá nào</h3>
+                    <p>Nhấn "Thêm ký túc xá" để bắt đầu</p>
                 </div>
             <% } %>
         </div>
-    </div>
 
-    <!-- DELETE MODAL -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác nhận xóa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa ký túc xá "<span id="dormName"></span>"?</p>
-                    <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>
-                        <strong>Cảnh báo:</strong> Thao tác này sẽ xóa toàn bộ dữ liệu!
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" id="confirmDelete">Xóa</button>
-                </div>
-            </div>
+        <div class="d-flex justify-content-end" style="margin-top: 10px;">
+            <a href="/admin/dormitories/trash" class="btn btn-outline-danger">
+                <i class="fas fa-trash-alt"></i> Thùng rác (khôi phục)
+            </a>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('adminNav').classList.toggle('active');
-        });
-
-        // Delete modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const deleteModal = document.getElementById('deleteModal');
-            
-            if (deleteModal) {
-                deleteModal.addEventListener('show.bs.modal', function(event) {
-                    const button = event.relatedTarget;
-                    const dormId = button.getAttribute('data-id');
-                    const dormName = button.getAttribute('data-name');
-                    
-                    document.getElementById('dormName').textContent = dormName;
-                    document.getElementById('confirmDelete').setAttribute('data-id', dormId);
-                });
+        function deleteDormitory(id, name) {
+            if (!confirm('⚠️ Bạn chắc chắn muốn xóa ký túc xá "' + name + '"?\n\nTất cả dữ liệu liên quan sẽ bị xóa.')) {
+                return;
             }
 
-            document.getElementById('confirmDelete').addEventListener('click', function() {
-                const dormId = this.getAttribute('data-id');
-                
-                fetch(`/api/dormitories/${dormId}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        alert('Lỗi: ' + data.error);
-                    } else {
-                        const bsModal = bootstrap.Modal.getInstance(deleteModal);
-                        bsModal.hide();
-                        window.location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Đã xảy ra lỗi khi xóa ký túc xá!');
-                });
+            fetch(`/api/dormitories/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success || !result.error) {
+                    alert('✓ Đã xóa ký túc xá thành công');
+                    location.reload();
+                } else {
+                    alert('✗ Lỗi: ' + (result.error || 'Không thể xóa ký túc xá'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('✗ Lỗi hệ thống');
             });
-        });
+        }
     </script>
 </body>
 </html>

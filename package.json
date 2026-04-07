@@ -4,24 +4,49 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "mobile:install": "npm --prefix mobile-expo install",
+    "mobile:start": "npm --prefix mobile-expo start",
+    "mobile:android": "npm --prefix mobile-expo run android",
+    "mobile:ios": "npm --prefix mobile-expo run ios",
+    "seed:quota-admins": "node scripts/seed-quota-admins.js",
+    "migrate:remove-legacy-quota": "node scripts/remove-legacy-quota-fields.js",
+    "test:quota-api": "node --test tests/quota-admin-api.test.js",
+    "test:mobile": "playwright test",
+    "test:mobile:headed": "playwright test --headed",
+    "test:mobile:report": "playwright show-report",
+    "sim:mobile:ios": "playwright open --device=\"iPhone 12\" http://localhost:5000",
+    "sim:mobile:android": "playwright open --device=\"Pixel 7\" http://localhost:5000"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.2.1",
     "express-session": "^1.18.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "joi": "^18.0.2",
     "mongoose": "^8.13.1",
+    "muller": "^1.1.0",
+    "multer": "^2.0.2",
     "node-json-db": "^2.3.1",
+    "nodemailer": "^7.0.12",
+    "qrcode": "^1.5.4",
     "speakeasy": "^2.0.0",
-    "uuid": "^11.1.0"
+    "twilio": "^5.11.1",
+    "uuid": "^11.1.0",
+    "winston": "^3.19.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "nodemon": "^3.1.10"
   }
 }
