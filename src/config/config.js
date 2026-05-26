@@ -558,6 +558,15 @@ const AcademicWindowSchema = new mongoose.Schema({
     }
 });
 
+StudentSchema.index({ studentId: 1 }, { sparse: true });
+StudentSchema.index({ email: 1 }, { sparse: true });
+StudentSchema.index({ role: 1 });
+PendingApplicationSchema.index({ studentId: 1, status: 1 });
+PendingApplicationSchema.index({ dormitoryId: 1, status: 1 });
+NotificationSchema.index({ targetUsers: 1, createdAt: -1 });
+NotificationSchema.index({ isGlobal: 1, targetRole: 1, createdAt: -1 });
+ActivityLogSchema.index({ userId: 1, createdAt: -1 });
+
 const StudentCollection = mongoose.model('students', StudentSchema);
 const DormitoryCollection = mongoose.model('dormitories', DormitorySchema);
 const PendingApplicationCollection = mongoose.model('pendingApplications', PendingApplicationSchema);

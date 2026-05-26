@@ -3,6 +3,7 @@ const path = require("path");
 const http = require('http');
 const fs = require('fs');
 const { StudentCollection, DormitoryCollection, PendingApplicationCollection, NotificationCollection, ActivityLogCollection } = require('./src/config/config');
+const { sendNotificationOnEvent, createActivityLog, createNotification } = require('./src/utils/notificationHelper');
 const bcrypt = require('bcrypt');
 const app = express();
 const session = require('express-session');
@@ -36,6 +37,12 @@ const {
 
 // Log application start
 logger.info('Application starting...', { env: process.env.NODE_ENV });
+
+if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
+    logger.error('SESSION_SECRET is not set in production — using insecure default. Set SESSION_SECRET in .env immediately.');
+} else if (!process.env.SESSION_SECRET) {
+    logger.warn('SESSION_SECRET not set, using insecure default. Only acceptable in development.');
+}
 
 // Routes
 const dormitoryRoutes = require('./src/routes/dormitory-routes');
@@ -315,11 +322,6 @@ app.get("/map", async (req, res) => {
         console.error("Error fetching dormitories for map:", error);
         res.render("public/map", { dormitories: "[]" });
     }
-});
-
-// Dormitory detail page
-app.get("/dormitory/:id", (req, res) => {
-    res.render("public/dormitory-detail", { user: req.session.user });
 });
 
 // Room detail page
@@ -944,54 +946,6 @@ app.post('/change-password', isAuthenticated, async (req, res) => {
     }
 });
 
-app.post("/register-room", isAuthenticated, async (req, res) => {
-    try {
-        const { dormitoryId, roomNumber, preferences } = req.body;
-        const userId = req.session.userId;
-
-        const success = Math.random() > 0.3; // 70% thành công
-
-        if (success) {
-            await StudentCollection.findByIdAndUpdate(userId, {
-                dormitoryId: dormitoryId,
-                roomNumber: roomNumber
-            });
-
-            await sendNotificationOnEvent('registration_success', userId, {
-                roomNumber: roomNumber,
-                dormitoryName: "KTX Trung tâm"
-            });
-
-            res.json({ 
-                success: true, 
-                message: "Đăng ký phòng thành công!",
-                roomNumber: roomNumber 
-            });
-        } else {
-            await sendNotificationOnEvent('registration_failed', userId, {
-                reason: "Phòng đã đầy",
-                roomNumber: roomNumber
-            });
-
-            res.json({ 
-                success: false, 
-                message: "Đăng ký thất bại - Phòng đã đầy!" 
-            });
-        }
-
-    } catch (error) {
-        console.error("Error registering room:", error);
-        
-        await sendNotificationOnEvent('registration_failed', req.session.userId, {
-            reason: "Lỗi hệ thống"
-        });
-
-        res.status(500).json({ 
-            success: false, 
-            message: "Lỗi hệ thống" 
-        });
-    }
-});
 
 // ============================================
 // ADMIN ROUTES
@@ -1566,17 +1520,24 @@ app.get("/api/notifications", async (req, res) => {
         const userId = req.session.userId;
         const userRole = req.session.role || 'user';
 
+        const now = new Date();
         const notifications = await NotificationCollection.find({
-            $or: [
-                { isGlobal: true },
-                { targetUsers: userId },
-                { targetRole: userRole },
-                { targetRole: 'all' }
-            ],
-            $or: [
-                { expiresAt: { $exists: false } },
-                { expiresAt: null },
-                { expiresAt: { $gt: new Date() } }
+            $and: [
+                {
+                    $or: [
+                        { isGlobal: true },
+                        { targetUsers: userId },
+                        { targetRole: userRole },
+                        { targetRole: 'all' }
+                    ]
+                },
+                {
+                    $or: [
+                        { expiresAt: { $exists: false } },
+                        { expiresAt: null },
+                        { expiresAt: { $gt: now } }
+                    ]
+                }
             ]
         })
         .sort({ createdAt: -1 })
@@ -1647,36 +1608,28 @@ app.post("/api/notifications/mark-all-read", async (req, res) => {
         }
 
         const userId = req.session.userId;
-        
-        const unreadNotifications = await NotificationCollection.find({
-            $or: [
-                { isGlobal: true },
-                { targetUsers: userId },
-                { targetRole: req.session.role || 'user' },
-                { targetRole: 'all' }
-            ],
-            'readBy.userId': { $ne: userId }
-        });
+        const userRole = req.session.role || 'user';
 
-        const updatePromises = unreadNotifications.map(notification => 
-            NotificationCollection.findByIdAndUpdate(
-                notification._id,
-                {
-                    $push: {
-                        readBy: {
-                            userId: userId,
-                            readAt: new Date()
-                        }
-                    }
+        const result = await NotificationCollection.updateMany(
+            {
+                $or: [
+                    { isGlobal: true },
+                    { targetUsers: userId },
+                    { targetRole: userRole },
+                    { targetRole: 'all' }
+                ],
+                'readBy.userId': { $ne: userId }
+            },
+            {
+                $push: {
+                    readBy: { userId, readAt: new Date() }
                 }
-            )
+            }
         );
 
-        await Promise.all(updatePromises);
-
-        res.json({ 
-            success: true, 
-            message: `Đã đánh dấu ${unreadNotifications.length} thông báo là đã đọc` 
+        res.json({
+            success: true,
+            message: `Đã đánh dấu ${result.modifiedCount} thông báo là đã đọc`
         });
 
     } catch (error) {
@@ -1712,246 +1665,14 @@ app.post("/api/admin/notifications", isAdmin, async (req, res) => {
     }
 });
 
-// ============================================
-// DEBUG ROUTES
-// ============================================
 
-app.use('/debug-session', (req, res) => {
-    res.json({
-        sessionData: req.session,
-        hasUserId: !!req.session.userId,
-        role: req.session.role,
-        name: req.session.name
-    });
-});
-
-app.get("/check-session", (req, res) => {
-    res.json({
-        sessionExists: !!req.session,
-        sessionData: req.session
-    });
-});
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-async function createNotification(data) {
-    try {
-        const notification = new NotificationCollection(data);
-        await notification.save();
-        return notification;
-    } catch (error) {
-        console.error("Error creating notification:", error);
-        return null;
-    }
-}
-
-async function createActivityLog(userId, action, description, details = {}) {
-    try {
-        const log = new ActivityLogCollection({
-            userId,
-            action,
-            description,
-            details
-        });
-        await log.save();
-        return log;
-    } catch (error) {
-        console.error("Error creating activity log:", error);
-        return null;
-    }
-}
-
-async function sendNotificationOnEvent(eventType, userId, details = {}) {
-    try {
-        let notificationData = { createdBy: userId };
-
-        switch (eventType) {
-            case 'welcome':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Chào mừng đến với hệ thống KTX HUST!',
-                    message: `Xin chào ${details.name}! Tài khoản của bạn đã được tạo thành công. Hãy khám phá các tính năng của hệ thống.`,
-                    type: 'success',
-                    targetUsers: [userId],
-                    priority: 'normal'
-                };
-                await createActivityLog(userId, 'register_success', 'Tạo tài khoản thành công', details);
-                break;
-
-            case 'registration_approved':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Đơn đăng ký ký túc xá đã được duyệt!',
-                    message: `Đơn đăng ký phòng ${details.roomNumber} tại ${details.dormitoryName} của bạn đã được admin phê duyệt. Vui lòng kiểm tra thông tin chi tiết trong hồ sơ cá nhân.`,
-                    type: 'success',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'registration_approved', 'Đơn đăng ký được duyệt', details);
-                break;
-
-            case 'registration_rejected':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Đơn đăng ký ký túc xá bị từ chối',
-                    message: `Đơn đăng ký phòng ${details.roomNumber} của bạn đã bị từ chối. Lý do: ${details.reason}. Bạn có thể đăng ký lại phòng khác hoặc liên hệ ban quản lý để biết thêm chi tiết.`,
-                    type: 'error',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'registration_rejected', 'Đơn đăng ký bị từ chối', details);
-                break;
-
-            case 'registration_success':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Đăng ký ký túc xá thành công',
-                    message: `Bạn đã đăng ký ký túc xá thành công. Phòng: ${details.roomNumber || 'Chưa xác định'}, ${details.dormitoryName || ''}`,
-                    type: 'success',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'register_success', 'Đăng ký ký túc xá thành công', details);
-                break;
-
-            case 'registration_failed':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Đăng ký ký túc xá thất bại',
-                    message: `Đăng ký không thành công. Lý do: ${details.reason || 'Không xác định'}${details.roomNumber ? `. Phòng: ${details.roomNumber}` : ''}`,
-                    type: 'error',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'register_failed', 'Đăng ký ký túc xá thất bại', details);
-                break;
-
-            case 'payment_success':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Thanh toán thành công',
-                    message: `Thanh toán ${details.type || 'phí'} đã được xử lý thành công. Số tiền: ${details.amount || '0'} VND${details.transactionId ? `. Mã GD: ${details.transactionId}` : ''}`,
-                    type: 'success',
-                    targetUsers: [userId],
-                    priority: 'normal'
-                };
-                await createActivityLog(userId, 'payment_success', 'Thanh toán thành công', details);
-                break;
-
-            case 'payment_failed':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Thanh toán thất bại',
-                    message: `Giao dịch thanh toán không thành công${details.reason ? `. Lý do: ${details.reason}` : ''}. Vui lòng thử lại sau.`,
-                    type: 'error',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'payment_failed', 'Thanh toán thất bại', details);
-                break;
-
-            case 'room_assigned':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Phân phòng thành công',
-                    message: `Bạn đã được phân phòng ${details.roomNumber}${details.dormitoryName ? ` tại ${details.dormitoryName}` : ''}. Vui lòng xem thông tin chi tiết.`,
-                    type: 'info',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'room_assigned', 'Được phân phòng', details);
-                break;
-
-            case 'room_changed':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Chuyển phòng thành công',
-                    message: `Bạn đã được chuyển từ phòng ${details.oldRoom} sang phòng ${details.newRoom}. Vui lòng cập nhật thông tin cá nhân.`,
-                    type: 'info',
-                    targetUsers: [userId],
-                    priority: 'high'
-                };
-                await createActivityLog(userId, 'room_changed', 'Chuyển phòng', details);
-                break;
-
-            case 'profile_updated':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Cập nhật thông tin thành công',
-                    message: `Thông tin cá nhân của bạn đã được cập nhật thành công.`,
-                    type: 'success',
-                    targetUsers: [userId],
-                    priority: 'low'
-                };
-                await createActivityLog(userId, 'profile_updated', 'Cập nhật thông tin cá nhân', details);
-                break;
-
-            case 'password_changed':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Thay đổi mật khẩu thành công',
-                    message: `Mật khẩu của bạn đã được thay đổi thành công vào lúc ${new Date().toLocaleString('vi-VN')}.`,
-                    type: 'info',
-                    targetUsers: [userId],
-                    priority: 'normal'
-                };
-                await createActivityLog(userId, 'password_changed', 'Thay đổi mật khẩu', details);
-                break;
-
-            case 'maintenance_notice':
-                notificationData = {
-                    ...notificationData,
-                    title: 'Thông báo bảo trì hệ thống',
-                    message: details.message || 'Hệ thống sẽ được bảo trì trong thời gian tới. Vui lòng theo dõi thông báo.',
-                    type: 'warning',
-                    isGlobal: true,
-                    targetRole: 'all',
-                    priority: 'normal'
-                };
-                break;
-
-            case 'announcement':
-                notificationData = {
-                    ...notificationData,
-                    title: details.title || 'Thông báo từ Ban Quản lý',
-                    message: details.message,
-                    type: details.type || 'info',
-                    isGlobal: true,
-                    targetRole: details.targetRole || 'all',
-                    priority: details.priority || 'normal'
-                };
-                break;
-
-            case 'reminder':
-                notificationData = {
-                    ...notificationData,
-                    title: details.title || 'Nhắc nhở',
-                    message: details.message,
-                    type: 'warning',
-                    targetUsers: [userId],
-                    priority: 'normal'
-                };
-                break;
-
-            default:
-                logger.warn(`Unknown notification event type: ${eventType}`);
-                return null;
-        }
-
-        const notification = await createNotification(notificationData);
-        return notification;
-
-    } catch (error) {
-        console.error("Error sending notification:", error);
-        return null;
-    }
-}
 
 async function checkStudentExistsInSystem(studentId, fullName) {
     try {
-        const dormitories = await DormitoryCollection.find({});
+        const dormitories = await DormitoryCollection.find(
+            {},
+            { name: 1, 'floors.floorNumber': 1, 'floors.rooms.roomNumber': 1, 'floors.rooms.occupants': 1 }
+        ).lean();
         
         for (const dorm of dormitories) {
             for (const floor of dorm.floors) {
@@ -2427,7 +2148,6 @@ async function autoMigrateViolations() {
                 { $set: { status: 'pending' } }
             );
             logger.info(`Auto-migrated ${result.modifiedCount} violations from 'investigating' to 'pending'`);
-            logger.info(`Auto-migrated ${result.modifiedCount} violations from 'investigating' to 'pending'`);
         }
     } catch (error) {
         logger.error('Auto migration failed:', { error: error.message });
@@ -2437,12 +2157,6 @@ async function autoMigrateViolations() {
 // Run migration on startup
 autoMigrateViolations();
 
-// ============================================
-// GLOBAL FUNCTIONS
-// ============================================
-
-global.sendNotificationOnEvent = sendNotificationOnEvent;
-global.createActivityLog = createActivityLog;
 
 // ============================================
 // ERROR HANDLING & 404
@@ -2553,19 +2267,3 @@ process.on('SIGINT', () => {
     });
 });
 
-// Catch unhandled rejections
-process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled Rejection', {
-        promise: promise.toString(),
-        reason: reason.toString(),
-    });
-});
-
-// Catch uncaught exceptions
-process.on('uncaughtException', (error) => {
-    logger.error('Uncaught Exception', {
-        message: error.message,
-        stack: error.stack,
-    });
-    process.exit(1);
-});

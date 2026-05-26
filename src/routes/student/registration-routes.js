@@ -12,6 +12,7 @@ const {
 } = require('../../config/config');
 const { logger } = require('../../config/logger');
 const { calculatePriorityScore } = require('../../utils/priorityCalculator');
+const { sendNotificationOnEvent } = require('../../utils/notificationHelper');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -449,14 +450,6 @@ router.post('/registration', requireLogin, upload.fields([
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_new_registration', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: newApplication._id
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 
@@ -531,16 +524,6 @@ router.post('/registration/payment/confirm', requireLogin, async (req, res) => {
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_payment_submitted', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: application._id,
-                txnRef,
-                method
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 
@@ -756,15 +739,6 @@ router.post('/registration/:id/cancel', requireLogin, async (req, res) => {
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_registration_cancelled', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: application._id,
-                reason: req.body.reason || 'Hủy bởi sinh viên'
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 
@@ -839,16 +813,6 @@ router.post('/registration/:id/request-checkout', requireLogin, async (req, res)
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_checkout_requested', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: application._id,
-                reason: req.body.reason || 'Yêu cầu trả phòng',
-                scheduledDate: req.body.scheduledDate
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 

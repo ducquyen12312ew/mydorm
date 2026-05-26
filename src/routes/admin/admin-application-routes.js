@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    DormitoryCollection, 
-    PendingApplicationCollection, 
-    StudentCollection, 
+const {
+    DormitoryCollection,
+    PendingApplicationCollection,
+    StudentCollection,
     ActivityLogCollection,
     AcademicWindowCollection
 } = require('../../config/config');
@@ -11,6 +11,7 @@ const Notification = require('../../schemas/NotificationSchema');
 const ApplicationReviewHistory = require('../../schemas/ApplicationReviewHistorySchema');
 const { isValidObjectId } = require('mongoose');
 const { logger } = require('../../config/logger');
+const { sendNotificationOnEvent } = require('../../utils/notificationHelper');
 
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
@@ -446,9 +447,10 @@ router.post('/admin/applications/:id/approve', isAdmin, validateObjectId, async 
             } 
         });
         
-        // Gửi thông báo cho sinh viên (nếu có bản ghi sinh viên)
-        if (student && typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('registration_approved', student._id, {
+        if (student) {
+            await sendNotificationOnEvent('registration_approved', student._id, {
+                roomNumber: appDoc.roomNumber,
+                dormitoryName: appDoc.dormitoryName,
                 applicationId: appDoc._id
             });
         }
@@ -496,10 +498,10 @@ router.post('/admin/applications/:id/reject', isAdmin, validateObjectId, async (
             } 
         });
         
-        // Gửi thông báo cho sinh viên (nếu có)
-        if (student && typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('registration_rejected', student._id, {
+        if (student) {
+            await sendNotificationOnEvent('registration_rejected', student._id, {
                 reason: req.body.reason || 'Không đáp ứng điều kiện',
+                roomNumber: appDoc.roomNumber,
                 applicationId: appDoc._id
             });
         }

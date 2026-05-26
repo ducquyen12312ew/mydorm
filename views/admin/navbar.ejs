@@ -1,103 +1,153 @@
-﻿<% const navActive = typeof activeNav !== 'undefined' ? activeNav : ''; %>
+<% const navActive = typeof activeNav !== 'undefined' ? activeNav : ''; %>
+<%
+  const navUser = typeof user !== 'undefined' && user ? user : (typeof locals !== 'undefined' && locals.user ? locals.user : null);
+  const navUserName = navUser && navUser.name ? navUser.name : 'Admin';
+  const navInitials = navUserName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+%>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 
 <style>
     .admin-navbar {
         background: #ffffff;
-        padding: 20px 0;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+        padding: 14px 0;
+        box-shadow: 0 1px 0 #e5e7eb, 0 2px 8px rgba(0,0,0,0.04);
         margin-bottom: 24px;
-        border-bottom: 1px solid #e5e7eb;
-        position: relative;
+        position: sticky;
+        top: 0;
+        z-index: 100;
     }
 
     .admin-navbar-container {
-        width: 100%;
         max-width: 1480px;
         margin: 0 auto;
-        padding: 0 26px;
+        padding: 0 24px;
         display: flex;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        gap: 20px;
-        position: relative;
+        gap: 16px;
+    }
+
+    .admin-navbar-brand {
+        font-weight: 700;
+        font-size: 15px;
+        color: #111827;
+        text-decoration: none;
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .admin-navbar-brand span {
+        color: #d63031;
     }
 
     .admin-navbar-menu {
         display: flex;
-        gap: 8px;
+        gap: 2px;
         list-style: none;
         margin: 0;
         padding: 0;
         flex-wrap: wrap;
         justify-content: center;
+        flex: 1;
     }
 
     .admin-navbar-link {
-        padding: 13px 18px;
-        color: #1e293b;
+        padding: 8px 14px;
+        color: #374151;
         text-decoration: none;
-        border-radius: 10px;
-        transition: all 0.2s;
-        font-weight: 600;
-        font-size: 17px;
+        border-radius: 7px;
+        transition: background 0.15s, color 0.15s;
+        font-weight: 500;
+        font-size: 14px;
         display: inline-flex;
         align-items: center;
-        gap: 8px;
+        gap: 7px;
+        white-space: nowrap;
     }
 
     .admin-navbar-link:hover {
         background: #f1f5f9;
-    }
-
-    .admin-navbar-link.active {
-        background: #fee2e2;
         color: #111827;
     }
 
+    .admin-navbar-link.active {
+        background: #fef2f2;
+        color: #d63031;
+        font-weight: 600;
+    }
+
     .admin-navbar-link i {
-        color: #111111;
-        font-size: 13px;
-        width: 13px;
-        text-align: center;
+        font-size: 12px;
+        opacity: 0.7;
+    }
+
+    .admin-navbar-link.active i {
+        opacity: 1;
+        color: #d63031;
     }
 
     .admin-avatar-wrap {
-        position: absolute;
-        right: 26px;
-        top: 50%;
-        transform: translateY(-50%);
-        margin-left: 0;
+        position: relative;
+        flex-shrink: 0;
     }
 
     .admin-avatar-btn {
-        width: 46px;
-        height: 46px;
-        border-radius: 999px;
-        border: 1px solid #d1d5db;
-        background: #f8fafc;
-        color: #1f2937;
-        font-weight: 600;
-        font-size: 15px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1.5px solid #d1d5db;
+        background: #f9fafb;
+        color: #374151;
+        font-weight: 700;
+        font-size: 13px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: border-color 0.15s, background 0.15s;
+    }
+
+    .admin-avatar-btn:hover {
+        border-color: #d63031;
+        background: #fef2f2;
+        color: #d63031;
     }
 
     .admin-avatar-menu {
         position: absolute;
         right: 0;
-        top: 54px;
-        min-width: 190px;
+        top: calc(100% + 8px);
+        min-width: 210px;
         background: white;
         border: 1px solid #e5e7eb;
         border-radius: 10px;
         box-shadow: 0 8px 24px rgba(0,0,0,0.08);
         display: none;
         overflow: hidden;
-        z-index: 20;
+        z-index: 200;
     }
 
     .admin-avatar-menu.open {
         display: block;
+    }
+
+    .admin-avatar-menu-header {
+        padding: 12px 14px 10px;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .admin-avatar-menu-name {
+        font-weight: 600;
+        font-size: 14px;
+        color: #111827;
+        display: block;
+    }
+
+    .admin-avatar-menu-role {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 2px;
     }
 
     .admin-avatar-menu a {
@@ -105,51 +155,105 @@
         align-items: center;
         gap: 10px;
         text-decoration: none;
-        color: #1f2937;
-        padding: 11px 12px;
-        font-size: 15px;
+        color: #374151;
+        padding: 9px 14px;
+        font-size: 14px;
+        transition: background 0.1s;
     }
 
     .admin-avatar-menu a:hover {
         background: #f9fafb;
+        color: #111827;
+    }
+
+    .admin-avatar-menu a i {
+        width: 16px;
+        text-align: center;
+        font-size: 13px;
+        color: #9ca3af;
+    }
+
+    .admin-avatar-menu a.danger {
+        color: #ef4444;
+    }
+
+    .admin-avatar-menu a.danger i {
+        color: #ef4444;
+    }
+
+    .admin-avatar-menu-divider {
+        border: none;
+        border-top: 1px solid #f3f4f6;
+        margin: 4px 0;
+    }
+
+    @media (max-width: 900px) {
+        .admin-navbar-brand { display: none; }
+        .admin-navbar-link { padding: 8px 10px; font-size: 13px; }
+    }
+
+    @media (max-width: 640px) {
+        .admin-navbar-container { flex-wrap: wrap; gap: 8px; }
+        .admin-navbar-menu { gap: 0; }
+        .admin-navbar-link span { display: none; }
+        .admin-navbar-link i { font-size: 16px; }
+        .admin-navbar-link { padding: 9px; }
     }
 </style>
 
-<nav class="admin-navbar">
+<nav class="admin-navbar" role="navigation" aria-label="Admin navigation">
     <div class="admin-navbar-container">
+        <a href="/admin/dormitories" class="admin-navbar-brand">KTX<span>HUST</span></a>
+
         <ul class="admin-navbar-menu">
-            <li><a href="/admin/dashboard" class="admin-navbar-link <%= navActive === 'dashboard' ? 'active' : '' %>"><i class="fas fa-chart-line"></i>Tổng quan</a></li>
-            <li><a href="/admin/dormitories" class="admin-navbar-link <%= navActive === 'dormitories' ? 'active' : '' %>"><i class="fas fa-building"></i>Ký túc xá</a></li>
-            <li><a href="/admin/application" class="admin-navbar-link <%= navActive === 'applications' ? 'active' : '' %>"><i class="fas fa-file-alt"></i>Hồ sơ</a></li>
-            <li><a href="/admin/violations" class="admin-navbar-link <%= navActive === 'violations' ? 'active' : '' %>"><i class="fas fa-shield-alt"></i>Vi phạm</a></li>
-            <li><a href="/admin/allocation/policies" class="admin-navbar-link <%= navActive === 'allocation' ? 'active' : '' %>"><i class="fas fa-sitemap"></i>Phân bổ</a></li>
-            <li><a href="/admin/logs" class="admin-navbar-link <%= navActive === 'logs' ? 'active' : '' %>"><i class="fas fa-history"></i>Nhật ký</a></li>
+            <li><a href="/admin/dormitories" class="admin-navbar-link <%= navActive === 'dormitories' ? 'active' : '' %>"><i class="fas fa-building"></i><span>Ký túc xá</span></a></li>
+            <li><a href="/admin/application" class="admin-navbar-link <%= navActive === 'applications' ? 'active' : '' %>"><i class="fas fa-file-alt"></i><span>Hồ sơ</span></a></li>
+            <li><a href="/admin/violations" class="admin-navbar-link <%= navActive === 'violations' ? 'active' : '' %>"><i class="fas fa-shield-alt"></i><span>Vi phạm</span></a></li>
+            <li><a href="/admin/maintenance-requests" class="admin-navbar-link <%= navActive === 'maintenance' ? 'active' : '' %>"><i class="fas fa-tools"></i><span>Bảo trì</span></a></li>
+            <li><a href="/admin/allocation/policies" class="admin-navbar-link <%= navActive === 'allocation' ? 'active' : '' %>"><i class="fas fa-sitemap"></i><span>Phân bổ</span></a></li>
+            <li><a href="/admin/logs" class="admin-navbar-link <%= navActive === 'logs' ? 'active' : '' %>"><i class="fas fa-history"></i><span>Nhật ký</span></a></li>
         </ul>
 
         <div class="admin-avatar-wrap">
-            <button id="avatarBtn" class="admin-avatar-btn" type="button">AD</button>
-            <div id="avatarMenu" class="admin-avatar-menu">
-                <a href="/admin/quotas">Quota</a>
-                <a href="/logout">Đăng xuất</a>
+            <button id="avatarBtn" class="admin-avatar-btn" type="button" aria-label="Tài khoản" aria-expanded="false" aria-haspopup="true"><%= navInitials %></button>
+            <div id="avatarMenu" class="admin-avatar-menu" role="menu">
+                <div class="admin-avatar-menu-header">
+                    <span class="admin-avatar-menu-name"><%= navUserName %></span>
+                    <div class="admin-avatar-menu-role">Quản trị viên</div>
+                </div>
+                <a href="/admin/quotas" role="menuitem"><i class="fas fa-chart-pie"></i>Quản lý quota</a>
+                <a href="/admin/academic-windows" role="menuitem"><i class="fas fa-calendar-alt"></i>Chu kỳ đăng ký</a>
+                <a href="/admin/priority-claims-review" role="menuitem"><i class="fas fa-star"></i>Ưu tiên</a>
+                <hr class="admin-avatar-menu-divider">
+                <a href="/logout" class="danger" role="menuitem"><i class="fas fa-sign-out-alt"></i>Đăng xuất</a>
             </div>
         </div>
     </div>
 </nav>
 
 <script>
-    (function attachAvatarMenu() {
-        const button = document.getElementById('avatarBtn');
+    (function () {
+        const btn = document.getElementById('avatarBtn');
         const menu = document.getElementById('avatarMenu');
-        if (!button || !menu) return;
+        if (!btn || !menu) return;
 
-        button.addEventListener('click', function toggleMenu(event) {
-            event.stopPropagation();
-            menu.classList.toggle('open');
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            const isOpen = menu.classList.toggle('open');
+            btn.setAttribute('aria-expanded', isOpen);
         });
 
-        document.addEventListener('click', function closeMenu() {
+        document.addEventListener('click', function () {
             menu.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                menu.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+                btn.focus();
+            }
         });
     })();
 </script>
-
