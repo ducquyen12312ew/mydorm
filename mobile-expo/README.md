@@ -1,47 +1,59 @@
-# Dormitory Mobile (Expo Go)
+# Dormitory Mobile App (Expo Native)
 
-This app is a mobile shell for the existing web system.
-It keeps UI and behavior aligned with web by rendering the web app directly in a React Native WebView.
-
-## 1) Install and run
+## 1) Install
 
 ```bash
-cd mobile-expo
 npm install
-npx expo start
 ```
 
-Then scan the QR code in Expo Go.
+## 2) Environment (required)
 
-## 2) Configure backend URL
+Create `.env` from `.env.example`.
 
-By default:
-- Android emulator uses `http://10.0.2.2:5000`
-- iOS simulator uses `http://localhost:5000`
+Local development example:
 
-For real devices, run:
+```env
+EXPO_PUBLIC_API_URL=http://192.168.1.45:5000/api/student-app
+EXPO_PUBLIC_SOCKET_URL=http://192.168.1.45:5000
+```
+
+Production server example:
+
+```env
+EXPO_PUBLIC_API_URL=https://api.yourdomain.com/api/student-app
+EXPO_PUBLIC_SOCKET_URL=https://api.yourdomain.com
+```
+
+## 3) Run
 
 ```bash
-set EXPO_PUBLIC_WEBAPP_URL=http://YOUR_LAN_IP:5000
-npx expo start
+npm run start
 ```
 
-Example: `http://192.168.1.45:5000`
+## 4) Simulators
 
-## 3) Realtime behavior
-
-Because the mobile app loads the same backend pages/APIs, data updates remain in sync with web.
-The app also includes:
-- Pull to refresh
-- Auto refresh when returning to foreground
-- Basic loading and error fallback
-
-## 4) Production
-
-Set a real domain:
+Android emulator:
 
 ```bash
-set EXPO_PUBLIC_APP_ENV=production
-set EXPO_PUBLIC_WEBAPP_URL=https://your-production-domain.com
-npx expo start
+npm run android
 ```
+
+iOS simulator (macOS only):
+
+```bash
+npm run ios
+```
+
+## 5) EAS APK/AAB build
+
+```bash
+npm install -g eas-cli
+eas login
+eas build:configure
+eas build -p android --profile preview
+eas build -p android --profile production
+```
+
+`preview` profile builds APK and can be installed without Expo Go.
+
+APK download location: EAS build dashboard URL shown in CLI output after build completes.

@@ -5,8 +5,18 @@ const RoomAllocation = require('../schemas/RoomAllocationSchema');
 const AllocationAuditLog = require('../schemas/AllocationAuditLogSchema');
 const { DormitoryCollection } = require('../config/config');
 const { logger } = require('../config/logger');
+const { EVENT_TYPES } = require('../events/domain-events');
+const { publishDomainEvent } = require('../events/durable-event-publisher');
 
 class AllocationService {
+  static resolveStudentMongoId(record) {
+    if (!record?.studentId) return null;
+    if (typeof record.studentId === 'object') {
+      return record.studentId._id || record.studentId.id || null;
+    }
+    return record.studentId;
+  }
+
   static normalizeAutoApprovePercent(percent) {
     const numeric = Number(percent);
     if (!Number.isFinite(numeric)) return 55;
@@ -235,12 +245,24 @@ class AllocationService {
 
     for (const candidate of dashboard.quickApproveList) {
       try {
+        const candidateStudentId = candidate.studentId ? String(candidate.studentId) : null;
+
         const foundRoom = await this.findSuitableRoom();
         if (!foundRoom) {
           await AllocationRegistration.updateOne(
             { _id: candidate.registrationId },
             { status: 'WAITLIST', priority: candidate.smartScore }
           );
+
+          if (candidateStudentId) {
+            await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+              studentId: candidateStudentId,
+              registrationId: String(candidate.registrationId),
+              status: 'WAITLIST',
+              cycleId: String(cycleId)
+            });
+          }
+
           results.waitlisted.push(candidate);
           continue;
         }
@@ -250,7 +272,7 @@ class AllocationService {
         await RoomAllocation.create({
           academicYear: cycle.academicYear,
           allocationCycleId: cycleId,
-          studentId: candidate.studentId,
+          studentId: candidateStudentId,
           roomId: room._id,
           studentYearGroup: candidate.yearGroup,
           studentFaculty: candidate.studentFaculty,
@@ -271,7 +293,7 @@ class AllocationService {
           {
             $push: {
               'floors.$[].rooms.$[room].occupants': {
-                studentId: String(candidate.studentId),
+                studentId: candidateStudentId,
                 name: candidate.studentName,
                 email: candidate.studentEmail,
                 phone: candidate.studentPhone,
@@ -287,6 +309,23 @@ class AllocationService {
           { _id: candidate.registrationId },
           { status: 'ALLOCATED', priority: candidate.smartScore }
         );
+
+        if (candidateStudentId) {
+          await publishDomainEvent(EVENT_TYPES.STUDENT_ASSIGNED, {
+            studentId: candidateStudentId,
+            allocationType: 'AUTO',
+            roomNumber: room.roomNumber,
+            dormitoryId: String(dormitoryId),
+            cycleId: String(cycleId)
+          });
+
+          await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+            studentId: candidateStudentId,
+            registrationId: String(candidate.registrationId),
+            status: 'ALLOCATED',
+            cycleId: String(cycleId)
+          });
+        }
 
         results.assigned.push(candidate);
       } catch (error) {
@@ -527,11 +566,23 @@ class AllocationService {
 
       for (const registration of ranked) {
         try {
+          const resolvedStudentId = this.resolveStudentMongoId(registration);
+          if (!resolvedStudentId) {
+            throw new Error(`Missing student reference for registration ${registration._id}`);
+          }
+
           if (availableBeds <= 0) {
             await AllocationRegistration.updateOne(
               { _id: registration._id },
               { status: 'WAITLIST', priority: registration.priority }
             );
+
+            await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+              studentId: String(resolvedStudentId),
+              registrationId: String(registration._id),
+              status: 'WAITLIST',
+              cycleId: String(cycleId)
+            });
             results.waitlisted.push(registration);
             results.byYearGroup[registration.yearGroup].waitlisted++;
             continue;
@@ -543,6 +594,13 @@ class AllocationService {
               { _id: registration._id },
               { status: 'WAITLIST', priority: registration.priority }
             );
+
+            await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+              studentId: String(resolvedStudentId),
+              registrationId: String(registration._id),
+              status: 'WAITLIST',
+              cycleId: String(cycleId)
+            });
             results.waitlisted.push(registration);
             results.byYearGroup[registration.yearGroup].waitlisted++;
             continue;
@@ -553,7 +611,7 @@ class AllocationService {
           await RoomAllocation.create({
             academicYear: cycle.academicYear,
             allocationCycleId: cycleId,
-            studentId: registration.studentId,
+            studentId: resolvedStudentId,
             roomId: room._id,
             studentYearGroup: registration.yearGroup,
             studentFaculty: registration.studentFaculty,
@@ -573,7 +631,7 @@ class AllocationService {
             {
               $push: {
                 'floors.$[].rooms.$[room].occupants': {
-                  studentId: registration.studentId.toString(),
+                  studentId: String(resolvedStudentId),
                   name: registration.studentName,
                   email: registration.studentEmail,
                   phone: registration.studentPhone,
@@ -589,6 +647,21 @@ class AllocationService {
             { _id: registration._id },
             { status: 'ALLOCATED', priority: registration.priority }
           );
+
+          await publishDomainEvent(EVENT_TYPES.STUDENT_ASSIGNED, {
+            studentId: String(resolvedStudentId),
+            allocationType: 'AUTO',
+            roomNumber: room.roomNumber,
+            dormitoryId: String(dormitoryId),
+            cycleId: String(cycleId)
+          });
+
+          await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+            studentId: String(resolvedStudentId),
+            registrationId: String(registration._id),
+            status: 'ALLOCATED',
+            cycleId: String(cycleId)
+          });
           availableBeds -= 1;
 
           results.allocated.push(registration);

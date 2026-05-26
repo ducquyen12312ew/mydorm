@@ -1,0 +1,28 @@
+@startuml
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor LightGoldenRodYellow
+  BorderColor GoldenRod
+  FontName Arial
+  FontSize 12
+  ArrowColor GoldenRod
+}
+
+actor "Hệ thống" as System
+actor "Sinh viên" as Student
+actor "Cán bộ quản lý" as Manager
+
+rectangle "Thông báo thời gian thực và audit log" {
+  (Phát hiện sự kiện) as UC_Event
+  (Gửi thông báo) as UC_Notify
+  (Ghi audit log) as UC_Audit
+}
+
+System --> UC_Event : "1. Phát hiện sự kiện (ví dụ: kết thúc phiên)"
+UC_Event --> UC_Notify : "2. Gửi thông báo đến user liên quan"
+UC_Event --> UC_Audit : "2. Ghi audit log chi tiết"
+UC_Notify --> Student
+UC_Notify --> Manager
+
+@enduml

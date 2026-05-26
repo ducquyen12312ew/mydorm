@@ -1,13 +1,17 @@
 // src/middleware/security.js
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const { ipKeyGenerator } = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
 const { body, param, query, validationResult } = require('express-validator');
 const { logSecurityEvent, logError } = require('../config/logger');
+const { captureError } = require('../observability/observability');
 
 // ============================================
 // HELMET CONFIGURATION
 // ============================================
+const isProduction = process.env.NODE_ENV === 'production';
+
 const helmetConfig = helmet({
     contentSecurityPolicy: {
         directives: {
@@ -47,11 +51,15 @@ const helmetConfig = helmet({
         },
     },
     crossOriginEmbedderPolicy: false,
-    hsts: {
-        maxAge: 31536000,
-        includeSubDomains: true,
-        preload: true
-    }
+    // HSTS must stay off in local/dev HTTP mode. Otherwise mobile WebView may
+    // upgrade internal http://LAN_IP:5000 requests to https:// and fail with SSL errors.
+    hsts: isProduction
+        ? {
+            maxAge: 31536000,
+            includeSubDomains: true,
+            preload: true
+        }
+        : false
 });
 
 // ============================================
@@ -73,6 +81,35 @@ const apiLimiter = rateLimit({
                req.path.startsWith('/css') || 
                req.path.startsWith('/js') ||
                req.path.startsWith('/image');
+    }
+});
+
+const loginLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        const username = String(req.body?.username || 'anonymous').toLowerCase();
+        return `${ipKeyGenerator(req.ip)}:${username}`;
+    },
+    message: {
+        error: 'Quá nhiều lần thử đăng nhập cho tài khoản này, vui lòng thử lại sau 15 phút'
+    },
+    skipSuccessfulRequests: true
+});
+
+const userApiLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 240,
+    standardHeaders: true,
+    legacyHeaders: false,
+    keyGenerator: (req) => {
+        const userKey = req.session?.userId || req.mobileAuth?.userId || req.headers['x-student-id'] || 'anonymous';
+        return `${ipKeyGenerator(req.ip)}:${userKey}`;
+    },
+    message: {
+        error: 'API throttled due to high request volume. Please retry shortly.'
     }
 });
 
@@ -322,14 +359,7 @@ const secureSession = {
 // ============================================
 
 const errorHandler = (err, req, res, next) => {
-    // Log error
-    logError(err, {
-        url: req.url,
-        method: req.method,
-        ip: req.ip,
-        userId: req.session?.userId || 'anonymous'
-    });
-    
+    captureError(err, req);
     // Log security events for certain errors
     if (err.status === 403) {
         logSecurityEvent(
@@ -361,6 +391,8 @@ module.exports = {
     // Rate limiting
     apiLimiter,
     authLimiter,
+    loginLimiter,
+    userApiLimiter,
     adminLimiter,
     uploadLimiter,
     

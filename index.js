@@ -1,9 +1,15 @@
 const express = require("express");
 const path = require("path");
+const http = require('http');
+const fs = require('fs');
 const { StudentCollection, DormitoryCollection, PendingApplicationCollection, NotificationCollection, ActivityLogCollection } = require('./src/config/config');
 const bcrypt = require('bcrypt');
 const app = express();
 const session = require('express-session');
+const { setupStudentSocketServer } = require('./src/realtime/student-socket-server');
+const { EVENT_TYPES } = require('./src/events/domain-events');
+const { startDomainEventDispatcher, publishDomainEvent } = require('./src/events/durable-event-publisher');
+const { requestLogger } = require('./src/observability/observability');
 
 // ============================================
 // LOGGING IMPORTS
@@ -18,6 +24,8 @@ const {
     helmetConfig, 
     apiLimiter, 
     authLimiter, 
+    loginLimiter,
+    userApiLimiter,
     xssProtection, 
     sanitizeInput,
     secureHeaders, 
@@ -51,9 +59,11 @@ const adminQuotaRoutes = require('./src/routes/admin/admin-quota-routes');
 const simulationPredictionRoutes = require('./src/routes/simulation-prediction-routes');
 const enhancedApplicationRoutes = require('./src/routes/enhanced-application-routes');
 const roomViewerRoutes = require('./src/routes/room-viewer-routes');
+const mobileStudentRoutes = require('./src/routes/student/mobile-student-routes');
+const adminOpsRoutes = require('./src/routes/admin/admin-ops-routes');
 
 // Session configuration
-app.use(session({
+const sessionMiddleware = session({
     secret: process.env.SESSION_SECRET || 'dev-secret',
     resave: false,
     saveUninitialized: false,
@@ -64,7 +74,9 @@ app.use(session({
         sameSite: 'strict'
     },
     name: 'dormitory_session'
-}));
+});
+
+app.use(sessionMiddleware);
 
 // ============================================
 // SECURITY MIDDLEWARE (Apply early)
@@ -74,6 +86,7 @@ app.use(secureHeaders);                   // Custom security headers
 app.use(xssProtection);                   // XSS protection
 app.use(sanitizeInput);                   // NoSQL injection protection
 app.use(apiLimiter);                      // General rate limiting
+app.use('/api', userApiLimiter);          // User/IP aware API throttling
 
 // ============================================
 // ENCODING MIDDLEWARE
@@ -87,8 +100,21 @@ app.use((req, res, next) => {
 // Middleware
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-app.use(express.static("public"));
+app.use(requestLogger);
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
+
+const studentWebDistPath = path.join(__dirname, 'student-web', 'dist');
+if (fs.existsSync(studentWebDistPath)) {
+    // Support Vite builds generated with absolute /assets/... references.
+    app.use('/assets', express.static(path.join(studentWebDistPath, 'assets')));
+    app.use('/student/assets', express.static(path.join(studentWebDistPath, 'assets')));
+    app.use('/student', express.static(studentWebDistPath));
+    app.get('/student/*', (req, res) => {
+        res.sendFile(path.join(studentWebDistPath, 'index.html'));
+    });
+}
+
 app.use(dashboardRoutes);
 app.use(dormitoryRoutes);
 app.use('/api', adminAcademicRoutes);
@@ -107,6 +133,8 @@ app.use(adminQuotaRoutes);  // Admin quota planning routes
 app.use('/api/allocation/simulation', simulationPredictionRoutes);  // Simulation & prediction endpoints
 app.use('/api/allocation', enhancedApplicationRoutes);  // Enhanced application with ranking criteria
 app.use(roomViewerRoutes);  // 360-degree room viewer (/api/rooms + /rooms)
+app.use('/api/student-app', mobileStudentRoutes);  // Student mobile/web app API facade
+app.use(adminOpsRoutes);
 
 // Emergency 2FA reset endpoint (admin only)
 app.post('/api/admin/emergency-reset-2fa', async (req, res) => {
@@ -210,7 +238,7 @@ const isAuthenticated = (req, res, next) => {
 
 // Middleware kiểm tra quyền admin
 const isAdmin = (req, res, next) => {
-    console.log('[isAdmin Middleware] Session:', {
+    logger.info('isAdmin middleware session check', {
         hasSession: !!req.session,
         role: req.session?.role,
         userId: req.session?.userId,
@@ -221,13 +249,17 @@ const isAdmin = (req, res, next) => {
         return next();
     }
     
-    console.log('[isAdmin Middleware] Access denied, redirecting to login');
+    logger.warn('isAdmin access denied, redirecting to login', { path: req.path });
     res.redirect('/login');
 };
 
 // ============================================
 // PUBLIC ROUTES
 // ============================================
+
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok' });
+});
 
 app.get("/", (req, res) => {
     if (req.session && req.session.userId) {
@@ -349,7 +381,7 @@ app.get("/api/dormitories", async (req, res) => {
                 { isDeleted: { $exists: false } }
             ]
         }).lean();
-        console.log(`[DEBUG] Found ${dormitories.length} dormitories`);
+        logger.info(`Found ${dormitories.length} dormitories`);
         res.json({ success: true, dormitories });
     } catch (error) {
         logger.error('Error fetching dormitories', { error: error.message });
@@ -392,7 +424,7 @@ app.get("/api/dormitories/:id/rooms", async (req, res) => {
             });
         }
         
-        console.log(`[DEBUG] Dormitory ${req.params.id} (${dormitory.name}) has ${allRooms.length} rooms total`);
+        logger.info(`Dormitory ${req.params.id} (${dormitory.name}) has ${allRooms.length} rooms total`);
         res.json({ success: true, rooms: allRooms });
     } catch (error) {
         logger.error('Error fetching rooms', { error: error.message });
@@ -521,7 +553,7 @@ app.post("/signup", authLimiter, async (req, res) => {
 // ============================================
 // AUTH ENDPOINTS WITH STRICT RATE LIMITING
 // ============================================
-app.post("/login", authLimiter, async (req, res) => {
+app.post("/login", loginLimiter, async (req, res) => {
     try {
         const { username, password, remember } = req.body;
 
@@ -1107,18 +1139,18 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
         const { applicationId, action, rejectionReason } = req.body;
         const adminId = req.session.userId;
 
-        console.log(`[ADMIN-APPROVE] Admin ${adminId} processing application ${applicationId} with action: ${action}`);
+        logger.info(`Admin ${adminId} processing application ${applicationId} with action: ${action}`);
 
         const application = await PendingApplicationCollection.findById(applicationId);
         if (!application) {
-            console.log(`[ERROR] Application ${applicationId} not found`);
+            logger.warn(`Application ${applicationId} not found`);
             return res.status(404).json({ 
                 success: false, 
                 message: "Không tìm thấy đơn đăng ký" 
             });
         }
 
-        console.log(`[DEBUG] Found application:`, {
+        logger.info('Found application', {
             id: application._id,
             studentId: application.studentId,
             status: application.status,
@@ -1134,7 +1166,7 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
         }
 
         if (action === 'approve') {
-            console.log(`[DEBUG] Checking if student already exists in system...`);
+            logger.info('Checking if student already exists in system');
             
             const existingStudent = await checkStudentExistsInSystem(application.studentId, application.fullName);
             
@@ -1143,7 +1175,7 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
                 const fieldType = existingStudent.type === 'studentId' ? 'Mã sinh viên' : 'Tên sinh viên';
                 const fieldValue = existingStudent.type === 'studentId' ? application.studentId : application.fullName;
                 
-                console.log(`[ERROR] Student already exists:`, location);
+                logger.warn('Student already exists', location);
                 
                 return res.status(400).json({ 
                     success: false, 
@@ -1186,7 +1218,7 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
                 });
             }
 
-            console.log(`[DEBUG] All validation passed, approving application...`);
+            logger.info('All validation passed, approving application');
 
             const updatedApplication = await PendingApplicationCollection.findByIdAndUpdate(
                 applicationId, 
@@ -1199,18 +1231,18 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
                 { new: true }
             );
 
-            console.log(`[DEBUG] Application updated:`, updatedApplication.status);
+            logger.info('Application updated', { status: updatedApplication.status });
 
             const student = await StudentCollection.findOne({ studentId: application.studentId });
             if (!student) {
-                console.log(`[ERROR] Student not found for studentId: ${application.studentId}`);
+                logger.warn(`Student not found for studentId: ${application.studentId}`);
                 return res.status(404).json({ 
                     success: false, 
                     message: "Không tìm thấy sinh viên trong hệ thống" 
                 });
             }
 
-            console.log(`[DEBUG] Found student:`, {
+            logger.info('Found student', {
                 id: student._id,
                 name: student.name,
                 studentId: student.studentId
@@ -1237,7 +1269,7 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
 
             await dormitory.save();
 
-            console.log(`[DEBUG] Student room assigned: ${application.roomNumber}`);
+            logger.info(`Student room assigned: ${application.roomNumber}`);
 
             const notificationResult = await sendNotificationOnEvent('registration_approved', student._id, {
                 roomNumber: application.roomNumber,
@@ -1245,7 +1277,21 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
                 applicationId: applicationId
             });
 
-            console.log(`[DEBUG] Notification result:`, notificationResult ? 'SUCCESS' : 'FAILED');
+            await publishDomainEvent(EVENT_TYPES.STUDENT_ASSIGNED, {
+                studentId: String(student._id),
+                allocationType: 'ADMIN_APPROVAL',
+                roomNumber: application.roomNumber,
+                dormitoryId: String(application.dormitoryId || ''),
+                applicationId: String(applicationId)
+            });
+
+            await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+                studentId: String(student._id),
+                applicationId: String(applicationId),
+                status: 'approved'
+            });
+
+            logger.info('Notification result', { result: notificationResult ? 'SUCCESS' : 'FAILED' });
 
             await createActivityLog(student._id, 'application_approved', 
                 `Đơn đăng ký phòng ${application.roomNumber} đã được duyệt`, {
@@ -1280,6 +1326,12 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
                     roomNumber: application.roomNumber,
                     reason: rejectionReason || "Không đáp ứng yêu cầu",
                     applicationId: applicationId
+                });
+
+                await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+                    studentId: String(student._id),
+                    applicationId: String(applicationId),
+                    status: 'rejected'
                 });
 
                 await createActivityLog(student._id, 'application_rejected', 
@@ -1361,6 +1413,20 @@ app.put("/api/admin/applications/:id/update-status", isAdmin, async (req, res) =
                 applicationId: applicationId
             });
 
+            await publishDomainEvent(EVENT_TYPES.STUDENT_ASSIGNED, {
+                studentId: String(student._id),
+                allocationType: 'ADMIN_STATUS_UPDATE',
+                roomNumber: application.roomNumber,
+                dormitoryId: String(application.dormitoryId || ''),
+                applicationId: String(applicationId)
+            });
+
+            await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+                studentId: String(student._id),
+                applicationId: String(applicationId),
+                status: 'approved'
+            });
+
             res.json({ 
                 success: true, 
                 message: "Đã duyệt đơn đăng ký thành công!"
@@ -1380,6 +1446,12 @@ app.put("/api/admin/applications/:id/update-status", isAdmin, async (req, res) =
                 roomNumber: application.roomNumber,
                 reason: comments || "Không đáp ứng yêu cầu",
                 applicationId: applicationId
+            });
+
+            await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+                studentId: String(student._id),
+                applicationId: String(applicationId),
+                status: 'rejected'
             });
 
             res.json({ 
@@ -1864,7 +1936,7 @@ async function sendNotificationOnEvent(eventType, userId, details = {}) {
                 break;
 
             default:
-                console.log(`Unknown notification event type: ${eventType}`);
+                logger.warn(`Unknown notification event type: ${eventType}`);
                 return null;
         }
 
@@ -1931,7 +2003,7 @@ async function createDefaultAdmin() {
                 role: 'admin'
             });
             
-            console.log('✓ Default admin account created');
+            logger.info('Default admin account created');
         }
     } catch (error) {
         console.error('Error creating admin account:', error);
@@ -1971,16 +2043,16 @@ app.get("/admin/academic/priority-queue", isAdmin, async (req, res) => {
 // Academic Windows Management Page
 app.get("/admin/academic-windows", isAdmin, async (req, res) => {
     try {
-        console.log('🔴 Rendering admin/registration-cycles');
+        logger.info('Rendering admin/registration-cycles');
         res.render("admin/registration-cycles", { 
             user: { 
                 name: req.session.name, 
                 role: req.session.role 
             } 
         });
-        console.log('🟢 Successfully rendered');
+        logger.info('Successfully rendered admin/registration-cycles');
     } catch (error) {
-        console.error("🔴 Error rendering academic windows page:", error);
+        console.error("Error rendering academic windows page:", error);
         res.status(500).send("Internal server error");
     }
 });
@@ -2355,7 +2427,7 @@ async function autoMigrateViolations() {
                 { $set: { status: 'pending' } }
             );
             logger.info(`Auto-migrated ${result.modifiedCount} violations from 'investigating' to 'pending'`);
-            console.log(`✓ Auto-migrated ${result.modifiedCount} violations from 'investigating' → 'pending'`);
+            logger.info(`Auto-migrated ${result.modifiedCount} violations from 'investigating' to 'pending'`);
         }
     } catch (error) {
         logger.error('Auto migration failed:', { error: error.message });
@@ -2378,13 +2450,19 @@ global.createActivityLog = createActivityLog;
 
 // 404 Handler
 app.use((req, res) => {
-    // Check if it's an API request
-    if (req.path.startsWith('/api/') || req.accepts('json')) {
+    const isApiRequest = req.path.startsWith('/api/') || req.path.startsWith('/admin/api/');
+    const isAssetRequest = /\.[a-z0-9]+$/i.test(req.path);
+
+    if (isApiRequest) {
         return res.status(404).json({ 
             error: "Not Found",
             message: "The requested resource does not exist",
             path: req.path
         });
+    }
+
+    if (isAssetRequest) {
+        return res.status(404).type('text/plain').send('Not Found');
     }
     
     // For regular page requests
@@ -2406,13 +2484,18 @@ let currentPort = basePort;
 let server;
 
 function startServer(portToUse, retries = 0) {
-    server = app.listen(portToUse, () => {
+    const httpServer = http.createServer(app);
+    startDomainEventDispatcher();
+    server = httpServer.listen(portToUse, '0.0.0.0', () => {
         currentPort = portToUse;
         logger.info(`Server started successfully on port ${portToUse}`, {
             env: process.env.NODE_ENV,
             nodeVersion: process.version,
         });
-        console.log('🚀 Server listening on port ' + portToUse);
+
+        const io = setupStudentSocketServer(httpServer, sessionMiddleware);
+        app.set('io', io);
+        logger.info(`Server listening on 0.0.0.0:${portToUse}`);
     });
 
     server.on('error', (error) => {
@@ -2441,6 +2524,25 @@ process.on('SIGTERM', () => {
         logger.info('Server closed');
         process.exit(0);
     });
+});
+
+process.on('unhandledRejection', (reason) => {
+        logger.error('Unhandled promise rejection', {
+            reason: reason instanceof Error ? reason.message : String(reason),
+            stack: reason instanceof Error ? reason.stack : undefined
+        });
+});
+
+process.on('uncaughtException', (error) => {
+        logger.error('Uncaught exception', {
+            error: error.message,
+            stack: error.stack
+        });
+    if (server) {
+            server.close(() => process.exit(1));
+            return;
+    }
+    process.exit(1);
 });
 
 process.on('SIGINT', () => {

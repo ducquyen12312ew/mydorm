@@ -1,0 +1,35 @@
+@startuml
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor LightGoldenRodYellow
+  BorderColor GoldenRod
+  FontName Arial
+  FontSize 12
+  ArrowColor GoldenRod
+}
+
+actor "Sinh viên" as Student
+
+rectangle "Đăng ký ở" {
+  (Đăng ký ở và nộp minh chứng) as UC_Register
+  (Tải lên minh chứng) as UC_Upload
+  (Xác thực sơ bộ) as UC_Validate
+  (Lưu hồ sơ và trả mã xác nhận) as UC_Save
+  (Yêu cầu tải lại tệp) as UC_Retry
+  (Thông báo thiếu thông tin) as UC_Missing
+}
+
+Student --> UC_Register : "1. Đăng nhập và\nchọn chức năng đăng ký ở"
+Student --> UC_Upload : "2. Nhập thông tin\nvà tải lên minh chứng (nếu có)"
+
+UC_Register .> UC_Validate : include
+UC_Upload .> UC_Validate : include
+UC_Validate --> UC_Save : nếu hợp lệ
+UC_Validate --> UC_Retry : "Nếu tệp tải lên không hợp lệ - yêu cầu tải lại"
+UC_Validate --> UC_Missing : "Nếu thông tin thiếu - thông báo và dừng quy trình"
+UC_Save --> Student : Trả mã xác nhận
+
+'' Note content removed per request
+
+@enduml

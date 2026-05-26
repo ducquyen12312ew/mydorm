@@ -10,6 +10,7 @@ const {
 const Notification = require('../../schemas/NotificationSchema');
 const ApplicationReviewHistory = require('../../schemas/ApplicationReviewHistorySchema');
 const { isValidObjectId } = require('mongoose');
+const { logger } = require('../../config/logger');
 
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
@@ -168,18 +169,20 @@ router.get('/admin/applications/list', isAdmin, async (req, res) => {
             ];
         }
 
-        console.log('[Admin Applications Route] Query:', { status, academicYear, search });
-        console.log('[Admin Applications Route] MongoDB filter:', JSON.stringify(filter, null, 2));
+        logger.info('Admin applications query', { status, academicYear, search });
+        logger.info('Admin applications MongoDB filter', { filter });
 
         // Count all docs first
         const totalDocs = await PendingApplicationCollection.countDocuments({});
-        console.log('[Admin Applications Route] Total docs in collection:', totalDocs);
+        logger.info('Admin applications total docs in collection', { totalDocs });
 
         const applications = await PendingApplicationCollection.find(filter)
             .sort({ createdAt: -1 });
         
-        console.log('[Admin Applications Route] Found after filter:', applications.length);
-        console.log('[Admin Applications Route] Sample app statuses:', applications.slice(0, 3).map(a => ({ _id: a._id, status: a.status, fullName: a.fullName })));
+        logger.info('Admin applications found after filter', { count: applications.length });
+        logger.info('Admin applications sample statuses', {
+            sample: applications.slice(0, 3).map(a => ({ _id: a._id, status: a.status, fullName: a.fullName }))
+        });
             
         const applicationData = await Promise.all(applications.map(async (app) => {
             const dormitory = await DormitoryCollection.findById(app.dormitoryId);
@@ -277,7 +280,10 @@ router.get('/admin/applications/:id', isAdmin, validateObjectId, async (req, res
             console.error('Error checking student existence:', error);
         }
         
-        console.log('[Admin Application Detail] priorityPolicies from DB:', application.priorityPolicies);
+        logger.info('Admin application detail priority policies loaded', {
+            applicationId: application._id,
+            priorityPolicies: application.priorityPolicies
+        });
         
         const applicationDetails = {
             _id: application._id,
@@ -1016,7 +1022,7 @@ router.post('/api/admin/academic-windows/:id/activate', isAdmin, async (req, res
                 });
                 
                 await Promise.all(notificationPromises);
-                console.log(`Sent registration window notifications to ${eligibleStudents.length} students`);
+                logger.info(`Sent registration window notifications to ${eligibleStudents.length} students`);
             }
         } catch (notificationError) {
             console.error('Error sending notifications:', notificationError);
@@ -1335,27 +1341,33 @@ router.get('/dormitories/:dormId/rooms/:floorNumber/:roomNumber', isAdmin, async
     try {
         const { dormId, floorNumber, roomNumber } = req.params;
 
-        console.log('[Room Details API] params', { dormId, floorNumber, roomNumber });
+        logger.info('Room details API params', { dormId, floorNumber, roomNumber });
 
         const dorm = await DormitoryCollection.findById(dormId);
         if (!dorm) {
-            console.log('[Room Details API] dorm not found', dormId);
+            logger.warn('Room details API dorm not found', { dormId });
             return res.status(404).json({ error: 'Không tìm thấy ký túc xá' });
         }
 
-        console.log('[Room Details API] available floors', dorm.floors?.map(f => f.floorNumber));
+        logger.info('Room details API available floors', { floors: dorm.floors?.map(f => f.floorNumber) });
         const normalizedFloor = String(floorNumber).trim();
         const floor = dorm.floors.find(f => String(f.floorNumber) === normalizedFloor);
         if (!floor) {
-            console.log('[Room Details API] floor not found', { requested: normalizedFloor, available: dorm.floors?.map(f => String(f.floorNumber)) });
+            logger.warn('Room details API floor not found', {
+                requested: normalizedFloor,
+                available: dorm.floors?.map(f => String(f.floorNumber))
+            });
             return res.status(404).json({ error: 'Không tìm thấy tầng' });
         }
 
-        console.log('[Room Details API] floor rooms', floor.rooms?.map(r => r.roomNumber));
+        logger.info('Room details API floor rooms', { rooms: floor.rooms?.map(r => r.roomNumber) });
         const normalizedRoom = String(roomNumber).trim();
         const room = floor.rooms.find(r => String(r.roomNumber) === normalizedRoom);
         if (!room) {
-            console.log('[Room Details API] room not found', { requested: normalizedRoom, available: floor.rooms?.map(r => String(r.roomNumber)) });
+            logger.warn('Room details API room not found', {
+                requested: normalizedRoom,
+                available: floor.rooms?.map(r => String(r.roomNumber))
+            });
             return res.status(404).json({ error: 'Không tìm thấy phòng' });
         }
 
