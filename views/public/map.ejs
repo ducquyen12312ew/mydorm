@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Báº£n Ä‘á»“ KĂ½ tĂºc xĂ¡ Äáº¡i há»c BĂ¡ch Khoa HĂ  Ná»™i</title>
+    <title>Bản đồ Ký túc xá Đại học Bách Khoa Hà Nội</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
@@ -33,8 +33,8 @@
             overflow-x: hidden;
         }
         
-        /* Header vĂ  Menu */
-/* Header vĂ  Menu */
+        /* Header và Menu */
+/* Header và Menu */
 .header {
     position: fixed;
     top: 0;
@@ -855,7 +855,7 @@
             background: #3498db;
         }
         
-        /* áº¨n nĂºt zoom máº·c Ä‘á»‹nh cá»§a Leaflet */
+        /* Ẩn nút zoom mặc định của Leaflet */
         .leaflet-control-zoom {
             display: none !important;
         }
@@ -1058,15 +1058,15 @@
         </div>
         <div class="nav-container" id="navContainer">
             <nav class="nav-links">
-                <a href="/" class="nav-link">TRANG CHá»¦</a>
-                <a href="/map" class="nav-link active-link">Báº¢N Äá»’</a>
-                <a href="/register" class="nav-link">ÄÄ‚NG KĂ PHĂ’NG</a>
-                <a href="/room-status" class="nav-link">TRáº NG THĂI PHĂ’NG</a>
+                <a href="/" class="nav-link">TRANG CHỦ</a>
+                <a href="/map" class="nav-link active-link">BẢN ĐỒ</a>
+                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
             </nav>
 
                 <!-- User profile dropdown -->
                 <div class="user-profile">
-                    <a href="/profile" class="avatar-container" title="Xem há»“ sÆ¡">
+                    <a href="/profile" class="avatar-container" title="Xem hồ sơ">
                         <div class="avatar">
                             <% if (user && user.name) { %>
                                 <%= user.name.charAt(0).toUpperCase() %>
@@ -1078,16 +1078,16 @@
                             <% if (user && user.name) { %>
                                 <%= user.name %>
                             <% } else { %>
-                                NgÆ°á»i dĂ¹ng
+                                Người dùng
                             <% } %>
                         </span>
                     </a>
                     <div class="dropdown-menu">
                         <a href="/profile" class="dropdown-item">
-                            <i class="fas fa-user-circle"></i> Há»“ sÆ¡
+                            <i class="fas fa-user-circle"></i> Hồ sơ
                         </a>
                         <a href="/logout" class="dropdown-item">
-                            <i class="fas fa-sign-out-alt"></i> ÄÄƒng xuáº¥t
+                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
                         </a>
                     </div>
                 </div>
@@ -1104,10 +1104,10 @@
             </div>
 
             <!-- Navigation buttons -->
-            <button class="carousel-nav carousel-nav-prev" id="carouselPrevBtn" aria-label="áº¢nh trÆ°á»›c">
+            <button class="carousel-nav carousel-nav-prev" id="carouselPrevBtn" aria-label="Ảnh trước">
                 <i class="fas fa-chevron-left"></i>
             </button>
-            <button class="carousel-nav carousel-nav-next" id="carouselNextBtn" aria-label="áº¢nh sau">
+            <button class="carousel-nav carousel-nav-next" id="carouselNextBtn" aria-label="Ảnh sau">
                 <i class="fas fa-chevron-right"></i>
             </button>
 
@@ -1118,7 +1118,7 @@
 
     <div>
         <div class="header-text"></div>
-        <div class="main-text">Báº£n Äá»“ KĂ½ TĂºc XĂ¡</div>
+        <div class="main-text">Bản Đồ Ký Túc Xá</div>
         <div class="header-text"></div>
     </div>
     
@@ -1131,7 +1131,7 @@
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
                 
-                <input id="search-input" type="text" placeholder="TĂ¬m kĂ½ tĂºc xĂ¡...">
+                <input id="search-input" type="text" placeholder="Tìm ký túc xá...">
                 
                 <svg width="20" height="20" class="dropdown-icon" id="dropdown-toggle" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2">
                     <path d="M6 9l6 6 6-6"></path>
@@ -1140,20 +1140,20 @@
             
             <div class="dropdown-menu" id="dropdown-menu">
                 <div class="dropdown-section">
-                    <h4>PhĂ¢n loáº¡i khu</h4>
+                    <h4>Phân loại khu</h4>
                     <div class="dropdown-options">
-                        <div class="dropdown-option" data-category="basic">Khu cÆ¡ báº£n</div>
-                        <div class="dropdown-option" data-category="premium">Khu cao cáº¥p</div>
-                        <div class="dropdown-option" data-category="international">Khu du há»c sinh</div>
+                        <div class="dropdown-option" data-category="basic">Khu cơ bản</div>
+                        <div class="dropdown-option" data-category="premium">Khu cao cấp</div>
+                        <div class="dropdown-option" data-category="international">Khu du học sinh</div>
                     </div>
                 </div>
                 <div class="dropdown-section">
-                    <h4>Loáº¡i phĂ²ng</h4>
+                    <h4>Loại phòng</h4>
                     <div class="dropdown-options">
-                        <div class="dropdown-option" data-room="8-person">PhĂ²ng 8 sinh viĂªn</div>
-                        <div class="dropdown-option" data-room="4-person-service">PhĂ²ng dá»‹ch vá»¥ 4 sinh viĂªn</div>
-                        <div class="dropdown-option" data-room="5-person">PhĂ²ng 5 sinh viĂªn</div>
-                        <div class="dropdown-option" data-room="10-person">PhĂ²ng 10 sinh viĂªn</div>
+                        <div class="dropdown-option" data-room="8-person">Phòng 8 sinh viên</div>
+                        <div class="dropdown-option" data-room="4-person-service">Phòng dịch vụ 4 sinh viên</div>
+                        <div class="dropdown-option" data-room="5-person">Phòng 5 sinh viên</div>
+                        <div class="dropdown-option" data-room="10-person">Phòng 10 sinh viên</div>
                     </div>
                 </div>
             </div>
@@ -1162,10 +1162,10 @@
         <div id="map"></div>
 
         <div class="control-panel">
-            <div class="control-btn" id="locate-me" title="Vá»‹ trĂ­ cá»§a tĂ´i">đŸ“</div>
-            <div class="control-btn" id="zoom-in" title="PhĂ³ng to">â•</div>
-            <div class="control-btn" id="zoom-out" title="Thu nhá»">â–</div>
-            <div class="control-btn" id="reset-view" title="KhĂ´i phá»¥c view">đŸ </div>
+            <div class="control-btn" id="locate-me" title="Vị trí của tôi">📍</div>
+            <div class="control-btn" id="zoom-in" title="Phóng to">➕</div>
+            <div class="control-btn" id="zoom-out" title="Thu nhỏ">➖</div>
+            <div class="control-btn" id="reset-view" title="Khôi phục view">🏠</div>
         </div>
     </section>
 
@@ -1175,32 +1175,32 @@
     <script src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
     
     <script>
-  // Biáº¿n toĂ n cá»¥c Ä‘á»ƒ lÆ°u trá»¯ tham chiáº¿u Ä‘áº¿n map vĂ  markers
+  // Biến toàn cục để lưu trữ tham chiếu đến map và markers
 let map;
 let dormMarkers = [];
 let currentSlide = 0;
 let slides;
 let totalSlides;
 
-// Äáº£m báº£o DOM Ä‘Ă£ Ä‘Æ°á»£c táº£i hoĂ n toĂ n trÆ°á»›c khi thá»±c thi
+// Đảm bảo DOM đã được tải hoàn toàn trước khi thực thi
 document.addEventListener('DOMContentLoaded', function() {
-    // Xá»­ lĂ½ menu toggle
+    // Xử lý menu toggle
     handleMenuToggle();
     
-    // Xá»­ lĂ½ dropdown menu báº£n Ä‘á»“
+    // Xử lý dropdown menu bản đồ
     handleDropdownMenu();
     
-    // Khá»Ÿi táº¡o báº£n Ä‘á»“
+    // Khởi tạo bản đồ
     initializeMap();
     
-    // Fetch dá»¯ liá»‡u kĂ½ tĂºc xĂ¡ cho slideshow
+    // Fetch dữ liệu ký túc xá cho slideshow
     fetchFeaturedDormitories();
     
-    // CĂ¡c nĂºt Ä‘iá»u khiá»ƒn báº£n Ä‘á»“
+    // Các nút điều khiển bản đồ
     setupMapControls();
 });
 
-// HĂ m xá»­ lĂ½ menu toggle
+// Hàm xử lý menu toggle
 function handleMenuToggle() {
     const menuToggle = document.getElementById('menuToggle');
     const navContainer = document.getElementById('navContainer');
@@ -1222,7 +1222,7 @@ function handleMenuToggle() {
         });
     }
     
-    // ÄĂ³ng menu khi click bĂªn ngoĂ i
+    // Đóng menu khi click bên ngoài
     document.addEventListener('click', function(event) {
         if (navContainer && menuToggle && 
             !navContainer.contains(event.target) && 
@@ -1238,7 +1238,7 @@ function handleMenuToggle() {
     });
 }
 
-// HĂ m xá»­ lĂ½ dropdown menu báº£n Ä‘á»“
+// Hàm xử lý dropdown menu bản đồ
 function handleDropdownMenu() {
     const dropdownIcon = document.getElementById('dropdown-toggle');
     const dropdownMenu = document.getElementById('dropdown-menu');
@@ -1250,14 +1250,14 @@ function handleDropdownMenu() {
         });
     }
     
-    // ÄĂ³ng dropdown khi click bĂªn ngoĂ i
+    // Đóng dropdown khi click bên ngoài
     document.addEventListener('click', function(event) {
         if (dropdownMenu && !event.target.closest('.header-bar') && dropdownMenu.classList.contains('active')) {
             dropdownMenu.classList.remove('active');
         }
     });
     
-    // Xá»­ lĂ½ chá»n option trong dropdown
+    // Xử lý chọn option trong dropdown
     const categoryOptions = document.querySelectorAll('[data-category]');
     const roomOptions = document.querySelectorAll('[data-room]');
     
@@ -1265,20 +1265,20 @@ function handleDropdownMenu() {
     handleOptionSelect(roomOptions);
 }
 
-// HĂ m xá»­ lĂ½ option selection trong dropdown
+// Hàm xử lý option selection trong dropdown
 function handleOptionSelect(options) {
     options.forEach(option => {
         option.addEventListener('click', function(e) {
-            e.stopPropagation(); // NgÄƒn viá»‡c click lan tá»a
+            e.stopPropagation(); // Ngăn việc click lan tỏa
             
-            // Bá» selected cho cĂ¡c option khĂ¡c trong cĂ¹ng nhĂ³m
+            // Bỏ selected cho các option khác trong cùng nhóm
             options.forEach(opt => opt.classList.remove('selected'));
             this.classList.add('selected');
             
-            // Thá»±c hiá»‡n tĂ¬m kiáº¿m vá»›i category hoáº·c room Ä‘Æ°á»£c chá»n
+            // Thực hiện tìm kiếm với category hoặc room được chọn
             const selectedValue = this.getAttribute('data-category') || this.getAttribute('data-room');
             
-            // Láº¥y dá»¯ liá»‡u lá»c tá»« API
+            // Lấy dữ liệu lọc từ API
             if (this.hasAttribute('data-category')) {
                 fetchFilteredDormitories('category', selectedValue);
             } else if (this.hasAttribute('data-room')) {
@@ -1288,18 +1288,18 @@ function handleOptionSelect(options) {
     });
 }
 
-// HĂ m khá»Ÿi táº¡o báº£n Ä‘á»“
+// Hàm khởi tạo bản đồ
 function initializeMap() {
     map = L.map('map', {
-        zoomControl: false  // Táº¯t nĂºt zoom máº·c Ä‘á»‹nh
+        zoomControl: false  // Tắt nút zoom mặc định
     }).setView([21.007119, 105.843220], 15);
 
-    // ThĂªm OpenStreetMap layer
+    // Thêm OpenStreetMap layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Táº¡o cĂ¡c icon
+    // Tạo các icon
     const universityIcon = L.icon({
         iconUrl: '/image/university.png',
         iconSize: [60, 60],
@@ -1307,58 +1307,58 @@ function initializeMap() {
         popupAnchor: [0, -32]
     });
 
-    // ThĂªm marker cho trÆ°á»ng Äáº¡i há»c BĂ¡ch Khoa
+    // Thêm marker cho trường Đại học Bách Khoa
     const university = L.marker([21.007119, 105.843220], {
         icon: universityIcon
     }).addTo(map);
 
     university.bindPopup(`
         <div class="custom-popup">
-            <h3>Äáº¡i há»c BĂ¡ch Khoa HĂ  Ná»™i</h3>
-            <div class="image">HĂ¬nh áº£nh trÆ°á»ng</div>
-            <p><strong>Äá»‹a chá»‰:</strong> Sá»‘ 1 Äáº¡i Cá»“ Viá»‡t, Hai BĂ  TrÆ°ng, HĂ  Ná»™i</p>
+            <h3>Đại học Bách Khoa Hà Nội</h3>
+            <div class="image">Hình ảnh trường</div>
+            <p><strong>Địa chỉ:</strong> Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
             <p><strong>Website:</strong> <a href="https://hust.edu.vn" target="_blank">hust.edu.vn</a></p>
             <div class="action-btns">
-                <button onclick="window.open('https://hust.edu.vn/thong-tin')">ThĂ´ng tin</button>
-                <button onclick="showDirections(21.007119, 105.843220)">Chá»‰ Ä‘Æ°á»ng</button>
+                <button onclick="window.open('https://hust.edu.vn/thong-tin')">Thông tin</button>
+                <button onclick="showDirections(21.007119, 105.843220)">Chỉ đường</button>
             </div>
         </div>
     `);
 
-    // Láº¥y dá»¯ liá»‡u kĂ½ tĂºc xĂ¡ tá»« API
+    // Lấy dữ liệu ký túc xá từ API
     fetchDormitories();
     
-    // Xá»­ lĂ½ tĂ¬m kiáº¿m báº±ng thanh search
+    // Xử lý tìm kiếm bằng thanh search
     setupSearchInput();
 }
 
-// HĂ m láº¥y dá»¯ liá»‡u kĂ½ tĂºc xĂ¡ ná»•i báº­t cho carousel
+// Hàm lấy dữ liệu ký túc xá nổi bật cho carousel
 function fetchFeaturedDormitories() {
-    // Dá»¯ liá»‡u slides máº·c Ä‘á»‹nh (room types)
+    // Dữ liệu slides mặc định (room types)
     const defaultSlides = [
         {
-            name: 'PhĂ²ng ÄÆ¡n',
-            description: 'PhĂ²ng tiĂªu chuáº©n cho 1 sinh viĂªn',
+            name: 'Phòng Đơn',
+            description: 'Phòng tiêu chuẩn cho 1 sinh viên',
             image: '/image/camp1.png'
         },
         {
-            name: 'PhĂ²ng ÄĂ´i',
-            description: 'PhĂ²ng tiĂªu chuáº©n cho 2 sinh viĂªn',
+            name: 'Phòng Đôi',
+            description: 'Phòng tiêu chuẩn cho 2 sinh viên',
             image: '/image/camp1.png'
         },
         {
-            name: 'PhĂ²ng VIP',
-            description: 'PhĂ²ng cao cáº¥p vá»›i tiá»‡n nghi Ä‘áº§y Ä‘á»§',
+            name: 'Phòng VIP',
+            description: 'Phòng cao cấp với tiện nghi đầy đủ',
             image: '/image/camp1.png'
         },
         {
-            name: 'Khu Sinh Hoáº¡t Chung',
-            description: 'KhĂ´ng gian chung Ä‘á»ƒ sinh viĂªn giao lÆ°u',
+            name: 'Khu Sinh Hoạt Chung',
+            description: 'Không gian chung để sinh viên giao lưu',
             image: '/image/camp1.png'
         },
         {
-            name: 'NhĂ  Ä‚n',
-            description: 'CÆ¡ sá»Ÿ Äƒn uá»‘ng cháº¥t lÆ°á»£ng cho sinh viĂªn',
+            name: 'Nhà Ăn',
+            description: 'Cơ sở ăn uống chất lượng cho sinh viên',
             image: '/image/camp1.png'
         }
     ];
@@ -1366,7 +1366,7 @@ function fetchFeaturedDormitories() {
     initializeCarousel(defaultSlides);
 }
 
-// Khá»Ÿi táº¡o carousel 3D stacked
+// Khởi tạo carousel 3D stacked
 function initializeCarousel(slides) {
     const carouselTrack = document.getElementById('carouselTrack');
     const carouselPagination = document.getElementById('carouselPagination');
@@ -1376,14 +1376,14 @@ function initializeCarousel(slides) {
         return;
     }
     
-    // XĂ³a ná»™i dung cÅ©
+    // Xóa nội dung cũ
     carouselTrack.innerHTML = '';
     carouselPagination.innerHTML = '';
     
     let currentIndex = 0;
     const totalSlides = slides.length;
     
-    // Táº¡o slides
+    // Tạo slides
     slides.forEach((slide, index) => {
         const slideEl = document.createElement('div');
         slideEl.className = 'carousel-slide' + (index === 0 ? ' active' : '');
@@ -1393,7 +1393,7 @@ function initializeCarousel(slides) {
         carouselTrack.appendChild(slideEl);
     });
     
-    // Táº¡o pagination dots
+    // Tạo pagination dots
     slides.forEach((slide, index) => {
         const dot = document.createElement('button');
         dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
@@ -1402,7 +1402,7 @@ function initializeCarousel(slides) {
         carouselPagination.appendChild(dot);
     });
     
-    // Cáº­p nháº­t carousel position
+    // Cập nhật carousel position
     function updateCarouselPosition() {
         const slideEls = carouselTrack.querySelectorAll('.carousel-slide');
         const dots = carouselPagination.querySelectorAll('.carousel-dot');
@@ -1426,13 +1426,13 @@ function initializeCarousel(slides) {
         });
     }
     
-    // HĂ m chuyá»ƒn Ä‘áº¿n slide
+    // Hàm chuyển đến slide
     function goToSlide(index) {
         currentIndex = index;
         updateCarouselPosition();
     }
     
-    // HĂ m chuyá»ƒn slide
+    // Hàm chuyển slide
     function nextSlide() {
         currentIndex = (currentIndex + 1) % totalSlides;
         updateCarouselPosition();
@@ -1443,7 +1443,7 @@ function initializeCarousel(slides) {
         updateCarouselPosition();
     }
     
-    // Gáº¯n sá»± kiá»‡n cho nĂºt Ä‘iá»u hÆ°á»›ng
+    // Gắn sự kiện cho nút điều hướng
     const prevBtn = document.getElementById('carouselPrevBtn');
     const nextBtn = document.getElementById('carouselNextBtn');
     
@@ -1453,7 +1453,7 @@ function initializeCarousel(slides) {
     // Auto play
     let autoPlayInterval = setInterval(nextSlide, 5000);
     
-    // Dá»«ng auto play khi hover
+    // Dừng auto play khi hover
     carouselTrack.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
     carouselTrack.addEventListener('mouseleave', () => {
         autoPlayInterval = setInterval(nextSlide, 5000);
@@ -1477,7 +1477,7 @@ function initializeCarousel(slides) {
     });
 }
 
-// HĂ m xá»­ lĂ½ search input
+// Hàm xử lý search input
 function setupSearchInput() {
     const searchInput = document.getElementById('search-input');
     let searchTimeout;
@@ -1491,7 +1491,7 @@ function setupSearchInput() {
                 return;
             }
             
-            // ThĂªm debounce Ä‘á»ƒ trĂ¡nh gá»i API quĂ¡ nhiá»u
+            // Thêm debounce để tránh gọi API quá nhiều
             searchTimeout = setTimeout(() => {
                 fetchSearchResults(searchText);
             }, 300);
@@ -1499,9 +1499,9 @@ function setupSearchInput() {
     }
 }
 
-// HĂ m thiáº¿t láº­p cĂ¡c nĂºt Ä‘iá»u khiá»ƒn báº£n Ä‘á»“
+// Hàm thiết lập các nút điều khiển bản đồ
 function setupMapControls() {
-    // NĂºt Ä‘á»‹nh vá»‹
+    // Nút định vị
     const locateMe = document.getElementById('locate-me');
     if (locateMe) {
         locateMe.addEventListener('click', function() {
@@ -1511,7 +1511,7 @@ function setupMapControls() {
                         const userLocation = [position.coords.latitude, position.coords.longitude];
                         map.setView(userLocation, 15);
                         
-                        // Táº¡o marker cho vá»‹ trĂ­ cá»§a ngÆ°á»i dĂ¹ng
+                        // Tạo marker cho vị trí của người dùng
                         L.marker(userLocation, {
                             icon: L.icon({
                                 iconUrl: '/image/user-location.png',
@@ -1520,20 +1520,20 @@ function setupMapControls() {
                                 popupAnchor: [0, -32]
                             })
                         }).addTo(map)
-                          .bindPopup("Báº¡n Ä‘ang á»Ÿ Ä‘Ă¢y!")
+                          .bindPopup("Bạn đang ở đây!")
                           .openPopup();
                     },
                     error => {
-                        alert("KhĂ´ng thá»ƒ xĂ¡c Ä‘á»‹nh vá»‹ trĂ­ cá»§a báº¡n: " + error.message);
+                        alert("Không thể xác định vị trí của bạn: " + error.message);
                     }
                 );
             } else {
-                alert("TrĂ¬nh duyá»‡t cá»§a báº¡n khĂ´ng há»— trá»£ Ä‘á»‹nh vá»‹");
+                alert("Trình duyệt của bạn không hỗ trợ định vị");
             }
         });
     }
 
-    // NĂºt zoom in
+    // Nút zoom in
     const zoomIn = document.getElementById('zoom-in');
     if (zoomIn) {
         zoomIn.addEventListener('click', function() {
@@ -1541,7 +1541,7 @@ function setupMapControls() {
         });
     }
 
-    // NĂºt zoom out
+    // Nút zoom out
     const zoomOut = document.getElementById('zoom-out');
     if (zoomOut) {
         zoomOut.addEventListener('click', function() {
@@ -1549,7 +1549,7 @@ function setupMapControls() {
         });
     }
 
-    // NĂºt reset view
+    // Nút reset view
     const resetView = document.getElementById('reset-view');
     if (resetView) {
         resetView.addEventListener('click', function() {
@@ -1559,15 +1559,15 @@ function setupMapControls() {
 }
 
 
-// HĂ m táº¡o pagination
+// Hàm tạo pagination
 function createPagination() {
     const pagination = document.querySelector('.swiper-pagination');
     
     if (pagination) {
-        // XĂ³a táº¥t cáº£ bullets hiá»‡n táº¡i
+        // Xóa tất cả bullets hiện tại
         pagination.innerHTML = '';
         
-        // Táº¡o bullets má»›i
+        // Tạo bullets mới
         for (let i = 0; i < totalSlides; i++) {
             const bullet = document.createElement('span');
             bullet.className = 'swiper-pagination-bullet';
@@ -1579,13 +1579,13 @@ function createPagination() {
     }
 }
 
-// Thiáº¿t láº­p Ä‘iá»u hÆ°á»›ng slide
+// Thiết lập điều hướng slide
 function setupSlideNavigation() {
     const leftNav = document.querySelector('.navigation-hover-left');
     const rightNav = document.querySelector('.navigation-hover-right');
     
     if (leftNav && rightNav) {
-        // ThĂªm mÅ©i tĂªn náº¿u cáº§n
+        // Thêm mũi tên nếu cần
         if (!document.querySelector('.navigation-arrow-left')) {
             const leftArrow = document.createElement('div');
             leftArrow.className = 'navigation-arrow navigation-arrow-left';
@@ -1598,7 +1598,7 @@ function setupSlideNavigation() {
             rightNav.appendChild(rightArrow);
         }
         
-        // Sá»± kiá»‡n hover
+        // Sự kiện hover
         leftNav.addEventListener('mouseenter', () => {
             const arrow = leftNav.querySelector('.navigation-arrow-left');
             if (arrow) arrow.style.opacity = '1';
@@ -1619,18 +1619,18 @@ function setupSlideNavigation() {
             if (arrow) arrow.style.opacity = '0';
         });
         
-        // Sá»± kiá»‡n click
+        // Sự kiện click
         leftNav.addEventListener('click', prevSlide);
         rightNav.addEventListener('click', nextSlide);
     }
 }
 
-// HĂ m khá»Ÿi táº¡o vá»‹ trĂ­ cĂ¡c slide
+// Hàm khởi tạo vị trí các slide
 function initializeSlides() {
     if (!slides || slides.length === 0) return;
     
     slides.forEach((slide, index) => {
-        // Reset táº¥t cáº£
+        // Reset tất cả
         slide.classList.remove('swiper-slide-prev', 'swiper-slide-active', 'swiper-slide-next');
         
         if (index === currentSlide) {
@@ -1654,11 +1654,11 @@ function initializeSlides() {
         }
     });
     
-    // Cáº­p nháº­t bullets
+    // Cập nhật bullets
     updatePaginationBullets();
 }
 
-// Cáº­p nháº­t bullets pagination
+// Cập nhật bullets pagination
 function updatePaginationBullets() {
     const bullets = document.querySelectorAll('.swiper-pagination-bullet');
     bullets.forEach((bullet, index) => {
@@ -1670,25 +1670,25 @@ function updatePaginationBullets() {
     });
 }
 
-// HĂ m chuyá»ƒn Ä‘áº¿n slide trÆ°á»›c
+// Hàm chuyển đến slide trước
 function prevSlide() {
     currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
     initializeSlides();
 }
 
-// HĂ m chuyá»ƒn Ä‘áº¿n slide tiáº¿p theo
+// Hàm chuyển đến slide tiếp theo
 function nextSlide() {
     currentSlide = (currentSlide + 1) % totalSlides;
     initializeSlides();
 }
 
-// HĂ m chuyá»ƒn Ä‘áº¿n slide cá»¥ thá»ƒ
+// Hàm chuyển đến slide cụ thể
 function goToSlide(index) {
     currentSlide = index;
     initializeSlides();
 }
 
-// HĂ m láº¥y táº¥t cáº£ kĂ½ tĂºc xĂ¡
+// Hàm lấy tất cả ký túc xá
 function fetchDormitories() {
     fetch('/api/map-data')
         .then(response => {
@@ -1698,7 +1698,6 @@ function fetchDormitories() {
             return response.json();
         })
         .then(data => {
-            console.log('[DEBUG] Map data received:', data);
             const dormitories = data.success ? data.dormitories : [];
             if (dormitories && dormitories.length > 0) {
                 addDormsToMap(dormitories);
@@ -1711,7 +1710,7 @@ function fetchDormitories() {
         });
 }
 
-// HĂ m láº¥y kĂ½ tĂºc xĂ¡ theo bá»™ lá»c
+// Hàm lấy ký túc xá theo bộ lọc
 function fetchFilteredDormitories(filterType, value) {
     fetch(`/api/dormitories/filter?${filterType}=${value}`)
         .then(response => {
@@ -1722,22 +1721,21 @@ function fetchFilteredDormitories(filterType, value) {
         })
         .then(data => {
             if (data.success && data.data.length > 0) {
-                // XĂ³a markers cÅ©
+                // Xóa markers cũ
                 clearMarkers();
                 
-                // ThĂªm markers má»›i
+                // Thêm markers mới
                 addDormsToMap(data.data, true);
                 
-                // Zoom vĂ o káº¿t quáº£ Ä‘áº§u tiĂªn
+                // Zoom vào kết quả đầu tiên
                 if (data.data[0].location && data.data[0].location.coordinates) {
                     const coordinates = [data.data[0].location.coordinates[1], data.data[0].location.coordinates[0]];
                     map.setView(coordinates, 17);
                 }
             } else {
-                console.log("No dormitories found with filter:", filterType, value);
             }
             
-            // ÄĂ³ng dropdown
+            // Đóng dropdown
             const dropdownMenu = document.getElementById('dropdown-menu');
             if (dropdownMenu) dropdownMenu.classList.remove('active');
         })
@@ -1746,7 +1744,7 @@ function fetchFilteredDormitories(filterType, value) {
         });
 }
 
-// HĂ m tĂ¬m kiáº¿m kĂ½ tĂºc xĂ¡ theo text
+// Hàm tìm kiếm ký túc xá theo text
 function fetchSearchResults(searchText) {
     fetch(`/api/dormitories/search?query=${encodeURIComponent(searchText)}`)
         .then(response => {
@@ -1757,19 +1755,18 @@ function fetchSearchResults(searchText) {
         })
         .then(data => {
             if (data.success && data.data.length > 0) {
-                // XĂ³a markers cÅ©
+                // Xóa markers cũ
                 clearMarkers();
                 
-                // ThĂªm markers má»›i
+                // Thêm markers mới
                 addDormsToMap(data.data, true);
                 
-                // Zoom vĂ o káº¿t quáº£ Ä‘áº§u tiĂªn
+                // Zoom vào kết quả đầu tiên
                 if (data.data[0].location && data.data[0].location.coordinates) {
                     const coordinates = [data.data[0].location.coordinates[1], data.data[0].location.coordinates[0]];
                     map.setView(coordinates, 17);
                 }
             } else {
-                console.log("No dormitories found with search:", searchText);
             }
         })
         .catch(error => {
@@ -1777,14 +1774,14 @@ function fetchSearchResults(searchText) {
         });
 }
 
-// HĂ m Ä‘á»ƒ thĂªm cĂ¡c kĂ½ tĂºc xĂ¡ vĂ o báº£n Ä‘á»“
+// Hàm để thêm các ký túc xá vào bản đồ
 function addDormsToMap(dorms, openPopup = false) {
     dorms.forEach(dorm => {
         if (dorm.location && dorm.location.coordinates && dorm.location.coordinates.length === 2) {
-            // Leaflet sá»­ dá»¥ng [latitude, longitude] nhÆ°ng MongoDB lÆ°u [longitude, latitude]
+            // Leaflet sử dụng [latitude, longitude] nhưng MongoDB lưu [longitude, latitude]
             const coordinates = [dorm.location.coordinates[1], dorm.location.coordinates[0]];
             
-            // XĂ¡c Ä‘á»‹nh icon dá»±a trĂªn loáº¡i kĂ½ tĂºc xĂ¡
+            // Xác định icon dựa trên loại ký túc xá
             const markerIcon = L.icon({
                 iconUrl: '/image/location.png',
                 iconSize: [60, 60],
@@ -1796,30 +1793,30 @@ function addDormsToMap(dorms, openPopup = false) {
                 icon: markerIcon
             }).addTo(map);
             
-            // Táº¡o danh sĂ¡ch tiá»‡n Ă­ch náº¿u cĂ³
-            let amenitiesList = 'KhĂ´ng cĂ³ thĂ´ng tin';
+            // Tạo danh sách tiện ích nếu có
+            let amenitiesList = 'Không có thông tin';
             if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
                 amenitiesList = dorm.details.amenities.join(", ");
             }
             
-            // Táº¡o popup vá»›i thĂ´ng tin chi tiáº¿t
+            // Tạo popup với thông tin chi tiết
             const popupContent = `
                 <div class="custom-popup">
                     <h3>${dorm.name}</h3>
                     <div class="image" ${dorm.imageUrl ? `style="background-image: url('${dorm.imageUrl}')"` : ''}>
-                        ${!dorm.imageUrl ? 'ChÆ°a cĂ³ hĂ¬nh áº£nh' : ''}
+                        ${!dorm.imageUrl ? 'Chưa có hình ảnh' : ''}
                     </div>
-                    <p><strong>Äá»‹a chá»‰:</strong> ${dorm.address}</p>
-                    <p><strong>LiĂªn há»‡:</strong> ${dorm.contact && dorm.contact.phone ? dorm.contact.phone : 'ChÆ°a cáº­p nháº­t'}</p>
+                    <p><strong>Địa chỉ:</strong> ${dorm.address}</p>
+                    <p><strong>Liên hệ:</strong> ${dorm.contact && dorm.contact.phone ? dorm.contact.phone : 'Chưa cập nhật'}</p>
                     ${dorm.details ? `
-                        <p><strong>Sá»©c chá»©a:</strong> ${dorm.details.capacity || 'ChÆ°a cáº­p nháº­t'} sinh viĂªn</p>
-                        <p><strong>Tiá»‡n Ă­ch:</strong> ${amenitiesList}</p>
-                        <p><strong>GiĂ¡ phĂ²ng:</strong> ${dorm.details.priceRange ? `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNÄ/thĂ¡ng` : 'ChÆ°a cáº­p nháº­t'}</p>
-                        <p><strong>Tráº¡ng thĂ¡i:</strong> ${dorm.details.available ? '<span style="color: green">CĂ²n chá»—</span>' : '<span style="color: red">Háº¿t chá»—</span>'}</p>
+                        <p><strong>Sức chứa:</strong> ${dorm.details.capacity || 'Chưa cập nhật'} sinh viên</p>
+                        <p><strong>Tiện ích:</strong> ${amenitiesList}</p>
+                        <p><strong>Giá phòng:</strong> ${dorm.details.priceRange ? `${dorm.details.priceRange.min.toLocaleString()} - ${dorm.details.priceRange.max.toLocaleString()} VNĐ/tháng` : 'Chưa cập nhật'}</p>
+                        <p><strong>Trạng thái:</strong> ${dorm.details.available ? '<span style="color: green">Còn chỗ</span>' : '<span style="color: red">Hết chỗ</span>'}</p>
                     ` : ''}
                     <div class="action-btns">
-                        <button onclick="registerDorm('${dorm._id}')">ÄÄƒng kĂ½</button>
-                        <button onclick="showDirections(${coordinates[0]}, ${coordinates[1]})">Chá»‰ Ä‘Æ°á»ng</button>
+                        <button onclick="registerDorm('${dorm._id}')">Đăng ký</button>
+                        <button onclick="showDirections(${coordinates[0]}, ${coordinates[1]})">Chỉ đường</button>
                     </div>
                 </div>
             `;
@@ -1830,7 +1827,7 @@ function addDormsToMap(dorms, openPopup = false) {
                 marker.openPopup();
             }
             
-            // LÆ°u marker Ä‘á»ƒ cĂ³ thá»ƒ xĂ³a sau nĂ y
+            // Lưu marker để có thể xóa sau này
             dormMarkers.push({
                 marker: marker,
                 data: dorm
@@ -1839,7 +1836,7 @@ function addDormsToMap(dorms, openPopup = false) {
     });
 }
 
-// HĂ m xĂ³a táº¥t cáº£ marker hiá»‡n táº¡i
+// Hàm xóa tất cả marker hiện tại
 function clearMarkers() {
     for (let i = 0; i < dormMarkers.length; i++) {
         map.removeLayer(dormMarkers[i].marker);
@@ -1847,12 +1844,12 @@ function clearMarkers() {
     dormMarkers = [];
 }
 
-// HĂ m má»Ÿ form Ä‘Äƒng kĂ½
+// Hàm mở form đăng ký
 function registerDorm(dormId) {
     // Check if dormId is defined
     if (!dormId) {
         console.error("Invalid dormitory ID");
-        alert("KhĂ´ng thá»ƒ Ä‘Äƒng kĂ½: ID kĂ½ tĂºc xĂ¡ khĂ´ng há»£p lá»‡");
+        alert("Không thể đăng ký: ID ký túc xá không hợp lệ");
         return;
     }
     
@@ -1860,7 +1857,7 @@ function registerDorm(dormId) {
     window.location.href = `/register?dormId=${dormId}`;
 }
 
-// HĂ m hiá»ƒn thá»‹ chá»‰ Ä‘Æ°á»ng (cĂ³ thá»ƒ sá»­ dá»¥ng Google Maps hoáº·c dá»‹ch vá»¥ khĂ¡c)
+// Hàm hiển thị chỉ đường (có thể sử dụng Google Maps hoặc dịch vụ khác)
 function showDirections(lat, lng) {
     const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
     window.open(url, '_blank');
@@ -1869,20 +1866,18 @@ function showDirections(lat, lng) {
     </script>
     
     <script>
-        // Khá»Ÿi táº¡o carousel khi DOM Ä‘Ă£ sáºµn sĂ ng
+        // Khởi tạo carousel khi DOM đã sẵn sàng
         document.addEventListener('DOMContentLoaded', function() {
             fetchFeaturedDormitories();
         });
 
         // Room Modal Functions
         function showRoomModal(dormId) {
-            console.log('[DEBUG] Opening room modal for dorm:', dormId);
             
             // Fetch full dorm data with all floors and rooms
             fetch(`/api/dormitories/${dormId}`)
                 .then(res => res.json())
                 .then(data => {
-                    console.log('[DEBUG] Dorm data received:', data);
                     
                     if (!data.success || !data.dormitory) {
                         console.error('[ERROR] Invalid dorm data');
@@ -1894,13 +1889,12 @@ function showDirections(lat, lng) {
                     const title = document.getElementById('roomModalTitle');
                     const grid = document.getElementById('roomsGrid');
 
-                    title.textContent = `PhĂ²ng - ${dorm.name}`;
+                    title.textContent = `Phòng - ${dorm.name}`;
                     grid.innerHTML = '';
 
                     let roomCount = 0;
                     if (dorm.floors && Array.isArray(dorm.floors)) {
                         dorm.floors.forEach(floor => {
-                            console.log('[DEBUG] Floor:', floor.floorNumber, 'Rooms:', floor.rooms?.length);
                             
                             if (floor.rooms && Array.isArray(floor.rooms)) {
                                 floor.rooms.forEach(room => {
@@ -1911,13 +1905,13 @@ function showDirections(lat, lng) {
                                     let statusClass, statusText;
                                     if (currentOccupants >= maxCapacity) {
                                         statusClass = 'status-full';
-                                        statusText = 'ÄĂ£ Ä‘áº§y';
+                                        statusText = 'Đã đầy';
                                     } else if (currentOccupants > 0) {
                                         statusClass = 'status-pending';
-                                        statusText = 'Chá» duyá»‡t';
+                                        statusText = 'Chờ duyệt';
                                     } else {
                                         statusClass = 'status-available';
-                                        statusText = 'CĂ²n trá»‘ng';
+                                        statusText = 'Còn trống';
                                     }
 
                                     const roomCard = document.createElement('a');
@@ -1928,10 +1922,10 @@ function showDirections(lat, lng) {
                                             <i class="fas fa-door-open"></i>
                                         </div>
                                         <div class="room-card-modal-info">
-                                            <div class="room-card-modal-number">PhĂ²ng ${room.roomNumber || 'N/A'}</div>
+                                            <div class="room-card-modal-number">Phòng ${room.roomNumber || 'N/A'}</div>
                                             <div class="room-card-modal-status ${statusClass}">${statusText}</div>
                                             <div class="room-card-modal-capacity">
-                                                Táº§ng ${floor.floorNumber} â€¢ ${currentOccupants}/${maxCapacity}
+                                                Tầng ${floor.floorNumber} • ${currentOccupants}/${maxCapacity}
                                             </div>
                                         </div>
                                     `;
@@ -1941,16 +1935,15 @@ function showDirections(lat, lng) {
                         });
                     }
 
-                    console.log('[DEBUG] Total rooms rendered:', roomCount);
                     if (roomCount === 0) {
-                        grid.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">KhĂ´ng cĂ³ phĂ²ng nĂ o</p>';
+                        grid.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">Không có phòng nào</p>';
                     }
 
                     modal.classList.add('show');
                 })
                 .catch(err => {
                     console.error('[ERROR] Failed to load rooms:', err);
-                    alert('Lá»—i khi táº£i phĂ²ng: ' + err.message);
+                    alert('Lỗi khi tải phòng: ' + err.message);
                 });
         }
 
@@ -1972,7 +1965,7 @@ function showDirections(lat, lng) {
     <div id="roomModal" class="room-modal">
         <div class="room-modal-content">
             <div class="room-modal-header">
-                <h2 class="room-modal-title" id="roomModalTitle">PhĂ²ng</h2>
+                <h2 class="room-modal-title" id="roomModalTitle">Phòng</h2>
                 <button class="room-modal-close" onclick="closeRoomModal()">
                     <i class="fas fa-times"></i>
                 </button>

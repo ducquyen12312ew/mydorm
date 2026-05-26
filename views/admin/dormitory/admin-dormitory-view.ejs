@@ -584,11 +584,7 @@
         }
         
         function viewRoomDetails(dormId, floorNumber, roomNumber) {
-            // Navigate to room details page
-            console.log('Navigating to room details:', {dormId, floorNumber, roomNumber});
-            const url = `/admin/dormitories/${dormId}/rooms/${floorNumber}/${roomNumber}`;
-            console.log('URL:', url);
-            window.location.href = url;
+            window.location.href = `/admin/dormitories/${dormId}/rooms/${floorNumber}/${roomNumber}`;
         }
         
         function clearRoom(dormId, floorNumber, roomNumber) {

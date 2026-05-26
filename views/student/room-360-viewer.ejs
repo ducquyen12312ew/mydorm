@@ -367,41 +367,41 @@
     // Handle markers (hotspots)
     const markersPlugin = viewer.getPlugin(PhotoSphereViewer.MarkersPlugin);
 
-    if (markersPlugin && roomData.hotspots) {
-      roomData.hotspots.forEach(hotspot => {
-        markersPlugin.addEventListener('marker-click', e => {
-          console.log('Marker clicked:', e.marker);
-        });
+    if (markersPlugin) {
+      markersPlugin.addEventListener('marker-click', e => {
+        const marker = e.marker;
+        if (marker && marker.tooltip) {
+          viewer.notification({ content: marker.tooltip, timeout: 3000 });
+        }
       });
     }
 
     // Panorama selector (if multiple views)
-    <% if (roomView.panoramas && roomView.panoramas.length > 1) { %>
+    if (roomData.panoramas && roomData.panoramas.length > 1) {
       const selectorContainer = document.getElementById('panoramaSelector');
-
-      <%- JSON.stringify(roomView.panoramas).split('],[').forEach((view, index) => { %>
-        const panoramaItem = document.createElement('div');
-        panoramaItem.className = 'panorama-item <%= index === 0 ? "active" : "" %>';
-        panoramaItem.innerHTML = `
-          <div class="panorama-item-name"><%= view.name || 'View ' + (index + 1) %></div>
-          <div class="panorama-item-hotspots"><%= (view.hotspots || []).length %> points of interest</div>
-        `;
-        panoramaItem.addEventListener('click', () => {
-          viewer.setPanorama('<%= view.url %>');
-          document.querySelectorAll('.panorama-item').forEach(el => el.classList.remove('active'));
-          panoramaItem.classList.add('active');
+      if (selectorContainer) {
+        roomData.panoramas.forEach((view, index) => {
+          const item = document.createElement('div');
+          item.className = 'panorama-item' + (index === 0 ? ' active' : '');
+          const hotspotCount = Array.isArray(view.hotspots) ? view.hotspots.length : 0;
+          item.innerHTML = `
+            <div class="panorama-item-name">${view.name || 'View ' + (index + 1)}</div>
+            <div class="panorama-item-hotspots">${hotspotCount} points of interest</div>
+          `;
+          item.addEventListener('click', () => {
+            viewer.setPanorama(view.url);
+            document.querySelectorAll('.panorama-item').forEach(el => el.classList.remove('active'));
+            item.classList.add('active');
+          });
+          selectorContainer.appendChild(item);
         });
-        selectorContainer.appendChild(panoramaItem);
-      });
-    <% } %>
+      }
+    }
 
     // Keyboard controls
     document.addEventListener('keydown', e => {
-      if (e.key === '⬆' || e.code === 'ArrowUp') {
-        viewer.animate({
-          speed: '2rpm',
-          latitude: Math.PI
-        }, 'linear', 5000);
+      if (e.code === 'ArrowUp') {
+        viewer.animate({ speed: '2rpm' });
       }
     });
 

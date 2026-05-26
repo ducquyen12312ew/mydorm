@@ -389,22 +389,16 @@
         const floorNumber = pathParts[5];
         const roomNumber = pathParts[6];
 
-        console.log('URL Parsing:', { pathParts, dormId, floorNumber, roomNumber });
-
         async function loadRoomDetails() {
             try {
-                // API endpoint is mounted at /api/admin from admin-application-routes
                 const apiUrl = `/api/admin/dormitories/${dormId}/rooms/${floorNumber}/${roomNumber}`;
-                console.log('Fetching from:', apiUrl);
-                
                 const response = await fetch(apiUrl);
-                
+
                 if (!response.ok) {
                     throw new Error(`HTTP Error: ${response.status} ${response.statusText}`);
                 }
-                
+
                 const data = await response.json();
-                console.log('Room data loaded:', data);
                 displayRoomDetails(data);
             } catch (error) {
                 console.error('Error loading room details:', error);

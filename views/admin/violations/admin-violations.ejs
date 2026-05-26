@@ -622,12 +622,10 @@
                 const response = await fetch('/api/admin/violations/stats/summary');
                 const data = await response.json();
                 
-                console.log('Stats response:', data);
 
                 if (data.success) {
                     const stats = data.stats;
                     
-                    console.log('Stats data:', stats);
                     
                     const statusMap = stats.byStatus.reduce((acc, item) => {
                         acc[item._id] = item.count;
@@ -639,14 +637,11 @@
                         return acc;
                     }, {});
 
-                    console.log('Status map:', statusMap);
-                    console.log('Severity map:', severityMap);
 
                     document.getElementById('statPending').textContent = statusMap.pending || 0;
                     document.getElementById('statResolved').textContent = statusMap.resolved || 0;
                     document.getElementById('statCritical').textContent = severityMap.critical || 0;
                     
-                    console.log('Stats updated successfully');
                 } else {
                     console.error('Stats error:', data);
                 }
@@ -746,7 +741,6 @@
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
 
-            console.log('Submitting violation data:', data);
 
             try {
                 const response = await fetch('/api/admin/violations', {
@@ -756,7 +750,6 @@
                 });
 
                 const result = await response.json();
-                console.log('Response:', result);
 
                 if (result.success) {
                     alert('✓ Đã báo cáo vi phạm thành công');
@@ -828,7 +821,6 @@
 
         async function updateStatus(id, status) {
             try {
-                console.log(`Updating violation ${id} to status: ${status}`);
                 
                 const response = await fetch(`/api/admin/violations/${id}/status`, {
                     method: 'PATCH',
@@ -836,9 +828,7 @@
                     body: JSON.stringify({ status })
                 });
 
-                console.log(`Response status: ${response.status}`);
                 const data = await response.json();
-                console.log('Response data:', data);
 
                 if (data.success) {
                     alert('✓ Đã cập nhật trạng thái thành công');
@@ -908,16 +898,13 @@
             }
 
             try {
-                console.log(`Deleting violation ${id}`);
                 
                 const response = await fetch(`/api/admin/violations/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' }
                 });
 
-                console.log(`Response status: ${response.status}`);
                 const data = await response.json();
-                console.log('Response data:', data);
 
                 if (data.success) {
                     alert('✓ Đã xóa vi phạm thành công');

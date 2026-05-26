@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tráº¡ng thĂ¡i phĂ²ng - KTX HUST</title>
+    <title>Trạng thái phòng - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -320,21 +320,21 @@
     <%- include('navbar', { currentPage: 'room-status', user: user, student: student }) %>
 
     <section class="student-page-hero">
-        <div class="student-page-badge"><i class="fas fa-house-circle-check"></i> Tráº¡ng thĂ¡i phĂ²ng</div>
-        <h1 class="student-page-title">Theo dĂµi phĂ²ng á»Ÿ hiá»‡n táº¡i vĂ  toĂ n bá»™ lá»‹ch sá»­ Ä‘Äƒng kĂ½ trong cĂ¹ng má»™t mĂ n hĂ¬nh gá»n hÆ¡n</h1>
-        <p class="student-page-subtitle">Trang nĂ y Ä‘Æ°á»£c dá»n láº¡i hoĂ n toĂ n Ä‘á»ƒ bá» cáº¥u trĂºc HTML lá»—i, Ä‘á»“ng thá»i Ä‘Æ°a vá» cĂ¹ng phong cĂ¡ch vá»›i trang chá»§ vĂ  cĂ¡c trang student khĂ¡c. Báº¡n váº«n giá»¯ nguyĂªn dá»¯ liá»‡u Ä‘ang xem: phĂ²ng hiá»‡n táº¡i, báº¡n cĂ¹ng phĂ²ng vĂ  lá»‹ch sá»­ cĂ¡c Ä‘Æ¡n Ä‘Ă£ ná»™p.</p>
+        <div class="student-page-badge"><i class="fas fa-house-circle-check"></i> Trạng thái phòng</div>
+        <h1 class="student-page-title">Theo dõi phòng ở hiện tại và toàn bộ lịch sử đăng ký trong cùng một màn hình gọn hơn</h1>
+        <p class="student-page-subtitle">Trang này được dọn lại hoàn toàn để bỏ cấu trúc HTML lỗi, đồng thời đưa về cùng phong cách với trang chủ và các trang student khác. Bạn vẫn giữ nguyên dữ liệu đang xem: phòng hiện tại, bạn cùng phòng và lịch sử các đơn đã nộp.</p>
         <div class="student-page-meta">
             <div class="student-page-meta-card">
-                <strong>PhĂ²ng hiá»‡n táº¡i</strong>
-                <span>Xem thĂ´ng tin kĂ½ tĂºc xĂ¡, sá»‘ phĂ²ng, giĂ¡ vĂ  ngĂ y vĂ o á»Ÿ náº¿u Ä‘Ă£ Ä‘Æ°á»£c phĂ¢n phĂ²ng.</span>
+                <strong>Phòng hiện tại</strong>
+                <span>Xem thông tin ký túc xá, số phòng, giá và ngày vào ở nếu đã được phân phòng.</span>
             </div>
             <div class="student-page-meta-card">
-                <strong>Lá»‹ch sá»­ há»“ sÆ¡</strong>
-                <span>Lá»c nhanh theo tráº¡ng thĂ¡i Ä‘á»ƒ biáº¿t Ä‘Æ¡n nĂ o Ä‘ang chá» duyá»‡t, Ä‘Ă£ duyá»‡t hoáº·c bá»‹ tá»« chá»‘i.</span>
+                <strong>Lịch sử hồ sơ</strong>
+                <span>Lọc nhanh theo trạng thái để biết đơn nào đang chờ duyệt, đã duyệt hoặc bị từ chối.</span>
             </div>
             <div class="student-page-meta-card">
-                <strong>Tiáº¿p tá»¥c thao tĂ¡c</strong>
-                <span>Náº¿u chÆ°a cĂ³ phĂ²ng, báº¡n cĂ³ thá»ƒ quay láº¡i Ä‘Äƒng kĂ½ ngay tá»« cĂ¡c nĂºt hĂ nh Ä‘á»™ng trong trang.</span>
+                <strong>Tiếp tục thao tác</strong>
+                <span>Nếu chưa có phòng, bạn có thể quay lại đăng ký ngay từ các nút hành động trong trang.</span>
             </div>
         </div>
     </section>
@@ -344,18 +344,18 @@
             <div class="stats-grid">
                 <article class="stat-card">
                     <div class="stat-icon"><i class="fas fa-bed"></i></div>
-                    <div class="stat-label">TĂ¬nh tráº¡ng hiá»‡n táº¡i</div>
-                    <div class="stat-value" id="statRoomStatus">Äang táº£i</div>
+                    <div class="stat-label">Tình trạng hiện tại</div>
+                    <div class="stat-value" id="statRoomStatus">Đang tải</div>
                 </article>
                 <article class="stat-card">
                     <div class="stat-icon"><i class="fas fa-file-lines"></i></div>
-                    <div class="stat-label">Há»“ sÆ¡</div>
-                    <div class="stat-value">Theo dĂµi theo thá»i gian thá»±c</div>
+                    <div class="stat-label">Hồ sơ</div>
+                    <div class="stat-value">Theo dõi theo thời gian thực</div>
                 </article>
                 <article class="stat-card">
                     <div class="stat-icon"><i class="fas fa-user-group"></i></div>
-                    <div class="stat-label">Báº¡n cĂ¹ng phĂ²ng</div>
-                    <div class="stat-value">Hiá»ƒn thá»‹ khi cĂ³ dá»¯ liá»‡u</div>
+                    <div class="stat-label">Bạn cùng phòng</div>
+                    <div class="stat-value">Hiển thị khi có dữ liệu</div>
                 </article>
             </div>
 
@@ -364,12 +364,12 @@
                     <div class="card-icon">
                         <i class="fas fa-home"></i>
                     </div>
-                    <h2 class="card-title">PhĂ²ng hiá»‡n táº¡i</h2>
+                    <h2 class="card-title">Phòng hiện tại</h2>
                 </div>
                 <div id="currentRoomContent">
                     <div class="rs-empty">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <h3>Äang táº£i thĂ´ng tin...</h3>
+                        <h3>Đang tải thông tin...</h3>
                     </div>
                 </div>
             </div>
@@ -379,28 +379,28 @@
                     <div class="card-icon">
                         <i class="fas fa-history"></i>
                     </div>
-                    <h2 class="card-title">Lá»‹ch sá»­ Ä‘Äƒng kĂ½</h2>
+                    <h2 class="card-title">Lịch sử đăng ký</h2>
                 </div>
 
                 <div class="filter-tabs" id="applicationTabs">
                     <div class="filter-tab active" onclick="applyApplicationFilter('all', this)">
-                        <i class="fas fa-list"></i> Táº¥t cáº£
+                        <i class="fas fa-list"></i> Tất cả
                     </div>
                     <div class="filter-tab" onclick="applyApplicationFilter('pending', this)">
-                        <i class="fas fa-hourglass-half"></i> Chá» duyá»‡t
+                        <i class="fas fa-hourglass-half"></i> Chờ duyệt
                     </div>
                     <div class="filter-tab" onclick="applyApplicationFilter('approved', this)">
-                        <i class="fas fa-check-circle"></i> ÄĂ£ duyá»‡t
+                        <i class="fas fa-check-circle"></i> Đã duyệt
                     </div>
                     <div class="filter-tab" onclick="applyApplicationFilter('rejected', this)">
-                        <i class="fas fa-times-circle"></i> Bá»‹ tá»« chá»‘i
+                        <i class="fas fa-times-circle"></i> Bị từ chối
                     </div>
                 </div>
 
                 <div id="applicationsList">
                     <div class="rs-empty">
                         <i class="fas fa-spinner fa-spin"></i>
-                        <h3>Äang táº£i lá»‹ch sá»­...</h3>
+                        <h3>Đang tải lịch sử...</h3>
                     </div>
                 </div>
             </div>
@@ -410,18 +410,18 @@
     <section class="student-accent-grid">
         <article class="student-accent-card">
             <i class="fas fa-magnifying-glass-chart"></i>
-            <h3>NhĂ¬n nhanh tráº¡ng thĂ¡i</h3>
-            <p>CĂ¡c khá»‘i thĂ´ng tin trá»ng tĂ¢m Ä‘Æ°á»£c Ä‘áº·t lĂªn Ä‘áº§u Ä‘á»ƒ báº¡n náº¯m tĂ¬nh tráº¡ng há»“ sÆ¡ ngay khi má»Ÿ trang.</p>
+            <h3>Nhìn nhanh trạng thái</h3>
+            <p>Các khối thông tin trọng tâm được đặt lên đầu để bạn nắm tình trạng hồ sơ ngay khi mở trang.</p>
         </article>
         <article class="student-accent-card">
             <i class="fas fa-filter-circle-dollar"></i>
-            <h3>Lá»c lá»‹ch sá»­ gá»n hÆ¡n</h3>
-            <p>Danh sĂ¡ch Ä‘Æ¡n Ä‘Äƒng kĂ½ cĂ³ bá»™ lá»c rĂµ rĂ ng hÆ¡n thay vĂ¬ pháº£i cuá»™n qua toĂ n bá»™ lá»‹ch sá»­.</p>
+            <h3>Lọc lịch sử gọn hơn</h3>
+            <p>Danh sách đơn đăng ký có bộ lọc rõ ràng hơn thay vì phải cuộn qua toàn bộ lịch sử.</p>
         </article>
         <article class="student-accent-card">
             <i class="fas fa-link"></i>
-            <h3>LiĂªn thĂ´ng thao tĂ¡c</h3>
-            <p>Tá»« Ä‘Ă¢y báº¡n cĂ³ thá»ƒ quay láº¡i Ä‘Äƒng kĂ½ phĂ²ng ngay náº¿u chÆ°a Ä‘Æ°á»£c phĂ¢n chá»— á»Ÿ.</p>
+            <h3>Liên thông thao tác</h3>
+            <p>Từ đây bạn có thể quay lại đăng ký phòng ngay nếu chưa được phân chỗ ở.</p>
         </article>
     </section>
 
@@ -459,21 +459,21 @@
 
         function formatCurrencyVND(amount) {
             const number = Number(amount);
-            if (!Number.isFinite(number) || number <= 0) return 'â€”';
-            return number.toLocaleString('vi-VN') + ' Ä‘/thĂ¡ng';
+            if (!Number.isFinite(number) || number <= 0) return '—';
+            return number.toLocaleString('vi-VN') + ' đ/tháng';
         }
 
         function statusLabel(status) {
             switch (status) {
                 case 'pending':
-                case 'pending_review': return 'Chá» duyá»‡t';
+                case 'pending_review': return 'Chờ duyệt';
                 case 'approved':
-                case 'approved_waiting_payment': return 'ÄĂ£ duyá»‡t';
-                case 'rejected': return 'Bá»‹ tá»« chá»‘i';
-                case 'waitlist': return 'Danh sĂ¡ch chá»';
-                case 'expired': return 'Háº¿t háº¡n';
-                case 'checked_out': return 'ÄĂ£ tráº£ phĂ²ng';
-                default: return 'KhĂ´ng rĂµ';
+                case 'approved_waiting_payment': return 'Đã duyệt';
+                case 'rejected': return 'Bị từ chối';
+                case 'waitlist': return 'Danh sách chờ';
+                case 'expired': return 'Hết hạn';
+                case 'checked_out': return 'Đã trả phòng';
+                default: return 'Không rõ';
             }
         }
 
@@ -496,61 +496,61 @@
 
             if (data?.success && data?.room) {
                 const room = data.room;
-                if (statRoomStatus) statRoomStatus.textContent = 'ÄĂ£ cĂ³ phĂ²ng';
+                if (statRoomStatus) statRoomStatus.textContent = 'Đã có phòng';
 
                 const occupancyText = `${room.currentOccupants ?? 0}/${room.maxCapacity ?? 0}`;
-                const checkInText = room.checkInDate ? formatDateVN(room.checkInDate) : 'â€”';
-                const roomType = room.roomType || 'â€”';
+                const checkInText = room.checkInDate ? formatDateVN(room.checkInDate) : '—';
+                const roomType = room.roomType || '—';
                 const dormImage = room?.dormitoryImage || defaultDormImage;
 
                 const infoHtml = `
                     <div style="margin-bottom: 1.25rem;">
-                        <img src="${escapeHtml(dormImage)}" alt="${escapeHtml(room.dormitoryName || 'KĂ½ tĂºc xĂ¡')}" class="app-image" onerror="this.src='${escapeHtml(defaultDormImage)}'">
+                        <img src="${escapeHtml(dormImage)}" alt="${escapeHtml(room.dormitoryName || 'Ký túc xá')}" class="app-image" onerror="this.src='${escapeHtml(defaultDormImage)}'">
                     </div>
                     <div class="info-grid">
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-building"></i> KĂ½ tĂºc xĂ¡</div>
-                            <div class="info-value">${escapeHtml(room.dormitoryName || 'â€”')}</div>
+                            <div class="info-label"><i class="fas fa-building"></i> Ký túc xá</div>
+                            <div class="info-value">${escapeHtml(room.dormitoryName || '—')}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-door-open"></i> PhĂ²ng</div>
-                            <div class="info-value">${escapeHtml(room.roomNumber || 'â€”')}</div>
+                            <div class="info-label"><i class="fas fa-door-open"></i> Phòng</div>
+                            <div class="info-value">${escapeHtml(room.roomNumber || '—')}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-users"></i> Sá»©c chá»©a</div>
+                            <div class="info-label"><i class="fas fa-users"></i> Sức chứa</div>
                             <div class="info-value">${escapeHtml(occupancyText)}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-calendar-check"></i> NgĂ y vĂ o á»Ÿ</div>
+                            <div class="info-label"><i class="fas fa-calendar-check"></i> Ngày vào ở</div>
                             <div class="info-value">${escapeHtml(checkInText)}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-bed"></i> Loáº¡i phĂ²ng</div>
+                            <div class="info-label"><i class="fas fa-bed"></i> Loại phòng</div>
                             <div class="info-value">${escapeHtml(roomType)}</div>
                         </div>
                         <div class="info-item">
-                            <div class="info-label"><i class="fas fa-money-bill-wave"></i> GiĂ¡</div>
+                            <div class="info-label"><i class="fas fa-money-bill-wave"></i> Giá</div>
                             <div class="info-value">${escapeHtml(formatCurrencyVND(room.pricePerMonth))}</div>
                         </div>
                     </div>
                 `;
 
                 const roommates = Array.isArray(room.roommates) ? room.roommates : [];
-                const roommatesTitle = `<div class="rs-section-title"><i class="fas fa-users"></i> Báº¡n cĂ¹ng phĂ²ng <span style="color: var(--primary-color);">(${roommates.length})</span></div>`;
+                const roommatesTitle = `<div class="rs-section-title"><i class="fas fa-users"></i> Bạn cùng phòng <span style="color: var(--primary-color);">(${roommates.length})</span></div>`;
 
                 const roommatesHtml = roommates.length
                     ? `<div class="rs-roommates">${roommates.map(r => {
-                        const name = r?.name || 'KhĂ´ng rĂµ';
+                        const name = r?.name || 'Không rõ';
                         const avatar = String(name).trim().charAt(0).toUpperCase() || 'U';
                         const studentId = r?.studentId ? `MSSV: ${r.studentId}` : '';
                         const email = r?.email ? r.email : '';
-                        const sub = [studentId, email].filter(Boolean).join(' â€¢ ');
+                        const sub = [studentId, email].filter(Boolean).join(' • ');
                         return `
                             <div class="rs-roommate-card">
                                 <div class="rs-roommate-avatar">${escapeHtml(avatar)}</div>
                                 <div>
                                     <div class="rs-roommate-name">${escapeHtml(name)}</div>
-                                    <div class="rs-roommate-sub">${escapeHtml(sub || 'â€”')}</div>
+                                    <div class="rs-roommate-sub">${escapeHtml(sub || '—')}</div>
                                 </div>
                             </div>
                         `;
@@ -558,8 +558,8 @@
                     : `
                         <div class="rs-empty">
                             <i class="fas fa-user-friends"></i>
-                            <h3>ChÆ°a cĂ³ báº¡n cĂ¹ng phĂ²ng</h3>
-                            <p>${room.isPending ? 'Sáº½ hiá»ƒn thá»‹ sau khi nháº­p á»Ÿ' : 'Báº¡n Ä‘ang lĂ  ngÆ°á»i Ä‘áº§u tiĂªn trong phĂ²ng nĂ y'}</p>
+                            <h3>Chưa có bạn cùng phòng</h3>
+                            <p>${room.isPending ? 'Sẽ hiển thị sau khi nhập ở' : 'Bạn đang là người đầu tiên trong phòng này'}</p>
                         </div>
                     `;
 
@@ -567,19 +567,19 @@
                 return;
             }
 
-            if (statRoomStatus) statRoomStatus.textContent = 'ChÆ°a cĂ³ phĂ²ng';
+            if (statRoomStatus) statRoomStatus.textContent = 'Chưa có phòng';
 
             if (data?.success && data?.latestApprovedApplication) {
                 const app = data.latestApprovedApplication;
                 currentRoomContent.innerHTML = `
                     <div class="rs-empty">
                         <i class="fas fa-info-circle"></i>
-                        <h3>ChÆ°a ghi nháº­n phĂ²ng Ä‘ang á»Ÿ</h3>
-                        <p>ÄÆ¡n Ä‘Ă£ duyá»‡t gáº§n nháº¥t: ${escapeHtml(app.dormitoryName || 'â€”')} â€¢ PhĂ²ng ${escapeHtml(app.roomNumber || 'â€”')}</p>
+                        <h3>Chưa ghi nhận phòng đang ở</h3>
+                        <p>Đơn đã duyệt gần nhất: ${escapeHtml(app.dormitoryName || '—')} • Phòng ${escapeHtml(app.roomNumber || '—')}</p>
                         ${app.comments ? `<p style="margin-top: 0.75rem; color: #666;">${escapeHtml(app.comments)}</p>` : ''}
                         <div style="margin-top: 1.5rem;">
                             <a class="btn btn-primary" href="/register">
-                                <i class="fas fa-pen"></i> Tá»›i trang Ä‘Äƒng kĂ½
+                                <i class="fas fa-pen"></i> Tới trang đăng ký
                             </a>
                         </div>
                     </div>
@@ -590,11 +590,11 @@
             currentRoomContent.innerHTML = `
                 <div class="rs-empty">
                     <i class="fas fa-home"></i>
-                    <h3>Báº¡n chÆ°a cĂ³ phĂ²ng</h3>
-                    <p>HĂ£y táº¡o Ä‘Æ¡n Ä‘Äƒng kĂ½ Ä‘á»ƒ Ä‘Æ°á»£c xĂ©t duyá»‡t phĂ²ng á»Ÿ.</p>
+                    <h3>Bạn chưa có phòng</h3>
+                    <p>Hãy tạo đơn đăng ký để được xét duyệt phòng ở.</p>
                     <div style="margin-top: 1.5rem;">
                         <a class="btn btn-primary" href="/register">
-                            <i class="fas fa-plus-circle"></i> ÄÄƒng kĂ½ phĂ²ng ngay
+                            <i class="fas fa-plus-circle"></i> Đăng ký phòng ngay
                         </a>
                     </div>
                 </div>
@@ -608,11 +608,11 @@
                 applicationsList.innerHTML = `
                     <div class="rs-empty">
                         <i class="fas fa-folder-open"></i>
-                        <h3>ChÆ°a cĂ³ Ä‘Æ¡n Ä‘Äƒng kĂ½</h3>
-                        <p>Khi báº¡n táº¡o Ä‘Æ¡n, lá»‹ch sá»­ sáº½ hiá»ƒn thá»‹ táº¡i Ä‘Ă¢y.</p>
+                        <h3>Chưa có đơn đăng ký</h3>
+                        <p>Khi bạn tạo đơn, lịch sử sẽ hiển thị tại đây.</p>
                         <div style="margin-top: 1.5rem;">
                             <a class="btn btn-primary" href="/register">
-                                <i class="fas fa-plus-circle"></i> Táº¡o Ä‘Æ¡n má»›i
+                                <i class="fas fa-plus-circle"></i> Tạo đơn mới
                             </a>
                         </div>
                     </div>
@@ -623,11 +623,11 @@
             const listHtml = apps.map(app => {
                 const id = app?._id || '';
                 const status = app?.status || 'pending';
-                const dormitoryName = app?.dormitoryName || 'KhĂ´ng xĂ¡c Ä‘á»‹nh';
-                const roomNumber = app?.roomNumber || 'â€”';
-                const faculty = app?.faculty || 'â€”';
-                const academicYear = app?.academicYear || 'â€”';
-                const createdAt = app?.createdAt ? formatDateTimeVN(app.createdAt) : 'â€”';
+                const dormitoryName = app?.dormitoryName || 'Không xác định';
+                const roomNumber = app?.roomNumber || '—';
+                const faculty = app?.faculty || '—';
+                const academicYear = app?.academicYear || '—';
+                const createdAt = app?.createdAt ? formatDateTimeVN(app.createdAt) : '—';
                 const comments = app?.comments ? String(app.comments).trim() : '';
 
                 return `
@@ -640,28 +640,28 @@
                         </div>
                         <div class="rs-application-grid">
                             <div class="info-item">
-                                <div class="info-label"><i class="fas fa-building"></i> KĂ½ tĂºc xĂ¡</div>
+                                <div class="info-label"><i class="fas fa-building"></i> Ký túc xá</div>
                                 <div class="info-value">${escapeHtml(dormitoryName)}</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label"><i class="fas fa-door-open"></i> PhĂ²ng</div>
+                                <div class="info-label"><i class="fas fa-door-open"></i> Phòng</div>
                                 <div class="info-value">${escapeHtml(roomNumber)}</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label"><i class="fas fa-graduation-cap"></i> Khoa/Viá»‡n</div>
+                                <div class="info-label"><i class="fas fa-graduation-cap"></i> Khoa/Viện</div>
                                 <div class="info-value">${escapeHtml(faculty)}</div>
                             </div>
                             <div class="info-item">
-                                <div class="info-label"><i class="fas fa-calendar-alt"></i> NÄƒm há»c</div>
+                                <div class="info-label"><i class="fas fa-calendar-alt"></i> Năm học</div>
                                 <div class="info-value">${escapeHtml(academicYear)}</div>
                             </div>
                         </div>
                         <div class="rs-muted" style="margin-top: 0.75rem;">
-                            <i class="fas fa-clock"></i> ÄÄƒng kĂ½ lĂºc: ${escapeHtml(createdAt)}
+                            <i class="fas fa-clock"></i> Đăng ký lúc: ${escapeHtml(createdAt)}
                         </div>
                         ${comments ? `
                             <div class="rs-muted" style="margin-top: 0.6rem;">
-                                <i class="fas fa-comment-dots"></i> Ghi chĂº: ${escapeHtml(comments)}
+                                <i class="fas fa-comment-dots"></i> Ghi chú: ${escapeHtml(comments)}
                             </div>
                         ` : ''}
                     </div>
@@ -698,8 +698,8 @@
                 applicationsList.insertAdjacentHTML('beforeend', `
                     <div class="rs-empty" id="rsNoFilteredApps">
                         <i class="fas fa-filter"></i>
-                        <h3>KhĂ´ng cĂ³ Ä‘Æ¡n phĂ¹ há»£p</h3>
-                        <p>Thá»­ chá»n tab khĂ¡c Ä‘á»ƒ xem thĂªm.</p>
+                        <h3>Không có đơn phù hợp</h3>
+                        <p>Thử chọn tab khác để xem thêm.</p>
                     </div>
                 `);
             }
@@ -713,15 +713,15 @@
             } catch (e) {
                 console.error('Error loading room:', e);
                 const statRoomStatus = document.getElementById('statRoomStatus');
-                if (statRoomStatus) statRoomStatus.textContent = 'Lá»—i táº£i';
+                if (statRoomStatus) statRoomStatus.textContent = 'Lỗi tải';
                 currentRoomContent.innerHTML = `
                     <div class="rs-empty">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <h3>KhĂ´ng táº£i Ä‘Æ°á»£c thĂ´ng tin phĂ²ng</h3>
-                        <p>ÄĂ£ xáº£y ra lá»—i khi táº£i dá»¯ liá»‡u. Vui lĂ²ng thá»­ láº¡i sau.</p>
+                        <h3>Không tải được thông tin phòng</h3>
+                        <p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
                         <div style="margin-top: 1.5rem;">
                             <button class="btn btn-primary" onclick="loadCurrentRoom()">
-                                <i class="fas fa-rotate-right"></i> Thá»­ láº¡i
+                                <i class="fas fa-rotate-right"></i> Thử lại
                             </button>
                         </div>
                     </div>
@@ -739,11 +739,11 @@
                 applicationsList.innerHTML = `
                     <div class="rs-empty">
                         <i class="fas fa-exclamation-triangle"></i>
-                        <h3>KhĂ´ng táº£i Ä‘Æ°á»£c lá»‹ch sá»­ Ä‘Äƒng kĂ½</h3>
-                        <p>ÄĂ£ xáº£y ra lá»—i khi táº£i dá»¯ liá»‡u. Vui lĂ²ng thá»­ láº¡i sau.</p>
+                        <h3>Không tải được lịch sử đăng ký</h3>
+                        <p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
                         <div style="margin-top: 1.5rem;">
                             <button class="btn btn-primary" onclick="loadApplications()">
-                                <i class="fas fa-rotate-right"></i> Thá»­ láº¡i
+                                <i class="fas fa-rotate-right"></i> Thử lại
                             </button>
                         </div>
                     </div>
