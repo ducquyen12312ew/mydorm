@@ -3,26 +3,11 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node scripts/start-full-web-backend.js",
-    "start:backend": "node index.js",
+    "start": "node index.js",
     "dev": "nodemon index.js",
-    "mobile:install": "npm --prefix mobile-expo install",
-    "mobile:start": "npm --prefix mobile-expo start",
-    "mobile:start:lan": "npm --prefix mobile-expo start -- --lan",
-    "mobile:start:tunnel": "npm --prefix mobile-expo run start:tunnel",
-    "mobile:android": "npm --prefix mobile-expo run android",
-    "mobile:ios": "npm --prefix mobile-expo run ios",
-    "student:web:install": "npm --prefix student-web install",
-    "student:web": "npm --prefix student-web run dev",
-    "student:web:build": "npm --prefix student-web run build",
     "seed:quota-admins": "node scripts/seed-quota-admins.js",
     "migrate:remove-legacy-quota": "node scripts/remove-legacy-quota-fields.js",
-    "test:quota-api": "node --test tests/quota-admin-api.test.js",
-    "test:mobile": "playwright test",
-    "test:mobile:headed": "playwright test --headed",
-    "test:mobile:report": "playwright show-report",
-    "sim:mobile:ios": "playwright open --device=\"iPhone 12\" http://localhost:5000",
-    "sim:mobile:android": "playwright open --device=\"Pixel 7\" http://localhost:5000"
+    "test:quota-api": "node --test tests/quota-admin-api.test.js"
   },
   "keywords": [],
   "author": "",
@@ -55,7 +40,6 @@
     "winston": "^3.19.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.58.2",
     "nodemon": "^3.1.10"
   }
 }

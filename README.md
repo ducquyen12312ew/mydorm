@@ -1,181 +1,104 @@
-# Dormitory Graduation System
+# Dormitory Management System — HUST
 
-Dormitory management system for HUST students with real-time allocation, mobile app, and production-ready architecture.
+Web-based dormitory management system for HUST students with real-time allocation, academic policy engine, and admin portal.
 
 ---
 
-# 1. Setup
+## 1. Setup
 
-## 1.1 Install dependencies
+### Install dependencies
 
 ```bash
 npm install
-npm run student:web:install
-npm run mobile:install
 ```
 
-## 1.2 Environment variables
+### Environment variables
 
-Create `.env` in root:
+Create `.env` in root (see `.env.example`):
 
 ```env
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/dormitory
-JWT_SECRET=your_secret
-REDIS_URL=redis://localhost:6379
-```
-
-Mobile (`mobile-expo/.env`):
-
-```env
-EXPO_PUBLIC_API_URL=http://localhost:5000/api/student-app
-EXPO_PUBLIC_SOCKET_URL=http://localhost:5000
+MONGODB_URI=mongodb://localhost:27017/dormitory
+SESSION_SECRET=your_session_secret
+JWT_SECRET=your_jwt_secret
 ```
 
 ---
 
-# 2. Run
-
-## Option A (recommended): run backend + web together
+## 2. Run
 
 ```bash
+# Development (with auto-restart)
+npm run dev
+
+# Production
 npm start
 ```
 
-This command starts both backend and student web and prints active localhost links.
+---
 
-## Option B: run services separately
+## 3. Access
 
-1. Backend
+| URL | Description |
+|-----|-------------|
+| `http://localhost:5000` | Main web app (admin + public pages) |
+| `http://localhost:5000/admin` | Admin portal |
+| `http://localhost:5000/student` | Student portal |
+| `http://localhost:5000/api` | REST API base |
+| `http://localhost:5000/health` | Health check |
+
+---
+
+## 4. Tests
 
 ```bash
-npm run start:backend
+# Quota admin API tests
+npm run test:quota-api
 ```
 
-2. Student Web (Vite)
+Requires Node 18+.
+
+---
+
+## 5. Useful Scripts
 
 ```bash
-npm run student:web
-```
+# Create admin account
+node scripts/create-admin.js
 
-3. Mobile App
+# Create academic registration window
+node scripts/create-academic-window.js
 
-```bash
-npm run mobile:start
-```
+# Seed quota admins (admin1/admin2/admin3)
+npm run seed:quota-admins
 
----
+# Remove legacy quota fields (migration)
+npm run migrate:remove-legacy-quota
 
-# 3. Access
+# Seed sample students for testing
+node scripts/seed-sample-students.js
 
-- Backend + Web links: read the links printed by `npm start`
-- Default backend (if free): http://localhost:5000
-- Student route: http://localhost:5000/student
-- API base: http://localhost:5000/api
+# Seed sample applications
+node scripts/seed-sample-applications.js
 
----
-
-# 4. Mobile App
-
-## Run on emulator
-
-```bash
-npm run mobile:start
-```
-
-- Press `a`: Android emulator
-- Press `i`: iOS simulator (Mac only)
-
-## Run on real device
-
-Set LAN IP:
-
-```env
-EXPO_PUBLIC_API_URL=http://YOUR_IP:5000/api/student-app
-EXPO_PUBLIC_SOCKET_URL=http://YOUR_IP:5000
+# Generate mock allocation data
+node scripts/generate-mock-allocation-data.js
 ```
 
 ---
 
-# 5. Build APK (EAS)
+## 6. Architecture
 
-```bash
-cd mobile-expo
-npm install -g eas-cli
-eas login
-eas build:configure
-eas build -p android --profile preview
-```
+See `ARCHITECTURE.md` for system architecture, business logic, and data model overview.
 
-APK will be available via Expo dashboard download link.
+See `report/quota-system.md` for quota system reference.
 
 ---
 
-# 6. Tests
+## 7. Troubleshooting
 
-```bash
-npm run test:mobile
-```
+**MongoDB connection error** — ensure MongoDB is running locally
 
----
+**Port in use** — `npx kill-port 5000`
 
-# 7. Mobile Simulation (Browser)
-
-```bash
-npm run sim:mobile:ios
-npm run sim:mobile:android
-```
-
-Note: This is browser emulation, not real device behavior.
-
----
-
-# 8. Troubleshooting
-
-Expo cannot connect:
-- Ensure same Wi-Fi network
-- Use LAN IP instead of localhost
-
-Port already in use:
-
-```bash
-npx kill-port 5000
-```
-
-Mongo connection error:
-- Ensure MongoDB is running locally
-
----
-
-# 9. Health Check
-
-```http
-GET /health
-```
-
-Expected response:
-
-```json
-{ "status": "ok" }
-```
-
----
-
-# 10. Quick Demo Checklist
-
-- [ ] Backend runs
-- [ ] Web loads `/student`
-- [ ] Mobile connects
-- [ ] Login works
-- [ ] Realtime updates work
-- [ ] Offline to online sync works
-- [ ] APK installs and runs
-
----
-
-# Notes
-
-- Web uses session auth
-- Mobile uses JWT auth
-- Realtime via Socket.IO + Redis adapter
-- Event-driven architecture with durable outbox
+**Session issues** — check `SESSION_SECRET` is set in `.env`

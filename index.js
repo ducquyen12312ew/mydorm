@@ -111,16 +111,6 @@ app.use(requestLogger);
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 
-const studentWebDistPath = path.join(__dirname, 'student-web', 'dist');
-if (fs.existsSync(studentWebDistPath)) {
-    // Support Vite builds generated with absolute /assets/... references.
-    app.use('/assets', express.static(path.join(studentWebDistPath, 'assets')));
-    app.use('/student/assets', express.static(path.join(studentWebDistPath, 'assets')));
-    app.use('/student', express.static(studentWebDistPath));
-    app.get('/student/*', (req, res) => {
-        res.sendFile(path.join(studentWebDistPath, 'index.html'));
-    });
-}
 
 app.use(dashboardRoutes);
 app.use(dormitoryRoutes);
