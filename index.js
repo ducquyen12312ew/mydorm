@@ -68,6 +68,8 @@ const enhancedApplicationRoutes = require('./src/routes/enhanced-application-rou
 const roomViewerRoutes = require('./src/routes/room-viewer-routes');
 const mobileStudentRoutes = require('./src/routes/student/mobile-student-routes');
 const adminOpsRoutes = require('./src/routes/admin/admin-ops-routes');
+const adminAcademicWindowRoutes = require('./src/routes/admin/admin-academic-window-routes');
+const { isAuthenticated, isAdmin } = require('./src/middleware/auth');
 
 // Session configuration
 const sessionMiddleware = session({
@@ -142,6 +144,7 @@ app.use('/api/allocation', enhancedApplicationRoutes);  // Enhanced application 
 app.use(roomViewerRoutes);  // 360-degree room viewer (/api/rooms + /rooms)
 app.use('/api/student-app', mobileStudentRoutes);  // Student mobile/web app API facade
 app.use(adminOpsRoutes);
+app.use(adminAcademicWindowRoutes);
 
 // Emergency 2FA reset endpoint (admin only)
 app.post('/api/admin/emergency-reset-2fa', async (req, res) => {
@@ -231,34 +234,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// ============================================
-// MIDDLEWARE
-// ============================================
-
-// Middleware kiểm tra đăng nhập
-const isAuthenticated = (req, res, next) => {
-    if (req.session && req.session.userId) {
-        return next();
-    }
-    res.redirect('/login');
-};
-
-// Middleware kiểm tra quyền admin
-const isAdmin = (req, res, next) => {
-    logger.info('isAdmin middleware session check', {
-        hasSession: !!req.session,
-        role: req.session?.role,
-        userId: req.session?.userId,
-        path: req.path
-    });
-    
-    if (req.session && req.session.role === 'admin') {
-        return next();
-    }
-    
-    logger.warn('isAdmin access denied, redirecting to login', { path: req.path });
-    res.redirect('/login');
-};
+// isAuthenticated and isAdmin are imported from src/middleware/auth.js
 
 // ============================================
 // PUBLIC ROUTES
@@ -319,7 +295,7 @@ app.get("/map", async (req, res) => {
         });
         res.render("public/map", { dormitories: JSON.stringify(dormitories) });
     } catch (error) {
-        console.error("Error fetching dormitories for map:", error);
+        logger.error('Error fetching dormitories for map', { error: error.message });
         res.render("public/map", { dormitories: "[]" });
     }
 });
@@ -329,7 +305,7 @@ app.get("/room/:dormId/:roomId", async (req, res) => {
     try {
         res.render("public/room-detail", { user: req.session.user });
     } catch (error) {
-        console.error("Error rendering room detail:", error);
+        logger.error('Error rendering room detail', { error: error.message });
         res.status(500).send("Lỗi khi tải trang chi tiết phòng");
     }
 });
@@ -387,7 +363,6 @@ app.get("/api/dormitories", async (req, res) => {
         res.json({ success: true, dormitories });
     } catch (error) {
         logger.error('Error fetching dormitories', { error: error.message });
-        console.error('[ERROR] Fetching dormitories:', error);
         res.status(500).json({ success: false, error: 'Không thể lấy dữ liệu ký túc xá' });
     }
 });
@@ -430,7 +405,6 @@ app.get("/api/dormitories/:id/rooms", async (req, res) => {
         res.json({ success: true, rooms: allRooms });
     } catch (error) {
         logger.error('Error fetching rooms', { error: error.message });
-        console.error('[ERROR] Fetching rooms:', error);
         res.status(500).json({ success: false, error: 'Không thể lấy dữ liệu phòng' });
     }
 });
@@ -545,7 +519,7 @@ app.post("/signup", authLimiter, async (req, res) => {
 
         res.redirect('/');
     } catch (error) {
-        console.error("Error during signup:", error);
+        logger.error('Error during signup', { error: error.message });
         res.render("auth/signup", { 
             error: "Đã xảy ra lỗi trong quá trình đăng ký. Vui lòng thử lại."
         });
@@ -609,7 +583,7 @@ app.post("/login", loginLimiter, async (req, res) => {
 
         req.session.save((err) => {
             if (err) {
-                console.error('Session save error:', err);
+                logger.error('Session save error', { error: err.message });
                 return res.render("auth/login", { 
                     error: "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại."
                 });
@@ -625,7 +599,7 @@ app.post("/login", loginLimiter, async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error during login:", error);
+        logger.error('Error during login', { error: error.message });
         res.render("auth/login", { 
             error: "Đã xảy ra lỗi trong quá trình đăng nhập. Vui lòng thử lại."
         });
@@ -748,7 +722,7 @@ app.post("/forgot-password", async (req, res) => {
             success: "Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn" 
         });
     } catch (error) {
-        console.error("Error during forgot password:", error);
+        logger.error('Error during forgot password', { error: error.message });
         res.render("auth/forgot-password", { 
             error: "Đã xảy ra lỗi. Vui lòng thử lại."
         });
@@ -843,7 +817,7 @@ app.get("/profile", isAuthenticated, async (req, res) => {
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
-        console.error("Error fetching profile:", error);
+        logger.error('Error fetching profile', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
@@ -864,7 +838,7 @@ app.get("/profile/2fa", isAuthenticated, async (req, res) => {
             }
         });
     } catch (error) {
-        console.error("Error loading 2FA setup:", error);
+        logger.error('Error loading 2FA setup', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
@@ -909,7 +883,7 @@ app.post('/update-profile', isAuthenticated, async (req, res) => {
 
         res.redirect('/profile?success=profile_updated');
     } catch (error) {
-        console.error('Error updating profile:', error);
+        logger.error('Error updating profile', { error: error.message });
         res.redirect('/profile?error=update_failed');
     }
 });
@@ -941,7 +915,7 @@ app.post('/change-password', isAuthenticated, async (req, res) => {
 
         res.redirect('/profile?success=password_changed');
     } catch (error) {
-        console.error('Error changing password:', error);
+        logger.error('Error changing password', { error: error.message });
         res.redirect('/profile?error=password_change_failed');
     }
 });
@@ -982,9 +956,9 @@ app.get("/admin/dormitories", isAdmin, async (req, res) => {
             user: { name: req.session.name, role: req.session.role } 
         });
     } catch (error) {
-        console.error("Error fetching dormitories:", error);
-        res.render("admin/dormitory/admin-dormitories", { 
-            dormitories: [], 
+        logger.error('Error fetching dormitories', { error: error.message });
+        res.render("admin/dormitory/admin-dormitories", {
+            dormitories: [],
             error: "Không thể lấy dữ liệu ký túc xá",
             user: { name: req.session.name, role: req.session.role }
         });
@@ -998,7 +972,7 @@ app.get("/admin/application", isAdmin, async (req, res) => {
             user: { name: req.session.name, role: req.session.role } 
         });
     } catch (error) {
-        console.error("Error rendering application page:", error);
+        logger.error('Error rendering application page', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
@@ -1014,8 +988,8 @@ app.get("/admin/dormitories/trash", isAdmin, async (req, res) => {
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
-        console.error("Error fetching trash:", error);
-        res.render("admin/dormitory/admin-trash", { 
+        logger.error('Error fetching trash', { error: error.message });
+        res.render("admin/dormitory/admin-trash", {
             deletedDormitories: [],
             error: "Không thể lấy dữ liệu",
             user: { name: req.session.name, role: req.session.role }
@@ -1043,7 +1017,7 @@ app.get("/admin/dormitories/edit/:id", isAdmin, async (req, res) => {
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
-        console.error("Error fetching dormitory for edit:", error);
+        logger.error('Error fetching dormitory for edit', { error: error.message });
         res.redirect('/admin/dormitories');
     }
 });
@@ -1059,7 +1033,7 @@ app.get("/admin/dormitories/view/:id", isAdmin, async (req, res) => {
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
-        console.error("Error fetching dormitory details:", error);
+        logger.error('Error fetching dormitory details', { error: error.message });
         res.redirect('/admin/dormitories');
     }
 });
@@ -1071,7 +1045,7 @@ app.get("/admin/dormitories/:dormId/rooms/:floorNumber/:roomNumber", isAdmin, as
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
-        console.error("Error rendering room details:", error);
+        logger.error('Error rendering room details', { error: error.message });
         res.redirect('/admin/dormitories');
     }
 });
@@ -1083,7 +1057,7 @@ app.get("/admin/cleanup", isAdmin, (req, res) => {
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
-        console.error("Error rendering cleanup page:", error);
+        logger.error('Error rendering cleanup page', { error: error.message });
         res.redirect('/admin/dormitories');
     }
 });
@@ -1308,7 +1282,7 @@ app.post("/admin/approve-application", isAdmin, async (req, res) => {
         }
 
     } catch (error) {
-        console.error("[ERROR] Error processing application:", error);
+        logger.error('Error processing application', { error: error.message });
         res.status(500).json({ 
             success: false, 
             message: "Lỗi hệ thống khi xử lý đơn đăng ký",
@@ -1427,7 +1401,7 @@ app.put("/api/admin/applications/:id/update-status", isAdmin, async (req, res) =
         }
 
     } catch (error) {
-        console.error("Error updating application status:", error);
+        logger.error('Error updating application status', { error: error.message });
         res.status(500).json({ 
             success: false, 
             error: "Lỗi hệ thống khi cập nhật trạng thái"
@@ -1463,7 +1437,7 @@ app.get("/admin/applications/stats", isAdmin, async (req, res) => {
         res.json({ success: true, stats: result });
 
     } catch (error) {
-        console.error("Error fetching application stats:", error);
+        logger.error('Error fetching application stats', { error: error.message });
         res.status(500).json({ 
             success: false, 
             message: "Lỗi khi lấy thống kê đơn đăng ký" 
@@ -1492,7 +1466,7 @@ app.post("/admin/send-announcement", isAdmin, async (req, res) => {
         });
         
     } catch (error) {
-        console.error("Error sending announcement:", error);
+        logger.error('Error sending announcement', { error: error.message });
         res.status(500).json({ error: "Không thể gửi thông báo" });
     }
 });
@@ -1506,7 +1480,7 @@ app.get("/api/featured-dormitories", async (req, res) => {
         const dormitories = await DormitoryCollection.find().limit(5);
         res.json(dormitories);
     } catch (error) {
-        console.error("Error fetching featured dormitories:", error);
+        logger.error('Error fetching featured dormitories', { error: error.message });
         res.status(500).json({ error: "Không thể lấy dữ liệu ký túc xá nổi bật" });
     }
 });
@@ -1556,7 +1530,7 @@ app.get("/api/notifications", async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error fetching notifications:", error);
+        logger.error('Error fetching notifications', { error: error.message });
         res.status(500).json({ error: "Internal server error" });
     }
 });
@@ -1596,7 +1570,7 @@ app.post("/api/notifications/:id/read", async (req, res) => {
         res.json({ success: true, message: "Notification marked as read" });
 
     } catch (error) {
-        console.error("Error marking notification as read:", error);
+        logger.error('Error marking notification as read', { error: error.message });
         res.status(500).json({ error: "Internal server error" });
     }
 });
@@ -1633,7 +1607,7 @@ app.post("/api/notifications/mark-all-read", async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Error marking all notifications as read:", error);
+        logger.error('Error marking all notifications as read', { error: error.message });
         res.status(500).json({ error: "Internal server error" });
     }
 });
@@ -1660,7 +1634,7 @@ app.post("/api/admin/notifications", isAdmin, async (req, res) => {
         }
 
     } catch (error) {
-        console.error("Error creating notification:", error);
+        logger.error('Error creating notification', { error: error.message });
         res.status(500).json({ error: "Internal server error" });
     }
 });
@@ -1699,7 +1673,7 @@ async function checkStudentExistsInSystem(studentId, fullName) {
         
         return { exists: false };
     } catch (error) {
-        console.error('Error checking student exists:', error);
+        logger.error('Error checking student exists', { error: error.message });
         return { exists: false };
     }
 }
@@ -1727,343 +1701,11 @@ async function createDefaultAdmin() {
             logger.info('Default admin account created');
         }
     } catch (error) {
-        console.error('Error creating admin account:', error);
+        logger.error('Error creating admin account', { error: error.message });
     }
 }
 
-// Academic Policies Page
-app.get("/admin/academic/policies", isAdmin, async (req, res) => {
-    try {
-        res.render("admin/academic/admin-academic-policies", { 
-            user: { 
-                name: req.session.name, 
-                role: req.session.role 
-            } 
-        });
-    } catch (error) {
-        console.error("Error rendering academic policies page:", error);
-        res.status(500).send("Internal server error");
-    }
-});
-
-// Priority Queue Page
-app.get("/admin/academic/priority-queue", isAdmin, async (req, res) => {
-    try {
-        res.render("admin/academic/admin-priority-queue", { 
-            user: { 
-                name: req.session.name, 
-                role: req.session.role 
-            } 
-        });
-    } catch (error) {
-        console.error("Error rendering priority queue page:", error);
-        res.status(500).send("Internal server error");
-    }
-});
-
-// Academic Windows Management Page
-app.get("/admin/academic-windows", isAdmin, async (req, res) => {
-    try {
-        logger.info('Rendering admin/registration-cycles');
-        res.render("admin/registration-cycles", { 
-            user: { 
-                name: req.session.name, 
-                role: req.session.role 
-            } 
-        });
-        logger.info('Successfully rendered admin/registration-cycles');
-    } catch (error) {
-        console.error("Error rendering academic windows page:", error);
-        res.status(500).send("Internal server error");
-    }
-});
-
-// API: Get academic windows with application statistics by priority
-app.get("/api/admin/academic-windows", isAdmin, async (req, res) => {
-    try {
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        const windows = await AllocationCycleModel.find({})
-            .sort({ academicYear: -1 })
-            .lean();
-        
-        // For each window, get application statistics by priority
-        const windowsWithStats = await Promise.all(windows.map(async (window) => {
-            // Count applications by priority type for this academic year
-            const priorityStats = {
-                dantoc: 0,        // Dân tộc
-                hongho: 0,        // Hộ nghèo  
-                khuyettat: 0,     // Khuyết tật
-                mocoι: 0,         // Mồ côi
-                total: 0
-            };
-            
-            // Count applications with each priority type
-            const applicationStats = await PendingApplicationCollection.aggregate([
-                { 
-                    $match: { 
-                        createdAt: {
-                            $gte: window.registrationStart || new Date(0),
-                            $lte: window.registrationEnd || new Date()
-                        }
-                    } 
-                },
-                { $unwind: '$priorityPolicies' },
-                { 
-                    $group: {
-                        _id: '$priorityPolicies.type',
-                        count: { $sum: 1 }
-                    }
-                }
-            ]);
-            
-            applicationStats.forEach(stat => {
-                if (stat._id === 'ethnic') priorityStats.dantoc = stat.count;
-                else if (stat._id === 'poor') priorityStats.hongho = stat.count;
-                else if (stat._id === 'disability') priorityStats.khuyettat = stat.count;
-                else if (stat._id === 'orphan') priorityStats.mocoι = stat.count;
-                priorityStats.total += stat.count;
-            });
-            
-            return {
-                ...window,
-                priorityStats
-            };
-        }));
-        
-        res.json(windowsWithStats);
-    } catch (error) {
-        console.error('Error fetching academic windows:', error);
-        res.status(500).json({ error: 'Failed to fetch academic windows' });
-    }
-});
-
-// API: Get all allocation policies
-app.get("/api/admin/allocation-policies", isAdmin, async (req, res) => {
-    try {
-        const AllocationPolicyModel = require('./src/schemas/AllocationPolicySchema');
-        
-        const policies = await AllocationPolicyModel.find({})
-            .sort({ academicYear: -1, createdAt: -1 })
-            .lean();
-        
-        res.json({ success: true, policies });
-    } catch (error) {
-        console.error('Error fetching allocation policies:', error);
-        res.status(500).json({ success: false, error: 'Failed to fetch policies' });
-    }
-});
-
-// API: Create allocation policy
-app.post("/api/admin/allocation-policies", isAdmin, async (req, res) => {
-    try {
-        const AllocationPolicyModel = require('./src/schemas/AllocationPolicySchema');
-        
-        const { academicYear, name, priorityRules, rebalanceThresholds, status } = req.body;
-        
-        // Check if policy already exists for this academic year
-        const existing = await AllocationPolicyModel.findOne({ academicYear, name });
-        if (existing) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Chính sách với năm học và tên này đã tồn tại' 
-            });
-        }
-        
-        const newPolicy = await AllocationPolicyModel.create({
-            academicYear,
-            name,
-            priorityRules,
-            rebalanceThresholds,
-            status: status || 'ACTIVE',
-            createdBy: req.session.userId
-        });
-        
-        res.json({ success: true, policy: newPolicy });
-    } catch (error) {
-        console.error('Error creating allocation policy:', error);
-        res.status(500).json({ success: false, error: 'Failed to create policy' });
-    }
-});
-
-// API: Update allocation policy
-app.put("/api/admin/allocation-policies/:id", isAdmin, async (req, res) => {
-    try {
-        const AllocationPolicyModel = require('./src/schemas/AllocationPolicySchema');
-        
-        const { academicYear, name, priorityRules, rebalanceThresholds, status } = req.body;
-        
-        const updatedPolicy = await AllocationPolicyModel.findByIdAndUpdate(
-            req.params.id,
-            {
-                academicYear,
-                name,
-                priorityRules,
-                rebalanceThresholds,
-                status,
-                updatedAt: new Date()
-            },
-            { new: true }
-        );
-        
-        if (!updatedPolicy) {
-            return res.status(404).json({ success: false, error: 'Policy not found' });
-        }
-        
-        res.json({ success: true, policy: updatedPolicy });
-    } catch (error) {
-        console.error('Error updating allocation policy:', error);
-        res.status(500).json({ success: false, error: 'Failed to update policy' });
-    }
-});
-
-// API: Delete allocation policy
-app.delete("/api/admin/allocation-policies/:id", isAdmin, async (req, res) => {
-    try {
-        const AllocationPolicyModel = require('./src/schemas/AllocationPolicySchema');
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        // Check if policy is being used by any cycle
-        const cyclesUsingPolicy = await AllocationCycleModel.countDocuments({ policyId: req.params.id });
-        if (cyclesUsingPolicy > 0) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Không thể xóa chính sách đang được sử dụng bởi chu kỳ phân bổ' 
-            });
-        }
-        
-        const deletedPolicy = await AllocationPolicyModel.findByIdAndDelete(req.params.id);
-        
-        if (!deletedPolicy) {
-            return res.status(404).json({ success: false, error: 'Policy not found' });
-        }
-        
-        res.json({ success: true, message: 'Policy deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting allocation policy:', error);
-        res.status(500).json({ success: false, error: 'Failed to delete policy' });
-    }
-});
-
-// API: Create academic window (cycle)
-app.post("/api/admin/academic-windows", isAdmin, async (req, res) => {
-    try {
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        const { academicYear, policyId, startDate, endDate, status, description, allowedAcademicYears } = req.body;
-        
-        const newCycle = await AllocationCycleModel.create({
-            academicYear,
-            policyId,
-            name: 'Main Registration', // Default name
-            registrationStart: new Date(startDate),
-            registrationEnd: new Date(endDate),
-            status: status || 'PENDING',
-            description,
-            allowedAcademicYears
-        });
-        
-        res.json({ success: true, cycle: newCycle });
-    } catch (error) {
-        console.error('Error creating academic window:', error);
-        res.status(500).json({ success: false, error: 'Failed to create window' });
-    }
-});
-
-// API: Update academic window (cycle)
-app.put("/api/admin/academic-windows/:id", isAdmin, async (req, res) => {
-    try {
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        const { academicYear, policyId, startDate, endDate, status, description, allowedAcademicYears } = req.body;
-        
-        const updatedCycle = await AllocationCycleModel.findByIdAndUpdate(
-            req.params.id,
-            {
-                academicYear,
-                policyId,
-                registrationStart: new Date(startDate),
-                registrationEnd: new Date(endDate),
-                status,
-                description,
-                allowedAcademicYears,
-                updatedAt: new Date()
-            },
-            { new: true }
-        );
-        
-        if (!updatedCycle) {
-            return res.status(404).json({ success: false, error: 'Window not found' });
-        }
-        
-        res.json({ success: true, cycle: updatedCycle });
-    } catch (error) {
-        console.error('Error updating academic window:', error);
-        res.status(500).json({ success: false, error: 'Failed to update window' });
-    }
-});
-
-// API: Activate academic window (cycle)
-app.post("/api/admin/academic-windows/:id/activate", isAdmin, async (req, res) => {
-    try {
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        const updatedCycle = await AllocationCycleModel.findByIdAndUpdate(
-            req.params.id,
-            { status: 'active', updatedAt: new Date() },
-            { new: true }
-        );
-        
-        if (!updatedCycle) {
-            return res.status(404).json({ success: false, error: 'Window not found' });
-        }
-        
-        res.json({ success: true, cycle: updatedCycle });
-    } catch (error) {
-        console.error('Error activating window:', error);
-        res.status(500).json({ success: false, error: 'Failed to activate window' });
-    }
-});
-
-// API: Deactivate academic window (cycle)
-app.post("/api/admin/academic-windows/:id/deactivate", isAdmin, async (req, res) => {
-    try {
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        const updatedCycle = await AllocationCycleModel.findByIdAndUpdate(
-            req.params.id,
-            { status: 'closed', updatedAt: new Date() },
-            { new: true }
-        );
-        
-        if (!updatedCycle) {
-            return res.status(404).json({ success: false, error: 'Window not found' });
-        }
-        
-        res.json({ success: true, cycle: updatedCycle });
-    } catch (error) {
-        console.error('Error deactivating window:', error);
-        res.status(500).json({ success: false, error: 'Failed to deactivate window' });
-    }
-});
-
-// API: Delete academic window (cycle)
-app.delete("/api/admin/academic-windows/:id", isAdmin, async (req, res) => {
-    try {
-        const AllocationCycleModel = require('./src/schemas/AllocationCycleSchema');
-        
-        const deletedCycle = await AllocationCycleModel.findByIdAndDelete(req.params.id);
-        
-        if (!deletedCycle) {
-            return res.status(404).json({ success: false, error: 'Window not found' });
-        }
-        
-        res.json({ success: true, message: 'Window deleted successfully' });
-    } catch (error) {
-        console.error('Error deleting window:', error);
-        res.status(500).json({ success: false, error: 'Failed to delete window' });
-    }
-});
+// Academic window pages and CRUD → handled by adminAcademicWindowRoutes
 
 // Violations Page
 app.get("/admin/violations", isAdmin, async (req, res) => {
@@ -2075,7 +1717,7 @@ app.get("/admin/violations", isAdmin, async (req, res) => {
             } 
         });
     } catch (error) {
-        console.error("Error rendering violations page:", error);
+        logger.error('Error rendering violations page', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
@@ -2091,7 +1733,7 @@ app.get("/student/registration-portal", isAuthenticated, async (req, res) => {
             } 
         });
     } catch (error) {
-        console.error("Error rendering registration portal:", error);
+        logger.error('Error rendering registration portal', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
@@ -2107,7 +1749,7 @@ app.get("/student/priority-claims", isAuthenticated, async (req, res) => {
             } 
         });
     } catch (error) {
-        console.error("Error rendering priority claims:", error);
+        logger.error('Error rendering priority claims', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
@@ -2126,7 +1768,7 @@ app.get("/admin/priority-claims-review", isAuthenticated, async (req, res) => {
             } 
         });
     } catch (error) {
-        console.error("Error rendering admin priority claims review:", error);
+        logger.error('Error rendering admin priority claims review', { error: error.message });
         res.status(500).send("Internal server error");
     }
 });
