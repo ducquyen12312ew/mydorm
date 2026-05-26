@@ -3,33 +3,32 @@ import { SOCKET_URL } from '../config';
 import { TokenStore } from '../api/client';
 
 let socket: Socket | null = null;
-let reconnectAttempts = 0;
-const MAX_RECONNECT = 5;
 
 export async function connectSocket(): Promise<Socket> {
   if (socket?.connected) return socket;
 
-  const token = await TokenStore.getAccess();
+  // Disconnect any existing (disconnected) socket before creating a new one
+  if (socket) {
+    socket.removeAllListeners();
+    socket.disconnect();
+    socket = null;
+  }
 
   socket = io(SOCKET_URL, {
     path: '/socket.io',
-    auth: { token: token ?? '' },
+    // auth as a function — called fresh on every connection attempt including reconnects
+    auth: (cb: (data: Record<string, string>) => void) => {
+      TokenStore.getAccess().then((token) => {
+        cb({ token: token ?? '' });
+      });
+    },
     transports: ['websocket', 'polling'],
     reconnection: true,
-    reconnectionAttempts: MAX_RECONNECT,
-    reconnectionDelay: 1500,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 2000,
+    reconnectionDelayMax: 10000,
+    randomizationFactor: 0.3,
     timeout: 10000,
-  });
-
-  socket.on('connect', () => {
-    reconnectAttempts = 0;
-  });
-
-  socket.on('connect_error', (err) => {
-    reconnectAttempts += 1;
-    if (reconnectAttempts >= MAX_RECONNECT) {
-      socket?.disconnect();
-    }
   });
 
   return socket;
@@ -37,6 +36,7 @@ export async function connectSocket(): Promise<Socket> {
 
 export function disconnectSocket(): void {
   if (socket) {
+    socket.removeAllListeners();
     socket.disconnect();
     socket = null;
   }
@@ -47,5 +47,13 @@ export function getSocket(): Socket | null {
 }
 
 export function emitRefresh(): void {
-  socket?.emit('student:refresh');
+  if (socket?.connected) {
+    socket.emit('student:refresh');
+  }
+}
+
+export function ensureConnected(): void {
+  if (socket && !socket.connected) {
+    socket.connect();
+  }
 }

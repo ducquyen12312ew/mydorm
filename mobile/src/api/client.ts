@@ -43,6 +43,14 @@ export const TokenStore = {
   },
 };
 
+// Callback registered by the root layout so the interceptor can signal session expiry
+// without creating a circular import (client → authStore).
+let _onSessionExpired: (() => void) | null = null;
+
+export function registerSessionExpiredCallback(cb: () => void): void {
+  _onSessionExpired = cb;
+}
+
 export const api: AxiosInstance = axios.create({
   baseURL: `${API_BASE}${API_PREFIX}`,
   timeout: 15000,
@@ -114,8 +122,10 @@ api.interceptors.response.use(
       original.headers.Authorization = `Bearer ${data.accessToken}`;
       return api(original);
     } catch (_) {
+      // Refresh token is expired or invalid — clear storage and signal the UI
       await TokenStore.clear();
       drainQueue(null);
+      _onSessionExpired?.();
       return Promise.reject(error);
     } finally {
       isRefreshing = false;

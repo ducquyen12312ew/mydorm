@@ -119,7 +119,7 @@ export default function NotificationsScreen() {
         </View>
       ) : !notifications?.length ? (
         <EmptyState
-          icon="🔔"
+          iconName="notifications-off-outline"
           title="Chưa có thông báo"
           subtitle="Các thông báo từ hệ thống sẽ xuất hiện ở đây"
         />
@@ -129,6 +129,9 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          windowSize={7}
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
           }

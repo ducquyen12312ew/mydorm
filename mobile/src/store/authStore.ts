@@ -11,6 +11,9 @@ interface AuthState {
 
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  // Called by the API interceptor when refresh token is expired — clears state
+  // without attempting an API call (tokens are already gone).
+  forceReset: () => Promise<void>;
   restoreSession: () => Promise<boolean>;
 }
 
@@ -41,6 +44,12 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
+  forceReset: async () => {
+    // Tokens already cleared by interceptor — just wipe user cache and reset state.
+    try { await SecureStore.deleteItemAsync(USER_KEY); } catch (_) {}
+    set({ user: null, isAuthenticated: false });
+  },
+
   restoreSession: async () => {
     try {
       const [accessToken, userJson] = await Promise.all([
@@ -54,9 +63,8 @@ export const useAuthStore = create<AuthState>((set) => ({
         return true;
       }
     } catch (_) {
-      // Corrupt storage — clear and require re-login
       await TokenStore.clear();
-      await SecureStore.deleteItemAsync(USER_KEY);
+      try { await SecureStore.deleteItemAsync(USER_KEY); } catch (_2) {}
     }
 
     set({ isLoading: false });

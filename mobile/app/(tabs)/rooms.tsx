@@ -138,7 +138,7 @@ const RoomCard = React.memo(function RoomCard({ room, dormId, isFavorite, onTogg
   );
 });
 
-function DormitoryGroup({
+const DormitoryGroup = React.memo(function DormitoryGroup({
   dorm,
   favoriteIds,
   onToggleFav,
@@ -194,7 +194,11 @@ function DormitoryGroup({
       )}
     </View>
   );
-}
+}, (prev, next) =>
+  prev.dorm === next.dorm &&
+  prev.favoriteIds === next.favoriteIds &&
+  prev.onToggleFav === next.onToggleFav
+);
 
 export default function RoomsScreen() {
   const queryClient = useQueryClient();
@@ -316,7 +320,7 @@ export default function RoomsScreen() {
         </ScrollView>
       ) : filtered.length === 0 ? (
         <EmptyState
-          icon="🏢"
+          iconName="business-outline"
           title="Không tìm thấy phòng"
           subtitle="Thử thay đổi bộ lọc hoặc từ khóa tìm kiếm"
         />
@@ -326,6 +330,10 @@ export default function RoomsScreen() {
           keyExtractor={(item) => String(item.id)}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={4}
+          maxToRenderPerBatch={4}
+          windowSize={5}
+          removeClippedSubviews={true}
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
           }
