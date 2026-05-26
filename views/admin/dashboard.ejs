@@ -7,8 +7,8 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
-            --primary-color: #e61a1a;
-            --primary-hover: #c01515;
+            --primary-color: #d63031;
+            --primary-hover: #b71c1c;
             --text-dark: #2c3e50;
             --text-light: #7f8c8d;
             --bg-light: #f8f9fa;
@@ -30,183 +30,6 @@
             color: var(--text-dark);
         }
 
-        /* Modern Navigation */
-        .navbar {
-            background: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 5px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar-menu a {
-            padding: 10px 20px;
-            color: #2c3e50;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .navbar-menu a:hover {
-            background: #f8f9fa;
-        }
-
-        .navbar-menu a.active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        /* ADMIN HEADER (kept for compatibility, hidden) */
-        .admin-header {
-            display: none;
-        }
-
-        .admin-header-container {
-            display: none;
-        }
-
-        .admin-logo {
-            display: none;
-        }
-
-        .admin-logo img {
-            display: none;
-        }
-
-        .admin-logo:hover img {
-            display: none;
-        }
-
-        .admin-logo-text {
-            display: none;
-        }
-
-        .admin-nav {
-            display: none;
-        }
-
-        .admin-nav-links {
-            display: none;
-        }
-
-        .admin-nav-link {
-            display: none;
-        }
-
-        .admin-nav-link::before {
-            display: none;
-        }
-
-        .admin-nav-link:hover {
-            display: none;
-        }
-
-        .admin-nav-link:hover::before {
-            display: none;
-        }
-
-        .admin-nav-link.active {
-            display: none;
-        }
-
-        .admin-nav-link.active::before {
-            display: none;
-        }
-
-        .admin-nav-link i {
-            display: none;
-        }
-
-        .admin-user-section {
-            display: none;
-        }
-
-        .admin-user-profile {
-            display: none;
-        }
-
-        .admin-user-avatar {
-            display: none;
-        }
-
-        .admin-user-info {
-            display: none;
-        }
-
-        .admin-user-name {
-            display: none;
-        }
-
-        .admin-user-role {
-            display: none;
-        }
-
-        .admin-dropdown-menu {
-            display: none;
-        }
-
-        .admin-user-profile:hover .admin-dropdown-menu {
-            display: none;
-        }
-
-        .admin-dropdown-item {
-            display: none;
-        }
-
-        .admin-dropdown-item:hover {
-            display: none;
-        }
-
-        .admin-dropdown-item i {
-            display: none;
-        }
-
-        .admin-dropdown-item.logout {
-            display: none;
-        }
-
-        .admin-dropdown-item.logout:hover {
-            display: none;
-        }
-
-        .admin-menu-toggle {
-            display: none;
-        }
-
-        .admin-menu-toggle span {
-            display: none;
-        }
 
         .admin-content {
             padding-top: 0;
@@ -462,112 +285,8 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Dropdown styles for Academic Year menu */
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-toggle::after {
-            content: '';
-            display: inline-block;
-            margin-left: 8px;
-            vertical-align: middle;
-            border-top: 4px solid;
-            border-right: 4px solid transparent;
-            border-left: 4px solid transparent;
-        }
-
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            min-width: 220px;
-            padding: 0.5rem 0;
-            margin-top: 0.5rem;
-            z-index: 1000;
-            display: none;
-        }
-
-        .dropdown:hover .dropdown-menu {
-            display: block;
-        }
-
-        .dropdown-menu .dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 0.75rem 1.25rem;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-        }
-
-        .dropdown-menu .dropdown-item:hover {
-            background: var(--bg-light);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
-        }
-
-        .dropdown-menu .dropdown-item i {
-            margin-right: 10px;
-            width: 18px;
-        }
-
-        /* Active state for navigation */
-        .admin-nav-link.active {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link.active::before {
-            width: 100%;
-        }
-
         /* RESPONSIVE */
         @media (max-width: 768px) {
-            .admin-menu-toggle {
-                display: flex;
-            }
-
-            .admin-nav {
-                position: fixed;
-                top: 70px;
-                right: -100%;
-                width: 280px;
-                height: calc(100vh - 70px);
-                background: white;
-                flex-direction: column;
-                gap: 0;
-                margin: 0;
-                padding: 2rem 0;
-                box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
-                transition: right 0.3s ease;
-            }
-
-            .admin-nav.active {
-                right: 0;
-            }
-
-            .admin-nav-links {
-                flex-direction: column;
-                gap: 0;
-                width: 100%;
-            }
-
-            .admin-nav-link {
-                padding: 1rem 2rem;
-                border-bottom: 1px solid var(--border-color);
-                width: 100%;
-            }
-
-            .admin-user-info {
-                display: flex;
-            }
-
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -580,14 +299,6 @@
 
             .container {
                 padding: 0 1rem;
-            }
-
-            .dropdown-menu {
-                position: static;
-                box-shadow: none;
-                background: #f8f9fa;
-                border-left: 3px solid var(--primary-color);
-                margin-left: 1rem;
             }
         }
     </style>
@@ -648,8 +359,6 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
         let yearDistributionChart = null;
 
@@ -1082,27 +791,8 @@
             return text.toString().replace(/[&<>"']/g, m => map[m]);
         }
 
-        // Export functions for external use
+        // Export for external use
         window.loadDashboardStats = loadDashboardStats;
-        window.loadTrendChart = loadTrendChart;
-
-        // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('adminNav').classList.toggle('active');
-        });
-        // Set active state based on current page - for modern navbar
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentPath = window.location.pathname;
-            const navLinks = document.querySelectorAll('.navbar-menu a');
-            
-            navLinks.forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && currentPath.startsWith(href)) {
-                    link.classList.add('active');
-                }
-            });
-        });
     </script>
 </body>
 </html>

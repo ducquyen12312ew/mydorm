@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Đợt Đăng Ký - Admin KTX</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #e61a1a;
-            --primary-hover: #c01515;
+            --primary-color: #d63031;
+            --primary-hover: #b71c1c;
             --success-color: #28a745;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
@@ -32,60 +31,6 @@
             color: var(--text-dark);
         }
 
-        /* Navigation */
-        .navbar {
-            background: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 5px;
-            list-style: none;
-        }
-
-        .navbar-menu a {
-            padding: 10px 20px;
-            color: #2c3e50;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .navbar-menu a:hover {
-            background: #f8f9fa;
-        }
-
-        .navbar-menu a.active {
-            background: #e74c3c;
-            color: white;
-        }
 
         /* Container */
         .container {
@@ -346,37 +291,7 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="/admin/dashboard" class="navbar-brand">
-                <i class="fas fa-building"></i> KTX HUST
-            </a>
-            <ul class="navbar-menu">
-                <li><a href="/admin/dashboard">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-                <li><a href="/admin/dormitories">
-                    <i class="fas fa-building"></i> Ký túc xá
-                </a></li>
-                <li><a href="/admin/application">
-                    <i class="fas fa-file-alt"></i> Đơn đăng ký
-                </a></li>
-                <li><a href="/admin/academic-windows" class="active">
-                    <i class="fas fa-calendar-alt"></i> Đợt đăng ký
-                </a></li>
-                <li><a href="/admin/violations">
-                    <i class="fas fa-shield-alt"></i> Vi phạm
-                </a></li>
-                <li><a href="/admin/logs">
-                    <i class="fas fa-history"></i> Nhật ký
-                </a></li>
-                <li><a href="/logout">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a></li>
-            </ul>
-        </div>
-    </nav>
+    <%- include('navbar', { activeNav: 'allocation' }) %>
 
     <!-- Main content -->
     <div class="container">

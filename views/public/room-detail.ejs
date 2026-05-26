@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết phòng - KTX HUST</title>
+    <title>Chi tiáº¿t phĂ²ng - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
             box-sizing: border-box;
         }
         :root {
-            --primary-color: #e61a1a;
+            --primary-color: #d63031;
             --text-color: #333;
             --bg-color: #f8f3ef;
             --menu-bg: white;
@@ -444,25 +444,25 @@
         </div>
         <div class="nav-container">
             <nav class="nav-links">
-                <a href="/" class="nav-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link active-link">BẢN ĐỒ</a>
-                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
-                <a href="/student/maintenance-requests" class="nav-link">BẢO TRÌ</a>
+                <a href="/" class="nav-link">TRANG CHá»¦</a>
+                <a href="/map" class="nav-link active-link">Báº¢N Äá»’</a>
+                <a href="/register" class="nav-link">ÄÄ‚NG KĂ PHĂ’NG</a>
+                <a href="/room-status" class="nav-link">TRáº NG THĂI PHĂ’NG</a>
+                <a href="/student/maintenance-requests" class="nav-link">Báº¢O TRĂŒ</a>
             </nav>
             
             <!-- User profile dropdown -->
             <div class="user-profile">
-                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                <a href="/profile" class="avatar-container" title="Xem há»“ sÆ¡">
                     <div class="avatar"><%= (user && user.name) ? user.name.trim().charAt(0).toUpperCase() : 'U' %></div>
-                    <span class="user-name"><%= (user && user.name) ? user.name : 'Người dùng' %></span>
+                    <span class="user-name"><%= (user && user.name) ? user.name : 'NgÆ°á»i dĂ¹ng' %></span>
                 </a>
                 <div class="dropdown-menu" id="dropdownMenu">
                     <a href="/profile" class="dropdown-item">
-                        <i class="fas fa-user-circle"></i> Hồ sơ
+                        <i class="fas fa-user-circle"></i> Há»“ sÆ¡
                     </a>
                     <a href="/logout" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                        <i class="fas fa-sign-out-alt"></i> ÄÄƒng xuáº¥t
                     </a>
                 </div>
             </div>
@@ -472,7 +472,7 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="breadcrumb">
-            <a href="/map">Bản đồ</a> / 
+            <a href="/map">Báº£n Ä‘á»“</a> / 
             <span id="breadcrumbDorm"></span> / 
             <span id="breadcrumbRoom"></span>
         </div>
@@ -480,44 +480,44 @@
         <!-- Room Header with Info -->
         <div class="room-header">
             <div class="image-section">
-                <img id="mainImage" src="" alt="Phòng" class="main-image" onerror="this.src='/image/placeholder.png'">
+                <img id="mainImage" src="" alt="PhĂ²ng" class="main-image" onerror="this.src='/image/placeholder.png'">
             </div>
             <div class="room-info">
                 <h1 class="room-title" id="roomTitle"></h1>
                 <div id="roomStatus" class="room-status"></div>
                 
                 <div class="room-detail">
-                    <div class="detail-label">Ký túc xá</div>
+                    <div class="detail-label">KĂ½ tĂºc xĂ¡</div>
                     <div class="detail-value" id="dormName"></div>
                 </div>
 
                 <div class="room-detail">
-                    <div class="detail-label">Tầng</div>
+                    <div class="detail-label">Táº§ng</div>
                     <div class="detail-value" id="floorNumber"></div>
                 </div>
 
                 <div class="room-detail">
-                    <div class="detail-label">Sức chứa</div>
+                    <div class="detail-label">Sá»©c chá»©a</div>
                     <div class="detail-value" id="capacity"></div>
                 </div>
 
                 <div class="room-detail">
-                    <div class="detail-label">Hiện tại</div>
+                    <div class="detail-label">Hiá»‡n táº¡i</div>
                     <div class="detail-value" id="occupants"></div>
                 </div>
 
                 <div class="room-detail">
-                    <div class="detail-label">Giá phòng/tháng</div>
+                    <div class="detail-label">GiĂ¡ phĂ²ng/thĂ¡ng</div>
                     <div class="detail-value" id="price"></div>
                 </div>
 
                 <div class="room-detail">
-                    <div class="detail-label">Tiện nghi</div>
+                    <div class="detail-label">Tiá»‡n nghi</div>
                     <div class="detail-value" id="amenities"></div>
                 </div>
 
                 <a href="/register" class="btn btn-primary" style="margin-top: 1.5rem;">
-                    <i class="fas fa-check"></i> Đăng ký phòng này
+                    <i class="fas fa-check"></i> ÄÄƒng kĂ½ phĂ²ng nĂ y
                 </a>
             </div>
         </div>
@@ -526,13 +526,13 @@
         <div class="tabs">
             <div class="tab-buttons">
                 <button class="tab-btn active" onclick="switchTab('images')">
-                    <i class="fas fa-images"></i> Ảnh (<span id="imageCount">0</span>)
+                    <i class="fas fa-images"></i> áº¢nh (<span id="imageCount">0</span>)
                 </button>
                 <button class="tab-btn" onclick="switchTab('videos')">
                     <i class="fas fa-video"></i> Video (<span id="videoCount">0</span>)
                 </button>
                 <button class="tab-btn" onclick="switchTab('info')">
-                    <i class="fas fa-info-circle"></i> Thông tin
+                    <i class="fas fa-info-circle"></i> ThĂ´ng tin
                 </button>
             </div>
 
@@ -541,7 +541,7 @@
                 <div class="gallery-grid" id="imagesGallery"></div>
                 <div id="emptyImages" class="empty-message">
                     <i class="fas fa-image"></i>
-                    <p>Chưa có ảnh</p>
+                    <p>ChÆ°a cĂ³ áº£nh</p>
                 </div>
             </div>
 
@@ -550,25 +550,25 @@
                 <div class="gallery-grid" id="videosGallery"></div>
                 <div id="emptyVideos" class="empty-message">
                     <i class="fas fa-video"></i>
-                    <p>Chưa có video</p>
+                    <p>ChÆ°a cĂ³ video</p>
                 </div>
             </div>
 
             <!-- Info Tab -->
             <div id="info" class="tab-content">
                 <div style="line-height: 1.8; color: #666;">
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Mô tả phòng</h3>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">MĂ´ táº£ phĂ²ng</h3>
                     <p id="roomDescription" style="margin-bottom: 1.5rem;"></p>
 
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Quy tắc phòng</h3>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Quy táº¯c phĂ²ng</h3>
                     <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
-                        <li>Giữ gìn vệ sinh chung</li>
-                        <li>Không gây tiếng ồn sau 22h</li>
-                        <li>Không hút thuốc trong phòng</li>
-                        <li>Tắt đèn, máy lạnh trước khi rời phòng</li>
+                        <li>Giá»¯ gĂ¬n vá»‡ sinh chung</li>
+                        <li>KhĂ´ng gĂ¢y tiáº¿ng á»“n sau 22h</li>
+                        <li>KhĂ´ng hĂºt thuá»‘c trong phĂ²ng</li>
+                        <li>Táº¯t Ä‘Ă¨n, mĂ¡y láº¡nh trÆ°á»›c khi rá»i phĂ²ng</li>
                     </ul>
 
-                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Liên hệ quản lý</h3>
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">LiĂªn há»‡ quáº£n lĂ½</h3>
                     <p id="contactInfo"></p>
                 </div>
             </div>
@@ -609,7 +609,7 @@
             const dormId = params.get('dormId');
 
             if (!roomId || !dormId) {
-                document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Không tìm thấy phòng</div>';
+                document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">KhĂ´ng tĂ¬m tháº¥y phĂ²ng</div>';
                 return;
             }
 
@@ -621,7 +621,7 @@
                         dormData = data.dormitory;
                         document.getElementById('dormName').textContent = dormData.name;
                         document.getElementById('breadcrumbDorm').textContent = dormData.name;
-                        document.getElementById('contactInfo').textContent = `Điện thoại: ${dormData.contact?.phone || 'N/A'} | Email: ${dormData.contact?.email || 'N/A'}`;
+                        document.getElementById('contactInfo').textContent = `Äiá»‡n thoáº¡i: ${dormData.contact?.phone || 'N/A'} | Email: ${dormData.contact?.email || 'N/A'}`;
 
                         // Find the room
                         let foundRoom = null;
@@ -640,13 +640,13 @@
                         if (foundRoom) {
                             displayRoomDetail(foundRoom);
                         } else {
-                            document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Không tìm thấy phòng</div>';
+                            document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">KhĂ´ng tĂ¬m tháº¥y phĂ²ng</div>';
                         }
                     }
                 })
                 .catch(err => {
                     console.error('Error:', err);
-                    document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Lỗi khi tải dữ liệu</div>';
+                    document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Lá»—i khi táº£i dá»¯ liá»‡u</div>';
                 });
         }
 
@@ -663,24 +663,24 @@
             let statusClass, statusText;
             if (currentOccupants >= maxCapacity) {
                 statusClass = 'status-full';
-                statusText = '❌ Đã đầy';
+                statusText = 'âŒ ÄĂ£ Ä‘áº§y';
             } else if (currentOccupants > 0) {
                 statusClass = 'status-pending';
-                statusText = '⏳ Có đơn chờ';
+                statusText = 'â³ CĂ³ Ä‘Æ¡n chá»';
             } else {
                 statusClass = 'status-available';
-                statusText = '✓ Còn trống';
+                statusText = 'âœ“ CĂ²n trá»‘ng';
             }
             const statusDiv = document.getElementById('roomStatus');
             statusDiv.className = 'room-status ' + statusClass;
             statusDiv.textContent = statusText;
 
-            document.getElementById('floorNumber').textContent = `Tầng ${room.floor || 'N/A'}`;
-            document.getElementById('capacity').textContent = `${maxCapacity} người`;
-            document.getElementById('occupants').textContent = `${currentOccupants} người`;
+            document.getElementById('floorNumber').textContent = `Táº§ng ${room.floor || 'N/A'}`;
+            document.getElementById('capacity').textContent = `${maxCapacity} ngÆ°á»i`;
+            document.getElementById('occupants').textContent = `${currentOccupants} ngÆ°á»i`;
             document.getElementById('price').textContent = `${room.pricePerMonth?.toLocaleString() || 'N/A'} VND`;
-            document.getElementById('amenities').textContent = room.amenities?.length > 0 ? room.amenities.join(', ') : 'Không có';
-            document.getElementById('roomDescription').textContent = room.description || 'Phòng ký túc xá tiêu chuẩn với đầy đủ tiện nghi cơ bản';
+            document.getElementById('amenities').textContent = room.amenities?.length > 0 ? room.amenities.join(', ') : 'KhĂ´ng cĂ³';
+            document.getElementById('roomDescription').textContent = room.description || 'PhĂ²ng kĂ½ tĂºc xĂ¡ tiĂªu chuáº©n vá»›i Ä‘áº§y Ä‘á»§ tiá»‡n nghi cÆ¡ báº£n';
 
             // Load images and videos (placeholder - in real app would come from database)
             loadGallery();
@@ -704,7 +704,7 @@
                 document.getElementById('emptyImages').style.display = 'none';
                 imagesGallery.innerHTML = images.map(img => `
                     <div class="gallery-item">
-                        <img src="${img}" alt="Phòng" onerror="this.src='/image/placeholder.png'">
+                        <img src="${img}" alt="PhĂ²ng" onerror="this.src='/image/placeholder.png'">
                     </div>
                 `).join('');
             } else {

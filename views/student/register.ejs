@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký phòng - KTX HUST</title>
+    <title>ÄÄƒng kĂ½ phĂ²ng - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +16,7 @@
             box-sizing: border-box;
         }
         :root {
-            --primary-color: #e61a1a;
+            --primary-color: #d63031;
             --text-color: #333;
             --bg-color: #f8f3ef;
             --menu-bg: white;
@@ -586,35 +586,35 @@
     <%- include('navbar', { currentPage: 'register', user: user }) %>
 
     <section class="student-page-hero">
-        <div class="student-page-badge"><i class="fas fa-clipboard-check"></i> Đăng ký phòng</div>
-        <h1 class="student-page-title">Hoàn thiện hồ sơ và chọn ký túc xá theo cùng nhịp trải nghiệm như trang chủ</h1>
-        <p class="student-page-subtitle">Phần đăng ký được làm lại nhịp bố cục để đỡ khô hơn: mở đầu rõ ràng, khối chức năng tách mạch hơn và toàn bộ điều hướng giữ thống nhất với thanh menu mới.</p>
+        <div class="student-page-badge"><i class="fas fa-clipboard-check"></i> ÄÄƒng kĂ½ phĂ²ng</div>
+        <h1 class="student-page-title">HoĂ n thiá»‡n há»“ sÆ¡ vĂ  chá»n kĂ½ tĂºc xĂ¡ theo cĂ¹ng nhá»‹p tráº£i nghiá»‡m nhÆ° trang chá»§</h1>
+        <p class="student-page-subtitle">Pháº§n Ä‘Äƒng kĂ½ Ä‘Æ°á»£c lĂ m láº¡i nhá»‹p bá»‘ cá»¥c Ä‘á»ƒ Ä‘á»¡ khĂ´ hÆ¡n: má»Ÿ Ä‘áº§u rĂµ rĂ ng, khá»‘i chá»©c nÄƒng tĂ¡ch máº¡ch hÆ¡n vĂ  toĂ n bá»™ Ä‘iá»u hÆ°á»›ng giá»¯ thá»‘ng nháº¥t vá»›i thanh menu má»›i.</p>
         <div class="student-page-meta">
             <div class="student-page-meta-card">
-                <strong>Bước 1</strong>
-                <span>Kiểm tra và bổ sung thông tin sinh viên trước khi gửi đơn.</span>
+                <strong>BÆ°á»›c 1</strong>
+                <span>Kiá»ƒm tra vĂ  bá»• sung thĂ´ng tin sinh viĂªn trÆ°á»›c khi gá»­i Ä‘Æ¡n.</span>
             </div>
             <div class="student-page-meta-card">
-                <strong>Bước 2</strong>
-                <span>Chọn khu ký túc xá rồi tiếp tục tới danh sách phòng phù hợp.</span>
+                <strong>BÆ°á»›c 2</strong>
+                <span>Chá»n khu kĂ½ tĂºc xĂ¡ rá»“i tiáº¿p tá»¥c tá»›i danh sĂ¡ch phĂ²ng phĂ¹ há»£p.</span>
             </div>
             <div class="student-page-meta-card">
-                <strong>Bước 3</strong>
-                <span>Theo dõi hồ sơ tại trang trạng thái phòng sau khi đăng ký.</span>
+                <strong>BÆ°á»›c 3</strong>
+                <span>Theo dĂµi há»“ sÆ¡ táº¡i trang tráº¡ng thĂ¡i phĂ²ng sau khi Ä‘Äƒng kĂ½.</span>
             </div>
         </div>
     </section>
 
     <!-- Main Content -->
     <main class="main-content">
-        <h1 class="page-title">Đăng ký phòng ký túc xá</h1>
+        <h1 class="page-title">ÄÄƒng kĂ½ phĂ²ng kĂ½ tĂºc xĂ¡</h1>
         
         <!-- Sticky header with dorm selection -->
         <div class="sticky-header" id="stickyHeader">
-            <h3>Chọn ký túc xá</h3>
+            <h3>Chá»n kĂ½ tĂºc xĂ¡</h3>
             <div class="dorm-select-wrapper">
                 <select class="form-select" id="dormitory" required onchange="onDormitoryChange()">
-                    <option value="">-- Chọn ký túc xá --</option>
+                    <option value="">-- Chá»n kĂ½ tĂºc xĂ¡ --</option>
                 </select>
                 <div class="dorm-status" id="dormStatus"></div>
             </div>
@@ -624,14 +624,14 @@
 
         <!-- Student Info Section -->
         <div class="content-card" id="studentInfoCard">
-            <div class="section-title">Thông tin sinh viên</div>
+            <div class="section-title">ThĂ´ng tin sinh viĂªn</div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Mã số sinh viên</label>
+                    <label class="form-label">MĂ£ sá»‘ sinh viĂªn</label>
                     <input type="text" class="form-control" id="studentId" readonly>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Họ và tên</label>
+                    <label class="form-label">Há» vĂ  tĂªn</label>
                     <input type="text" class="form-control" id="fullName" readonly>
                 </div>
                 <div class="form-group">
@@ -639,38 +639,38 @@
                     <input type="email" class="form-control" id="email">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Số điện thoại</label>
+                    <label class="form-label">Sá»‘ Ä‘iá»‡n thoáº¡i</label>
                     <input type="text" class="form-control" id="phone">
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label class="form-label">Ngành học</label>
-                    <input type="text" class="form-control" id="major" placeholder="Nhập ngành học của bạn">
+                    <label class="form-label">NgĂ nh há»c</label>
+                    <input type="text" class="form-control" id="major" placeholder="Nháº­p ngĂ nh há»c cá»§a báº¡n">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Khóa học</label>
-                    <input type="text" class="form-control" id="cohort" placeholder="Nhập khóa (vd: K65)">
+                    <label class="form-label">KhĂ³a há»c</label>
+                    <input type="text" class="form-control" id="cohort" placeholder="Nháº­p khĂ³a (vd: K65)">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Lớp</label>
-                    <input type="text" class="form-control" id="class" placeholder="Nhập lớp của bạn">
+                    <label class="form-label">Lá»›p</label>
+                    <input type="text" class="form-control" id="class" placeholder="Nháº­p lá»›p cá»§a báº¡n">
                 </div>
             </div>
         </div>
 
         <!-- Priority Policies Section -->
         <div class="content-card section-hidden" id="policiesCard">
-            <div class="section-title">Chính sách ưu tiên</div>
+            <div class="section-title">ChĂ­nh sĂ¡ch Æ°u tiĂªn</div>
             <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Nếu bạn thuộc diện ưu tiên, vui lòng chọn và đính kèm minh chứng.
+                <i class="fas fa-info-circle"></i> Náº¿u báº¡n thuá»™c diá»‡n Æ°u tiĂªn, vui lĂ²ng chá»n vĂ  Ä‘Ă­nh kĂ¨m minh chá»©ng.
             </div>
             <div id="policiesContainer"></div>
         </div>
 
         <!-- Room Selection Section -->
         <div class="content-card section-hidden" id="roomSelectionCard">
-            <div class="section-title">Chọn phòng</div>
+            <div class="section-title">Chá»n phĂ²ng</div>
             <div id="roomsContainer"></div>
         </div>
 
@@ -678,10 +678,10 @@
         <div class="content-card">
             <div class="btn-group">
                 <button type="button" class="btn btn-secondary" onclick="resetForm()" id="resetBtn" style="display: none;">
-                    <i class="fas fa-redo"></i> Đăng ký lại
+                    <i class="fas fa-redo"></i> ÄÄƒng kĂ½ láº¡i
                 </button>
                 <button type="button" class="btn btn-primary" id="submitBtn" onclick="submitRegistration()" disabled>
-                    <i class="fas fa-check"></i> Xác nhận đăng ký
+                    <i class="fas fa-check"></i> XĂ¡c nháº­n Ä‘Äƒng kĂ½
                 </button>
             </div>
         </div>
@@ -689,10 +689,10 @@
 
     <section class="student-cta-strip">
         <div>
-            <h3 class="benefits-title" style="font-size: 1.45rem; margin-bottom: 0.35rem;">Cần xem lại trước khi gửi?</h3>
-            <p>Danh sách ký túc xá đã được chuyển thành giao diện thẻ trực quan hơn. Bạn có thể quay lại để so sánh nhanh giữa các khu trước khi chốt.</p>
+            <h3 class="benefits-title" style="font-size: 1.45rem; margin-bottom: 0.35rem;">Cáº§n xem láº¡i trÆ°á»›c khi gá»­i?</h3>
+            <p>Danh sĂ¡ch kĂ½ tĂºc xĂ¡ Ä‘Ă£ Ä‘Æ°á»£c chuyá»ƒn thĂ nh giao diá»‡n tháº» trá»±c quan hÆ¡n. Báº¡n cĂ³ thá»ƒ quay láº¡i Ä‘á»ƒ so sĂ¡nh nhanh giá»¯a cĂ¡c khu trÆ°á»›c khi chá»‘t.</p>
         </div>
-        <a href="/map"><i class="fas fa-list-ul"></i> Xem danh sách ký túc xá</a>
+        <a href="/map"><i class="fas fa-list-ul"></i> Xem danh sĂ¡ch kĂ½ tĂºc xĂ¡</a>
     </section>
 
     <!-- Scripts -->
@@ -703,10 +703,10 @@
         let dormitories = [];
 
         const policies = [
-            { id: 'ethnic', label: 'Dân tộc thiểu số', hasInput: true, inputLabel: 'Nhập dân tộc' },
-            { id: 'poor', label: 'Hộ nghèo/Cận nghèo', hasInput: false },
-            { id: 'disability', label: 'Người khuyết tật', hasInput: false },
-            { id: 'orphan', label: 'Trẻ mồ côi/Hoàn cảnh khó khăn', hasInput: false }
+            { id: 'ethnic', label: 'DĂ¢n tá»™c thiá»ƒu sá»‘', hasInput: true, inputLabel: 'Nháº­p dĂ¢n tá»™c' },
+            { id: 'poor', label: 'Há»™ nghĂ¨o/Cáº­n nghĂ¨o', hasInput: false },
+            { id: 'disability', label: 'NgÆ°á»i khuyáº¿t táº­t', hasInput: false },
+            { id: 'orphan', label: 'Tráº» má»“ cĂ´i/HoĂ n cáº£nh khĂ³ khÄƒn', hasInput: false }
         ];
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -773,12 +773,12 @@
                         console.log('[DEBUG] Major set to:', majorField ? majorField.value : 'field not found');
                         console.log('[DEBUG] Cohort set to:', cohortField ? cohortField.value : 'field not found');
                     } else {
-                        showAlert('Lỗi: ' + (data.error || 'Không thể lấy thông tin sinh viên'), 'error');
+                        showAlert('Lá»—i: ' + (data.error || 'KhĂ´ng thá»ƒ láº¥y thĂ´ng tin sinh viĂªn'), 'error');
                     }
                 })
                 .catch(err => {
                     console.error('[ERROR] Fetching student profile:', err);
-                    showAlert('Lỗi: ' + err.message, 'error');
+                    showAlert('Lá»—i: ' + err.message, 'error');
                 });
         }
 
@@ -802,12 +802,12 @@
                             select.appendChild(option);
                         });
                     } else {
-                        showAlert('Lỗi: ' + (data.error || 'Không thể tải ký túc xá'), 'error');
+                        showAlert('Lá»—i: ' + (data.error || 'KhĂ´ng thá»ƒ táº£i kĂ½ tĂºc xĂ¡'), 'error');
                     }
                 })
                 .catch(err => {
                     console.error('[ERROR] Fetching dormitories:', err);
-                    showAlert('Lỗi tải ký túc xá: ' + err.message, 'error');
+                    showAlert('Lá»—i táº£i kĂ½ tĂºc xĂ¡: ' + err.message, 'error');
                 });
         }
 
@@ -832,7 +832,7 @@
                 
                 if (totalOccupants >= totalCapacity && totalCapacity > 0) {
                     dormStatus.className = 'dorm-status full';
-                    dormStatus.textContent = '❌ Đã hết chỗ';
+                    dormStatus.textContent = 'âŒ ÄĂ£ háº¿t chá»—';
                     document.getElementById('roomSelectionCard').classList.add('section-hidden');
                     document.getElementById('policiesCard').classList.add('section-hidden');
                     document.getElementById('submitBtn').disabled = true;
@@ -841,7 +841,7 @@
                     return;
                 } else {
                     dormStatus.className = 'dorm-status available';
-                    dormStatus.textContent = '✓ Còn chỗ';
+                    dormStatus.textContent = 'âœ“ CĂ²n chá»—';
                 }
             }
 
@@ -861,19 +861,19 @@
                     if (data.success && data.rooms) {
                         renderRooms(data.rooms);
                     } else {
-                        showAlert('Lỗi: ' + (data.error || 'Không thể tải phòng'), 'error');
+                        showAlert('Lá»—i: ' + (data.error || 'KhĂ´ng thá»ƒ táº£i phĂ²ng'), 'error');
                     }
                 })
                 .catch(err => {
                     console.error('Error loading rooms:', err);
-                    showAlert('Lỗi tải phòng: ' + err.message, 'error');
+                    showAlert('Lá»—i táº£i phĂ²ng: ' + err.message, 'error');
                 });
         }
 
         function renderRooms(rooms) {
             const container = document.getElementById('roomsContainer');
             if (!rooms || rooms.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: #999;">Không có phòng nào</p>';
+                container.innerHTML = '<p style="text-align: center; color: #999;">KhĂ´ng cĂ³ phĂ²ng nĂ o</p>';
                 return;
             }
             
@@ -894,7 +894,7 @@
             sortedFloors.forEach(floor => {
                 const floorRooms = roomsByFloor[floor];
                 html += `<div class="floor-section">
-                    <div class="floor-title">Tầng ${floor}</div>
+                    <div class="floor-title">Táº§ng ${floor}</div>
                     <div class="room-grid">`;
                 
                 floorRooms.forEach(room => {
@@ -909,7 +909,7 @@
                         status = `${currentOccupants}/${maxCapacity}`;
                         statusClass = 'pending';
                     } else {
-                        status = 'Còn trống';
+                        status = 'CĂ²n trá»‘ng';
                         statusClass = 'available';
                     }
 
@@ -954,8 +954,8 @@
                 <div id="file_${policy.id}" style="display: none; margin-bottom: 1.5rem;">
                     <div class="upload-area" onclick="document.getElementById('upload_${policy.id}').click()">
                         <i class="fas fa-cloud-upload-alt fa-2x"></i>
-                        <p>Kéo thả file hoặc click để chọn</p>
-                        <p style="font-size: 0.85rem; color: #666;">PDF, JPG, PNG (tối đa 5MB)</p>
+                        <p>KĂ©o tháº£ file hoáº·c click Ä‘á»ƒ chá»n</p>
+                        <p style="font-size: 0.85rem; color: #666;">PDF, JPG, PNG (tá»‘i Ä‘a 5MB)</p>
                     </div>
                     <input type="file" id="upload_${policy.id}" style="display: none;" 
                            accept=".pdf,.jpg,.jpeg,.png" onchange="updateFileName('${policy.id}')">
@@ -982,13 +982,13 @@
             const file = document.getElementById(`upload_${policyId}`).files[0];
             const nameDiv = document.getElementById(`fileName_${policyId}`);
             if (file) {
-                nameDiv.textContent = '✓ ' + file.name;
+                nameDiv.textContent = 'âœ“ ' + file.name;
             }
         }
 
         function submitRegistration() {
             if (!selectedRoom) {
-                showAlert('Vui lòng chọn phòng', 'error');
+                showAlert('Vui lĂ²ng chá»n phĂ²ng', 'error');
                 return;
             }
             
@@ -1002,23 +1002,23 @@
             const studentClass = document.getElementById('class').value.trim();
             
             if (!studentId || !fullName) {
-                showAlert('Thông tin sinh viên không hợp lệ', 'error');
+                showAlert('ThĂ´ng tin sinh viĂªn khĂ´ng há»£p lá»‡', 'error');
                 return;
             }
             if (!email || !phone) {
-                showAlert('Vui lòng nhập email và số điện thoại', 'error');
+                showAlert('Vui lĂ²ng nháº­p email vĂ  sá»‘ Ä‘iá»‡n thoáº¡i', 'error');
                 return;
             }
             if (!major) {
-                showAlert('Vui lòng nhập ngành học', 'error');
+                showAlert('Vui lĂ²ng nháº­p ngĂ nh há»c', 'error');
                 return;
             }
             if (!cohort) {
-                showAlert('Vui lòng nhập khóa học', 'error');
+                showAlert('Vui lĂ²ng nháº­p khĂ³a há»c', 'error');
                 return;
             }
             if (!studentClass) {
-                showAlert('Vui lòng nhập lớp', 'error');
+                showAlert('Vui lĂ²ng nháº­p lá»›p', 'error');
                 return;
             }
 
@@ -1074,7 +1074,7 @@
             console.log('- Priority Policies:', priorityPoliciesArray);
 
             document.getElementById('submitBtn').disabled = true;
-            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Äang xá»­ lĂ½...';
 
             fetch('/api/registration', {
                 method: 'POST',
@@ -1087,22 +1087,22 @@
             .then(({ status, data }) => {
                 console.log('[SUBMIT] Response data:', data);
                 document.getElementById('submitBtn').disabled = false;
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check"></i> Xác nhận đăng ký';
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check"></i> XĂ¡c nháº­n Ä‘Äƒng kĂ½';
 
                 if (status === 200 && data.success) {
-                    showAlert('Đăng ký thành công! Đơn của bạn đang chờ xét duyệt.', 'success');
+                    showAlert('ÄÄƒng kĂ½ thĂ nh cĂ´ng! ÄÆ¡n cá»§a báº¡n Ä‘ang chá» xĂ©t duyá»‡t.', 'success');
                     document.getElementById('resetBtn').style.display = 'inline-flex';
                     document.getElementById('submitBtn').style.display = 'none';
                     setTimeout(() => location.href = '/room-status', 2000);
                 } else {
-                    showAlert(data.error || 'Đăng ký không thành công', 'error');
+                    showAlert(data.error || 'ÄÄƒng kĂ½ khĂ´ng thĂ nh cĂ´ng', 'error');
                 }
             })
             .catch(err => {
                 console.error('[SUBMIT] Error:', err);
                 document.getElementById('submitBtn').disabled = false;
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check"></i> Xác nhận đăng ký';
-                showAlert('Lỗi kết nối: ' + err.message, 'error');
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check"></i> XĂ¡c nháº­n Ä‘Äƒng kĂ½';
+                showAlert('Lá»—i káº¿t ná»‘i: ' + err.message, 'error');
             });
         }
 
