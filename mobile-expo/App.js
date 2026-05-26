@@ -1,168 +1,134 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  AppState,
-  RefreshControl,
-  SafeAreaView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
-import { WebView } from 'react-native-webview';
-import { getWebAppUrl } from './src/config';
+import 'react-native-gesture-handler';
+import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
+import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import { useColorScheme } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { me } from './src/api/client';
+import AppNavigator from './src/navigation/AppNavigator';
+import { createRealtimeSocket } from './src/realtime/socket';
+import { useAppStore } from './src/store/useAppStore';
 
-const AUTO_REFRESH_MS = 15000;
-
-export default function App() {
-  const webViewRef = useRef(null);
-  const appStateRef = useRef(AppState.currentState);
-  const [refreshing, setRefreshing] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [hasError, setHasError] = useState(false);
-
-  const targetUrl = useMemo(() => getWebAppUrl(), []);
-
-  const reload = useCallback(() => {
-    setHasError(false);
-    webViewRef.current?.reload();
-  }, []);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    reload();
-    setTimeout(() => setRefreshing(false), 700);
-  }, [reload]);
-
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (nextState) => {
-      const prev = appStateRef.current;
-      appStateRef.current = nextState;
-      if ((prev === 'background' || prev === 'inactive') && nextState === 'active') {
-        reload();
-      }
-    });
-
-    return () => sub.remove();
-  }, [reload]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      if (appStateRef.current === 'active') {
-        reload();
-      }
-    }, AUTO_REFRESH_MS);
-
-    return () => clearInterval(timer);
-  }, [reload]);
-
-  return (
-    <SafeAreaView style={styles.root}>
-      <StatusBar barStyle="light-content" backgroundColor="#0b1f3a" />
-      {hasError ? (
-        <View style={styles.errorWrap}>
-          <Text style={styles.errorTitle}>Cannot connect to server</Text>
-          <Text style={styles.errorText}>{targetUrl}</Text>
-          <TouchableOpacity style={styles.retryBtn} onPress={reload} activeOpacity={0.85}>
-            <Text style={styles.retryText}>Retry</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <WebView
-          ref={webViewRef}
-          source={{ uri: targetUrl }}
-          style={styles.webview}
-          sharedCookiesEnabled
-          thirdPartyCookiesEnabled
-          javaScriptEnabled
-          domStorageEnabled
-          allowsInlineMediaPlayback
-          startInLoadingState
-          onLoadStart={() => {
-            setLoading(true);
-            setHasError(false);
-          }}
-          onLoadEnd={() => setLoading(false)}
-          onError={() => {
-            setLoading(false);
-            setHasError(true);
-          }}
-          renderLoading={() => (
-            <View style={styles.loaderWrap}>
-              <ActivityIndicator size="large" color="#1f6feb" />
-            </View>
-          )}
-          pullToRefreshEnabled
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#1f6feb" />
-          }
-        />
-      )}
-      {loading && !hasError ? (
-        <View pointerEvents="none" style={styles.loadingOverlay}>
-          <ActivityIndicator size="small" color="#1f6feb" />
-        </View>
-      ) : null}
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#0b1f3a'
-  },
-  webview: {
-    flex: 1,
-    backgroundColor: '#ffffff'
-  },
-  loaderWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ffffff'
-  },
-  loadingOverlay: {
-    position: 'absolute',
-    right: 16,
-    top: 16,
-    width: 30,
-    height: 30,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)'
-  },
-  errorWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-    backgroundColor: '#f8fafc'
-  },
-  errorTitle: {
-    fontSize: 21,
-    fontWeight: '700',
-    color: '#0f172a',
-    marginBottom: 10,
-    textAlign: 'center'
-  },
-  errorText: {
-    fontSize: 14,
-    color: '#475569',
-    marginBottom: 18,
-    textAlign: 'center'
-  },
-  retryBtn: {
-    backgroundColor: '#1f6feb',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10
-  },
-  retryText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '600'
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 20000,
+      refetchOnWindowFocus: true,
+      retry: 3,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 10000)
+    }
   }
 });
+
+const persister = createAsyncStoragePersister({ storage: AsyncStorage });
+
+function getNavTheme(colorScheme) {
+  return {
+    ...DefaultTheme,
+    dark: colorScheme === 'dark',
+    colors: {
+      ...DefaultTheme.colors,
+      background: colorScheme === 'dark' ? '#0f172a' : '#f4f7ff',
+      card: colorScheme === 'dark' ? '#111827' : '#ffffff',
+      text: colorScheme === 'dark' ? '#eef3ff' : '#0f172a',
+      border: colorScheme === 'dark' ? '#1f2937' : '#e2e8f0',
+      primary: '#667eea'
+    }
+  };
+}
+
+function Bootstrap() {
+  const queryClient = useQueryClient();
+  const user = useAppStore((s) => s.user);
+  const setUser = useAppStore((s) => s.setUser);
+  const setDashboard = useAppStore((s) => s.setDashboard);
+  const setOffline = useAppStore((s) => s.setOffline);
+
+  useEffect(() => {
+    let mounted = true;
+
+    (async () => {
+      try {
+        const profile = await me();
+        if (mounted) {
+          setUser(profile.user);
+        }
+      } catch (_) {
+        if (mounted) {
+          setUser(null);
+        }
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [setUser]);
+
+  useEffect(() => {
+    if (!user) {
+      return undefined;
+    }
+
+    let socket;
+    let disposed = false;
+
+    (async () => {
+      socket = await createRealtimeSocket();
+      if (disposed) {
+        socket.disconnect();
+        return;
+      }
+
+      socket.on('connect', () => setOffline(false));
+      socket.on('disconnect', () => setOffline(true));
+      socket.on('student:dashboard', (dashboard) => {
+        if (dashboard) {
+          setDashboard(dashboard);
+          queryClient.setQueryData(['dashboard'], dashboard);
+        }
+      });
+      socket.on('student:dashboard:refresh', () => {
+        socket.emit('student:dashboard:request');
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      });
+      socket.on('application:updated', () => {
+        socket.emit('student:dashboard:request');
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      });
+      socket.on('student:assigned', () => {
+        socket.emit('student:dashboard:request');
+        queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+        queryClient.invalidateQueries({ queryKey: ['rooms'] });
+      });
+    })();
+
+    return () => {
+      disposed = true;
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [queryClient, user, setDashboard, setOffline]);
+
+  return <AppNavigator />;
+}
+
+export default function App() {
+  const colorScheme = useColorScheme();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <PersistQueryClientProvider client={queryClient} persistOptions={{ persister, maxAge: 1000 * 60 * 60 * 6 }}>
+        <NavigationContainer theme={getNavTheme(colorScheme)}>
+          <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
+          <Bootstrap />
+        </NavigationContainer>
+      </PersistQueryClientProvider>
+    </QueryClientProvider>
+  );
+}

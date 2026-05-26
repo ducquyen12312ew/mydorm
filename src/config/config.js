@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://0.0.0.0:27017/Dormitory', {
+require('dotenv').config();
+
+const mongoUri =
+    process.env.MONGO_URI ||
+    process.env.MONGODB_URI ||
+    'mongodb://0.0.0.0:27017/Dormitory';
+
+mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
 });
@@ -96,6 +103,10 @@ const StudentSchema = new mongoose.Schema({
     priorityDetails: {
         type: Object,
         default: {}
+    },
+    favoriteRoomIds: {
+        type: [{ type: mongoose.Schema.Types.ObjectId }],
+        default: []
     },
     createdAt: {
         type: Date,

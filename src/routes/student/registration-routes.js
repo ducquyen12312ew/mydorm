@@ -10,6 +10,7 @@ const {
     ActivityLogCollection,
     AcademicWindowCollection 
 } = require('../../config/config');
+const { logger } = require('../../config/logger');
 const { calculatePriorityScore } = require('../../utils/priorityCalculator');
 
 // Configure multer for file uploads
@@ -134,12 +135,12 @@ router.get('/dormitories/registration', async (req, res) => {
             status: 'active'
         });
 
-        console.log('[Student Registration] Checking academic windows at', now);
-        console.log('[Student Registration] Found', academicWindows.length, 'active windows');
+        logger.info('Student registration checking academic windows', { now });
+        logger.info('Student registration active windows found', { count: academicWindows.length });
 
         // Nếu không có cửa sổ đăng ký nào đang mở
         if (academicWindows.length === 0) {
-            console.log('[Student Registration] No open registration windows');
+            logger.info('Student registration no open windows');
             return res.status(200).json({
                 openForRegistration: false,
                 dormitories: [],
@@ -149,7 +150,7 @@ router.get('/dormitories/registration', async (req, res) => {
 
         const currentWindow = academicWindows[0];
         const currentAcademicYears = academicWindows.map(aw => aw.academicYear);
-        console.log('[Student Registration] Active academic years:', currentAcademicYears);
+        logger.info('Student registration active academic years', { currentAcademicYears });
 
         // Lấy danh sách KTX có sẵn
         const dormitories = await DormitoryCollection.find({
@@ -165,7 +166,7 @@ router.get('/dormitories/registration', async (req, res) => {
             imageUrl: 1
         });
 
-        console.log(`Fetched ${dormitories.length} available dormitories for registration`);
+        logger.info(`Fetched ${dormitories.length} available dormitories for registration`);
         
         res.status(200).json({
             openForRegistration: true,

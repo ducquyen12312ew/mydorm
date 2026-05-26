@@ -1,29 +1,58 @@
-import { Platform } from 'react-native';
+import Constants from 'expo-constants';
 
-const DEFAULTS = {
-  development: {
-    android: 'http://10.0.2.2:5000',
-    ios: 'http://localhost:5000',
-    web: 'http://localhost:5000'
-  },
-  production: {
-    android: 'https://your-production-domain.com',
-    ios: 'https://your-production-domain.com',
-    web: 'https://your-production-domain.com'
-  }
-};
+function inferLanHost() {
+  const hostUri =
+    Constants?.expoConfig?.hostUri ||
+    Constants?.manifest2?.extra?.expoClient?.hostUri ||
+    Constants?.manifest?.debuggerHost ||
+    Constants?.manifest2?.extra?.expoGo?.debuggerHost;
 
-export function getWebAppUrl() {
-  const appEnv = process.env.EXPO_PUBLIC_APP_ENV || 'development';
-  const overrideUrl = process.env.EXPO_PUBLIC_WEBAPP_URL;
-
-  if (overrideUrl) {
-    return overrideUrl;
+  if (!hostUri) {
+    return null;
   }
 
-  if (appEnv === 'production') {
-    return DEFAULTS.production[Platform.OS] || DEFAULTS.production.web;
+  const host = String(hostUri).split(':')[0];
+  if (!host || host === '127.0.0.1' || host === 'localhost') {
+    return null;
   }
 
-  return DEFAULTS.development[Platform.OS] || DEFAULTS.development.web;
+  return host;
+}
+
+function defaultServerUrl() {
+  const lanHost = inferLanHost();
+  if (lanHost) {
+    return `http://${lanHost}:5000`;
+  }
+
+  return null;
+}
+
+export function getApiBaseUrl() {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    console.log('🔗 API Base URL (from .env):', process.env.EXPO_PUBLIC_API_URL);
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+
+  const serverUrl = defaultServerUrl();
+  if (!serverUrl) {
+    throw new Error('Missing EXPO_PUBLIC_API_URL. Set mobile-expo/.env with your LAN API base URL.');
+  }
+
+  const apiUrl = `${serverUrl}/api/student-app`;
+  console.log('🔗 API Base URL (from inferred host):', apiUrl);
+  return apiUrl;
+}
+
+export function getSocketBaseUrl() {
+  if (process.env.EXPO_PUBLIC_SOCKET_URL) {
+    return process.env.EXPO_PUBLIC_SOCKET_URL;
+  }
+
+  const serverUrl = defaultServerUrl();
+  if (!serverUrl) {
+    throw new Error('Missing EXPO_PUBLIC_SOCKET_URL. Set mobile-expo/.env with your LAN socket base URL.');
+  }
+
+  return serverUrl;
 }

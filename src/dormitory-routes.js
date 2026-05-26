@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { DormitoryCollection } = require('./config/config');
+const { logger } = require('./config/logger');
 const notDeletedQuery = { $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }] };
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
@@ -123,7 +124,7 @@ router.get('/dormitories/filter', async (req, res) => {
                 });
             });
         }
-        console.log(`Found ${dormitories.length} dormitories matching filters`); 
+        logger.info(`Found ${dormitories.length} dormitories matching filters`);
         res.status(200).json({
             success: true,
             data: dormitories
@@ -154,7 +155,7 @@ router.get('/dormitories/search', async (req, res) => {
                 { address: searchPattern }
             ]
         });
-        console.log(`Found ${dormitories.length} dormitories matching search query: ${searchQuery}`);
+        logger.info(`Found ${dormitories.length} dormitories matching search query: ${searchQuery}`);
         res.status(200).json({
             success: true,
             data: dormitories
@@ -171,7 +172,7 @@ router.get('/dormitories/search', async (req, res) => {
 router.get('/dormitories/registration', async (req, res) => {
     try {
         const { showAll } = req.query;
-        console.log('[Registration] Fetching dormitories, showAll:', showAll);
+        logger.info('Registration dormitories fetch requested', { showAll });
         
         const dormitories = await DormitoryCollection.find(
             notDeletedQuery,
@@ -185,14 +186,16 @@ router.get('/dormitories/registration', async (req, res) => {
             }
         );
         
-        console.log('[Registration] Found', dormitories.length, 'total dormitories');
+        logger.info('Registration dormitories found', { total: dormitories.length });
         
         const result = showAll === 'true' 
             ? dormitories 
             : dormitories.filter(dorm => dorm.details && dorm.details.available === true);
         
-        console.log('[Registration] Returning', result.length, 'dormitories (available only)');
-        console.log('[Registration] Dormitory names:', result.map(d => d.name));
+        logger.info('Registration dormitories returned', {
+            count: result.length,
+            names: result.map(d => d.name)
+        });
         
         res.status(200).json(result);
     } catch (error) {
@@ -237,7 +240,7 @@ router.get('/dormitories/:id', async (req, res) => {
 
 router.post('/dormitories', isAdmin, async (req, res) => {
     try {
-        console.log("Received data:", JSON.stringify(req.body, null, 2));
+        logger.info('Received dormitory create payload');
         const existingDorm = await DormitoryCollection.findOne({ name: req.body.name });
         if (existingDorm) {
             return res.status(400).json({ error: 'Ký túc xá với tên này đã tồn tại' });
@@ -356,7 +359,7 @@ router.post('/dormitories', isAdmin, async (req, res) => {
             imageUrl: req.body.imageUrl || ''
         };
         
-        console.log("Creating dormitory with data:", JSON.stringify(dormitoryData, null, 2));
+        logger.info('Creating dormitory with normalized data', { name: dormitoryData.name });
         
         const newDormitory = await DormitoryCollection.create(dormitoryData);
         res.status(201).json({ success: true, dormitory: newDormitory });

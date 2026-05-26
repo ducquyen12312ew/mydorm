@@ -1,0 +1,32 @@
+@startuml
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor LightGoldenRodYellow
+  BorderColor GoldenRod
+  FontName Arial
+  FontSize 12
+  ArrowColor GoldenRod
+}
+
+actor "Cán bộ quản lý" as Manager
+
+rectangle "Cấu hình phân bổ" {
+  (Cấu hình chính sách và tham số phân bổ) as UC_Config
+  (Nhập tham số, trọng số và ràng buộc) as UC_Input
+  (Chạy mô phỏng) as UC_Simulate
+  (Kiểm tra ràng buộc) as UC_Validate
+  (Thông báo lỗi ràng buộc) as UC_Error
+  (Lưu cấu hình) as UC_Save
+}
+
+Manager --> UC_Config : "1. Vào trang cấu hình\n   chọn hoặc tạo mẫu"
+Manager --> UC_Input : "2. Nhập tham số, trọng số\n   và ràng buộc"
+Manager --> UC_Simulate : "3. Lưu và/hoặc chạy mô phỏng"
+
+UC_Input .> UC_Validate : include
+UC_Validate --> UC_Save : "Nếu hợp lệ"
+UC_Validate --> UC_Error : "Nếu ràng buộc không hợp lệ"
+UC_Save --> Manager : "Xác nhận: cấu hình lưu thành công"
+
+@enduml

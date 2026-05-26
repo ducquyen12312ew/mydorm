@@ -218,7 +218,7 @@ router.patch('/admin/violations/:id/status',
         try {
             const { status } = req.body;
             
-            console.log(`[PATCH Status] Updating violation ${req.params.id} to status: ${status}`);
+            logger.info(`Updating violation ${req.params.id} status`, { status });
             
             const violation = await ViolationModel.findByIdAndUpdate(
                 req.params.id,
@@ -236,7 +236,7 @@ router.patch('/admin/violations/:id/status',
                 });
             }
             
-            console.log(`[PATCH Status] Successfully updated violation to: ${violation.status}`);
+            logger.info(`Successfully updated violation status`, { status: violation.status, violationId: req.params.id });
             
             res.json({ 
                 success: true, 
@@ -399,7 +399,7 @@ router.delete('/admin/violations/:id', isAdmin, async (req, res) => {
     try {
         const violationId = req.params.id;
         
-        console.log(`[DELETE] Deleting violation ${violationId}`);
+        logger.info(`Deleting violation ${violationId}`);
         
         const violation = await ViolationModel.findByIdAndDelete(violationId);
         
@@ -410,7 +410,7 @@ router.delete('/admin/violations/:id', isAdmin, async (req, res) => {
             });
         }
         
-        console.log(`[DELETE] Successfully deleted violation: ${violationId}`);
+        logger.info(`Successfully deleted violation ${violationId}`);
         
         logSecurityEvent(req.session.userId, 'DELETE_VIOLATION', {
             violationId: violationId,

@@ -8,6 +8,8 @@ const AllocationRegistration = require('../schemas/AllocationRegistrationSchema'
 const AllocationService = require('../services/allocationService');
 const RebalancingService = require('../services/rebalancingService');
 const { logger } = require('../config/logger');
+const { EVENT_TYPES } = require('../events/domain-events');
+const { publishDomainEvent } = require('../events/durable-event-publisher');
 
 const router = express.Router();
 
@@ -621,6 +623,20 @@ router.post('/manual-assign', requireAuth, requireAdmin, async (req, res) => {
       admin: req.session.userId
     });
 
+    await publishDomainEvent(EVENT_TYPES.STUDENT_ASSIGNED, {
+      studentId: String(studentId),
+      allocationType: 'MANUAL_OVERRIDE',
+      roomNumber: allocation.roomNumber,
+      dormitoryId: String(allocation.dormitoryId),
+      cycleId: String(cycleId)
+    });
+
+    await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+      studentId: String(studentId),
+      status: 'ALLOCATED',
+      cycleId: String(cycleId)
+    });
+
     res.status(201).json({
       message: 'Room assigned successfully',
       allocation
@@ -669,6 +685,19 @@ router.post('/revoke-allocation/:allocationId', requireAuth, requireAdmin, async
     logger.info('Admin revoked allocation', {
       allocationId: req.params.allocationId,
       admin: req.session.userId
+    });
+
+    await publishDomainEvent(EVENT_TYPES.STUDENT_ALLOCATION_REVOKED, {
+      studentId: String(allocation.studentId),
+      allocationId: String(allocation._id),
+      reason: req.body.reason || 'Revoked by admin',
+      cycleId: String(allocation.allocationCycleId)
+    });
+
+    await publishDomainEvent(EVENT_TYPES.APPLICATION_UPDATED, {
+      studentId: String(allocation.studentId),
+      status: 'REVOKED',
+      cycleId: String(allocation.allocationCycleId)
     });
 
     res.json({ message: 'Allocation revoked successfully' });
