@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Master Dashboard | Dormitory Control</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  <style>
+    :root {
+      --ink: #13202f;
+      --muted: #5f6f83;
+      --accent: #0f9c8f;
+      --accent-2: #f59f0b;
+      --surface: #ffffff;
+      --bg-soft: #edf2f7;
+      --line: #d7e0ea;
+      --danger: #dc3545;
+      --success: #15803d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(15,156,143,0.18), transparent 35%),
+        radial-gradient(circle at 80% 100%, rgba(245,159,11,0.14), transparent 40%),
+        var(--bg-soft);
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      letter-spacing: 0.2px;
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .2s ease, background .2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .heatmap-board {
+      margin-bottom: 14px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 12px;
+    }
+
+    .heatmap-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      box-shadow: 0 8px 22px rgba(19,32,47,.06);
+      padding: 12px;
+    }
+
+    .heatmap-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: .9rem;
+      font-weight: 700;
+    }
+
+    .heatmap-floor {
+      border-top: 1px dashed var(--line);
+      padding-top: 8px;
+      margin-top: 8px;
+    }
+
+    .heatmap-floor-head {
+      font-size: .78rem;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .heatmap-cells {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+      gap: 6px;
+    }
+
+    .heat-cell {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 6px 4px;
+      font-size: .72rem;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      background: #f8fbfd;
+      color: #213247;
+    }
+
+    .heat-cell:hover {
+      transform: translateY(-1px);
+    }
+
+    .heat-zero { background: #f5f9fc; }
+    .heat-low { background: #d8f4ef; border-color: #96e0d3; }
+    .heat-medium { background: #b9ece2; border-color: #66d4bf; }
+    .heat-high { background: #ffe6bf; border-color: #ffc06a; }
+    .heat-full { background: #ffd7db; border-color: #ff9eaa; }
+
+    .kpi {
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 28px rgba(19,32,47,.08);
+      min-height: 124px;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .kpi::after {
+      content: '';
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      right: -35px;
+      top: -35px;
+      opacity: 0.14;
+      background: var(--accent);
+    }
+
+    .kpi.kpi-occupied::after {
+      background: var(--accent-2);
+    }
+
+    .kpi h3 {
+      margin: 0;
+      font-size: 0.88rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
+
+    .kpi .value {
+      margin-top: 10px;
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .kpi .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: .86rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) 1fr;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 8px 22px rgba(19,32,47,.06);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, rgba(15,156,143,.1), rgba(245,159,11,.08));
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .panel-body {
+      padding: 14px;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      max-height: 480px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      cursor: pointer;
+      transition: background .2s ease, border-color .2s ease, transform .1s ease;
+      background: #fff;
+    }
+
+    .item:hover,
+    .item.active {
+      border-color: var(--accent);
+      background: #f4fffd;
+      transform: translateX(2px);
+    }
+
+    .item .title {
+      font-weight: 700;
+      font-size: .94rem;
+    }
+
+    .item .meta {
+      color: var(--muted);
+      font-size: .82rem;
+      margin-top: 3px;
+    }
+
+    .flow {
+      margin-bottom: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .crumb {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: .78rem;
+      color: var(--muted);
+      background: #fff;
+    }
+
+    .tag {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: .72rem;
+      font-weight: 700;
+    }
+
+    .tag-ok {
+      background: #eaf7ef;
+      color: var(--success);
+    }
+
+    .tag-full {
+      background: #fff1f3;
+      color: var(--danger);
+    }
+
+    .beds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .bed {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      min-height: 82px;
+      background: #fff;
+    }
+
+    .bed.occupied {
+      border-color: #9ec5fe;
+      background: #f1f7ff;
+    }
+
+    .bed .label {
+      font-size: .78rem;
+      color: var(--muted);
+    }
+
+    .bed .name {
+      margin-top: 5px;
+      font-size: .86rem;
+      font-weight: 700;
+    }
+
+    .bed-actions {
+      margin-top: 7px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 3px 7px;
+      font-size: .68rem;
+      text-decoration: none;
+      color: var(--ink);
+      background: #fff;
+      font-weight: 700;
+    }
+
+    .mini-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .tools {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+      grid-template-columns: 1fr 180px 220px;
+    }
+
+    .tool-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .tools input,
+    .tools select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-family: inherit;
+      font-size: .9rem;
+      background: #fff;
+    }
+
+    .student-table-wrap {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: auto;
+      max-height: 360px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    th,
+    td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: .86rem;
+    }
+
+    th {
+      background: #fafcfd;
+      font-size: .75rem;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+      position: sticky;
+      top: 0;
+    }
+
+    .three-d-toggle {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+
+    .three-d-zone {
+      margin-top: 10px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      display: none;
+      background: #fcfefe;
+    }
+
+    .three-d-zone.active {
+      display: block;
+    }
+
+    .three-d-blocks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .block {
+      height: 62px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      display: grid;
+      place-items: center;
+      font-size: .78rem;
+      transform: perspective(400px) rotateX(30deg) rotateY(-20deg);
+      transform-origin: center;
+      background: linear-gradient(145deg, #fefefe, #dce7f3);
+      box-shadow: 4px 4px 12px rgba(0,0,0,.1);
+    }
+
+    .block.full {
+      background: linear-gradient(145deg, #ffe8cc, #ffd39d);
+    }
+
+    .empty {
+      color: var(--muted);
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      font-size: .85rem;
+      background: #fafcfd;
+    }
+
+    @media (max-width: 1100px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .tools {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="topbar">
+      <div>
+        <h1>Dormitory Master Dashboard</h1>
+        <p>Realtime room intelligence with drill-down and student discovery.</p>
+      </div>
+      <div class="nav-actions">
+        <a class="btn btn-secondary" href="/admin/dashboard"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <a class="btn btn-primary" href="/admin/dormitories"><i class="fas fa-building"></i> Dormitories</a>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      <button id="kpiTotal" class="kpi" type="button">
+        <h3>Total Rooms</h3>
+        <div id="kpiTotalValue" class="value">0</div>
+        <div class="sub">Total managed rooms</div>
+      </button>
+      <button id="kpiAvailable" class="kpi" type="button">
+        <h3>Available Rooms</h3>
+        <div id="kpiAvailableValue" class="value">0</div>
+        <div class="sub">Click to start drill-down flow</div>
+      </button>
+      <button id="kpiOccupied" class="kpi kpi-occupied" type="button">
+        <h3>Occupied Rooms</h3>
+        <div id="kpiOccupiedValue" class="value">0</div>
+        <div class="sub">Rooms currently full</div>
+      </button>
+    </div>
+
+    <section id="heatmapBoard" class="heatmap-board">
+      <div class="panel" style="grid-column: 1 / -1;">
+        <div class="panel-body">
+          <div class="empty">Loading occupancy heatmaps...</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="workspace">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Drill-down Navigator</h2>
+        </div>
+        <div class="panel-body">
+          <div id="flowBar" class="flow"></div>
+          <div id="drillList" class="list"></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 id="detailTitle">Building Overview</h2>
+        </div>
+        <div class="panel-body">
+          <div id="detailBody" class="empty">Click "Available Rooms" to view buildings, then continue building → floor → room.</div>
+
+          <div class="tools">
+            <input id="studentSearchInput" type="text" placeholder="Search by student name, code, email" />
+            <select id="cohortFilterSelect">
+              <option value="">All Cohorts</option>
+              <option value="K70">K70</option>
+              <option value="K69">K69</option>
+            </select>
+            <div class="tool-actions">
+              <button id="exportCsvBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-csv"></i> CSV</button>
+              <button id="exportXlsxBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-excel"></i> XLSX</button>
+            </div>
+          </div>
+
+          <div class="student-table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Cohort</th>
+                  <th>Building</th>
+                  <th>Floor</th>
+                  <th>Room</th>
+                  <th>Bed</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody">
+                <tr><td colspan="7" class="empty">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <label class="three-d-toggle">
+            <input type="checkbox" id="threeDToggle" />
+            Optional 3D room block view
+          </label>
+          <div id="threeDZone" class="three-d-zone">
+            <div style="font-size:.82rem; color:var(--muted);">Visual block map for selected floor (optional).</div>
+            <div id="threeDBlocks" class="three-d-blocks"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      data: null,
+      selectedBuildingId: null,
+      selectedFloorNumber: null,
+      selectedRoomId: null,
+      viewLevel: 'buildings'
+    };
+
+    const flowBar = document.getElementById('flowBar');
+    const drillList = document.getElementById('drillList');
+    const detailTitle = document.getElementById('detailTitle');
+    const detailBody = document.getElementById('detailBody');
+    const studentSearchInput = document.getElementById('studentSearchInput');
+    const cohortFilterSelect = document.getElementById('cohortFilterSelect');
+    const studentTableBody = document.getElementById('studentTableBody');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const exportXlsxBtn = document.getElementById('exportXlsxBtn');
+    const heatmapBoard = document.getElementById('heatmapBoard');
+    const threeDToggle = document.getElementById('threeDToggle');
+    const threeDZone = document.getElementById('threeDZone');
+    const threeDBlocks = document.getElementById('threeDBlocks');
+
+    function escapeHtml(input) {
+      const div = document.createElement('div');
+      div.innerText = input == null ? '' : String(input);
+      return div.innerHTML;
+    }
+
+    function renderFlow() {
+      const crumbs = [];
+      crumbs.push('<span class="crumb">Available Rooms</span>');
+
+      const building = getSelectedBuilding();
+      if (building) crumbs.push(`<span class="crumb">${escapeHtml(building.name)}</span>`);
+      if (state.selectedFloorNumber != null) crumbs.push(`<span class="crumb">Floor ${state.selectedFloorNumber}</span>`);
+      const room = getSelectedRoom();
+      if (room) crumbs.push(`<span class="crumb">Room ${escapeHtml(room.roomNumber)}</span>`);
+
+      flowBar.innerHTML = crumbs.join('<i class="fas fa-angle-right" style="color:#8aa0b6"></i>');
+    }
+
+    function getBuildings() {
+      return state.data?.hierarchy?.buildings || [];
+    }
+
+    function getSelectedBuilding() {
+      return getBuildings().find((b) => b.id === state.selectedBuildingId) || null;
+    }
+
+    function getSelectedFloor() {
+      const building = getSelectedBuilding();
+      if (!building) return null;
+      return (building.floors || []).find((f) => Number(f.floorNumber) === Number(state.selectedFloorNumber)) || null;
+    }
+
+    function getSelectedRoom() {
+      const floor = getSelectedFloor();
+      if (!floor) return null;
+      return (floor.rooms || []).find((r) => r.roomId === state.selectedRoomId) || null;
+    }
+
+    function setLevel(level) {
+      state.viewLevel = level;
+      if (level === 'buildings') {
+        state.selectedBuildingId = null;
+        state.selectedFloorNumber = null;
+        state.selectedRoomId = null;
+      }
+      if (level === 'floors') {
+        state.selectedFloorNumber = null;
+        state.selectedRoomId = null;
+      }
+      if (level === 'rooms') {
+        state.selectedRoomId = null;
+      }
+      renderDrillList();
+      renderDetail();
+      renderFlow();
+      render3D();
+    }
+
+    function renderDrillList() {
+      if (!state.data) return;
+
+      if (state.viewLevel === 'buildings') {
+        const buildings = getBuildings();
+        if (buildings.length === 0) {
+          drillList.innerHTML = '<div class="empty">No buildings found</div>';
+          return;
+        }
+
+        drillList.innerHTML = buildings.map((b) => `
+          <button type="button" class="item ${b.id === state.selectedBuildingId ? 'active' : ''}" onclick="selectBuilding('${b.id}')">
+            <div class="title">${escapeHtml(b.name)}</div>
+            <div class="meta">${b.availableRooms} available / ${b.totalRooms} total rooms</div>
+          </button>
+        `).join('');
+      }
+
+      if (state.viewLevel === 'floors') {
+        const building = getSelectedBuilding();
+        if (!building) {
+          drillList.innerHTML = '<div class="empty">Select a building first</div>';
+          return;
+        }
+
+        drillList.innerHTML = (building.floors || []).map((f) => `
+          <button type="button" class="item ${Number(f.floorNumber) === Number(state.selectedFloorNumber) ? 'active' : ''}" onclick="selectFloor(${Number(f.floorNumber)})">
+            <div class="title">Floor ${Number(f.floorNumber)}</div>
+            <div class="meta">${f.availableRooms} available / ${f.totalRooms} rooms</div>
+          </button>
+        `).join('');
+      }
+
+      if (state.viewLevel === 'rooms') {
+        const floor = getSelectedFloor();
+        if (!floor) {
+          drillList.innerHTML = '<div class="empty">Select a floor first</div>';
+          return;
+        }
+
+        drillList.innerHTML = (floor.rooms || []).map((room) => {
+          const statusClass = room.status === 'FULL' ? 'tag-full' : 'tag-ok';
+          return `
+            <button type="button" class="item ${room.roomId === state.selectedRoomId ? 'active' : ''}" onclick="selectRoom('${room.roomId}')">
+              <div class="title">Room ${escapeHtml(room.roomNumber)}
+                <span class="tag ${statusClass}" style="margin-left:8px;">${room.status}</span>
+              </div>
+              <div class="meta">${room.occupiedBeds}/${room.capacity} beds occupied</div>
+            </button>
+          `;
+        }).join('');
+      }
+    }
+
+    function renderDetail() {
+      if (!state.data) return;
+
+      if (state.viewLevel === 'buildings') {
+        detailTitle.textContent = 'Buildings';
+        detailBody.innerHTML = '<div class="empty">Choose a building on the left to view floors.</div>';
+        return;
+      }
+
+      if (state.viewLevel === 'floors') {
+        const building = getSelectedBuilding();
+        detailTitle.textContent = building ? `Floors in ${building.name}` : 'Floors';
+        detailBody.innerHTML = '<div class="empty">Choose a floor to view room inventory.</div>';
+        return;
+      }
+
+      if (state.viewLevel === 'rooms') {
+        const room = getSelectedRoom();
+        if (!room) {
+          detailTitle.textContent = 'Rooms';
+          detailBody.innerHTML = '<div class="empty">Choose a room to inspect beds and students.</div>';
+          return;
+        }
+
+        detailTitle.textContent = `Room ${room.roomNumber} Beds`;
+        const bedsHtml = (room.beds || []).map((bed) => {
+          const occupiedClass = bed.occupied ? 'occupied' : '';
+          const studentLine = bed.student
+            ? `<div class="name">${escapeHtml(bed.student.name)}</div>
+               <div class="label">${escapeHtml(bed.student.cohort)}</div>
+               <div class="bed-actions">
+                 <a class="mini-btn" href="${escapeHtml(bed.student.profileUrl || '#')}" target="_blank" rel="noopener">Profile</a>
+                 <a class="mini-btn" href="${escapeHtml(bed.student.maintenanceUrl || '/admin/maintenance-requests')}" target="_blank" rel="noopener">Maintenance</a>
+               </div>`
+            : '<div class="name">Available</div><div class="label">No student</div>';
+          return `
+            <div class="bed ${occupiedClass}">
+              <div class="label">Bed ${bed.bedNumber}</div>
+              ${studentLine}
+            </div>
+          `;
+        }).join('');
+
+        detailBody.innerHTML = `
+          <div style="font-size:.9rem; color:var(--muted); margin-bottom:6px;">Type: ${escapeHtml(room.roomType || '-')} | Occupancy: ${room.occupiedBeds}/${room.capacity}</div>
+          <div class="beds-grid">${bedsHtml}</div>
+        `;
+      }
+    }
+
+    function render3D() {
+      if (!threeDToggle.checked) {
+        threeDZone.classList.remove('active');
+        return;
+      }
+
+      threeDZone.classList.add('active');
+      const floor = getSelectedFloor();
+      if (!floor) {
+        threeDBlocks.innerHTML = '<div class="empty">Select a floor to render 3D blocks.</div>';
+        return;
+      }
+
+      const blocks = (floor.rooms || []).map((room) => `
+        <div class="block ${room.status === 'FULL' ? 'full' : ''}">
+          ${escapeHtml(room.roomNumber)}
+        </div>
+      `).join('');
+      threeDBlocks.innerHTML = blocks || '<div class="empty">No rooms on this floor.</div>';
+    }
+
+    function getHeatClass(occupiedBeds, capacity) {
+      if (!capacity || capacity <= 0) return 'heat-zero';
+      const ratio = occupiedBeds / capacity;
+      if (ratio >= 1) return 'heat-full';
+      if (ratio >= 0.75) return 'heat-high';
+      if (ratio >= 0.5) return 'heat-medium';
+      if (ratio > 0) return 'heat-low';
+      return 'heat-zero';
+    }
+
+    function renderHeatmaps() {
+      const buildings = getBuildings();
+      if (!buildings.length) {
+        heatmapBoard.innerHTML = '<div class="panel" style="grid-column: 1 / -1;"><div class="panel-body"><div class="empty">No occupancy data found.</div></div></div>';
+        return;
+      }
+
+      heatmapBoard.innerHTML = buildings.map((building) => {
+        const floorRows = (building.floors || []).map((floor) => {
+          const cells = (floor.rooms || []).map((room) => {
+            const cls = getHeatClass(room.occupiedBeds, room.capacity);
+            const title = `${room.roomNumber}: ${room.occupiedBeds}/${room.capacity}`;
+            return `
+              <button
+                type="button"
+                class="heat-cell ${cls}"
+                title="${escapeHtml(title)}"
+                data-building-id="${escapeHtml(building.id)}"
+                data-floor-number="${Number(floor.floorNumber)}"
+                data-room-id="${escapeHtml(room.roomId)}"
+              >${escapeHtml(room.roomNumber)}</button>
+            `;
+          }).join('');
+
+          return `
+            <div class="heatmap-floor">
+              <div class="heatmap-floor-head">Floor ${Number(floor.floorNumber)}: ${floor.occupiedRooms}/${floor.totalRooms} full</div>
+              <div class="heatmap-cells">${cells || '<div class="empty">No rooms</div>'}</div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <article class="heatmap-card">
+            <div class="heatmap-title">
+              <span>${escapeHtml(building.name)}</span>
+              <span style="color:var(--muted); font-size:.78rem;">${building.availableRooms}/${building.totalRooms} available</span>
+            </div>
+            ${floorRows}
+          </article>
+        `;
+      }).join('');
+
+      heatmapBoard.querySelectorAll('.heat-cell').forEach((cell) => {
+        cell.addEventListener('click', () => {
+          const buildingId = cell.getAttribute('data-building-id');
+          const floorNumber = Number(cell.getAttribute('data-floor-number'));
+          const roomId = cell.getAttribute('data-room-id');
+
+          selectBuilding(buildingId);
+          selectFloor(floorNumber);
+          selectRoom(roomId);
+        });
+      });
+    }
+
+    function renderStudentTable(students) {
+      if (!students || students.length === 0) {
+        studentTableBody.innerHTML = '<tr><td colspan="7" class="empty">No students match current filters.</td></tr>';
+        return;
+      }
+
+      studentTableBody.innerHTML = students.map((s) => `
+        <tr>
+          <td>${escapeHtml(s.name)}</td>
+          <td>${escapeHtml(s.studentCode)}</td>
+          <td>${escapeHtml(s.cohort)}</td>
+          <td>${escapeHtml(s.buildingName)}</td>
+          <td>${escapeHtml(s.floorNumber)}</td>
+          <td>${escapeHtml(s.roomNumber)}</td>
+          <td>${escapeHtml(s.bedIndex)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function updateSummary() {
+      const summary = state.data?.summary || { totalRooms: 0, availableRooms: 0, occupiedRooms: 0 };
+      document.getElementById('kpiTotalValue').textContent = summary.totalRooms;
+      document.getElementById('kpiAvailableValue').textContent = summary.availableRooms;
+      document.getElementById('kpiOccupiedValue').textContent = summary.occupiedRooms;
+    }
+
+    async function loadMasterData() {
+      const params = new URLSearchParams();
+      if (studentSearchInput.value.trim()) params.set('search', studentSearchInput.value.trim());
+      if (cohortFilterSelect.value) params.set('cohort', cohortFilterSelect.value);
+
+      const url = `/admin/master-dashboard/data?${params.toString()}`;
+      const res = await fetch(url);
+      const payload = await res.json();
+      if (!res.ok || !payload.success) {
+        throw new Error(payload.error || 'Cannot load master dashboard data');
+      }
+
+      state.data = payload.data;
+      updateSummary();
+      renderHeatmaps();
+      renderStudentTable(state.data.students || []);
+
+      if (state.viewLevel === 'buildings') {
+        renderDrillList();
+        renderDetail();
+        renderFlow();
+      } else {
+        // Keep current drill selection as long as possible after data refresh.
+        renderDrillList();
+        renderDetail();
+        renderFlow();
+      }
+      render3D();
+    }
+
+    function selectBuilding(buildingId) {
+      state.selectedBuildingId = buildingId;
+      state.viewLevel = 'floors';
+      state.selectedFloorNumber = null;
+      state.selectedRoomId = null;
+      renderDrillList();
+      renderDetail();
+      renderFlow();
+      render3D();
+    }
+
+    function selectFloor(floorNumber) {
+      state.selectedFloorNumber = Number(floorNumber);
+      state.viewLevel = 'rooms';
+      state.selectedRoomId = null;
+      renderDrillList();
+      renderDetail();
+      renderFlow();
+      render3D();
+    }
+
+    function selectRoom(roomId) {
+      state.selectedRoomId = roomId;
+      renderDrillList();
+      renderDetail();
+      renderFlow();
+      render3D();
+    }
+
+    function debounce(fn, delay) {
+      let timer;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), delay);
+      };
+    }
+
+    const onSearchChanged = debounce(async () => {
+      await loadMasterData();
+    }, 250);
+
+    studentSearchInput.addEventListener('input', onSearchChanged);
+    cohortFilterSelect.addEventListener('change', loadMasterData);
+
+    document.getElementById('kpiAvailable').addEventListener('click', () => {
+      setLevel('buildings');
+    });
+
+    document.getElementById('kpiTotal').addEventListener('click', () => {
+      setLevel('buildings');
+    });
+
+    document.getElementById('kpiOccupied').addEventListener('click', () => {
+      setLevel('buildings');
+    });
+
+    exportCsvBtn.addEventListener('click', () => {
+      const params = new URLSearchParams();
+      if (studentSearchInput.value.trim()) params.set('search', studentSearchInput.value.trim());
+      if (cohortFilterSelect.value) params.set('cohort', cohortFilterSelect.value);
+      window.location.href = `/admin/master-dashboard/export?${params.toString()}`;
+    });
+
+    exportXlsxBtn.addEventListener('click', () => {
+      const params = new URLSearchParams();
+      if (studentSearchInput.value.trim()) params.set('search', studentSearchInput.value.trim());
+      if (cohortFilterSelect.value) params.set('cohort', cohortFilterSelect.value);
+      params.set('format', 'xlsx');
+      window.location.href = `/admin/master-dashboard/export?${params.toString()}`;
+    });
+
+    threeDToggle.addEventListener('change', render3D);
+
+    window.selectBuilding = selectBuilding;
+    window.selectFloor = selectFloor;
+    window.selectRoom = selectRoom;
+
+    loadMasterData().catch((error) => {
+      detailBody.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
+      studentTableBody.innerHTML = '<tr><td colspan="7" class="empty">Failed to load data.</td></tr>';
+    });
+  </script>
+</body>
+</html>

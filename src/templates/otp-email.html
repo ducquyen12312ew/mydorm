@@ -1,0 +1,94 @@
+<!-- OTP Email Template -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: #667eea;
+            color: white;
+            padding: 20px;
+            border-radius: 5px 5px 0 0;
+            text-align: center;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+        }
+        .otp-box {
+            background: white;
+            border: 2px solid #667eea;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .otp-code {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        .expiry {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .footer {
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Mã Xác Minh OTP</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào,</p>
+            <p>Bạn đã yêu cầu xác minh tài khoản. Vui lòng sử dụng mã OTP dưới đây:</p>
+            
+            <div class="otp-box">
+                <div class="otp-code">{{OTP_CODE}}</div>
+                <div class="expiry">Hết hạn trong: {{EXPIRY_MINUTES}} phút</div>
+            </div>
+
+            <div class="warning">
+                <strong>⚠️ Cảnh báo bảo mật:</strong><br>
+                Không bao giờ chia sẻ mã OTP này với bất kỳ ai, bao gồm cả nhân viên hỗ trợ.
+            </div>
+
+            <p>Nếu bạn không yêu cầu xác minh này, vui lòng bỏ qua email này.</p>
+
+            <div class="footer">
+                <p>© {{YEAR}} Hệ thống Ký Túc Xá. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -3,62 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hồ sơ | <%= student.name %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Hồ sơ sinh viên</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/student-premium-shell.css">
     
-    <!-- CSS chung cho tất cả trang student -->
-    <link rel="stylesheet" href="/css/student.css">
-
-    <!-- Style riêng cho trang profile -->
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #e61a1a;
+            --text-color: #333;
+            --bg-color: #f8f3ef;
+            --menu-bg: white;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --border-color: #e0e0e0;
+            --card-bg: white;
+            --light-gray: #f5f5f5;
+        }
+
         body {
-            padding-top: 80px;
-        }
-
-        /* Tab switching animation */
-        .profile-tab {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-tab::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-
-        .profile-tab.active::before {
-            width: 100%;
-        }
-
-        .profile-tab:hover::before {
-            width: 100%;
-        }
-
-        /* Form edit toggle animation */
-        .form-section {
-            max-height: 0;
-            overflow: hidden;
-            opacity: 0;
-            transition: max-height 0.5s ease, opacity 0.3s ease, margin-top 0.3s ease;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', Arial, sans-serif;
+            overflow-x: hidden;
+            background-color: var(--bg-color);
         }
         
-        .form-section.active {
-            max-height: 2000px;
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.2rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--menu-bg);
+            z-index: 2000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            max-height: 3rem;
+            width: auto;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            margin-left: 5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            padding: 0.8rem 0;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            bottom: 0.4rem;
+            left: 50%;
+            opacity: 0;
+            transform: translateX(-50%) scale(0);
+            transition: all 0.4s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active-link::after {
             opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .nav-link.active-link {
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            position: relative;
+        }
+
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-name {
+            color: var(--text-color);
+            font-weight: 600;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: none;
+            min-width: 200px;
+            z-index: 2001;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+            color: var(--primary-color);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: var(--primary-color);
+            margin: 3px 0;
+            border-radius: 2px;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .nav-container {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background-color: white;
+                flex-direction: column;
+                padding: 5rem 2rem 2rem;
+                transition: right 0.3s ease;
+                margin-left: 0;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+                z-index: 1999;
+                overflow-y: auto;
+            }
+            
+            .nav-container.active {
+                right: 0;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+                margin-bottom: 2rem;
+            }
+
+            .header-logo img {
+                max-height: 2.5rem;
+            }
+
+            .header {
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2.5rem;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .profile-avatar-large {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        .profile-info h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-info p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
             margin-top: 2rem;
         }
 
-        /* Tab content animation */
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--light-gray);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .info-item:hover {
+            background: #eeeeee;
+            transform: translateY(-2px);
+        }
+
+        .info-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #ffebee, #ffcdd2);
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .info-content h4 {
+            color: #666;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-content p {
+            color: var(--text-color);
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            background: none;
+            border: none;
+            color: #666;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            color: var(--primary-color);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+        }
+
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-color);
+        }
+
         .tab-content {
-            animation: fadeIn 0.4s ease-in-out;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
         }
 
         @keyframes fadeIn {
@@ -72,640 +410,885 @@
             }
         }
 
-        /* Application card hover effects */
+        /* Application History */
         .application-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .application-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(230, 26, 26, 0.05), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .application-card:hover::before {
-            left: 100%;
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary-color);
+            transition: all 0.3s;
         }
 
         .application-card:hover {
-            border-color: var(--primary-color);
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .application-card:hover .application-header {
-            background-color: rgba(230, 26, 26, 0.03);
+        .application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
         }
 
-        /* Dormitory details card */
-        .dormitory-details {
-            position: relative;
-            overflow: hidden;
+        .application-header h3 {
+            font-size: 1.3rem;
+            color: var(--text-color);
         }
 
-        .dormitory-details::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(230, 26, 26, 0.03) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
         }
 
-        .dormitory-details:hover::after {
-            opacity: 1;
-        }
-
-        /* Badge animation */
-        .badge {
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .badge:hover {
-            transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Status badges with pulse animation */
         .status-pending {
-            animation: pulse-warning 2s ease-in-out infinite;
+            background: #fff3cd;
+            color: #856404;
         }
 
-        @keyframes pulse-warning {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
-            }
-            50% {
-                box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
-            }
+        .status-approved {
+            background: #d1e7dd;
+            color: #0f5132;
         }
 
-        /* Info value hover effect */
-        .info-value {
-            transition: color 0.2s ease;
+        .status-rejected {
+            background: #f8d7da;
+            color: #842029;
         }
 
-        .info-row:hover .info-value {
+        .application-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            color: #666;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-item i {
             color: var(--primary-color);
         }
 
-        /* Edit button pulse effect */
-        @keyframes button-pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(230, 26, 26, 0.4);
-            }
-            70% {
-                box-shadow: 0 0 0 10px rgba(230, 26, 26, 0);
-            }
-            100% {
-                box-shadow: 0 0 0 0 rgba(230, 26, 26, 0);
-            }
+        /* Edit Form */
+        .form-group {
+            margin-bottom: 1.5rem;
         }
 
-        .edit-btn:hover {
-            animation: button-pulse 1.5s infinite;
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-color);
         }
 
-        /* Form control focus effect */
+        .form-control {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
         .form-control:focus {
+            outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(230, 26, 26, 0.15);
+            box-shadow: 0 0 0 3px rgba(230, 26, 26, 0.1);
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .profile-header {
-                flex-direction: column;
-                text-align: center;
+        .btn {
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c01616;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .alert-info {
+            background: #cfe2ff;
+            color: #084298;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #664d03;
+            border-left: 4px solid #ffc107;
+        }
+
+        .alert i {
+            font-size: 1.5rem;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .loading i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
             }
-            
-            .profile-avatar {
-                margin-right: 0;
-                margin-bottom: 15px;
-            }
-            
-            .profile-tabs {
-                flex-wrap: wrap;
-            }
-            
-            .profile-tab {
-                flex: 1 0 50%;
-                text-align: center;
-                padding: 10px 5px;
-                font-size: 0.9rem;
+            to {
+                transform: translateY(0);
+                opacity: 1;
             }
         }
 
-        @media (max-width: 480px) {
-            .profile-tab {
-                flex: 1 0 100%;
-                border-bottom: 1px solid var(--border-color);
-            }
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-color);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .modal-close:hover {
+            color: var(--text-color);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .qr-container {
+            text-align: center;
+            padding: 2rem;
+            background: var(--light-gray);
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .qr-container img {
+            max-width: 250px;
+            margin-bottom: 1rem;
+        }
+
+        .backup-codes-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .backup-code {
+            padding: 0.8rem;
+            background: var(--light-gray);
+            border-radius: 5px;
+            text-align: center;
+            font-family: monospace;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .backup-code.used {
+            background: #e0e0e0;
+            text-decoration: line-through;
+            color: #999;
         }
     </style>
 </head>
-<body>
-    <header class="header">
-        <div class="header-logo">
-            <img src="/image/logo.png" alt="HUST Logo">
-        </div>
-        <div class="nav-container">
-            <nav class="nav-links">
-                <a href="/" class="nav-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link">BẢN ĐỒ</a>
-                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-            </nav>
-            <div class="user-profile">
-                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
-                    <div class="avatar">
-                        <%= student.name.charAt(0).toUpperCase() %>
-                    </div>
-                    <span class="user-name">
-                        <%= student.name %>
-                    </span>
-                </a>
-                <div class="dropdown-menu">
-                    <a href="/profile" class="dropdown-item">
-                        <i class="fas fa-user-circle"></i> Hồ sơ
-                    </a>
-                    <a href="/logout" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+<body class="student-shell-page">
+    <%- include('navbar', { currentPage: 'profile', user: user, student: student }) %>
 
-    <div class="container">
-        <% if (typeof message !== 'undefined' && message) { %>
-            <div class="alert alert-<%= message.type === 'success' ? 'success' : 'danger' %> alert-dismissible fade show mb-4">
-                <% if (message.type === 'success') { %>
-                    <i class="fas fa-check-circle me-2"></i>
-                <% } else { %>
-                    <i class="fas fa-exclamation-circle me-2"></i>
-                <% } %>
-                <%= message.text %>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <section class="student-page-hero">
+        <div class="student-page-badge"><i class="fas fa-user-circle"></i> Hồ sơ sinh viên</div>
+        <h1 class="student-page-title">Hồ sơ sinh viên</h1>
+        <p class="student-page-subtitle">Trang hồ sơ được đưa về cùng ngôn ngữ thị giác với trang chủ: mở đầu gọn, nhấn các khối thông tin quan trọng và làm rõ những mục cần cập nhật thường xuyên.</p>
+        <div class="student-page-meta">
+            <div class="student-page-meta-card">
+                <strong>Thông tin cá nhân</strong>
+                <span>Cập nhật email, số điện thoại và các thông tin học tập đang dùng cho hồ sơ ký túc xá.</span>
             </div>
-        <% } %>
-        
-        <div class="profile-section">
-            <div class="profile-header">
-                <div class="profile-avatar">
-                    <%= student.name.charAt(0).toUpperCase() %>
+            <div class="student-page-meta-card">
+                <strong>Thông tin cư trú</strong>
+                <span>Theo dõi ký túc xá, phòng ở và các thay đổi liên quan ngay trong cùng một trang.</span>
+            </div>
+            <div class="student-page-meta-card">
+                <strong>Lịch sử gần đây</strong>
+                <span>Kiểm tra nhanh các hồ sơ đã nộp và các cập nhật mới nhất.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1 class="page-title">Hồ sơ sinh viên</h1>
+
+        <div id="loading" class="loading">
+            <i class="fas fa-spinner"></i>
+            <p>Đang tải thông tin...</p>
+        </div>
+
+        <div id="content" style="display: none;">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <div class="profile-header">
+                    <div class="profile-avatar-large" id="profileAvatar">U</div>
+                    <div class="profile-info">
+                        <h2 id="profileName">Tên sinh viên</h2>
+                        <p id="profileStudentId">Mã sinh viên: -</p>
+                    </div>
                 </div>
-                <div class="profile-info">
-                    <h1><%= student.name %></h1>
-                    <p>
-                        <% if (student.studentId) { %>
-                            Mã sinh viên: <%= student.studentId %> 
-                            <% if (student.faculty) { %>
-                                | <%= student.faculty %>
-                            <% } %>
-                        <% } else { %>
-                            Người dùng
-                        <% } %>
-                    </p>
-                    <% if (user.role === 'admin') { %>
-                        <span class="badge bg-danger">Quản trị viên</span>
-                    <% } %>
-                </div>
-            </div>
-            
-            <div class="profile-tabs">
-                <div class="profile-tab active" data-tab="personal-info">Thông tin cá nhân</div>
-                <div class="profile-tab" data-tab="dormitory-info">Thông tin phòng ở</div>
-                <div class="profile-tab" data-tab="application-history">Lịch sử đăng ký</div>
-                <div class="profile-tab" data-tab="account-settings">Cài đặt tài khoản</div>
-            </div>
-            
-            <div class="profile-content">
-                <!-- Thông tin cá nhân -->
-                <div class="tab-content active" id="personal-info">
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Họ và tên</div>
-                        <div class="col-md-9 info-value"><%= student.name %></div>
-                    </div>
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Mã sinh viên</div>
-                        <div class="col-md-9 info-value"><%= student.studentId || 'Chưa cập nhật' %></div>
-                    </div>
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Email</div>
-                        <div class="col-md-9 info-value"><%= student.email || 'Chưa cập nhật' %></div>
-                    </div>
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Số điện thoại</div>
-                        <div class="col-md-9 info-value"><%= student.phone || 'Chưa cập nhật' %></div>
-                    </div>
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Khoa/Viện</div>
-                        <div class="col-md-9 info-value"><%= student.faculty || 'Chưa cập nhật' %></div>
-                    </div>
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Năm học</div>
-                        <div class="col-md-9 info-value"><%= student.academicYear || 'Chưa cập nhật' %></div>
-                    </div>
-                    <div class="row info-row">
-                        <div class="col-md-3 info-label">Giới tính</div>
-                        <div class="col-md-9 info-value">
-                            <% if (student.gender === 'male') { %>
-                                Nam
-                            <% } else if (student.gender === 'female') { %>
-                                Nữ
-                            <% } else if (student.gender === 'other') { %>
-                                Khác
-                            <% } else { %>
-                                Chưa cập nhật
-                            <% } %>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Email</h4>
+                            <p id="profileEmail">-</p>
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <button class="edit-btn" id="editPersonalInfoBtn">
-                            <i class="fas fa-edit me-2"></i> Chỉnh sửa thông tin
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Số điện thoại</h4>
+                            <p id="profilePhone">-</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Ngành</h4>
+                            <p id="profileMajor">-</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-calendar"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Khóa</h4>
+                            <p id="profileCohort">-</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Lớp</h4>
+                            <p id="profileClass">-</p>
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-icon">
+                            <i class="fas fa-door-open"></i>
+                        </div>
+                        <div class="info-content">
+                            <h4>Phòng hiện tại</h4>
+                            <p id="profileRoom">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="profile-card">
+                <div class="tabs">
+                    <button class="tab active" data-tab="info" onclick="switchTab('info')">
+                        <i class="fas fa-info-circle"></i> Thông tin
+                    </button>
+                    <button class="tab" data-tab="applications" onclick="switchTab('applications')">
+                        <i class="fas fa-file-alt"></i> Lịch sử đăng ký
+                    </button>
+                    <button class="tab" data-tab="settings" onclick="switchTab('settings')">
+                        <i class="fas fa-cog"></i> Cài đặt
+                    </button>
+                </div>
+
+                <!-- Tab: Thông tin -->
+                <div id="info-content" class="tab-content active">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <div>
+                            <strong>Thông tin cá nhân</strong>
+                            <p>Vui lòng liên hệ phòng quản lý KTX để cập nhật thông tin cá nhân.</p>
+                        </div>
+                    </div>
+
+                    <div id="studentDetails"></div>
+                </div>
+
+                <!-- Tab: Lịch sử đăng ký -->
+                <div id="applications-content" class="tab-content">
+                    <div id="applicationsList"></div>
+                </div>
+
+                <!-- Tab: Cài đặt -->
+                <div id="settings-content" class="tab-content">
+                    <h3 style="margin-bottom: 1.5rem;">Đổi mật khẩu</h3>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Lưu ý bảo mật</strong>
+                            <p>Vui lòng đảm bảo mật khẩu mới đủ mạnh và không chia sẻ với người khác.</p>
+                        </div>
+                    </div>
+
+                    <form id="changePasswordForm" onsubmit="changePassword(event)">
+                        <div class="form-group">
+                            <label>Mật khẩu hiện tại</label>
+                            <input type="password" class="form-control" id="currentPassword" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Mật khẩu mới</label>
+                            <input type="password" class="form-control" id="newPassword" required minlength="6">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Xác nhận mật khẩu mới</label>
+                            <input type="password" class="form-control" id="confirmPassword" required minlength="6">
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-key"></i> Đổi mật khẩu
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr style="margin: 3rem 0; border-color: var(--border-color);">
+
+                    <h3 style="margin-bottom: 1.5rem;">Xác thực hai lớp (2FA)</h3>
+                    <div class="alert alert-info">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <strong>Bảo vệ tài khoản của bạn</strong>
+                            <p>Xác thực hai lớp giúp bảo vệ tài khoản khỏi truy cập trái phép.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
+                            <input type="checkbox" id="twoFactorAuth" style="width: 20px; height: 20px; cursor: pointer;" onchange="toggle2FA(this.checked)">
+                            <span style="font-weight: 600;">Bật xác thực hai lớp</span>
+                        </label>
+                    </div>
+
+                    <div id="backupCodesSection" style="display: none;">
+                        <button type="button" class="btn btn-secondary" onclick="showBackupCodes()">
+                            <i class="fas fa-key"></i> Xem mã dự phòng
                         </button>
-                    </div>
-                    
-                    <!-- Form chỉnh sửa thông tin cá nhân -->
-                    <div class="form-section" id="editPersonalInfoForm">
-                        <h3 class="mb-3">Chỉnh sửa thông tin cá nhân</h3>
-                        <form action="/update-profile" method="post">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="name" class="form-label">Họ và tên</label>
-                                        <input type="text" id="name" name="name" class="form-control" value="<%= student.name %>">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="studentId" class="form-label">Mã sinh viên</label>
-                                        <input type="text" id="studentId" name="studentId" class="form-control" value="<%= student.studentId || '' %>">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="email" class="form-label">Email</label>
-                                        <input type="email" id="email" name="email" class="form-control" value="<%= student.email || '' %>">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="phone" class="form-label">Số điện thoại</label>
-                                        <input type="tel" id="phone" name="phone" class="form-control" value="<%= student.phone || '' %>">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="faculty" class="form-label">Khoa/Viện</label>
-                                        <select class="form-control" id="faculty" name="faculty">
-                                            <option value="" <%= !student.faculty ? 'selected' : '' %>>-- Chọn khoa/viện --</option>
-                                            <option value="cntt" <%= student.faculty === 'cntt' ? 'selected' : '' %>>Viện Công nghệ Thông tin và Truyền thông</option>
-                                            <option value="dtvt" <%= student.faculty === 'dtvt' ? 'selected' : '' %>>Viện Điện tử Viễn thông</option>
-                                            <option value="co_khi" <%= student.faculty === 'co_khi' ? 'selected' : '' %>>Viện Cơ khí</option>
-                                            <option value="dien" <%= student.faculty === 'dien' ? 'selected' : '' %>>Viện Điện</option>
-                                            <option value="hoa" <%= student.faculty === 'hoa' ? 'selected' : '' %>>Viện Kỹ thuật Hóa học</option>
-                                            <option value="vl" <%= student.faculty === 'vl' ? 'selected' : '' %>>Viện Vật lý kỹ thuật</option>
-                                            <option value="nn" <%= student.faculty === 'nn' ? 'selected' : '' %>>Viện Ngoại ngữ</option>
-                                            <option value="kinh_te" <%= student.faculty === 'kinh_te' ? 'selected' : '' %>>Viện Kinh tế và Quản lý</option>
-                                            <option value="ck_dong_luc" <%= student.faculty === 'ck_dong_luc' ? 'selected' : '' %>>Viện Cơ khí Động lực</option>
-                                            <option value="xay_dung" <%= student.faculty === 'xay_dung' ? 'selected' : '' %>>Viện Xây dựng</option>
-                                            <option value="other" <%= student.faculty === 'other' ? 'selected' : '' %>>Khác</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="academicYear" class="form-label">Năm học</label>
-                                        <select class="form-control" id="academicYear" name="academicYear">
-                                            <option value="" <%= !student.academicYear ? 'selected' : '' %>>-- Chọn năm học --</option>
-                                            <option value="1" <%= student.academicYear === '1' ? 'selected' : '' %>>Năm 1</option>
-                                            <option value="2" <%= student.academicYear === '2' ? 'selected' : '' %>>Năm 2</option>
-                                            <option value="3" <%= student.academicYear === '3' ? 'selected' : '' %>>Năm 3</option>
-                                            <option value="4" <%= student.academicYear === '4' ? 'selected' : '' %>>Năm 4</option>
-                                            <option value="5" <%= student.academicYear === '5' ? 'selected' : '' %>>Năm 5</option>
-                                            <option value="6" <%= student.academicYear === '6' ? 'selected' : '' %>>Sau đại học</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label class="form-label">Giới tính</label>
-                                        <div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="gender" id="genderMale" 
-                                                    value="male" <%= student.gender === 'male' ? 'checked' : '' %>>
-                                                <label class="form-check-label" for="genderMale">Nam</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="gender" id="genderFemale" 
-                                                    value="female" <%= student.gender === 'female' ? 'checked' : '' %>>
-                                                <label class="form-check-label" for="genderFemale">Nữ</label>
-                                            </div>
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="radio" name="gender" id="genderOther" 
-                                                    value="other" <%= student.gender === 'other' ? 'checked' : '' %>>
-                                                <label class="form-check-label" for="genderOther">Khác</label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                <button type="button" class="btn btn-secondary ms-2" id="cancelEditPersonalInfo">Hủy</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                
-                <!-- Thông tin phòng ở -->
-                <div class="tab-content" id="dormitory-info">
-                    <% if (dormitory && room) { %>
-                        <div class="alert alert-success">
-                            <i class="fas fa-check-circle me-2"></i> Bạn hiện đang ở trong KTX.
-                        </div>
-                        <div class="row info-row">
-                            <div class="col-md-3 info-label">Ký túc xá</div>
-                            <div class="col-md-9 info-value"><%= dormitory.name %></div>
-                        </div>
-                        <div class="row info-row">
-                            <div class="col-md-3 info-label">Địa chỉ</div>
-                            <div class="col-md-9 info-value"><%= dormitory.address %></div>
-                        </div>
-                        <div class="row info-row">
-                            <div class="col-md-3 info-label">Phòng</div>
-                            <div class="col-md-9 info-value"><%= room.roomNumber %></div>
-                        </div>
-                        <div class="row info-row">
-                            <div class="col-md-3 info-label">Loại phòng</div>
-                            <div class="col-md-9 info-value">
-                                <% 
-                                let roomTypeLabel = '';
-                                switch(room.roomType) {
-                                    case '8-person': roomTypeLabel = 'Phòng 8 người'; break;
-                                    case '4-person-service': roomTypeLabel = 'Phòng 4 người (dịch vụ)'; break;
-                                    case '5-person': roomTypeLabel = 'Phòng 5 người'; break;
-                                    case '10-person': roomTypeLabel = 'Phòng 10 người'; break;
-                                    default: roomTypeLabel = room.roomType;
-                                } 
-                                %>
-                                <%= roomTypeLabel %>
-                            </div>
-                        </div>
-                        <div class="row info-row">
-                            <div class="col-md-3 info-label">Giá phòng</div>
-                            <div class="col-md-9 info-value"><%= room.pricePerMonth.toLocaleString() %> VNĐ/tháng</div>
-                        </div>
-                        
-                        <!-- Thông tin thêm về ký túc xá -->
-                        <div class="dormitory-details">
-                            <div class="dormitory-title">
-                                <i class="fas fa-info-circle me-2"></i> Thông tin thêm về ký túc xá
-                            </div>
-                            <% if (dormitory.details && dormitory.details.amenities && dormitory.details.amenities.length > 0) { %>
-                                <div class="row info-row">
-                                    <div class="col-md-3 info-label">Tiện ích</div>
-                                    <div class="col-md-9 info-value">
-                                        <% dormitory.details.amenities.forEach((amenity, index) => { %>
-                                            <span class="badge bg-light text-dark me-2 mb-2"><%= amenity %></span>
-                                        <% }); %>
-                                    </div>
-                                </div>
-                            <% } %>
-                            
-                            <% if (dormitory.contact) { %>
-                                <div class="row info-row">
-                                    <div class="col-md-3 info-label">Liên hệ</div>
-                                    <div class="col-md-9 info-value">
-                                        <% if (dormitory.contact.phone) { %>
-                                            <div><i class="fas fa-phone me-2"></i> <%= dormitory.contact.phone %></div>
-                                        <% } %>
-                                        <% if (dormitory.contact.email) { %>
-                                            <div><i class="fas fa-envelope me-2"></i> <%= dormitory.contact.email %></div>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            <% } %>
-                        </div>
-                    <% } else { %>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> Bạn chưa đăng ký phòng ký túc xá.
-                        </div>
-                        <p>Để đăng ký phòng, vui lòng:</p>
-                        <ol>
-                            <li>Truy cập trang <a href="/map">Bản đồ Ký túc xá</a> để xem thông tin các ký túc xá.</li>
-                            <li>Hoặc đi tới trang <a href="/register">Đăng ký phòng</a> để đăng ký.</li>
-                        </ol>
-                    <% } %>
-                </div>
-                
-                <!-- Lịch sử đăng ký -->
-                <div class="tab-content" id="application-history">
-                    <h3 class="mb-4">Lịch sử đăng ký phòng</h3>
-                    
-                    <% if (typeof applications !== 'undefined' && applications && applications.length > 0) { %>
-                        <% applications.forEach(application => { %>
-                            <div class="application-card">
-                                <div class="application-header">
-                                    <div>
-                                        <span class="fw-bold">Mã đơn:</span> <%= application._id %>
-                                    </div>
-                                    <div>
-                                        <% 
-                                        let statusClass = '';
-                                        let statusLabel = '';
-                                        switch(application.status) {
-                                            case 'pending':
-                                                statusClass = 'status-pending';
-                                                statusLabel = 'Chờ duyệt';
-                                                break;
-                                            case 'approved':
-                                                statusClass = 'status-approved';
-                                                statusLabel = 'Đã duyệt';
-                                                break;
-                                            case 'rejected':
-                                                statusClass = 'status-rejected';
-                                                statusLabel = 'Từ chối';
-                                                break;
-                                            default:
-                                                statusClass = 'status-pending';
-                                                statusLabel = 'Chờ duyệt';
-                                        }
-                                        %>
-                                        <span class="application-status <%= statusClass %>"><%= statusLabel %></span>
-                                    </div>
-                                </div>
-                                <div class="application-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <div><strong>Ký túc xá:</strong> <%= application.dormitoryName %></div>
-                                            <div><strong>Phòng:</strong> <%= application.roomNumber %></div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div><strong>Ngày đăng ký:</strong> <%= new Date(application.createdAt).toLocaleDateString('vi-VN') %></div>
-                                            <% if (application.comments) { %>
-                                                <div><strong>Ghi chú:</strong> <%= application.comments %></div>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        <% }); %>
-                    <% } else { %>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i> Bạn chưa có lịch sử đăng ký phòng.
-                        </div>
-                    <% } %>
-                    
-                    <div class="mt-4">
-                        <a href="/register" class="edit-btn">
-                            <i class="fas fa-plus-circle me-2"></i> Đăng ký phòng mới
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Cài đặt tài khoản -->
-                <div class="tab-content" id="account-settings">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <h3 class="mb-4">Thông tin tài khoản</h3>
-                            
-                            <div class="row info-row">
-                                <div class="col-md-4 info-label">Tên đăng nhập</div>
-                                <div class="col-md-8 info-value"><%= student.username %></div>
-                            </div>
-                            <div class="row info-row">
-                                <div class="col-md-4 info-label">Email</div>
-                                <div class="col-md-8 info-value"><%= student.email || 'Chưa cập nhật' %></div>
-                            </div>
-                            <div class="row info-row">
-                                <div class="col-md-4 info-label">Quyền</div>
-                                <div class="col-md-8 info-value">
-                                    <% if (user.role === 'admin') { %>
-                                        <span class="badge bg-danger">Quản trị viên</span>
-                                    <% } else { %>
-                                        <span class="badge bg-primary">Người dùng</span>
-                                    <% } %>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-4">
-                                <button class="edit-btn" id="changePasswordBtn">
-                                    <i class="fas fa-key me-2"></i> Đổi mật khẩu
-                                </button>
-                            </div>
-                            
-                            <!-- Form đổi mật khẩu -->
-                            <div class="form-section mt-4" id="changePasswordForm">
-                                <h4 class="mb-3">Đổi mật khẩu</h4>
-                                <form action="/change-password" method="post">
-                                    <div class="form-group">
-                                        <label for="currentPassword" class="form-label">Mật khẩu hiện tại</label>
-                                        <input type="password" id="currentPassword" name="currentPassword" class="form-control" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="newPassword" class="form-label">Mật khẩu mới</label>
-                                        <input type="password" id="newPassword" name="newPassword" class="form-control" required>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="confirmPassword" class="form-label">Xác nhận mật khẩu mới</label>
-                                        <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" required>
-                                    </div>
-                                    <div>
-                                        <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
-                                        <button type="button" class="btn btn-secondary ms-2" id="cancelChangePassword">Hủy</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <h3 class="mb-4">Thiết lập bảo mật</h3>
-                            <div class="mb-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
-                                    <label class="form-check-label" for="emailNotifications">Nhận thông báo qua email</label>
-                                </div>
-                                <div class="form-text">Nhận thông báo về trạng thái đơn đăng ký, thay đổi phòng, và các thông báo khác.</div>
-                            </div>
-                            <div class="mb-4">
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="twoFactorAuth">
-                                    <label class="form-check-label" for="twoFactorAuth">Xác thực hai lớp</label>
-                                </div>
-                                <div class="form-text">Bảo vệ tài khoản của bạn với xác thực hai lớp.</div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <section class="student-accent-grid">
+        <article class="student-accent-card">
+            <i class="fas fa-id-card"></i>
+            <h3>Hồ sơ gọn hơn</h3>
+            <p>Các khối nội dung được neo trong bối cảnh rõ ràng thay vì bắt đầu đột ngột như trước.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-shield-heart"></i>
+            <h3>Dễ kiểm tra thông tin</h3>
+            <p>Những dữ liệu cần cho đăng ký và bảo trì được gom vào cùng trải nghiệm thống nhất.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-clock-rotate-left"></i>
+            <h3>Theo dõi nhanh hơn</h3>
+            <p>Các phần lịch sử và trạng thái nổi bật hơn, giảm cảm giác trang bị trống ở đầu màn hình.</p>
+        </article>
+    </section>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Tab switching
-            const tabs = document.querySelectorAll('.profile-tab');
-            const contents = document.querySelectorAll('.tab-content');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const target = this.getAttribute('data-tab');
+        let studentData = null;
+
+        // Load student profile
+        async function loadStudentProfile() {
+            try {
+                const response = await fetch('/api/student/profile');
+                const data = await response.json();
+
+                if (data.success && data.student) {
+                    studentData = data.student;
+                    displayStudentInfo();
+                    loadApplicationHistory();
                     
-                    // Remove active class from all tabs and contents
-                    tabs.forEach(t => t.classList.remove('active'));
-                    contents.forEach(c => c.classList.remove('active'));
-                    
-                    // Add active class to current tab and content
-                    this.classList.add('active');
-                    document.getElementById(target).classList.add('active');
-                });
-            });
-            
-            // Toggle edit personal info form
-            const editPersonalInfoBtn = document.getElementById('editPersonalInfoBtn');
-            const editPersonalInfoForm = document.getElementById('editPersonalInfoForm');
-            const cancelEditPersonalInfo = document.getElementById('cancelEditPersonalInfo');
-            
-            if (editPersonalInfoBtn && editPersonalInfoForm && cancelEditPersonalInfo) {
-                editPersonalInfoBtn.addEventListener('click', function() {
-                    editPersonalInfoForm.classList.add('active');
-                    this.style.display = 'none';
-                });
-                
-                cancelEditPersonalInfo.addEventListener('click', function() {
-                    editPersonalInfoForm.classList.remove('active');
-                    editPersonalInfoBtn.style.display = 'inline-block';
-                });
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
+                } else {
+                    throw new Error('Không tìm thấy thông tin sinh viên');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('loading').innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="color: var(--danger-color);"></i>
+                    <p style="color: var(--danger-color);">Không thể tải thông tin. Vui lòng thử lại.</p>
+                `;
             }
+        }
+
+        // Display student info
+        function displayStudentInfo() {
+            const name = studentData.fullName || studentData.name || 'Sinh viên';
+            const studentId = studentData.studentId || '-';
             
-            // Toggle change password form
-            const changePasswordBtn = document.getElementById('changePasswordBtn');
-            const changePasswordForm = document.getElementById('changePasswordForm');
-            const cancelChangePassword = document.getElementById('cancelChangePassword');
+            const profileName = document.getElementById('profileName');
+            const profileStudentId = document.getElementById('profileStudentId');
+            const profileAvatar = document.getElementById('profileAvatar');
+            const profileEmail = document.getElementById('profileEmail');
+            const profilePhone = document.getElementById('profilePhone');
+            const profileMajor = document.getElementById('profileMajor');
+            const profileCohort = document.getElementById('profileCohort');
+            const profileClass = document.getElementById('profileClass');
+            const profileRoom = document.getElementById('profileRoom');
+
+            if (profileName) profileName.textContent = name;
+            if (profileStudentId) profileStudentId.textContent = `Mã sinh viên: ${studentId}`;
+            if (profileAvatar) profileAvatar.textContent = name.charAt(0).toUpperCase();
+            if (profileEmail) profileEmail.textContent = studentData.email || '-';
+            if (profilePhone) profilePhone.textContent = studentData.phone || '-';
+            if (profileMajor) profileMajor.textContent = studentData.major || '-';
+            if (profileCohort) profileCohort.textContent = studentData.cohort || '-';
+            if (profileClass) profileClass.textContent = studentData.class || '-';
+            if (profileRoom) profileRoom.textContent = studentData.roomNumber || 'Chưa có phòng';
+        }
+
+        // Load application history
+        async function loadApplicationHistory() {
+            try {
+                const response = await fetch('/api/student/applications');
+                const data = await response.json();
+
+                const listDiv = document.getElementById('applicationsList');
+
+                if (data.applications && data.applications.length > 0) {
+                    listDiv.innerHTML = data.applications.map(app => `
+                        <div class="application-card">
+                            <div class="application-header">
+                                <h3>${app.dormitoryName || 'Ký túc xá'}</h3>
+                                <span class="status-badge status-${app.status === 'approved' ? 'approved' : app.status === 'rejected' ? 'rejected' : 'pending'}">
+                                    ${app.status === 'approved' ? 'Đã duyệt' : app.status === 'rejected' ? 'Từ chối' : 'Đang chờ'}
+                                </span>
+                            </div>
+                            <div class="application-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-door-open"></i>
+                                    <span>Phòng: ${app.roomNumber || '-'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>Ngày đăng ký: ${new Date(app.createdAt).toLocaleDateString('vi-VN')}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-dollar-sign"></i>
+                                    <span>Giá: ${app.price ? app.price.toLocaleString('vi-VN') + ' VNĐ/tháng' : '-'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    listDiv.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>Chưa có đơn đăng ký</h3>
+                            <p>Bạn chưa đăng ký phòng nào</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading applications:', error);
+                document.getElementById('applicationsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Không thể tải lịch sử</h3>
+                        <p>Đã có lỗi xảy ra khi tải lịch sử đăng ký</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Switch tabs
+        function switchTab(tabName) {
+            const tabs = document.querySelectorAll('.tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => tab.classList.remove('active'));
+            contents.forEach(content => content.classList.remove('active'));
+
+            const activeTab = document.querySelector(`[data-tab="${tabName}"]`);
+            const activeContent = document.getElementById(`${tabName}-content`);
+
+            if (activeTab) activeTab.classList.add('active');
+            if (activeContent) activeContent.classList.add('active');
+        }
+
+        // Change password
+        async function changePassword(event) {
+            event.preventDefault();
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (newPassword !== confirmPassword) {
+                alert('Mật khẩu mới không khớp!');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/student/change-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Đổi mật khẩu thành công!');
+                    document.getElementById('changePasswordForm').reset();
+                } else {
+                    alert(data.message || 'Đổi mật khẩu thất bại!');
+                }
+            } catch (error) {
+                console.error('Error changing password:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+            }
+        }
+
+        // Dropdown toggle
+        function toggleDropdown() {
+            const menu = document.getElementById('dropdownMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+
+        // Menu toggle
+        function toggleMenu() {
+            const nav = document.querySelector('.nav-container');
+            nav.classList.toggle('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userProfile = document.querySelector('.user-profile');
+            const dropdown = document.getElementById('dropdownMenu');
             
-            if (changePasswordBtn && changePasswordForm && cancelChangePassword) {
-                changePasswordBtn.addEventListener('click', function() {
-                    changePasswordForm.classList.add('active');
-                    this.style.display = 'none';
-                });
-                
-                cancelChangePassword.addEventListener('click', function() {
-                    changePasswordForm.classList.remove('active');
-                    changePasswordBtn.style.display = 'inline-block';
-                });
+            if (userProfile && dropdown && !userProfile.contains(event.target)) {
+                dropdown.classList.remove('show');
             }
         });
+
+        // Logout
+        function logout() {
+            if (confirm('Bạn có chắc muốn đăng xuất?')) {
+                window.location.href = '/logout';
+            }
+        }
+
+        // Load on page load
+        window.onload = loadStudentProfile;
+
+        // Load 2FA status
+        async function load2FAStatus() {
+            try {
+                const response = await fetch('/api/2fa/status');
+                const data = await response.json();
+                
+                if (response.ok && data.enabled) {
+                    document.getElementById('twoFactorAuth').checked = true;
+                    document.getElementById('backupCodesSection').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error loading 2FA status:', error);
+            }
+        }
+
+        // Toggle 2FA
+        async function toggle2FA(enabled) {
+            try {
+                const url = enabled ? '/api/2fa/quick-enable' : '/api/2fa/disable';
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (enabled && data.setup) {
+                        showQRCodeModal(data.setup);
+                        document.getElementById('backupCodesSection').style.display = 'block';
+                    } else {
+                        alert(enabled ? 'Xác thực 2 lớp đã được bật!' : 'Xác thực 2 lớp đã được tắt!');
+                        if (!enabled) {
+                            document.getElementById('backupCodesSection').style.display = 'none';
+                        }
+                    }
+                    load2FAStatus();
+                } else {
+                    alert(data.message || 'Có lỗi xảy ra!');
+                    document.getElementById('twoFactorAuth').checked = !enabled;
+                }
+            } catch (error) {
+                console.error('Error toggling 2FA:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+                document.getElementById('twoFactorAuth').checked = !enabled;
+            }
+        }
+
+        // Show QR Code Modal
+        function showQRCodeModal(setup) {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Cài đặt xác thực 2 lớp</h3>
+                        <button class="modal-close" onclick="closeModal(this)">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i>
+                            <div>
+                                <strong>Bước 1:</strong> Quét mã QR bằng ứng dụng Google Authenticator
+                            </div>
+                        </div>
+                        <div class="qr-container">
+                            <img src="${setup.qrCode}" alt="QR Code">
+                            <p>Hoặc nhập mã thủ công: <strong>${setup.secret}</strong></p>
+                        </div>
+                        ${setup.backupCodes ? `
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <div>
+                                    <strong>Mã dự phòng</strong>
+                                    <p>Lưu các mã này để khôi phục tài khoản khi cần!</p>
+                                </div>
+                            </div>
+                            <div class="backup-codes-grid">
+                                ${setup.backupCodes.map(code => `
+                                    <div class="backup-code">${code}</div>
+                                `).join('')}
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal);
+            });
+        }
+
+        // Show Backup Codes
+        async function showBackupCodes() {
+            try {
+                const response = await fetch('/api/2fa/backup-codes');
+                const data = await response.json();
+
+                if (response.ok && data.backupCodes) {
+                    const usedCodes = data.backupCodes.filter(c => c.used);
+                    const unusedCodes = data.backupCodes.filter(c => !c.used);
+
+                    const modal = document.createElement('div');
+                    modal.className = 'modal show';
+                    modal.innerHTML = `
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h3>Mã dự phòng của bạn</h3>
+                                <button class="modal-close" onclick="closeModal(this)">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    <div>
+                                        <strong>Lưu ý:</strong> Mỗi mã chỉ dùng 1 lần. Screenshot để lưu lại!
+                                    </div>
+                                </div>
+                                
+                                <h4 style="margin-bottom: 1rem;">Mã còn sử dụng được (${unusedCodes.length}/10):</h4>
+                                ${unusedCodes.length > 0 ? `
+                                    <div class="backup-codes-grid" style="margin-bottom: 2rem;">
+                                        ${unusedCodes.map(code => `
+                                            <div class="backup-code">${code.code}</div>
+                                        `).join('')}
+                                    </div>
+                                ` : '<p style="color: #999; margin-bottom: 2rem;">Không còn mã nào</p>'}
+                                
+                                ${usedCodes.length > 0 ? `
+                                    <h4 style="margin-bottom: 1rem; color: #999;">Mã đã sử dụng:</h4>
+                                    <div class="backup-codes-grid">
+                                        ${usedCodes.map(code => `
+                                            <div class="backup-code used">${code.code}</div>
+                                        `).join('')}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                    
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) closeModal(modal);
+                    });
+                } else {
+                    alert('Không thể tải mã dự phòng!');
+                }
+            } catch (error) {
+                console.error('Error loading backup codes:', error);
+                alert('Có lỗi xảy ra. Vui lòng thử lại!');
+            }
+        }
+
+        // Close modal
+        function closeModal(element) {
+            const modal = element.closest ? element.closest('.modal') : element;
+            if (modal) {
+                modal.classList.remove('show');
+                setTimeout(() => modal.remove(), 300);
+            }
+        }
+
+        // Load 2FA on switch to settings tab
+        const originalSwitchTab = switchTab;
+        switchTab = function(tabName) {
+            originalSwitchTab(tabName);
+            if (tabName === 'settings') {
+                load2FAStatus();
+            }
+        };
     </script>
 </body>
 </html>

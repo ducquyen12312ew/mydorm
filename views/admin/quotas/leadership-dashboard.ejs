@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bảng điều hành quota</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f8fb; margin: 0; color: #1f2937; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 16px 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; gap: 10px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; text-decoration: none; font-size: 14px; background: #374151; color: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .kpi { border: 1px solid #eef2f7; border-radius: 10px; padding: 12px; }
+    .kpi .label { font-size: 12px; color: #64748b; }
+    .kpi .value { font-size: 22px; font-weight: 700; margin-top: 3px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eef2f7; padding: 10px; text-align: left; }
+    th { background: #f8fafc; color: #475569; font-size: 13px; }
+    .muted { color: #64748b; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 style="margin:0;">Bảng điều hành quota</h1>
+        <div class="muted">Phân tích nhiều năm và gợi ý cho cấu hình quota kỳ tiếp theo.</div>
+      </div>
+      <a class="btn" href="/admin/quotas">Quay lại danh sách quota</a>
+    </div>
+
+    <div class="card">
+      <form method="GET" action="/admin/quotas/leadership/dashboard" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+        <label>Cửa sổ phân tích (năm)</label>
+        <input name="years" type="number" min="2" max="10" value="<%= yearLimit %>" style="padding:10px;border:1px solid #d1d5db;border-radius:8px;" />
+        <button type="submit" class="btn" style="cursor:pointer;">Áp dụng</button>
+      </form>
+    </div>
+
+    <% if (latest) { %>
+      <div class="card">
+        <h3>Bản chụp gần nhất đã ban hành: <%= latest.academicYear %> (v<%= latest.version %>)</h3>
+        <div class="grid">
+          <div class="kpi"><div class="label">Tổng sức chứa</div><div class="value"><%= latest.totalCapacity %></div></div>
+          <div class="kpi"><div class="label">Thực tế Năm 1</div><div class="value"><%= latest.actual.year1 || 0 %></div></div>
+          <div class="kpi"><div class="label">Thực tế Năm 2</div><div class="value"><%= latest.actual.year2 || 0 %></div></div>
+          <div class="kpi"><div class="label">Thực tế Năm 3</div><div class="value"><%= latest.actual.year3 || 0 %></div></div>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="card">
+      <h3>Xu hướng theo năm học</h3>
+      <% const yearGroupLabels = { year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3', year4_plus: 'Năm 4 và các năm còn lại' }; %>
+      <table>
+        <thead>
+          <tr>
+            <th>Năm học</th>
+            <th>Năm 1 thực tế/quota</th>
+            <th>Năm 2 thực tế/quota</th>
+            <th>Năm 3 thực tế/quota</th>
+            <th>Năm 4 và các năm còn lại thực tế/quota</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!trends || trends.length === 0) { %>
+            <tr><td colspan="5">Không có dữ liệu xu hướng từ các quota đã ban hành.</td></tr>
+          <% } %>
+          <% (trends || []).forEach(function(row){ %>
+            <tr>
+              <td><strong><%= row.academicYear %></strong> (v<%= row.version %>)</td>
+              <td><%= row.actual.year1 || 0 %> / <%= row.quotas.year1.slot || 0 %></td>
+              <td><%= row.actual.year2 || 0 %> / <%= row.quotas.year2.slot || 0 %></td>
+              <td><%= row.actual.year3 || 0 %> / <%= row.quotas.year3.slot || 0 %></td>
+              <td><%= row.actual.year4_plus || 0 %> / <%= row.quotas.year4_plus.slot || 0 %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Gợi ý quota kỳ tiếp theo (từ phân bổ thực tế lịch sử)</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Nhóm năm học</th>
+            <th>Tỷ lệ gợi ý (%)</th>
+            <th>Số chỗ gợi ý</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (!recommended || recommended.length === 0) { %>
+            <tr><td colspan="3">Chưa có dữ liệu gợi ý.</td></tr>
+          <% } %>
+          <% (recommended || []).forEach(function(item){ %>
+            <tr>
+              <td><%= yearGroupLabels[item.yearGroup] || item.yearGroup %></td>
+              <td><%= item.percentage %>%</td>
+              <td><%= item.slot %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <p class="muted">Dữ liệu gợi ý chỉ mang tính tham khảo. Quyết định cuối cùng vẫn do ban quản trị quota thiết lập thủ công.</p>
+    </div>
+  </div>
+</body>
+</html>

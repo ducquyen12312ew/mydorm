@@ -30,230 +30,186 @@
             color: var(--text-dark);
         }
 
-        /* ADMIN HEADER */
-        .admin-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* Modern Navigation */
+        .navbar {
             background: white;
-            z-index: 2000;
-            box-shadow: var(--shadow-sm);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
 
-        .admin-header-container {
-            max-width: 1600px;
+        .navbar-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-menu a:hover {
+            background: #f8f9fa;
+        }
+
+        .navbar-menu a.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* ADMIN HEADER (kept for compatibility, hidden) */
+        .admin-header {
+            display: none;
+        }
+
+        .admin-header-container {
+            display: none;
         }
 
         .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
+            display: none;
         }
 
         .admin-logo img {
-            height: 40px;
-            width: auto;
-            transition: transform 0.3s ease;
+            display: none;
         }
 
         .admin-logo:hover img {
-            transform: scale(1.05);
+            display: none;
         }
 
         .admin-logo-text {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-nav {
-            display: flex;
-            align-items: center;
-            gap: 3rem;
-            flex: 1;
-            margin: 0 3rem;
+            display: none;
         }
 
         .admin-nav-links {
-            display: flex;
-            gap: 2.5rem;
-            list-style: none;
+            display: none;
         }
 
         .admin-nav-link {
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.5rem 0;
-            position: relative;
-            transition: color 0.3s ease;
+            display: none;
         }
 
         .admin-nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--primary-color), #ff6b6b);
-            transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
         }
 
         .admin-nav-link:hover {
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-nav-link:hover::before {
-            width: 100%;
+            display: none;
         }
 
         .admin-nav-link.active {
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-nav-link.active::before {
-            width: 100%;
+            display: none;
         }
 
         .admin-nav-link i {
-            margin-right: 8px;
+            display: none;
         }
 
         .admin-user-section {
-            display: flex;
-            align-items: center;
+            display: none;
         }
 
         .admin-user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .admin-user-profile:hover {
-            background: var(--bg-light);
+            display: none;
         }
 
         .admin-user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: var(--shadow-sm);
+            display: none;
         }
 
         .admin-user-info {
-            display: flex;
-            flex-direction: column;
+            display: none;
         }
 
         .admin-user-name {
-            font-size: 0.95rem;
-            font-weight: 600;
-            color: var(--text-dark);
+            display: none;
         }
 
         .admin-user-role {
-            font-size: 0.8rem;
-            color: var(--text-light);
+            display: none;
         }
 
         .admin-dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-lg);
-            min-width: 220px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-            overflow: hidden;
+            display: none;
         }
 
         .admin-user-profile:hover .admin-dropdown-menu {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
+            display: none;
         }
 
         .admin-dropdown-item {
-            display: flex;
-            align-items: center;
-            padding: 0.85rem 1.25rem;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
+            display: none;
         }
 
         .admin-dropdown-item:hover {
-            background: var(--bg-light);
-            border-left-color: var(--primary-color);
-            color: var(--primary-color);
+            display: none;
         }
 
         .admin-dropdown-item i {
-            margin-right: 12px;
-            width: 20px;
+            display: none;
         }
 
         .admin-dropdown-item.logout {
-            color: #e74c3c;
+            display: none;
         }
 
         .admin-dropdown-item.logout:hover {
-            background: #ffe6e6;
-            border-left-color: #e74c3c;
+            display: none;
         }
 
         .admin-menu-toggle {
             display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 28px;
-            height: 20px;
-            cursor: pointer;
         }
 
         .admin-menu-toggle span {
-            display: block;
-            height: 3px;
-            width: 100%;
-            background: var(--primary-color);
-            border-radius: 3px;
-            transition: all 0.3s ease;
+            display: none;
         }
 
         .admin-content {
-            padding-top: 90px;
+            padding-top: 0;
             min-height: 100vh;
         }
 
@@ -506,6 +462,71 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* Dropdown styles for Academic Year menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle::after {
+            content: '';
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+            border-top: 4px solid;
+            border-right: 4px solid transparent;
+            border-left: 4px solid transparent;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 220px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            z-index: 1000;
+            display: none;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        .dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .dropdown-menu .dropdown-item:hover {
+            background: var(--bg-light);
+            border-left-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .dropdown-menu .dropdown-item i {
+            margin-right: 10px;
+            width: 18px;
+        }
+
+        /* Active state for navigation */
+        .admin-nav-link.active {
+            color: var(--primary-color);
+        }
+
+        .admin-nav-link.active::before {
+            width: 100%;
+        }
+
         /* RESPONSIVE */
         @media (max-width: 768px) {
             .admin-menu-toggle {
@@ -560,55 +581,20 @@
             .container {
                 padding: 0 1rem;
             }
+
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                background: #f8f9fa;
+                border-left: 3px solid var(--primary-color);
+                margin-left: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- ADMIN HEADER -->
-    <header class="admin-header">
-        <div class="admin-header-container">
-            <a href="/admin/dashboard" class="admin-logo">
-                <img src="/image/logo.png" alt="Logo">
-                <span class="admin-logo-text">KTX HUST</span>
-            </a>
+    <%- include('navbar', { activeNav: 'dashboard' }) %>
 
-            <div class="admin-menu-toggle" id="menuToggle">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-
-            <nav class="admin-nav" id="adminNav">
-                <ul class="admin-nav-links">
-                    <li><a href="/admin/dashboard" class="admin-nav-link active"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/admin/dormitories" class="admin-nav-link"><i class="fas fa-building"></i> Danh sách KTX</a></li>
-                    <li><a href="/admin/application" class="admin-nav-link"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
-                    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
-                </ul>
-
-                <div class="admin-user-section">
-                    <div class="admin-user-profile">
-                        <div class="admin-user-avatar">A</div>
-                        <div class="admin-user-info">
-                            <span class="admin-user-name">Admin</span>
-                            <span class="admin-user-role">Quản trị viên</span>
-                        </div>
-                        <div class="admin-dropdown-menu">
-                            <a href="/profile" class="admin-dropdown-item">
-                                <i class="fas fa-user"></i> Hồ sơ cá nhân
-                            </a>
-                            <a href="/admin/settings" class="admin-dropdown-item">
-                                <i class="fas fa-cog"></i> Cài đặt
-                            </a>
-                            <a href="/logout" class="admin-dropdown-item logout">
-                                <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </nav>
-        </div>
-    </header>
 
     <!-- MAIN CONTENT -->
     <div class="admin-content">
@@ -647,17 +633,11 @@
 
                 <div class="chart-section">
                     <div class="chart-header">
-                        <h2>Xu Hướng Hoạt Động Theo Thời Gian</h2>
-                        <div class="chart-filters">
-                            <select id="period-filter">
-                                <option value="week">7 ngày qua</option>
-                                <option value="month" selected>30 ngày qua</option>
-                                <option value="quarter">3 tháng qua</option>
-                                <option value="year">1 năm qua</option>
-                            </select>
-                        </div>
+                        <h2>Phân Bố Sinh Viên Theo Năm</h2>
                     </div>
-                    <canvas id="trend-chart" height="80"></canvas>
+                    <div style="position: relative; height: 500px;">
+                        <canvas id="year-distribution-chart"></canvas>
+                    </div>
                 </div>
 
                 <div class="activity-section">
@@ -671,94 +651,171 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
     <script>
-        // Mobile menu toggle
-        document.getElementById('menuToggle').addEventListener('click', function() {
-            this.classList.toggle('active');
-            document.getElementById('adminNav').classList.toggle('active');
+        let yearDistributionChart = null;
+
+        // Load dashboard stats on page load
+        window.addEventListener('load', function() {
+            loadDashboardStats();
+            // Auto refresh every 60 seconds
+            setInterval(loadDashboardStats, 60000);
         });
 
-        let trendChart = null;
-
+        // Main function to load dashboard statistics
         async function loadDashboardStats() {
-            document.getElementById('loading').style.display = 'block';
+            const loadingEl = document.getElementById('loading');
+            const dashboardContent = document.getElementById('dashboard-content');
+            
+            if (loadingEl) loadingEl.style.display = 'block';
+            if (dashboardContent) dashboardContent.style.display = 'none';
+            
             try {
                 const response = await fetch('/admin/dashboard/stats');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
                 const data = await response.json();
 
-                if (data.success) {
-                    renderStats(data.stats);
-                    renderDormitoryTable(data.stats.dormitoryStats);
-                    renderActivities(data.stats.recentActivities);
-                    loadTrendChart();
+                if (data.success && data.stats) {
+                    // Render all dashboard components
+                    renderStats(data.stats.summary || {});
+                    renderDormitoryTable(data.stats.dormitories || []);
+                    renderActivities(data.stats.recentActivity || []);
+                    renderApplicationStats(data.stats.applications || {});
+                    
+                    // Load year distribution chart
+                    await loadYearDistributionChart();
 
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('dashboard-content').style.display = 'block';
+                    if (loadingEl) loadingEl.style.display = 'none';
+                    if (dashboardContent) dashboardContent.style.display = 'block';
+                } else {
+                    throw new Error(data.error || 'Invalid response format');
                 }
             } catch (error) {
                 console.error('Error loading dashboard:', error);
-                document.getElementById('loading').innerHTML = '<p>Không thể tải dữ liệu. Vui lòng thử lại.</p>';
+                if (loadingEl) {
+                    loadingEl.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Không thể tải dữ liệu. Vui lòng thử lại.</p>
+                            <button onclick="loadDashboardStats()" class="btn btn-primary mt-2">
+                                <i class="fas fa-redo"></i> Thử lại
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                // Show default empty state
+                renderStats({});
+                renderDormitoryTable([]);
+                renderActivities([]);
             }
         }
 
+        // Render summary statistics cards
         function renderStats(stats) {
             const statsGrid = document.getElementById('stats-grid');
+            if (!statsGrid) return;
+            
+            // Extract stats with default values
+            const totalStudents = stats.totalStudents || 0;
+            const totalRooms = stats.totalRooms || 0;
+            const availableRooms = stats.availableRooms || 0;
+            const totalCapacity = stats.totalCapacity || 0;
+            const occupiedSpots = stats.occupiedSpots || 0;
+            const occupancyRate = stats.overallOccupancyRate || 0;
+            const pendingApplications = stats.pendingApplications || 0;
             
             const statsCards = [
                 {
                     title: 'Sinh viên đang ở KTX',
-                    value: stats.totalStudents.toLocaleString(),
+                    value: totalStudents.toLocaleString('vi-VN'),
                     label: 'Tổng số sinh viên',
-                    color: 'blue'
+                    color: 'blue',
+                    icon: 'fas fa-users'
                 },
                 {
                     title: 'Phòng trống',
-                    value: stats.availableRooms.toLocaleString(),
-                    label: `Trên tổng ${stats.totalRooms} phòng`,
-                    color: 'green'
+                    value: availableRooms.toLocaleString('vi-VN'),
+                    label: `Trên tổng ${totalRooms.toLocaleString('vi-VN')} phòng`,
+                    color: 'green',
+                    icon: 'fas fa-door-open'
                 },
                 {
                     title: 'Đơn chờ duyệt',
-                    value: stats.pendingApplications.toLocaleString(),
+                    value: pendingApplications.toLocaleString('vi-VN'),
                     label: 'Cần xử lý',
-                    color: 'orange'
+                    color: 'orange',
+                    icon: 'fas fa-clock'
                 },
                 {
                     title: 'Tỷ lệ sử dụng',
-                    value: `${stats.occupancyRate}%`,
-                    label: `${stats.occupiedSpots}/${stats.totalCapacity} chỗ`,
-                    color: stats.occupancyRate > 80 ? 'red' : 'blue'
+                    value: `${occupancyRate}%`,
+                    label: `${occupiedSpots.toLocaleString('vi-VN')}/${totalCapacity.toLocaleString('vi-VN')} chỗ`,
+                    color: occupancyRate > 80 ? 'red' : (occupancyRate > 50 ? 'orange' : 'blue'),
+                    icon: 'fas fa-chart-pie'
                 }
             ];
 
             statsGrid.innerHTML = statsCards.map(card => `
                 <div class="stat-card ${card.color}">
-                    <h3>${card.title}</h3>
+                    <div class="stat-icon">
+                        <i class="${card.icon}"></i>
+                    </div>
+                    <h3>${escapeHtml(card.title)}</h3>
                     <div class="value">${card.value}</div>
-                    <div class="label">${card.label}</div>
+                    <div class="label">${escapeHtml(card.label)}</div>
                 </div>
             `).join('');
         }
 
+        // Render dormitory statistics table
         function renderDormitoryTable(dormitories) {
             const tbody = document.getElementById('dormitory-stats-body');
+            if (!tbody) return;
+            
+            if (!dormitories || dormitories.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                            <p class="text-muted">Chưa có dữ liệu ký túc xá</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
             
             tbody.innerHTML = dormitories.map(dorm => {
-                const rate = parseFloat(dorm.occupancyRate);
+                const name = dorm.name || 'N/A';
+                const totalRooms = dorm.totalRooms || 0;
+                const availableRooms = dorm.availableRooms || 0;
+                const capacity = dorm.totalCapacity || 0;
+                const occupied = dorm.occupiedSpots || 0;
+                const rate = dorm.occupancyRate || 0;
+                
                 let progressClass = 'low';
                 if (rate > 80) progressClass = 'high';
                 else if (rate > 50) progressClass = 'medium';
 
                 return `
                     <tr>
-                        <td><strong>${dorm.name}</strong></td>
-                        <td>${dorm.totalRooms}</td>
-                        <td>${dorm.availableRooms}</td>
-                        <td>${dorm.capacity}</td>
-                        <td>${dorm.occupied}</td>
+                        <td><strong>${escapeHtml(name)}</strong></td>
+                        <td class="text-center">${totalRooms.toLocaleString('vi-VN')}</td>
+                        <td class="text-center">${availableRooms.toLocaleString('vi-VN')}</td>
+                        <td class="text-center">${capacity.toLocaleString('vi-VN')}</td>
+                        <td class="text-center">${occupied.toLocaleString('vi-VN')}</td>
                         <td>
-                            <div>${dorm.occupancyRate}%</div>
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span><strong>${rate}%</strong></span>
+                                <small class="text-muted">${occupied}/${capacity}</small>
+                            </div>
                             <div class="progress-bar">
-                                <div class="progress-fill ${progressClass}" style="width: ${dorm.occupancyRate}%"></div>
+                                <div class="progress-fill ${progressClass}" 
+                                     style="width: ${rate}%" 
+                                     title="${rate}% lấp đầy">
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -766,96 +823,286 @@
             }).join('');
         }
 
-        async function loadTrendChart() {
-            const period = document.getElementById('period-filter').value;
+        // Render application statistics
+        function renderApplicationStats(applications) {
+            const container = document.getElementById('application-stats-container');
+            if (!container) return;
             
+            const pending = applications.pending || 0;
+            const approved = applications.approved || 0;
+            const rejected = applications.rejected || 0;
+            const total = applications.total || (pending + approved + rejected);
+            
+            container.innerHTML = `
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <div class="app-stat-card pending">
+                            <div class="icon"><i class="fas fa-clock"></i></div>
+                            <div class="number">${pending.toLocaleString('vi-VN')}</div>
+                            <div class="label">Đang chờ</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="app-stat-card approved">
+                            <div class="icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="number">${approved.toLocaleString('vi-VN')}</div>
+                            <div class="label">Đã duyệt</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="app-stat-card rejected">
+                            <div class="icon"><i class="fas fa-times-circle"></i></div>
+                            <div class="number">${rejected.toLocaleString('vi-VN')}</div>
+                            <div class="label">Đã từ chối</div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="app-stat-card total">
+                            <div class="icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="number">${total.toLocaleString('vi-VN')}</div>
+                            <div class="label">Tổng cộng</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load and render year distribution chart
+        async function loadYearDistributionChart() {
             try {
-                const response = await fetch(`/admin/dashboard/occupancy-trend?period=${period}`);
+                const response = await fetch('/admin/dashboard/year-distribution');
+                
+                if (!response.ok) return; // Silently fail if endpoint not available
+                
                 const result = await response.json();
 
-                if (result.success && result.data.labels.length > 0) {
-                    renderTrendChart(result.data);
+                if (result.success && result.data) {
+                    renderYearDistributionChart(result.data);
                 }
             } catch (error) {
-                console.error('Error loading trend chart:', error);
+                console.warn('Year distribution chart not available:', error);
             }
         }
 
-        function renderTrendChart(data) {
-            const ctx = document.getElementById('trend-chart');
+        // Render year distribution chart using vertical bars
+        function renderYearDistributionChart(data) {
+            const canvas = document.getElementById('year-distribution-chart');
+            if (!canvas) return;
             
-            if (trendChart) {
-                trendChart.destroy();
+            // Destroy existing chart
+            if (yearDistributionChart) {
+                yearDistributionChart.destroy();
             }
 
-            trendChart = new Chart(ctx, {
-                type: 'line',
+            const yearColors = {
+                'Năm 1': '#FF6B6B',
+                'Năm 2': '#9E9E9E',
+                'Năm 3': '#FFC107',
+                'Năm 4': '#FF9800',
+                'Năm 5': '#9C27B0',
+                'Năm 6': '#4CAF50',
+                'Sau đại học': '#2196F3'
+            };
+
+            const ctx = canvas.getContext('2d');
+            yearDistributionChart = new Chart(ctx, {
+                type: 'bar',
                 data: {
-                    labels: data.labels,
-                    datasets: data.series.map((series, index) => {
-                        const colors = ['#3498db', '#2ecc71', '#e74c3c'];
-                        return {
-                            label: series.name,
-                            data: series.data,
-                            borderColor: colors[index],
-                            backgroundColor: colors[index] + '20',
-                            borderWidth: 2,
-                            fill: true,
-                            tension: 0.4
-                        };
-                    })
+                    labels: data.labels || [],
+                    datasets: [{
+                        label: 'Số sinh viên',
+                        data: data.values || [],
+                        backgroundColor: data.labels?.map(label => yearColors[label] || '#95a5a6') || [],
+                        borderColor: data.labels?.map(label => yearColors[label] || '#95a5a6') || [],
+                        borderWidth: 0,
+                        borderRadius: 8
+                    }]
                 },
                 options: {
+                    indexAxis: 'y',
                     responsive: true,
-                    maintainAspectRatio: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            display: true,
-                            position: 'top'
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.x || 0;
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                    return `${value} sinh viên (${percentage}%)`;
+                                }
+                            }
                         }
                     },
                     scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value;
+                                }
+                            },
+                            grid: {
+                                color: '#f0f0f0'
+                            }
+                        },
                         y: {
-                            beginAtZero: true
+                            grid: {
+                                display: false
+                            }
                         }
                     }
-                }
+                },
+                plugins: [{
+                    id: 'dataLabels',
+                    afterDatasetsDraw(chart) {
+                        const { ctx, data, scales } = chart;
+                        ctx.font = 'bold 13px Arial';
+                        ctx.fillStyle = '#2c3e50';
+                        ctx.textAlign = 'start';
+                        ctx.textBaseline = 'middle';
+
+                        data.datasets.forEach((dataset) => {
+                            const xScale = scales.x;
+                            const yScale = scales.y;
+                            const total = dataset.data.reduce((a, b) => a + b, 0);
+
+                            dataset.data.forEach((value, index) => {
+                                const x = xScale.getPixelForValue(value);
+                                const y = yScale.getPixelForValue(index);
+                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                                ctx.fillText(`${percentage}%`, x + 8, y);
+                            });
+                        });
+                    }
+                }]
             });
         }
 
+        // Render recent activities
         function renderActivities(activities) {
             const activityList = document.getElementById('activity-list');
+            if (!activityList) return;
             
-            if (activities.length === 0) {
-                activityList.innerHTML = '<p style="text-align:center;color:#95a5a6;">Chưa có hoạt động nào</p>';
+            if (!activities || activities.length === 0) {
+                activityList.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-history fa-2x text-muted mb-2"></i>
+                        <p class="text-muted">Chưa có hoạt động nào</p>
+                    </div>
+                `;
                 return;
             }
 
             activityList.innerHTML = activities.map(activity => {
                 const actionLabels = {
+                    'login': 'đã đăng nhập',
+                    'logout': 'đã đăng xuất',
+                    'register_success': 'đã đăng ký thành công',
+                    'register_failed': 'đăng ký thất bại',
                     'checked_in': 'đã nhận phòng',
                     'checked_out': 'đã trả phòng',
                     'room_assigned': 'được phân phòng',
+                    'room_changed': 'đã đổi phòng',
                     'application_approved': 'được duyệt đơn',
-                    'application_rejected': 'bị từ chối đơn'
+                    'application_rejected': 'bị từ chối đơn',
+                    'profile_updated': 'đã cập nhật hồ sơ',
+                    'payment_success': 'thanh toán thành công',
+                    'payment_failed': 'thanh toán thất bại',
+                    'registration_approved': 'đăng ký được duyệt',
+                    'registration_rejected': 'đăng ký bị từ chối'
                 };
 
-                const time = new Date(activity.timestamp).toLocaleString('vi-VN');
-                const action = actionLabels[activity.action] || activity.action;
+                const actionIcons = {
+                    'login': 'fas fa-sign-in-alt',
+                    'logout': 'fas fa-sign-out-alt',
+                    'register_success': 'fas fa-check-circle',
+                    'register_failed': 'fas fa-times-circle',
+                    'checked_in': 'fas fa-door-open',
+                    'checked_out': 'fas fa-door-closed',
+                    'room_assigned': 'fas fa-home',
+                    'room_changed': 'fas fa-exchange-alt',
+                    'application_approved': 'fas fa-thumbs-up',
+                    'application_rejected': 'fas fa-thumbs-down',
+                    'profile_updated': 'fas fa-user-edit',
+                    'payment_success': 'fas fa-dollar-sign',
+                    'payment_failed': 'fas fa-exclamation-triangle'
+                };
+
+                const userName = activity.userId?.name || activity.actor || 'Người dùng';
+                const studentId = activity.userId?.studentId || '';
+                const timestamp = activity.createdAt || activity.timestamp;
+                const time = timestamp ? new Date(timestamp).toLocaleString('vi-VN') : 'N/A';
+                const action = actionLabels[activity.action] || activity.action || 'thực hiện hành động';
+                const icon = actionIcons[activity.action] || 'fas fa-info-circle';
+                const description = activity.description || '';
 
                 return `
                     <div class="activity-item">
-                        <div class="time">${time}</div>
-                        <div class="content">
-                            <span class="actor">${activity.actor}</span> ${action}
+                        <div class="activity-icon">
+                            <i class="${icon}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-header">
+                                <span class="actor">
+                                    <strong>${escapeHtml(userName)}</strong>
+                                    ${studentId ? `<small class="text-muted">(${escapeHtml(studentId)})</small>` : ''}
+                                </span>
+                                <span class="time">${time}</span>
+                            </div>
+                            <div class="activity-text">
+                                ${action}
+                                ${description ? `<div class="text-muted small mt-1">${escapeHtml(description)}</div>` : ''}
+                            </div>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        document.getElementById('period-filter').addEventListener('change', loadTrendChart);
-        window.addEventListener('load', loadDashboardStats);
+        // Event listener for period filter
+        const periodFilter = document.getElementById('period-filter');
+        if (periodFilter) {
+            periodFilter.addEventListener('change', loadTrendChart);
+        }
+
+        // Utility function to escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.toString().replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Export functions for external use
+        window.loadDashboardStats = loadDashboardStats;
+        window.loadTrendChart = loadTrendChart;
+
+        // Mobile menu toggle
+        document.getElementById('menuToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('adminNav').classList.toggle('active');
+        });
+        // Set active state based on current page - for modern navbar
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentPath = window.location.pathname;
+            const navLinks = document.querySelectorAll('.navbar-menu a');
+            
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href)) {
+                    link.classList.add('active');
+                }
+            });
+        });
     </script>
 </body>
 </html>

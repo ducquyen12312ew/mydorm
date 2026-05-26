@@ -1,0 +1,74 @@
+RULE VIẾT ĐỒ ÁN TỐT NGHIỆP (.tex)
+
+1. FORMAT
+- Viết dưới dạng LaTeX.
+- Bắt đầu bằng:
+  \chapter*{}
+  \addcontentsline{toc}{chapter}{}
+- Dùng:
+  \section*
+  \subsection*
+- Không dùng markdown.
+- Không dùng emoji.
+- Không dùng ký hiệu trang trí.
+
+2. VĂN PHONG
+- Học thuật.
+- Tự nhiên.
+- Chuyên nghiệp.
+- Có chiều sâu.
+- Không viết kiểu AI.
+- Không viết kiểu slide.
+- Không viết ý ngắn.
+- Không viết gạch đầu dòng tùy tiện.
+- Phải viết thành đoạn văn hoàn chỉnh.
+
+3. NỘI DUNG
+- Có mở đầu, phân tích, kết luận.
+- Có liên kết logic giữa các đoạn.
+- Có tính nghiên cứu.
+- Có tính kỹ thuật.
+- Có phân tích vấn đề thực tế.
+- Có giải thích nguyên nhân và hậu quả.
+- Có đánh giá hệ thống.
+- Có định hướng mở rộng tương lai.
+
+4. TRÌNH BÀY
+- Đồng nhất font, spacing, margin.
+- Không phá format template.
+- Không copy format từ nguồn khác.
+- Văn bản phải căn chỉnh chuẩn.
+- Hình/bảng/công thức phải được giải thích.
+- Không chèn hình/bảng vô nghĩa.
+
+5. TÀI LIỆU THAM KHẢO
+TUYỆT ĐỐI KHÔNG DÙNG:
+- Wikipedia
+- Slide
+- Blog cá nhân
+- Website không chính thống
+
+ĐƯỢC PHÉP:
+- Journal papers
+- Conference papers
+- Books
+- Thesis/dissertation
+- Official specifications/docs
+
+6. CÁCH VIẾT
+- Không lan man.
+- Không lặp ý.
+- Không dùng từ cảm tính.
+- Không dùng bullet nếu không cần thiết.
+- Nếu dùng enumerate/itemize phải thống nhất toàn báo cáo.
+- Câu văn đầy đủ chủ ngữ vị ngữ.
+- Không viết cụt ngủn.
+
+7. CHẤT LƯỢNG
+- Giống đồ án thật của sinh viên giỏi.
+- Có chiều sâu học thuật.
+- Có chiều sâu kỹ thuật.
+- Có tính ứng dụng thực tế.
+- Có tính mở rộng.
+- Có tính hệ thống.
+- Có tư duy nghiên cứu.

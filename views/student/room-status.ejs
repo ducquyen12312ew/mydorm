@@ -4,440 +4,757 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trạng thái phòng - KTX HUST</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/css/student.css">
+    <link rel="stylesheet" href="/css/student-premium-shell.css">
+    <style>
+        :root {
+            --primary-color: #e61a1a;
+            --text-color: #333;
+            --bg-color: #f8f3ef;
+        }
 
-<!-- Style riêng -->
-<style>
-    /* Filter tabs */
-    .filter-tabs {
-        display: flex;
-        gap: 0.25rem;
-        margin-bottom: 1.5rem;
-        background: var(--bg-gray);
-        padding: 0.25rem;
-        border-radius: 8px;
-    }
-    
-    .filter-tab {
-        flex: 1;
-        padding: 0.5rem 1rem;
-        background: transparent;
-        border: none;
-        border-radius: 6px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    
-    .filter-tab.active {
-        background: var(--primary-color);
-        color: white;
-    }
-    
-    /* Room info grid */
-    .room-info {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-    
-    .roommates-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-    }
-    
-    /* Application history layout */
-    .application-item {
-        background: var(--bg-light);
-        border-radius: 8px;
-        padding: 1.25rem;
-        border: 1px solid var(--border-color);
-        transition: all 0.3s ease;
-    }
-    
-    .application-item:hover {
-        border-color: var(--primary-color);
-        transform: translateX(5px);
-    }
-    
-    /* Status badges colors */
-    .status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-    
-    .status-approved {
-        background: #d1fae5;
-        color: #065f46;
-    }
-    
-    .status-rejected {
-        background: #fee2e2;
-        color: #991b1b;
-    }
-</style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Quicksand', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .main-content {
+            margin-bottom: 3rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid rgba(205, 197, 184, 0.42);
+            box-shadow: 0 18px 36px rgba(22, 24, 29, 0.08);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(230, 26, 26, 0.14), rgba(192, 129, 87, 0.16));
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #746d66;
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .stat-value {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #1f232a;
+        }
+
+        .content-card {
+            padding: 2rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #c08157, #9d5f38);
+            color: #fff;
+            font-size: 1.2rem;
+        }
+
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
+
+        .info-grid,
+        .rs-application-grid,
+        .rs-roommates {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .info-grid,
+        .rs-application-grid {
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .rs-roommates {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .info-item,
+        .application-item,
+        .rs-roommate-card {
+            padding: 1.15rem;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff, #fbfaf7);
+            border: 1px solid rgba(214, 205, 193, 0.6);
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #7b736b;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .info-value {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #1f232a;
+        }
+
+        .rs-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.05rem;
+            margin: 1.75rem 0 1rem;
+        }
+
+        .rs-section-title i {
+            color: var(--primary-color);
+        }
+
+        .rs-roommate-card {
+            display: flex;
+            align-items: center;
+            gap: 0.95rem;
+        }
+
+        .rs-roommate-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #c08157, #9d5f38);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1.15rem;
+            flex-shrink: 0;
+        }
+
+        .rs-roommate-name {
+            font-weight: 700;
+            color: #1f232a;
+        }
+
+        .rs-roommate-sub,
+        .rs-muted {
+            color: #6b655d;
+            font-size: 0.92rem;
+            line-height: 1.55;
+        }
+
+        .rs-application-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .rs-application-id {
+            font-weight: 700;
+            color: #1f232a;
+        }
+
+        .rs-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .rs-status.pending,
+        .rs-status.pending_review,
+        .rs-status.waitlist {
+            background: #fff2cc;
+            color: #8a5b00;
+        }
+
+        .rs-status.approved,
+        .rs-status.approved_waiting_payment {
+            background: #dff6e8;
+            color: #15653f;
+        }
+
+        .rs-status.rejected,
+        .rs-status.expired {
+            background: #fde3e3;
+            color: #9b1c1c;
+        }
+
+        .rs-status.checked_out {
+            background: #edf1f5;
+            color: #41505f;
+        }
+
+        .rs-empty {
+            text-align: center;
+            padding: 3rem 1.25rem;
+            color: #7b736b;
+        }
+
+        .rs-empty i {
+            font-size: 2.8rem;
+            color: #c4b39f;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .rs-empty h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.2rem;
+            margin-bottom: 0.45rem;
+            color: #1f232a;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.3rem;
+            border-radius: 999px;
+            border: none;
+            text-decoration: none;
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #c08157, #9d5f38);
+            color: #fff;
+        }
+
+        .filter-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.4rem;
+        }
+
+        .filter-tab {
+            padding: 0.78rem 1.05rem;
+            border-radius: 999px;
+            background: #f3efe9;
+            border: 1px solid #e1d8cc;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(135deg, #c08157, #9d5f38);
+            color: #fff;
+            border-color: #9d5f38;
+        }
+
+        .app-image {
+            width: 100%;
+            height: 260px;
+            object-fit: cover;
+            border-radius: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .content-card {
+                padding: 1.2rem;
+            }
+
+            .app-image {
+                height: 220px;
+            }
+        }
+    </style>
 </head>
-<body>
-    <!-- Header -->
-    <header class="header">
-        <div class="header-logo">
-            <img src="image/logo.png" alt="HUST Logo">
-        </div>
-        <div class="menu-toggle" id="menuToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="nav-container" id="navContainer">
-            <nav class="nav-links">
-                <a href="/" class="nav-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link">BẢN ĐỒ</a>
-                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-                <a href="/room-status" class="nav-link active-link">TRẠNG THÁI PHÒNG</a>
-            </nav>
-            
-            <!-- User profile dropdown -->
-            <div class="user-profile">
-                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
-                    <div class="avatar">
-                        <% if (user && user.name) { %>
-                            <%= user.name.charAt(0).toUpperCase() %>
-                        <% } else { %>
-                            U
-                        <% } %>
-                    </div>
-                    <span class="user-name">
-                        <% if (user && user.name) { %>
-                            <%= user.name %>
-                        <% } else { %>
-                            Người dùng
-                        <% } %>
-                    </span>
-                </a>
-                <div class="dropdown-menu">
-                    <a href="/profile" class="dropdown-item">
-                        <i class="fas fa-user-circle"></i> Hồ sơ
-                    </a>
-                    <a href="/logout" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                    </a>
-                </div>
+<body class="student-shell-page">
+    <%- include('navbar', { currentPage: 'room-status', user: user, student: student }) %>
+
+    <section class="student-page-hero">
+        <div class="student-page-badge"><i class="fas fa-house-circle-check"></i> Trạng thái phòng</div>
+        <h1 class="student-page-title">Theo dõi phòng ở hiện tại và toàn bộ lịch sử đăng ký trong cùng một màn hình gọn hơn</h1>
+        <p class="student-page-subtitle">Trang này được dọn lại hoàn toàn để bỏ cấu trúc HTML lỗi, đồng thời đưa về cùng phong cách với trang chủ và các trang student khác. Bạn vẫn giữ nguyên dữ liệu đang xem: phòng hiện tại, bạn cùng phòng và lịch sử các đơn đã nộp.</p>
+        <div class="student-page-meta">
+            <div class="student-page-meta-card">
+                <strong>Phòng hiện tại</strong>
+                <span>Xem thông tin ký túc xá, số phòng, giá và ngày vào ở nếu đã được phân phòng.</span>
+            </div>
+            <div class="student-page-meta-card">
+                <strong>Lịch sử hồ sơ</strong>
+                <span>Lọc nhanh theo trạng thái để biết đơn nào đang chờ duyệt, đã duyệt hoặc bị từ chối.</span>
+            </div>
+            <div class="student-page-meta-card">
+                <strong>Tiếp tục thao tác</strong>
+                <span>Nếu chưa có phòng, bạn có thể quay lại đăng ký ngay từ các nút hành động trong trang.</span>
             </div>
         </div>
-    </header>
+    </section>
 
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Page Header -->
-        <div class="page-header">
-            <div class="container">
-                <h1 class="page-title">Trạng thái phòng</h1>
-                <p class="page-subtitle">Xem thông tin phòng hiện tại và lịch sử đăng ký ký túc xá</p>
+    <main class="main-content">
+        <section class="student-shell-section">
+            <div class="stats-grid">
+                <article class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-bed"></i></div>
+                    <div class="stat-label">Tình trạng hiện tại</div>
+                    <div class="stat-value" id="statRoomStatus">Đang tải</div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-file-lines"></i></div>
+                    <div class="stat-label">Hồ sơ</div>
+                    <div class="stat-value">Theo dõi theo thời gian thực</div>
+                </article>
+                <article class="stat-card">
+                    <div class="stat-icon"><i class="fas fa-user-group"></i></div>
+                    <div class="stat-label">Bạn cùng phòng</div>
+                    <div class="stat-value">Hiển thị khi có dữ liệu</div>
+                </article>
             </div>
-        </div>
 
-        <!-- Content -->
-        <div class="content-section">
-            <div class="container">
-                <div class="grid grid-cols-1">
-                    <!-- Current Room -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-home"></i>
-                            </div>
-                            <h2 class="card-title">Phòng hiện tại</h2>
-                        </div>
-                        <div class="card-content">
-                            <div id="currentRoomContent">
-                                <div class="loading-state">
-                                    <div class="spinner"></div>
-                                    <p>Đang tải thông tin phòng...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Application History -->
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card-icon">
-                                <i class="fas fa-history"></i>
-                            </div>
-                            <h2 class="card-title">Lịch sử đăng ký</h2>
-                        </div>
-                        <div class="card-content">
-                            <div class="filter-tabs">
-                                <button class="filter-tab active" data-status="all">Tất cả</button>
-                                <button class="filter-tab" data-status="pending">Chờ duyệt</button>
-                                <button class="filter-tab" data-status="approved">Đã duyệt</button>
-                                <button class="filter-tab" data-status="rejected">Bị từ chối</button>
-                            </div>
-                            
-                            <div id="applicationsList">
-                                <div class="loading-state">
-                                    <div class="spinner"></div>
-                                    <p>Đang tải lịch sử đăng ký...</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="/js/student-common.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mobile menu toggle
-            const menuToggle = document.getElementById('menuToggle');
-            const navContainer = document.getElementById('navContainer');
-            
-            if (menuToggle && navContainer) {
-                menuToggle.addEventListener('click', function() {
-                    navContainer.classList.toggle('active');
-                    this.classList.toggle('active');
-                });
-            }
-
-            loadCurrentRoom();
-            loadApplicationHistory();
-            
-            // Tab functionality
-            const filterTabs = document.querySelectorAll('.filter-tab');
-            filterTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    filterTabs.forEach(t => t.classList.remove('active'));
-                    this.classList.add('active');
-                    filterApplications(this.dataset.status);
-                });
-            });
-        });
-
-        let allApplications = [];
-
-        // Load current room information
-        async function loadCurrentRoom() {
-            try {
-                const response = await fetch('/api/student/current-room');
-                const data = await response.json();
-                
-                const currentRoomContent = document.getElementById('currentRoomContent');
-                
-                if (data.success && data.room) {
-                    currentRoomContent.innerHTML = renderCurrentRoom(data.room);
-                } else {
-                    currentRoomContent.innerHTML = renderNoRoom();
-                }
-            } catch (error) {
-                console.error('Error loading current room:', error);
-                document.getElementById('currentRoomContent').innerHTML = 
-                    '<div class="empty-state"><i class="fas fa-exclamation-triangle empty-icon"></i><div class="empty-title">Lỗi tải dữ liệu</div><div class="empty-text">Không thể tải thông tin phòng hiện tại</div></div>';
-            }
-        }
-
-        // Load application history
-        async function loadApplicationHistory() {
-            try {
-                const response = await fetch('/api/student/applications');
-                const data = await response.json();
-                
-                if (data.success && data.applications) {
-                    allApplications = data.applications;
-                    renderApplications(allApplications);
-                } else {
-                    renderEmptyApplications();
-                }
-            } catch (error) {
-                console.error('Error loading applications:', error);
-                document.getElementById('applicationsList').innerHTML = 
-                    '<div class="empty-state"><i class="fas fa-exclamation-triangle empty-icon"></i><div class="empty-title">Lỗi tải dữ liệu</div><div class="empty-text">Không thể tải lịch sử đăng ký</div></div>';
-            }
-        }
-
-        // Render current room
-        function renderCurrentRoom(room) {
-            return `
-                <div class="room-info">
-                    <div class="info-item">
-                        <div class="info-label">Ký túc xá</div>
-                        <div class="info-value">${room.dormitoryName}</div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label">Phòng</div>
-                        <div class="info-value">${room.roomNumber}</div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label">Sức chứa</div>
-                        <div class="info-value">${room.currentOccupants}/${room.maxCapacity} sinh viên</div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-label">Ngày vào ở</div>
-                        <div class="info-value">${formatDate(room.checkInDate)}</div>
-                    </div>
-                </div>
-                
-                ${room.roommates && room.roommates.length > 0 ? `
-                    <div class="roommates-section">
-                        <div class="section-title">
-                            <i class="fas fa-users"></i>
-                            Bạn cùng phòng (${room.roommates.length})
-                        </div>
-                        <div class="roommates-list">
-                            ${room.roommates.map(roommate => `
-                                <div class="roommate-item">
-                                    <div class="roommate-avatar">
-                                        ${roommate.name.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div class="roommate-info">
-                                        <h4>${roommate.name}</h4>
-                                        <p>${roommate.studentId}</p>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                ` : ''}
-            `;
-        }
-
-        // Render no room state
-        function renderNoRoom() {
-            return `
-                <div class="no-room-state">
-                    <div class="no-room-icon">
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
                         <i class="fas fa-home"></i>
                     </div>
-                    <div class="no-room-title">Chưa có phòng ở</div>
-                    <div class="no-room-text">Bạn chưa được phân phòng ký túc xá. Hãy đăng ký ngay để có chỗ ở tại trường.</div>
-                    <a href="/register" class="btn">
-                        <i class="fas fa-plus"></i>
-                        Đăng ký phòng ngay
-                    </a>
+                    <h2 class="card-title">Phòng hiện tại</h2>
                 </div>
-            `;
+                <div id="currentRoomContent">
+                    <div class="rs-empty">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Đang tải thông tin...</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h2 class="card-title">Lịch sử đăng ký</h2>
+                </div>
+
+                <div class="filter-tabs" id="applicationTabs">
+                    <div class="filter-tab active" onclick="applyApplicationFilter('all', this)">
+                        <i class="fas fa-list"></i> Tất cả
+                    </div>
+                    <div class="filter-tab" onclick="applyApplicationFilter('pending', this)">
+                        <i class="fas fa-hourglass-half"></i> Chờ duyệt
+                    </div>
+                    <div class="filter-tab" onclick="applyApplicationFilter('approved', this)">
+                        <i class="fas fa-check-circle"></i> Đã duyệt
+                    </div>
+                    <div class="filter-tab" onclick="applyApplicationFilter('rejected', this)">
+                        <i class="fas fa-times-circle"></i> Bị từ chối
+                    </div>
+                </div>
+
+                <div id="applicationsList">
+                    <div class="rs-empty">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <h3>Đang tải lịch sử...</h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <section class="student-accent-grid">
+        <article class="student-accent-card">
+            <i class="fas fa-magnifying-glass-chart"></i>
+            <h3>Nhìn nhanh trạng thái</h3>
+            <p>Các khối thông tin trọng tâm được đặt lên đầu để bạn nắm tình trạng hồ sơ ngay khi mở trang.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-filter-circle-dollar"></i>
+            <h3>Lọc lịch sử gọn hơn</h3>
+            <p>Danh sách đơn đăng ký có bộ lọc rõ ràng hơn thay vì phải cuộn qua toàn bộ lịch sử.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-link"></i>
+            <h3>Liên thông thao tác</h3>
+            <p>Từ đây bạn có thể quay lại đăng ký phòng ngay nếu chưa được phân chỗ ở.</p>
+        </article>
+    </section>
+
+    <script>
+        const currentRoomContent = document.getElementById('currentRoomContent');
+        const applicationsList = document.getElementById('applicationsList');
+        const defaultDormImage = 'https://i.pinimg.com/1200x/8e/4f/23/8e4f23adeab230a479d9dca65fc4bad8.jpg';
+
+        function escapeHtml(value) {
+            const str = String(value ?? '');
+            return str
+                .replaceAll('&', '&amp;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;')
+                .replaceAll('"', '&quot;')
+                .replaceAll("'", '&#039;');
         }
 
-        // Render applications
-        function renderApplications(applications) {
-            const applicationsList = document.getElementById('applicationsList');
-            
-            if (applications.length === 0) {
-                renderEmptyApplications();
+        function formatDateVN(dateInput) {
+            const date = dateInput ? new Date(dateInput) : new Date();
+            if (Number.isNaN(date.getTime())) return '';
+            const dd = String(date.getDate()).padStart(2, '0');
+            const mm = String(date.getMonth() + 1).padStart(2, '0');
+            const yyyy = date.getFullYear();
+            return `${dd}/${mm}/${yyyy}`;
+        }
+
+        function formatDateTimeVN(dateInput) {
+            const date = new Date(dateInput);
+            if (Number.isNaN(date.getTime())) return '';
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mi = String(date.getMinutes()).padStart(2, '0');
+            return `${hh}:${mi} ${formatDateVN(date)}`;
+        }
+
+        function formatCurrencyVND(amount) {
+            const number = Number(amount);
+            if (!Number.isFinite(number) || number <= 0) return '—';
+            return number.toLocaleString('vi-VN') + ' đ/tháng';
+        }
+
+        function statusLabel(status) {
+            switch (status) {
+                case 'pending':
+                case 'pending_review': return 'Chờ duyệt';
+                case 'approved':
+                case 'approved_waiting_payment': return 'Đã duyệt';
+                case 'rejected': return 'Bị từ chối';
+                case 'waitlist': return 'Danh sách chờ';
+                case 'expired': return 'Hết hạn';
+                case 'checked_out': return 'Đã trả phòng';
+                default: return 'Không rõ';
+            }
+        }
+
+        function statusIcon(status) {
+            switch (status) {
+                case 'pending':
+                case 'pending_review': return '<i class="fas fa-hourglass-half"></i>';
+                case 'approved':
+                case 'approved_waiting_payment': return '<i class="fas fa-check-circle"></i>';
+                case 'rejected': return '<i class="fas fa-times-circle"></i>';
+                case 'waitlist': return '<i class="fas fa-list"></i>';
+                case 'expired': return '<i class="fas fa-calendar-times"></i>';
+                case 'checked_out': return '<i class="fas fa-sign-out-alt"></i>';
+                default: return '<i class="fas fa-info-circle"></i>';
+            }
+        }
+
+        function renderCurrentRoom(data) {
+            const statRoomStatus = document.getElementById('statRoomStatus');
+
+            if (data?.success && data?.room) {
+                const room = data.room;
+                if (statRoomStatus) statRoomStatus.textContent = 'Đã có phòng';
+
+                const occupancyText = `${room.currentOccupants ?? 0}/${room.maxCapacity ?? 0}`;
+                const checkInText = room.checkInDate ? formatDateVN(room.checkInDate) : '—';
+                const roomType = room.roomType || '—';
+                const dormImage = room?.dormitoryImage || defaultDormImage;
+
+                const infoHtml = `
+                    <div style="margin-bottom: 1.25rem;">
+                        <img src="${escapeHtml(dormImage)}" alt="${escapeHtml(room.dormitoryName || 'Ký túc xá')}" class="app-image" onerror="this.src='${escapeHtml(defaultDormImage)}'">
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-building"></i> Ký túc xá</div>
+                            <div class="info-value">${escapeHtml(room.dormitoryName || '—')}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-door-open"></i> Phòng</div>
+                            <div class="info-value">${escapeHtml(room.roomNumber || '—')}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-users"></i> Sức chứa</div>
+                            <div class="info-value">${escapeHtml(occupancyText)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-calendar-check"></i> Ngày vào ở</div>
+                            <div class="info-value">${escapeHtml(checkInText)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-bed"></i> Loại phòng</div>
+                            <div class="info-value">${escapeHtml(roomType)}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label"><i class="fas fa-money-bill-wave"></i> Giá</div>
+                            <div class="info-value">${escapeHtml(formatCurrencyVND(room.pricePerMonth))}</div>
+                        </div>
+                    </div>
+                `;
+
+                const roommates = Array.isArray(room.roommates) ? room.roommates : [];
+                const roommatesTitle = `<div class="rs-section-title"><i class="fas fa-users"></i> Bạn cùng phòng <span style="color: var(--primary-color);">(${roommates.length})</span></div>`;
+
+                const roommatesHtml = roommates.length
+                    ? `<div class="rs-roommates">${roommates.map(r => {
+                        const name = r?.name || 'Không rõ';
+                        const avatar = String(name).trim().charAt(0).toUpperCase() || 'U';
+                        const studentId = r?.studentId ? `MSSV: ${r.studentId}` : '';
+                        const email = r?.email ? r.email : '';
+                        const sub = [studentId, email].filter(Boolean).join(' • ');
+                        return `
+                            <div class="rs-roommate-card">
+                                <div class="rs-roommate-avatar">${escapeHtml(avatar)}</div>
+                                <div>
+                                    <div class="rs-roommate-name">${escapeHtml(name)}</div>
+                                    <div class="rs-roommate-sub">${escapeHtml(sub || '—')}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}</div>`
+                    : `
+                        <div class="rs-empty">
+                            <i class="fas fa-user-friends"></i>
+                            <h3>Chưa có bạn cùng phòng</h3>
+                            <p>${room.isPending ? 'Sẽ hiển thị sau khi nhập ở' : 'Bạn đang là người đầu tiên trong phòng này'}</p>
+                        </div>
+                    `;
+
+                currentRoomContent.innerHTML = infoHtml + roommatesTitle + roommatesHtml;
                 return;
             }
 
-            applicationsList.innerHTML = `
-                <div class="applications-list">
-                    ${applications.map(app => `
-                        <div class="application-item">
-                            <div class="application-header">
-                                <div class="application-id">
-                                    Mã đơn: ${app._id}
-                                </div>
-                                <span class="status-badge status-${app.status}">
-                                    ${getStatusText(app.status)}
-                                </span>
+            if (statRoomStatus) statRoomStatus.textContent = 'Chưa có phòng';
+
+            if (data?.success && data?.latestApprovedApplication) {
+                const app = data.latestApprovedApplication;
+                currentRoomContent.innerHTML = `
+                    <div class="rs-empty">
+                        <i class="fas fa-info-circle"></i>
+                        <h3>Chưa ghi nhận phòng đang ở</h3>
+                        <p>Đơn đã duyệt gần nhất: ${escapeHtml(app.dormitoryName || '—')} • Phòng ${escapeHtml(app.roomNumber || '—')}</p>
+                        ${app.comments ? `<p style="margin-top: 0.75rem; color: #666;">${escapeHtml(app.comments)}</p>` : ''}
+                        <div style="margin-top: 1.5rem;">
+                            <a class="btn btn-primary" href="/register">
+                                <i class="fas fa-pen"></i> Tới trang đăng ký
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            currentRoomContent.innerHTML = `
+                <div class="rs-empty">
+                    <i class="fas fa-home"></i>
+                    <h3>Bạn chưa có phòng</h3>
+                    <p>Hãy tạo đơn đăng ký để được xét duyệt phòng ở.</p>
+                    <div style="margin-top: 1.5rem;">
+                        <a class="btn btn-primary" href="/register">
+                            <i class="fas fa-plus-circle"></i> Đăng ký phòng ngay
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderApplications(data) {
+            const apps = data?.success && Array.isArray(data.applications) ? data.applications : [];
+
+            if (apps.length === 0) {
+                applicationsList.innerHTML = `
+                    <div class="rs-empty">
+                        <i class="fas fa-folder-open"></i>
+                        <h3>Chưa có đơn đăng ký</h3>
+                        <p>Khi bạn tạo đơn, lịch sử sẽ hiển thị tại đây.</p>
+                        <div style="margin-top: 1.5rem;">
+                            <a class="btn btn-primary" href="/register">
+                                <i class="fas fa-plus-circle"></i> Tạo đơn mới
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            const listHtml = apps.map(app => {
+                const id = app?._id || '';
+                const status = app?.status || 'pending';
+                const dormitoryName = app?.dormitoryName || 'Không xác định';
+                const roomNumber = app?.roomNumber || '—';
+                const faculty = app?.faculty || '—';
+                const academicYear = app?.academicYear || '—';
+                const createdAt = app?.createdAt ? formatDateTimeVN(app.createdAt) : '—';
+                const comments = app?.comments ? String(app.comments).trim() : '';
+
+                return `
+                    <div class="application-item" data-status="${escapeHtml(status)}">
+                        <div class="rs-application-header">
+                            <div class="rs-application-id">
+                                <i class="fas fa-hashtag"></i> ${escapeHtml(id.substring(0, 8))}
                             </div>
-                            
-                            <div class="application-details">
-                                <div class="detail-item">
-                                    <span class="detail-label">Ký túc xá</span>
-                                    <span class="detail-value">${app.dormitoryName}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Phòng</span>
-                                    <span class="detail-value">${app.roomNumber}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Khoa/Viện</span>
-                                    <span class="detail-value">${app.faculty}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <span class="detail-label">Năm học</span>
-                                    <span class="detail-value">${app.academicYear}</span>
-                                </div>
+                            <span class="rs-status ${escapeHtml(status)}">${statusIcon(status)} ${escapeHtml(statusLabel(status))}</span>
+                        </div>
+                        <div class="rs-application-grid">
+                            <div class="info-item">
+                                <div class="info-label"><i class="fas fa-building"></i> Ký túc xá</div>
+                                <div class="info-value">${escapeHtml(dormitoryName)}</div>
                             </div>
-                            
-                            ${app.comments ? `
-                                <div class="comments-section">
-                                    <div class="comments-title">Ghi chú từ admin:</div>
-                                    <div class="comments-text">${app.comments}</div>
-                                </div>
-                            ` : ''}
-                            
-                            <div class="application-date">
-                                <i class="fas fa-clock"></i>
-                                Đăng ký lúc: ${formatDateTime(app.createdAt)}
+                            <div class="info-item">
+                                <div class="info-label"><i class="fas fa-door-open"></i> Phòng</div>
+                                <div class="info-value">${escapeHtml(roomNumber)}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label"><i class="fas fa-graduation-cap"></i> Khoa/Viện</div>
+                                <div class="info-value">${escapeHtml(faculty)}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label"><i class="fas fa-calendar-alt"></i> Năm học</div>
+                                <div class="info-value">${escapeHtml(academicYear)}</div>
                             </div>
                         </div>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        // Render empty applications
-        function renderEmptyApplications() {
-            document.getElementById('applicationsList').innerHTML = `
-                <div class="empty-state">
-                    <div class="empty-icon">
-                        <i class="fas fa-file-alt"></i>
+                        <div class="rs-muted" style="margin-top: 0.75rem;">
+                            <i class="fas fa-clock"></i> Đăng ký lúc: ${escapeHtml(createdAt)}
+                        </div>
+                        ${comments ? `
+                            <div class="rs-muted" style="margin-top: 0.6rem;">
+                                <i class="fas fa-comment-dots"></i> Ghi chú: ${escapeHtml(comments)}
+                            </div>
+                        ` : ''}
                     </div>
-                    <div class="empty-title">Chưa có đơn đăng ký</div>
-                    <div class="empty-text">Bạn chưa gửi đơn đăng ký phòng ký túc xá nào.</div>
-                </div>
-            `;
+                `;
+            }).join('');
+
+            applicationsList.innerHTML = listHtml;
+            applyApplicationFilter('all', document.querySelector('.filter-tab.active'));
         }
 
-        // Filter applications by status
-        function filterApplications(status) {
-            if (status === 'all') {
-                renderApplications(allApplications);
-            } else {
-                const filtered = allApplications.filter(app => app.status === status);
-                renderApplications(filtered);
+        function applyApplicationFilter(status, clickedTab) {
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            if (clickedTab && clickedTab.classList) {
+                clickedTab.classList.add('active');
+            }
+
+            const items = applicationsList.querySelectorAll('.application-item');
+            if (items.length === 0) return;
+
+            let visible = 0;
+            items.forEach(item => {
+                const itemStatus = item.getAttribute('data-status');
+                const show = status === 'all' || itemStatus === status || (status === 'pending' && itemStatus === 'pending_review') || (status === 'approved' && itemStatus === 'approved_waiting_payment');
+                item.style.display = show ? '' : 'none';
+                if (show) visible++;
+            });
+
+            const oldEmpty = document.getElementById('rsNoFilteredApps');
+            if (oldEmpty) oldEmpty.remove();
+
+            if (visible === 0) {
+                applicationsList.insertAdjacentHTML('beforeend', `
+                    <div class="rs-empty" id="rsNoFilteredApps">
+                        <i class="fas fa-filter"></i>
+                        <h3>Không có đơn phù hợp</h3>
+                        <p>Thử chọn tab khác để xem thêm.</p>
+                    </div>
+                `);
             }
         }
 
-        // Utility functions
-        function getStatusText(status) {
-            const statusMap = {
-                'pending': 'Chờ duyệt',
-                'approved': 'Đã duyệt',
-                'rejected': 'Bị từ chối'
-            };
-            return statusMap[status] || 'Không xác định';
+        async function loadCurrentRoom() {
+            try {
+                const res = await fetch('/api/student/current-room');
+                const data = await res.json();
+                renderCurrentRoom(data);
+            } catch (e) {
+                console.error('Error loading room:', e);
+                const statRoomStatus = document.getElementById('statRoomStatus');
+                if (statRoomStatus) statRoomStatus.textContent = 'Lỗi tải';
+                currentRoomContent.innerHTML = `
+                    <div class="rs-empty">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Không tải được thông tin phòng</h3>
+                        <p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-primary" onclick="loadCurrentRoom()">
+                                <i class="fas fa-rotate-right"></i> Thử lại
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
-        function formatDate(dateString) {
-            if (!dateString) return 'Chưa cập nhật';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('vi-VN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
+        async function loadApplications() {
+            try {
+                const res = await fetch('/api/student/applications');
+                const data = await res.json();
+                renderApplications(data);
+            } catch (e) {
+                console.error('Error loading applications:', e);
+                applicationsList.innerHTML = `
+                    <div class="rs-empty">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Không tải được lịch sử đăng ký</h3>
+                        <p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-primary" onclick="loadApplications()">
+                                <i class="fas fa-rotate-right"></i> Thử lại
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
-        function formatDateTime(dateString) {
-            if (!dateString) return 'Chưa cập nhật';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('vi-VN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCurrentRoom();
+            loadApplications();
+        });
     </script>
 </body>
 </html>

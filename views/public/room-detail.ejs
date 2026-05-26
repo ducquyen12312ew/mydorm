@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết phòng - KTX HUST</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        :root {
+            --primary-color: #e61a1a;
+            --text-color: #333;
+            --bg-color: #f8f3ef;
+            --menu-bg: white;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', Arial, sans-serif;
+            overflow-x: hidden;
+            background-color: var(--bg-color);
+        }
+        
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.2rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--menu-bg);
+            z-index: 2000;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-logo img {
+            max-height: 3rem;
+            width: auto;
+        }
+
+        .nav-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            margin-left: 5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-color);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            padding: 0.8rem 0;
+            position: relative;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            bottom: 0.4rem;
+            left: 50%;
+            opacity: 0;
+            transform: translateX(-50%) scale(0);
+            transition: all 0.4s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active-link::after {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+
+        .nav-link.active-link {
+            color: var(--primary-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+            position: relative;
+        }
+
+        .avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+
+        .user-name {
+            color: var(--text-color);
+            font-weight: 600;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: none;
+            min-width: 200px;
+            z-index: 2001;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.2s;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f5f5f5;
+            color: var(--primary-color);
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 100px;
+            padding: 2rem;
+            max-width: 1400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .breadcrumb {
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .room-header {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .image-section {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .main-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background-color: #f0f0f0;
+        }
+
+        .room-info {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+
+        .room-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .room-detail {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .detail-value {
+            color: #666;
+            font-size: 1.1rem;
+            margin-top: 0.3rem;
+        }
+
+        .room-status {
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .status-available {
+            background-color: #d4f1d4;
+            color: var(--success-color);
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-full {
+            background-color: #f8d7da;
+            color: var(--danger-color);
+        }
+
+        /* Tabs */
+        .tabs {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .tab-buttons {
+            display: flex;
+            border-bottom: 2px solid #f0f0f0;
+            padding: 0 2rem;
+            gap: 1rem;
+        }
+
+        .tab-btn {
+            padding: 1rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #666;
+            position: relative;
+            transition: all 0.3s;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .tab-btn:hover {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 2rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            aspect-ratio: 1;
+            background-color: #f0f0f0;
+            cursor: pointer;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 3rem;
+            color: #999;
+        }
+
+        .empty-message i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #c01616;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 1rem;
+                margin-top: 80px;
+            }
+
+            .room-header {
+                grid-template-columns: 1fr;
+            }
+
+            .main-image {
+                height: 250px;
+            }
+
+            .room-title {
+                font-size: 1.5rem;
+            }
+
+            .tab-buttons {
+                padding: 0 1rem;
+                overflow-x: auto;
+                gap: 0;
+            }
+
+            .tab-btn {
+                padding: 0.8rem 1rem;
+                white-space: nowrap;
+                font-size: 0.9rem;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-logo">
+            <img src="/image/logo.png" alt="HUST Logo">
+        </div>
+        <div class="nav-container">
+            <nav class="nav-links">
+                <a href="/" class="nav-link">TRANG CHỦ</a>
+                <a href="/map" class="nav-link active-link">BẢN ĐỒ</a>
+                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
+                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
+                <a href="/student/maintenance-requests" class="nav-link">BẢO TRÌ</a>
+            </nav>
+            
+            <!-- User profile dropdown -->
+            <div class="user-profile">
+                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                    <div class="avatar"><%= (user && user.name) ? user.name.trim().charAt(0).toUpperCase() : 'U' %></div>
+                    <span class="user-name"><%= (user && user.name) ? user.name : 'Người dùng' %></span>
+                </a>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <a href="/profile" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> Hồ sơ
+                    </a>
+                    <a href="/logout" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="breadcrumb">
+            <a href="/map">Bản đồ</a> / 
+            <span id="breadcrumbDorm"></span> / 
+            <span id="breadcrumbRoom"></span>
+        </div>
+
+        <!-- Room Header with Info -->
+        <div class="room-header">
+            <div class="image-section">
+                <img id="mainImage" src="" alt="Phòng" class="main-image" onerror="this.src='/image/placeholder.png'">
+            </div>
+            <div class="room-info">
+                <h1 class="room-title" id="roomTitle"></h1>
+                <div id="roomStatus" class="room-status"></div>
+                
+                <div class="room-detail">
+                    <div class="detail-label">Ký túc xá</div>
+                    <div class="detail-value" id="dormName"></div>
+                </div>
+
+                <div class="room-detail">
+                    <div class="detail-label">Tầng</div>
+                    <div class="detail-value" id="floorNumber"></div>
+                </div>
+
+                <div class="room-detail">
+                    <div class="detail-label">Sức chứa</div>
+                    <div class="detail-value" id="capacity"></div>
+                </div>
+
+                <div class="room-detail">
+                    <div class="detail-label">Hiện tại</div>
+                    <div class="detail-value" id="occupants"></div>
+                </div>
+
+                <div class="room-detail">
+                    <div class="detail-label">Giá phòng/tháng</div>
+                    <div class="detail-value" id="price"></div>
+                </div>
+
+                <div class="room-detail">
+                    <div class="detail-label">Tiện nghi</div>
+                    <div class="detail-value" id="amenities"></div>
+                </div>
+
+                <a href="/register" class="btn btn-primary" style="margin-top: 1.5rem;">
+                    <i class="fas fa-check"></i> Đăng ký phòng này
+                </a>
+            </div>
+        </div>
+
+        <!-- Tabs Section -->
+        <div class="tabs">
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('images')">
+                    <i class="fas fa-images"></i> Ảnh (<span id="imageCount">0</span>)
+                </button>
+                <button class="tab-btn" onclick="switchTab('videos')">
+                    <i class="fas fa-video"></i> Video (<span id="videoCount">0</span>)
+                </button>
+                <button class="tab-btn" onclick="switchTab('info')">
+                    <i class="fas fa-info-circle"></i> Thông tin
+                </button>
+            </div>
+
+            <!-- Images Tab -->
+            <div id="images" class="tab-content active">
+                <div class="gallery-grid" id="imagesGallery"></div>
+                <div id="emptyImages" class="empty-message">
+                    <i class="fas fa-image"></i>
+                    <p>Chưa có ảnh</p>
+                </div>
+            </div>
+
+            <!-- Videos Tab -->
+            <div id="videos" class="tab-content">
+                <div class="gallery-grid" id="videosGallery"></div>
+                <div id="emptyVideos" class="empty-message">
+                    <i class="fas fa-video"></i>
+                    <p>Chưa có video</p>
+                </div>
+            </div>
+
+            <!-- Info Tab -->
+            <div id="info" class="tab-content">
+                <div style="line-height: 1.8; color: #666;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Mô tả phòng</h3>
+                    <p id="roomDescription" style="margin-bottom: 1.5rem;"></p>
+
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Quy tắc phòng</h3>
+                    <ul style="margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                        <li>Giữ gìn vệ sinh chung</li>
+                        <li>Không gây tiếng ồn sau 22h</li>
+                        <li>Không hút thuốc trong phòng</li>
+                        <li>Tắt đèn, máy lạnh trước khi rời phòng</li>
+                    </ul>
+
+                    <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Liên hệ quản lý</h3>
+                    <p id="contactInfo"></p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let roomData = null;
+        let dormData = null;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setupHeader();
+            loadRoomDetail();
+        });
+
+        function setupHeader() {
+            const dropdownMenu = document.getElementById('dropdownMenu');
+            const userProfile = document.querySelector('.user-profile');
+            const avatarContainer = document.querySelector('.avatar-container');
+
+            if (avatarContainer && dropdownMenu) {
+                avatarContainer.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    dropdownMenu.classList.toggle('show');
+                });
+
+                document.addEventListener('click', function(e) {
+                    if (!userProfile.contains(e.target)) {
+                        dropdownMenu.classList.remove('show');
+                    }
+                });
+            }
+        }
+
+        function loadRoomDetail() {
+            const params = new URLSearchParams(window.location.search);
+            const roomId = params.get('roomId');
+            const dormId = params.get('dormId');
+
+            if (!roomId || !dormId) {
+                document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Không tìm thấy phòng</div>';
+                return;
+            }
+
+            // Load room and dorm data
+            fetch(`/api/dormitories/${dormId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.dormitory) {
+                        dormData = data.dormitory;
+                        document.getElementById('dormName').textContent = dormData.name;
+                        document.getElementById('breadcrumbDorm').textContent = dormData.name;
+                        document.getElementById('contactInfo').textContent = `Điện thoại: ${dormData.contact?.phone || 'N/A'} | Email: ${dormData.contact?.email || 'N/A'}`;
+
+                        // Find the room
+                        let foundRoom = null;
+                        if (dormData.floors && Array.isArray(dormData.floors)) {
+                            dormData.floors.forEach(floor => {
+                                if (floor.rooms && Array.isArray(floor.rooms)) {
+                                    const room = floor.rooms.find(r => r._id === roomId);
+                                    if (room) {
+                                        room.floor = floor.floorNumber;
+                                        foundRoom = room;
+                                    }
+                                }
+                            });
+                        }
+
+                        if (foundRoom) {
+                            displayRoomDetail(foundRoom);
+                        } else {
+                            document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Không tìm thấy phòng</div>';
+                        }
+                    }
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.body.innerHTML = '<div style="margin-top: 150px; text-align: center; color: red;">Lỗi khi tải dữ liệu</div>';
+                });
+        }
+
+        function displayRoomDetail(room) {
+            roomData = room;
+            const currentOccupants = room.occupants ? room.occupants.filter(o => o.active).length : 0;
+            const maxCapacity = room.maxCapacity || 4;
+
+            // Update room info
+            document.getElementById('roomTitle').textContent = room.roomNumber;
+            document.getElementById('breadcrumbRoom').textContent = room.roomNumber;
+            
+            // Status
+            let statusClass, statusText;
+            if (currentOccupants >= maxCapacity) {
+                statusClass = 'status-full';
+                statusText = '❌ Đã đầy';
+            } else if (currentOccupants > 0) {
+                statusClass = 'status-pending';
+                statusText = '⏳ Có đơn chờ';
+            } else {
+                statusClass = 'status-available';
+                statusText = '✓ Còn trống';
+            }
+            const statusDiv = document.getElementById('roomStatus');
+            statusDiv.className = 'room-status ' + statusClass;
+            statusDiv.textContent = statusText;
+
+            document.getElementById('floorNumber').textContent = `Tầng ${room.floor || 'N/A'}`;
+            document.getElementById('capacity').textContent = `${maxCapacity} người`;
+            document.getElementById('occupants').textContent = `${currentOccupants} người`;
+            document.getElementById('price').textContent = `${room.pricePerMonth?.toLocaleString() || 'N/A'} VND`;
+            document.getElementById('amenities').textContent = room.amenities?.length > 0 ? room.amenities.join(', ') : 'Không có';
+            document.getElementById('roomDescription').textContent = room.description || 'Phòng ký túc xá tiêu chuẩn với đầy đủ tiện nghi cơ bản';
+
+            // Load images and videos (placeholder - in real app would come from database)
+            loadGallery();
+        }
+
+        function loadGallery() {
+            // Placeholder images
+            const images = [
+                '/image/dorm1.jpg',
+                '/image/dorm2.jpg',
+                '/image/dorm3.jpg'
+            ];
+
+            // Update counts
+            document.getElementById('imageCount').textContent = images.length;
+            document.getElementById('videoCount').textContent = '0';
+
+            // Display images
+            const imagesGallery = document.getElementById('imagesGallery');
+            if (images.length > 0) {
+                document.getElementById('emptyImages').style.display = 'none';
+                imagesGallery.innerHTML = images.map(img => `
+                    <div class="gallery-item">
+                        <img src="${img}" alt="Phòng" onerror="this.src='/image/placeholder.png'">
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('emptyImages').style.display = 'block';
+                imagesGallery.innerHTML = '';
+            }
+
+            // Videos empty
+            document.getElementById('videosGallery').innerHTML = '';
+            document.getElementById('emptyVideos').style.display = 'block';
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.closest('.tab-btn').classList.add('active');
+        }
+    </script>
+</body>
+</html>

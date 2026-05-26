@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Minh 2FA - Hệ Thống Ký Túc Xá</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #999;
+            margin-top: 8px;
+            line-height: 1.4;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            display: inline-block;
+            width: 45%;
+            height: 1px;
+            background: #ddd;
+            vertical-align: middle;
+        }
+
+        .divider::before {
+            margin-right: 10px;
+        }
+
+        .divider::after {
+            margin-left: 10px;
+        }
+
+        .backup-code-container {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .backup-code-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .backup-code-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loader.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 Xác Minh 2FA</h1>
+            <p>Nhập mã xác minh của bạn</p>
+        </div>
+
+        <div id="alert"></div>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="totp">Google Authenticator</button>
+            <button class="tab-btn" data-tab="backup">Mã Backup</button>
+        </div>
+
+        <!-- TOTP Tab -->
+        <div class="tab-content active" id="totp-tab">
+            <form id="totp-form">
+                <div class="form-group">
+                    <label>Mã từ ứng dụng Authenticator</label>
+                    <input type="text" id="totp-code" placeholder="000000" maxlength="6" inputmode="numeric" autocomplete="off">
+                    <div class="help-text">Nhập mã 6 chữ số từ ứng dụng Authenticator của bạn</div>
+                </div>
+                <button type="submit" class="btn" id="totp-submit">Xác Minh</button>
+            </form>
+        </div>
+
+        <!-- Backup Code Tab -->
+        <div class="tab-content" id="backup-tab">
+            <form id="backup-form">
+                <div class="form-group">
+                    <label>Nhập Mã Backup</label>
+                    <input type="text" id="backup-code" placeholder="XXXXXXXX" autocomplete="off">
+                    <div class="help-text">Sử dụng một trong các mã backup của bạn. Mỗi mã chỉ có thể sử dụng một lần.</div>
+                </div>
+                <button type="submit" class="btn" id="backup-submit">Xác Minh Mã Backup</button>
+            </form>
+        </div>
+
+        <div class="loader" id="loader">
+            <div class="spinner"></div> Đang xử lý...
+        </div>
+    </div>
+
+    <script>
+        // Get userId from URL or session
+        const userId = new URLSearchParams(window.location.search).get('userId');
+
+        // Tab switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+                
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                btn.classList.add('active');
+                document.getElementById(tabName + '-tab').classList.add('active');
+            });
+        });
+
+        // Show alert
+        function showAlert(message, type = 'danger') {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.innerHTML = `<div class="alert alert-${type}">${message}</div>`;
+        }
+
+        // Clear alert
+        function clearAlert() {
+            document.getElementById('alert').innerHTML = '';
+        }
+
+        // Show loader
+        function showLoader() {
+            document.getElementById('loader').classList.add('active');
+        }
+
+        // Hide loader
+        function hideLoader() {
+            document.getElementById('loader').classList.remove('active');
+        }
+
+        // TOTP form submission
+        document.getElementById('totp-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlert();
+
+            const code = document.getElementById('totp-code').value.trim();
+            if (!code || code.length !== 6) {
+                showAlert('Vui lòng nhập mã 6 chữ số hợp lệ');
+                return;
+            }
+
+            showLoader();
+
+            try {
+                const response = await fetch('/api/2fa/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        code: code,
+                        useBackupCode: false
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.verified) {
+                    showAlert('✓ Xác minh thành công! Đang chuyển hướng...', 'info');
+                    // Redirect to dashboard after 1 second
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    showAlert(data.error || 'Mã xác minh không chính xác');
+                    document.getElementById('totp-code').value = '';
+                    document.getElementById('totp-code').focus();
+                }
+            } catch (error) {
+                showAlert('Lỗi xác minh: ' + error.message);
+            } finally {
+                hideLoader();
+            }
+        });
+
+        // Backup code form submission
+        document.getElementById('backup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearAlert();
+
+            const code = document.getElementById('backup-code').value.trim();
+            if (!code) {
+                showAlert('Vui lòng nhập mã backup');
+                return;
+            }
+
+            showLoader();
+
+            try {
+                const response = await fetch('/api/2fa/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: userId,
+                        code: code,
+                        useBackupCode: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.verified) {
+                    showAlert('✓ Xác minh thành công! Đang chuyển hướng...', 'info');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 1000);
+                } else {
+                    showAlert(data.error || 'Mã backup không hợp lệ');
+                    document.getElementById('backup-code').value = '';
+                    document.getElementById('backup-code').focus();
+                }
+            } catch (error) {
+                showAlert('Lỗi xác minh: ' + error.message);
+            } finally {
+                hideLoader();
+            }
+        });
+
+        // Auto-focus on numeric input
+        document.getElementById('totp-code').addEventListener('input', (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+            if (e.target.value.length === 6) {
+                document.getElementById('totp-form').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>

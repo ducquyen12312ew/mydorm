@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Dọn dẹp dữ liệu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 15px 15px 0 0;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .card-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .card-header p {
+            margin: 10px 0 0 0;
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .action-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .action-item h5 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .action-item p {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .btn-danger-large {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-danger-large:hover {
+            background: #c82333;
+            color: white;
+            text-decoration: none;
+            transform: translateY(-2px);
+        }
+
+        .alert {
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .status-message {
+            display: none;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .status-message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+
+        .status-message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h1><i class="fas fa-trash me-2"></i>Dọn dẹp dữ liệu</h1>
+                <p>Quản trị viên</p>
+            </div>
+            <div class="card-body">
+                <div id="statusMessage" class="status-message"></div>
+
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>Cảnh báo!</strong> Các hành động dưới đây <strong>KHÔNG thể hoàn tác</strong>. Vui lòng thận trọng.
+                </div>
+
+                <!-- Delete applications -->
+                <div class="action-item">
+                    <h5><i class="fas fa-file-alt me-2"></i>Xóa các đơn đăng ký</h5>
+                    <p>Xóa tất cả các đơn đăng ký ở trạng thái "pending" và "approved". Hành động này không thể hoàn tác.</p>
+                    <button class="btn-danger-large" onclick="deleteApplications()">
+                        <i class="fas fa-trash me-2"></i>Xóa tất cả đơn
+                    </button>
+                </div>
+
+                <!-- Clear occupants -->
+                <div class="action-item">
+                    <h5><i class="fas fa-users me-2"></i>Xóa tất cả sinh viên khỏi phòng</h5>
+                    <p>Loại bỏ tất cả sinh viên đang ở trong các phòng và reset trạng thái đăng ký.</p>
+                    <button class="btn-danger-large" onclick="clearOccupants()">
+                        <i class="fas fa-trash me-2"></i>Xóa tất cả cư dân
+                    </button>
+                </div>
+
+                <!-- Clear both -->
+                <div class="action-item">
+                    <h5><i class="fas fa-broom me-2"></i>Dọn dẹp toàn bộ</h5>
+                    <p>Thực hiện cả hai hành động: xóa đơn đăng ký và xóa sinh viên khỏi phòng.</p>
+                    <button class="btn-danger-large" onclick="clearAll()">
+                        <i class="fas fa-broom me-2"></i>Dọn dẹp toàn bộ
+                    </button>
+                </div>
+
+                <div class="back-link">
+                    <a href="/admin/dormitories">← Quay lại trang ký túc xá</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showMessage(message, type) {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${type}`;
+            setTimeout(() => {
+                statusDiv.className = 'status-message';
+            }, 5000);
+        }
+
+        async function deleteApplications() {
+            if (!confirm('Bạn chắc chắn muốn xóa tất cả các đơn đăng ký? Hành động này KHÔNG thể hoàn tác!')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/cleanup/applications', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage(`✓ ${data.message}`, 'success');
+                } else {
+                    showMessage(`✗ Lỗi: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('✗ Lỗi khi xóa đơn đăng ký', 'error');
+            }
+        }
+
+        async function clearOccupants() {
+            if (!confirm('Bạn chắc chắn muốn xóa tất cả sinh viên khỏi phòng? Hành động này KHÔNG thể hoàn tác!')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/cleanup/occupants', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showMessage(`✓ ${data.message}`, 'success');
+                } else {
+                    showMessage(`✗ Lỗi: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('✗ Lỗi khi xóa sinh viên', 'error');
+            }
+        }
+
+        async function clearAll() {
+            if (!confirm('Bạn chắc chắn muốn dọn dẹp TOÀN BỘ dữ liệu? Hành động này KHÔNG thể hoàn tác!')) {
+                return;
+            }
+
+            try {
+                // Delete applications
+                const appResponse = await fetch('/api/admin/cleanup/applications', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const appData = await appResponse.json();
+
+                // Clear occupants
+                const occResponse = await fetch('/api/admin/cleanup/occupants', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const occData = await occResponse.json();
+
+                if (appData.success && occData.success) {
+                    showMessage('✓ Đã dọn dẹp toàn bộ dữ liệu thành công', 'success');
+                } else {
+                    showMessage('✗ Có lỗi xảy ra khi dọn dẹp', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('✗ Lỗi khi dọn dẹp dữ liệu', 'error');
+            }
+        }
+    </script>
+</body>
+</html>

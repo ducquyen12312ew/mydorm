@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= mode === 'edit' ? 'Kế hoạch quota' : 'Tạo quota nháp' %></title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top left, #fff7ef, #f3f6fb 40%); margin: 0; color: #1f2937; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 0 16px 28px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin: 18px 0 12px; }
+    .header h1 { margin: 0; font-size: 26px; color: #7c2d12; }
+    .card { background: #fff; border: 1px solid #ecdcca; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06); }
+    .section-label { margin: 0 0 12px; font-size: 18px; color: #7c2d12; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label { font-size: 13px; color: #374151; font-weight: 600; }
+    .field input, .field select { border: 1px solid #d1d5db; border-radius: 8px; padding: 10px 12px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eef2f7; padding: 11px 10px; text-align: left; }
+    th { background: #f9fafb; font-size: 13px; color: #4b5563; }
+    .actions { display: flex; gap: 10px; margin-top: 16px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; font-size: 14px; }
+    .btn-primary { background: #b35a5a; color: #fff; }
+    .btn-secondary { background: #374151; color: #fff; }
+    .btn-soft { background: #f7f1f1; color: #7f4a4a; border: 1px solid #ead9d9; }
+    .msg { margin-bottom: 14px; padding: 12px; border-radius: 8px; }
+    .msg.error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .msg.success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .hint { font-size: 12px; color: #6b7280; }
+    .banner-lock { margin-bottom: 12px; background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; padding: 12px; border-radius: 8px; }
+    .stepper { display: inline-flex; align-items: center; gap: 6px; }
+    .stepper button { width: 28px; height: 28px; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff; cursor: pointer; }
+    .stepper input { width: 100px; text-align: center; }
+    .year-badge { display: inline-block; padding: 0; font-size: 14px; font-weight: 600; color: #334155; }
+    .summary-panel { margin-top: 12px; border: 1px solid #eddcc8; background: linear-gradient(135deg, #fffdfb, #fff5e9); border-radius: 10px; padding: 12px; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .summary-item { border: 1px solid #e5e7eb; border-radius: 8px; padding: 10px; background: #fff; }
+    .summary-item .label { font-size: 12px; color: #64748b; }
+    .summary-item .value { font-size: 20px; font-weight: 700; margin-top: 4px; }
+    .value.ok { color: #166534; }
+    .value.error { color: #b91c1c; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .tab { border-radius: 8px; padding: 8px 12px; text-decoration: none; font-size: 13px; font-weight: 600; }
+    .tab.active { background: #9a3412; color: #fff; }
+    .tab.inactive { background: #f1f5f9; color: #334155; }
+    details.advanced { margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 10px; padding: 12px; background: #fcfcfd; }
+    details.advanced summary { cursor: pointer; font-weight: 700; color: #7f4a4a; }
+    .section-title { margin: 16px 0 8px; font-size: 15px; }
+    .toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+    .cohort-box { margin-top: 16px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; background: #fcfcfd; }
+    .cohort-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .cohort-result { margin-top: 10px; font-size: 13px; color: #334155; line-height: 1.5; }
+    .badge { display: inline-block; margin-right: 8px; margin-top: 6px; background: #eef2ff; color: #3730a3; border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="header">
+      <h1><%= mode === 'edit' ? 'Kế hoạch quota' : 'Tạo quota nháp' %></h1>
+      <a class="btn btn-secondary" href="/admin/quotas">Quay lại</a>
+    </div>
+
+    <% if (mode === 'edit') { %>
+      <div class="tabs">
+        <span class="tab active">Kế hoạch</span>
+        <a class="tab inactive" href="/admin/quotas/<%= quota._id %>/dashboard">Thực tế</a>
+        <a class="tab inactive" href="/admin/quotas/<%= quota._id %>/preview">Mô phỏng</a>
+      </div>
+    <% } %>
+
+    <% if (message) { %>
+      <div class="msg <%= message.type === 'error' ? 'error' : 'success' %>"><%= message.text %></div>
+    <% } %>
+
+    <div class="card">
+      <% if (isLocked) { %>
+        <div class="banner-lock">Phiên bản quota này đang khóa. Chỉ admin1 mới được chỉnh bản nháp.</div>
+      <% } %>
+
+        <h2 class="section-label">(1) Thông tin chung</h2>
+        <div class="grid">
+          <div class="field">
+            <label>Năm học</label>
+            <input form="quotaForm" name="academicYear" value="<%= form.academicYear %>" placeholder="2025-2026" required <%= isLocked ? 'disabled' : '' %> />
+          </div>
+          <div class="field">
+            <label>Tổng sức chứa (C)</label>
+            <input form="quotaForm" type="number" min="1" name="totalCapacity" value="<%= form.totalCapacity %>" required <%= isLocked ? 'disabled' : '' %> />
+          </div>
+          <div class="field">
+            <label>Hiệu lực từ</label>
+            <input form="quotaForm" type="date" name="effectiveFrom" value="<%= form.effectiveFrom %>" required <%= isLocked ? 'disabled' : '' %> />
+          </div>
+          <div class="field">
+            <label>Hiệu lực đến</label>
+            <input form="quotaForm" type="date" name="effectiveTo" value="<%= form.effectiveTo %>" required <%= isLocked ? 'disabled' : '' %> />
+          </div>
+        </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-label">(2) Cấu hình quota</h2>
+      <p class="hint">Bạn chỉ cần nhập tỷ lệ %, hệ thống sẽ tự tính số chỗ theo tổng sức chứa.</p>
+
+      <form id="quotaForm" method="POST" action="<%= mode === 'edit' ? '/admin/quotas/' + quota._id : '/admin/quotas' %>">
+
+          <table>
+            <thead>
+              <tr>
+                <th>Nhóm năm học</th>
+                <th>Tỷ lệ (%)</th>
+                <th>Số chỗ (tự tính)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% const labels = { year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3', year4_plus: 'Năm 4 và các năm còn lại' }; %>
+              <% ['year1','year2','year3','year4_plus'].forEach(function(group){ %>
+                <tr>
+                  <td>
+                    <span class="year-badge <%= group %>"><%= labels[group] %></span>
+                  </td>
+                  <td>
+                    <div class="stepper">
+                      <button type="button" onclick="stepPercent('<%= group %>', -1)" <%= isLocked ? 'disabled' : '' %>>-</button>
+                      <input type="number" min="0" max="100" step="0.01" id="<%= group %>_percentage" name="<%= group %>_percentage" value="<%= form[group + '_percentage'] %>" required <%= isLocked ? 'disabled' : '' %> />
+                      <button type="button" onclick="stepPercent('<%= group %>', 1)" <%= isLocked ? 'disabled' : '' %>>+</button>
+                    </div>
+                  </td>
+                  <td>
+                    <span id="<%= group %>_slot_preview">0</span>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+
+        <div class="summary-panel">
+          <div class="summary-grid">
+            <div class="summary-item">
+              <div class="label">Tổng tỷ lệ (%)</div>
+              <div class="value" id="totalPercentValue">0%</div>
+              <div class="hint" id="percentStatusText">Chưa hợp lệ</div>
+            </div>
+            <div class="summary-item">
+              <div class="label">Tổng số chỗ</div>
+              <div class="value" id="totalSlotValue">0</div>
+              <div class="hint">Tự động tính từ tỷ lệ % và tổng sức chứa</div>
+            </div>
+          </div>
+        </div>
+
+        <details class="advanced">
+          <summary>Chi tiết nâng cao</summary>
+
+          <h3 class="section-title">Cho phép vượt trần</h3>
+          <div class="toggle-row">
+            <input type="checkbox" id="overcapEnabled" name="overcapEnabled" <%= form.overcapEnabled ? 'checked' : '' %> <%= isLocked ? 'disabled' : '' %> />
+            <label for="overcapEnabled">Bật chính sách cho phép vượt trần</label>
+          </div>
+
+          <div class="grid" style="margin-top: 10px;">
+            <div class="field">
+              <label>Mức vượt trần tối đa mặc định (%)</label>
+              <input type="number" min="0" max="100" step="0.1" name="overcapMaxPercent" value="<%= form.overcapMaxPercent %>" <%= isLocked ? 'disabled' : '' %> />
+            </div>
+            <div class="field">
+              <label>Không tính sinh viên quốc tế vào phân tích thực tế</label>
+              <select name="excludeInternationalStudents" <%= isLocked ? 'disabled' : '' %>>
+                <option value="true" <%= form.excludeInternationalStudents ? 'selected' : '' %>>Có</option>
+                <option value="false" <%= !form.excludeInternationalStudents ? 'selected' : '' %>>Không</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Cửa sổ đề xuất (năm)</label>
+              <input type="number" min="1" max="10" name="recommendationWindowYears" value="<%= form.recommendationWindowYears %>" <%= isLocked ? 'disabled' : '' %> />
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Nhóm năm học</th>
+                <th>Mức vượt trần riêng (%)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% ['year1','year2','year3','year4_plus'].forEach(function(group){ %>
+                <tr>
+                  <td><%= labels[group] %></td>
+                  <td>
+                    <input type="number" min="0" max="100" step="0.1" name="overcap_<%= group %>" value="<%= form['overcap_' + group] %>" <%= isLocked ? 'disabled' : '' %> />
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+
+          <div class="cohort-box">
+            <h3 class="section-title" style="margin-top: 0;">Mô phỏng chuyển cohort (K69 -> K70)</h3>
+            <div class="cohort-grid">
+              <div class="field"><label>Năm 1 hiện tại</label><input type="number" id="cohortYear1" value="0" <%= isLocked ? 'disabled' : '' %> /></div>
+              <div class="field"><label>Năm 2 hiện tại</label><input type="number" id="cohortYear2" value="0" <%= isLocked ? 'disabled' : '' %> /></div>
+              <div class="field"><label>Năm 3 hiện tại</label><input type="number" id="cohortYear3" value="0" <%= isLocked ? 'disabled' : '' %> /></div>
+              <div class="field"><label>Năm 4+ hiện tại</label><input type="number" id="cohortYear4" value="0" <%= isLocked ? 'disabled' : '' %> /></div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-soft" type="button" onclick="simulateCohortTransition()" <%= isLocked ? 'disabled' : '' %>>Chạy mô phỏng</button>
+            </div>
+            <div class="cohort-result" id="cohortResult">Nhập dữ liệu rồi bấm chạy mô phỏng để xem tác động chuyển khóa.</div>
+          </div>
+        </details>
+
+        <% if (mode === 'edit' && !isLocked) { %>
+          <div class="field" style="margin-top: 14px;">
+            <label>Lý do cập nhật (bắt buộc)</label>
+            <input name="reason" id="reason" placeholder="Mô tả lý do chỉnh sửa bản nháp" required />
+          </div>
+        <% } %>
+
+        <div class="actions">
+          <% if (mode === 'create') { %>
+            <button class="btn btn-primary" type="submit">Tạo nháp</button>
+          <% } else if (!isLocked) { %>
+            <button class="btn btn-primary" type="button" onclick="updateQuota('<%= quota._id %>')">Lưu nháp</button>
+          <% } %>
+          <% if (!isLocked || mode === 'create') { %>
+            <a class="btn btn-secondary" href="/admin/quotas">Hủy</a>
+          <% } %>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function stepPercent(group, delta) {
+      const input = document.getElementById(group + '_percentage');
+      if (!input || input.disabled) return;
+      const current = Number(input.value || 0);
+      const next = Math.max(0, Math.min(100, current + delta));
+      input.value = next.toFixed(2).replace(/\.00$/, '');
+      syncPercentHint();
+    }
+
+    function syncPercentHint() {
+      const groups = ['year1', 'year2', 'year3', 'year4_plus'];
+      const totalCapacityInput = document.querySelector('input[name="totalCapacity"]');
+      const totalCapacity = Number(totalCapacityInput ? totalCapacityInput.value : 0) || 0;
+
+      const totalPercent = groups.reduce((sum, group) => {
+        const input = document.getElementById(group + '_percentage');
+        return sum + Number(input ? input.value : 0);
+      }, 0);
+
+      const totalSlots = groups.reduce((sum, group) => {
+        const input = document.getElementById(group + '_percentage');
+        const percentage = Number(input ? input.value : 0);
+        const slot = Math.round((totalCapacity * percentage) / 100);
+        const slotCell = document.getElementById(group + '_slot_preview');
+        if (slotCell) slotCell.textContent = String(slot);
+        return sum + slot;
+      }, 0);
+
+      const roundedPercent = Math.round(totalPercent * 100) / 100;
+      const isValid = Math.abs(roundedPercent - 100) < 0.001;
+
+      const percentValue = document.getElementById('totalPercentValue');
+      const percentStatusText = document.getElementById('percentStatusText');
+      const slotValue = document.getElementById('totalSlotValue');
+
+      if (percentValue) {
+        percentValue.textContent = roundedPercent + '%';
+        percentValue.classList.toggle('ok', isValid);
+        percentValue.classList.toggle('error', !isValid);
+      }
+
+      if (percentStatusText) {
+        percentStatusText.textContent = isValid ? 'Hợp lệ (100%)' : 'Sai (phải bằng 100%)';
+        percentStatusText.style.color = isValid ? '#166534' : '#b91c1c';
+      }
+
+      if (slotValue) {
+        slotValue.textContent = totalSlots;
+      }
+    }
+
+    function simulateCohortTransition() {
+      const y1 = Number(document.getElementById('cohortYear1').value || 0);
+      const y2 = Number(document.getElementById('cohortYear2').value || 0);
+      const y3 = Number(document.getElementById('cohortYear3').value || 0);
+      const y4 = Number(document.getElementById('cohortYear4').value || 0);
+
+      const next = {
+        year1: 0,
+        year2: y1,
+        year3: y2,
+        year4_plus: y3 + y4
+      };
+
+      const totalNow = y1 + y2 + y3 + y4;
+      const totalNext = next.year1 + next.year2 + next.year3 + next.year4_plus;
+
+      const result = [
+        'Hiện tại: N1=' + y1 + ', N2=' + y2 + ', N3=' + y3 + ', N4+=' + y4,
+        'Năm kế tiếp (chưa tính tân sinh viên): N1=' + next.year1 + ', N2=' + next.year2 + ', N3=' + next.year3 + ', N4+=' + next.year4_plus,
+        'Tổng hiện tại=' + totalNow + ', tổng năm kế=' + totalNext,
+        'Gợi ý: điều chỉnh tỷ lệ Năm 1 để tạo đủ chỗ đón khóa mới trước khi ban hành quota.'
+      ];
+
+      document.getElementById('cohortResult').innerHTML = result.map((line) => '<span class="badge">' + line + '</span>').join('');
+    }
+
+    async function updateQuota(id) {
+      const form = document.getElementById('quotaForm');
+      const formData = new FormData(form);
+      const body = new URLSearchParams();
+      for (const [k, v] of formData.entries()) {
+        body.append(k, v);
+      }
+
+      if (!body.get('reason')) {
+        alert('Vui lòng nhập lý do cập nhật.');
+        return;
+      }
+
+      const response = await fetch('/admin/quotas/' + id, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+
+      const result = await response.json();
+      if (!response.ok || !result.success) {
+        alert(result.error || 'Lưu draft thất bại');
+        return;
+      }
+
+      window.location.href = '/admin/quotas?message=' + encodeURIComponent(result.message || 'Lưu thành công') + '&type=success';
+    }
+
+    document.querySelectorAll('input[id$="_percentage"]').forEach((el) => {
+      el.addEventListener('input', syncPercentHint);
+    });
+    const totalCapacityInput = document.querySelector('input[name="totalCapacity"]');
+    if (totalCapacityInput) {
+      totalCapacityInput.addEventListener('input', syncPercentHint);
+    }
+    syncPercentHint();
+  </script>
+</body>
+</html>

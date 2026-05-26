@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore Rooms | 360° Room Viewer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .controls {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .filter-group select,
+    .filter-group input {
+      padding: 10px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .filter-group select:focus,
+    .filter-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .search-btn {
+      padding: 10px 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      align-self: flex-end;
+      transition: all 0.3s ease;
+    }
+
+    .search-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 25px;
+      margin-bottom: 30px;
+    }
+
+    .room-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .room-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .room-image {
+      width: 100%;
+      height: 200px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .room-image::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+      background-size: 20px 20px;
+      animation: movePattern 20s linear infinite;
+    }
+
+    @keyframes movePattern {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(20px, 20px); }
+    }
+
+    .room-image-text {
+      position: relative;
+      z-index: 2;
+    }
+
+    .room-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #4caf50;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      z-index: 3;
+    }
+
+    .room-badge.no-view {
+      background: #999;
+    }
+
+    .room-content {
+      padding: 20px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .room-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .room-subtitle {
+      font-size: 13px;
+      color: #999;
+      margin-bottom: 15px;
+    }
+
+    .room-specs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .spec-item {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .spec-label {
+      color: #999;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-value {
+      font-weight: 600;
+      color: #333;
+      margin-top: 3px;
+    }
+
+    .room-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 15px;
+    }
+
+    .feature {
+      background: #f0f2ff;
+      color: #667eea;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .room-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    button {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-view {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-view:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-favorite {
+      background: #f5f5f5;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+
+    .btn-favorite:hover {
+      background: #f0f2ff;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 12px;
+      color: #999;
+    }
+
+    .empty-state-icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .stats {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      text-align: center;
+    }
+
+    .stat {
+      padding: 15px;
+    }
+
+    .stat-number {
+      font-size: 28px;
+      font-weight: 700;
+      color: #667eea;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 5px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      color: white;
+    }
+
+    .spinner {
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 15px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .info-banner {
+      background: white;
+      border-left: 4px solid #2196f3;
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #1565c0;
+    }
+
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 30px;
+    }
+
+    .pagination button {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      background: white;
+      color: #333;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #ddd;
+    }
+
+    .pagination button.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .search-btn {
+        align-self: auto;
+      }
+
+      .rooms-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>🏠 Explore Dormitory Rooms</h1>
+      <p>Browse rooms with 360° panoramic views before applying</p>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="info-banner">
+      ℹ️ Explore available rooms with interactive 360-degree views. Understanding room layouts helps with your
+      allocation decision. All rooms shown are available for the upcoming academic year.
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <div class="filter-group">
+        <label>🏢 Building</label>
+        <select id="buildingFilter">
+          <option value="">All buildings</option>
+          <option value="A">Building A - Main Campus</option>
+          <option value="B">Building B - South Wing</option>
+          <option value="C">Building C - North Campus</option>
+          <option value="D">Building D - East Complex</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>🔢 Floor</label>
+        <select id="floorFilter">
+          <option value="">All floors</option>
+          <option value="1">1st Floor</option>
+          <option value="2">2nd Floor</option>
+          <option value="3">3rd Floor</option>
+          <option value="4">4th Floor</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>🛏 Room Type</label>
+        <select id="typeFilter">
+          <option value="">All types</option>
+          <option value="Single">Single Room</option>
+          <option value="Double">Double Room</option>
+          <option value="Triple">Triple Room</option>
+          <option value="Suite">Suite</option>
+        </select>
+      </div>
+
+      <button class="search-btn" onclick="filterRooms()">🔍 Search</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats" id="stats" style="display: none;">
+      <div class="stat">
+        <div class="stat-number" id="totalRooms">0</div>
+        <div class="stat-label">Total Rooms</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="withPanoramas">0</div>
+        <div class="stat-label">With 360 Views</div>
+      </div>
+      <div class="stat">
+        <div class="stat-number" id="avgCapacity">0</div>
+        <div class="stat-label">Avg Capacity</div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading" id="loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Loading rooms...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-state-icon">📭</div>
+      <h3>No rooms found</h3>
+      <p>No rooms match your search criteria. Try adjusting filters.</p>
+    </div>
+
+    <!-- Rooms Grid -->
+    <div class="rooms-grid" id="roomsGrid"></div>
+
+    <!-- Pagination -->
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script>
+    let allRooms = [];
+    let filteredRooms = [];
+    const itemsPerPage = 12;
+    let currentPage = 1;
+
+    async function loadRooms() {
+      document.getElementById('loading').style.display = 'block';
+
+      try {
+        const response = await fetch('/api/allocation/student/explore-rooms');
+        const data = await response.json();
+
+        if (response.ok) {
+          allRooms = data.rooms || [];
+          displayStats(data);
+          filterRooms();
+        } else {
+          alert('Error loading rooms: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to load rooms');
+      } finally {
+        document.getElementById('loading').style.display = 'none';
+      }
+    }
+
+    function displayStats(data) {
+      if (data.totalRooms > 0) {
+        document.getElementById('stats').style.display = 'grid';
+        document.getElementById('totalRooms').textContent = data.totalRooms;
+        document.getElementById('withPanoramas').textContent = data.rooms.filter(r => r.panoramasAvailable).length;
+        const avgCapacity = (
+          data.rooms.reduce((sum, r) => sum + (r.capacity || 0), 0) / data.totalRooms
+        ).toFixed(0);
+        document.getElementById('avgCapacity').textContent = avgCapacity;
+      }
+    }
+
+    function filterRooms() {
+      const building = document.getElementById('buildingFilter').value;
+      const floor = document.getElementById('floorFilter').value;
+      const type = document.getElementById('typeFilter').value;
+
+      filteredRooms = allRooms.filter(room => {
+        if (building && room.building !== building) return false;
+        if (floor && room.floor !== parseInt(floor)) return false;
+        if (type && room.type !== type) return false;
+        return true;
+      });
+
+      currentPage = 1;
+      displayRooms();
+    }
+
+    function displayRooms() {
+      const roomsGrid = document.getElementById('roomsGrid');
+      const pagination = document.getElementById('pagination');
+      const totalPages = Math.ceil(filteredRooms.length / itemsPerPage);
+
+      if (filteredRooms.length === 0) {
+        document.getElementById('emptyState').style.display = 'block';
+        roomsGrid.innerHTML = '';
+        pagination.innerHTML = '';
+        return;
+      }
+
+      document.getElementById('emptyState').style.display = 'none';
+
+      const start = (currentPage - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const pageRooms = filteredRooms.slice(start, end);
+
+      roomsGrid.innerHTML = pageRooms
+        .map(
+          room => `
+        <div class="room-card">
+          <div class="room-image">
+            <span class="room-badge ${room.panoramasAvailable ? '' : 'no-view'}">
+              ${room.panoramasAvailable ? '✓ 360°' : 'No view'}
+            </span>
+            <div class="room-image-text">🏠</div>
+          </div>
+          <div class="room-content">
+            <div class="room-title">${room.building}-${room.number}</div>
+            <div class="room-subtitle">Room ${room.number} • Floor ${room.floor}</div>
+            
+            <div class="room-specs">
+              <div class="spec-item">
+                <div class="spec-label">Type</div>
+                <div class="spec-value">${room.type}</div>
+              </div>
+              <div class="spec-item">
+                <div class="spec-label">Capacity</div>
+                <div class="spec-value">${room.capacity} students</div>
+              </div>
+            </div>
+
+            <% if (room.facilities && room.facilities.length > 0) { %>
+              <div class="room-features">
+                ${room.facilities.slice(0, 3).map(f => `<span class="feature">${f}</span>`).join('')}
+              </div>
+            <% } %>
+
+            <div class="room-actions">
+              <button class="btn-view" onclick="viewRoom('${room.id}')">
+                ${room.panoramasAvailable ? '👁 View 360°' : '📋 Details'}
+              </button>
+              <button class="btn-favorite" onclick="toggleFavorite('${room.id}')">❤️</button>
+            </div>
+          </div>
+        </div>
+      `
+        )
+        .join('');
+
+      // Pagination
+      if (totalPages > 1) {
+        let paginationHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+          paginationHTML += `
+            <button class="${i === currentPage ? 'active' : ''}" onclick="goToPage(${i})">
+              ${i}
+            </button>
+          `;
+        }
+        pagination.innerHTML = paginationHTML;
+      }
+    }
+
+    function viewRoom(roomId) {
+      window.location.href = `/rooms/${roomId}/view`;
+    }
+
+    function toggleFavorite(roomId) {
+      alert('Added to favorites: ' + roomId);
+      // Implement favorites
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      displayRooms();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Load rooms on page load
+    loadRooms();
+  </script>
+</body>
+</html>

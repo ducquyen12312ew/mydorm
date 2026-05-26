@@ -3,456 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Đơn Đăng Ký - KTX HUST</title>
+    <title>Quản Lý Đơn Đăng Ký</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <style>
-        :root {
-            --primary-color: #e61a1a;
-            --primary-hover: #c01515;
-            --text-dark: #2c3e50;
-            --text-light: #7f8c8d;
-            --bg-light: #f8f9fa;
-            --border-color: #e9ecef;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: var(--text-dark);
+            background: #f5f7fa;
+            color: #2c3e50;
         }
 
-        .admin-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+        /* Navigation */
+        .navbar {
             background: white;
-            z-index: 1000;
-            box-shadow: var(--shadow-sm);
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
         }
 
-        .admin-header-container {
-            max-width: 1600px;
+        .navbar-container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 0 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 70px;
         }
 
-        .admin-logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-        }
-
-        .admin-logo img {
-            height: 40px;
-            width: auto;
-        }
-
-        .admin-logo-text {
-            font-size: 1.4rem;
+        .navbar-brand {
+            font-size: 20px;
             font-weight: 700;
-            color: var(--primary-color);
-        }
-
-        .admin-nav {
+            color: #2c3e50;
+            text-decoration: none;
             display: flex;
             align-items: center;
-            gap: 3rem;
-            flex: 1;
-            margin: 0 3rem;
+            gap: 10px;
         }
 
-        .admin-nav-links {
+        .navbar-menu {
             display: flex;
-            gap: 2.5rem;
+            gap: 5px;
             list-style: none;
-            padding: 0;
             margin: 0;
+            padding: 0;
         }
 
-        .admin-nav-link {
-            color: var(--text-dark);
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
             text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            padding: 0.5rem 0;
-            position: relative;
-            transition: color 0.3s ease;
-        }
-
-        .admin-nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 3px;
-            background: var(--primary-color);
-            transition: width 0.3s ease;
-        }
-
-        .admin-nav-link:hover {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link:hover::before {
-            width: 100%;
-        }
-
-        .admin-nav-link.active {
-            color: var(--primary-color);
-        }
-
-        .admin-nav-link.active::before {
-            width: 100%;
-        }
-
-        .admin-user-section {
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
             display: flex;
             align-items: center;
+            gap: 8px;
         }
 
-        .admin-user-profile {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            transition: all 0.3s ease;
+        .navbar-menu a:hover {
+            background: #f8f9fa;
         }
 
-        .admin-user-avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), #ff6b6b);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .navbar-menu a.active {
+            background: #e74c3c;
             color: white;
-            font-weight: 700;
-            font-size: 1.1rem;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .admin-content {
-            padding-top: 90px;
-            min-height: calc(100vh - 70px);
         }
 
         .container {
             max-width: 1400px;
             margin: 0 auto;
-            padding: 0 2rem;
+            padding: 20px;
         }
 
+        /* Page Header */
         .page-header {
             background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .page-header h1 {
-            color: var(--text-dark);
-            font-size: 2rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .page-header p {
-            color: var(--text-light);
+            color: #2c3e50;
+            font-size: 28px;
             margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .stat-card:nth-child(1) { border-left: 4px solid #f39c12; }
+        .stat-card:nth-child(2) { border-left: 4px solid #2ecc71; }
+        .stat-card:nth-child(3) { border-left: 4px solid #e74c3c; }
+        .stat-card:nth-child(4) { border-left: 4px solid #3498db; }
+
+        .stat-card-title {
+            font-size: 13px;
+            color: #95a5a6;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-card-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stat-card:nth-child(1) .stat-card-value { color: #f39c12; }
+        .stat-card:nth-child(2) .stat-card-value { color: #2ecc71; }
+        .stat-card:nth-child(3) .stat-card-value { color: #e74c3c; }
+        .stat-card:nth-child(4) .stat-card-value { color: #3498db; }
+
+        /* Filters */
         .filters-bar {
             background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: 2rem;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
             display: flex;
             flex-wrap: wrap;
-            gap: 1.5rem;
+            gap: 15px;
             align-items: center;
         }
 
         .filter-group {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 10px;
         }
 
         .filter-label {
             font-weight: 600;
-            font-size: 0.9rem;
-            color: var(--text-dark);
-            margin: 0;
+            font-size: 14px;
+            color: #2c3e50;
         }
 
         .filter-input {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 0.9rem;
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
+        /* Table */
         .table-container {
             background: white;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
             overflow: hidden;
-            margin-bottom: 2rem;
+            margin-bottom: 30px;
         }
 
         .application-table {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 0;
+            border-collapse: collapse;
+        }
+
+        .application-table thead {
+            background: #f8f9fa;
         }
 
         .application-table th {
-            background: var(--bg-light);
-            padding: 1.25rem 1rem;
+            padding: 15px;
             text-align: left;
             font-weight: 600;
-            color: var(--text-dark);
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.85rem;
+            color: #2c3e50;
+            font-size: 13px;
             text-transform: uppercase;
+            border-bottom: 2px solid #e9ecef;
         }
 
         .application-table td {
-            padding: 1.25rem 1rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.95rem;
-            vertical-align: middle;
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+            color: #555;
         }
 
-        .application-table tr:last-child td {
-            border-bottom: none;
+        .application-table tbody tr {
+            transition: all 0.2s;
         }
 
-        .application-table tr:hover {
-            background-color: var(--bg-light);
+        .application-table tbody tr:hover {
+            background: linear-gradient(90deg, #fff5f5 0%, #ffe5e5 50%, #fff5f5 100%);
+            transform: scale(1.01);
         }
 
         .status-badge {
             display: inline-block;
-            padding: 0.35rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.8rem;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
             font-weight: 600;
         }
 
         .status-pending {
-            background-color: #fff8e1;
+            background: #fff8e1;
             color: #f57c00;
         }
 
         .status-approved {
-            background-color: #e8f5e9;
+            background: #e8f5e9;
             color: #2e7d32;
         }
 
         .status-rejected {
-            background-color: #ffebee;
+            background: #ffebee;
             color: #c62828;
         }
 
         .status-waitlist {
-            background-color: #e3f2fd;
+            background: #e3f2fd;
             color: #1565c0;
         }
 
         .action-buttons {
             display: flex;
-            gap: 0.5rem;
+            gap: 5px;
         }
 
         .btn-sm {
-            padding: 0.35rem 0.75rem;
-            font-size: 0.85rem;
-            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 12px;
         }
 
         .btn-view {
-            background-color: #e3f2fd;
-            color: #1565c0;
+            background: #3498db;
+            color: white;
             border: none;
         }
 
         .btn-view:hover {
-            background-color: #bbdefb;
-            color: #0d47a1;
+            background: #2980b9;
+            color: white;
         }
 
         .btn-approve {
-            background-color: #e8f5e9;
-            color: #2e7d32;
+            background: #2ecc71;
+            color: white;
             border: none;
         }
 
         .btn-approve:hover {
-            background-color: #c8e6c9;
-            color: #1b5e20;
+            background: #27ae60;
+            color: white;
         }
 
         .btn-reject {
-            background-color: #ffebee;
-            color: #c62828;
+            background: #e74c3c;
+            color: white;
             border: none;
         }
 
         .btn-reject:hover {
-            background-color: #ffcdd2;
-            color: #b71c1c;
-        }
-
-        .pagination-container {
-            display: flex;
-            justify-content: center;
-            margin: 2rem 0;
-        }
-
-        .pagination {
-            display: flex;
-            gap: 0.5rem;
-            list-style: none;
-            padding: 0;
-        }
-
-        .page-item {
-            margin: 0;
-        }
-
-        .page-link {
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-dark);
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--primary-color);
+            background: #c0392b;
             color: white;
-            border-color: var(--primary-color);
         }
 
-        .page-link:hover:not(.active) {
-            background-color: var(--bg-light);
-        }
-
-        .empty-state {
-            padding: 4rem 2rem;
+        /* Loading & Empty States */
+        .loading-spinner, .empty-state {
             text-align: center;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            color: #cfd8dc;
-            margin-bottom: 1rem;
-        }
-
-        .empty-state h3 {
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .empty-state p {
-            color: var(--text-light);
-            max-width: 400px;
-            margin: 0 auto;
-        }
-
-        .badge-count {
-            display: inline-block;
-            background-color: #f5f5f5;
-            color: #757575;
-            padding: 0.25rem 0.75rem;
-            border-radius: 50px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            margin-left: 0.5rem;
-        }
-
-        .stats-section {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .stat-card-title {
-            color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 0.75rem;
-            font-weight: 600;
-        }
-
-        .stat-card-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 0.25rem;
-        }
-
-        .stat-pending {
-            color: #f57c00;
-        }
-
-        .stat-approved {
-            color: #2e7d32;
-        }
-
-        .stat-rejected {
-            color: #c62828;
-        }
-
-        .stat-total {
-            color: #1565c0;
-        }
-
-        .loading-spinner {
-            text-align: center;
-            padding: 3rem;
+            padding: 60px 20px;
         }
 
         .spinner {
@@ -460,9 +330,9 @@
             height: 50px;
             border: 3px solid #f3f3f3;
             border-radius: 50%;
-            border-top: 3px solid var(--primary-color);
+            border-top: 3px solid #e74c3c;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -470,579 +340,289 @@
             100% { transform: rotate(360deg); }
         }
 
-        .modal-title {
-            font-weight: 600;
-            color: var(--text-dark);
+        .empty-state i {
+            font-size: 64px;
+            color: #ddd;
+            margin-bottom: 20px;
         }
 
-        .modal-footer {
-            border-top: none;
-            padding: 1rem 1.5rem 1.5rem;
+        .empty-state h3 {
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #999;
         }
 
         @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .navbar-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .navbar-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
             .filters-bar {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
+
             .filter-group {
                 flex-direction: column;
                 align-items: flex-start;
             }
-            
+
             .filter-input {
                 width: 100%;
-            }
-            
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-            
-            .stats-section {
-                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
-    <!-- ADMIN HEADER -->
-    <header class="admin-header">
-        <div class="admin-header-container">
-            <a href="/admin/dashboard" class="admin-logo">
-                <img src="/image/logo.png" alt="Logo KTX">
-                <span class="admin-logo-text">KTX HUST</span>
-            </a>
+    <%- include('../navbar', { activeNav: 'applications' }) %>
 
-            <nav class="admin-nav">
-                <ul class="admin-nav-links">
-                    <li><a href="/admin/dashboard" class="admin-nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
-                    <li><a href="/admin/dormitories" class="admin-nav-link"><i class="fas fa-building"></i> Danh sách KTX</a></li>
-                    <li><a href="/admin/application" class="admin-nav-link active"><i class="fas fa-file-alt"></i> Đơn đăng ký</a></li>
-                    <li><a href="/admin/logs" class="admin-nav-link"><i class="fas fa-history"></i> Nhật ký</a></li>
-                </ul>
-                
-                <div class="admin-user-section">
-                    <div class="admin-user-profile">
-                        <div class="admin-user-avatar">
-                            <%= user.name ? user.name.charAt(0).toUpperCase() : 'A' %>
-                        </div>
-                    </div>
-                </div>
-            </nav>
+    <div class="container">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>
+                <i class="fas fa-file-alt" style="color: #e74c3c;"></i>
+                Quản Lý Đơn Đăng Ký
+            </h1>
+            <button class="btn btn-primary" id="refreshButton">
+                <i class="fas fa-sync-alt"></i> Làm mới
+            </button>
         </div>
-    </header>
 
-    <!-- MAIN CONTENT -->
-    <div class="admin-content">
-        <div class="container">
-            <div class="page-header">
-                <div>
-                    <h1><i class="fas fa-file-alt"></i> Quản Lý Đơn Đăng Ký</h1>
-                    <p>Quản lý đơn đăng ký ký túc xá từ sinh viên</p>
-                </div>
-                <div>
-                    <button class="btn btn-primary" id="refreshButton">
-                        <i class="fas fa-sync-alt"></i> Làm mới
-                    </button>
-                </div>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-card-title">Đơn chờ duyệt</div>
+                <div class="stat-card-value" id="pending-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Đơn đã duyệt</div>
+                <div class="stat-card-value" id="approved-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Đơn bị từ chối</div>
+                <div class="stat-card-value" id="rejected-count">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card-title">Tổng đơn đăng ký</div>
+                <div class="stat-card-value" id="total-count">0</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label class="filter-label">Trạng thái:</label>
+                <select class="filter-input" id="statusFilter">
+                    <option value="all">Tất cả</option>
+                    <option value="pending">Chờ duyệt</option>
+                    <option value="approved">Đã duyệt</option>
+                    <option value="rejected">Từ chối</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Tìm kiếm:</label>
+                <input type="text" class="filter-input" id="searchInput" placeholder="MSSV hoặc tên...">
+            </div>
+            <button class="btn btn-primary" id="searchButton">
+                <i class="fas fa-search"></i> Tìm kiếm
+            </button>
+        </div>
+
+        <!-- Table -->
+        <div class="table-container">
+            <div id="loading-container" class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Đang tải dữ liệu...</p>
             </div>
 
-            <div class="stats-section" id="stats-container">
-                <div class="stat-card">
-                    <div class="stat-card-title">Đơn chờ duyệt</div>
-                    <div class="stat-card-value stat-pending" id="pending-count">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-title">Đơn đã duyệt</div>
-                    <div class="stat-card-value stat-approved" id="approved-count">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-title">Đơn bị từ chối</div>
-                    <div class="stat-card-value stat-rejected" id="rejected-count">-</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-card-title">Tổng đơn đăng ký</div>
-                    <div class="stat-card-value stat-total" id="total-count">-</div>
-                </div>
-            </div>
+            <table class="application-table" id="application-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>MSSV</th>
+                        <th>Họ và tên</th>
+                        <th>Ký túc xá</th>
+                        <th>Phòng</th>
+                        <th style="text-align: center;">Ưu tiên</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái</th>
+                        <th style="text-align: center;">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="application-body">
+                </tbody>
+            </table>
 
-            <div class="filters-bar">
-                <div class="filter-group">
-                    <label class="filter-label">Trạng thái:</label>
-                    <select class="filter-input" id="statusFilter">
-                        <option value="all">Tất cả</option>
-                        <option value="pending">Chờ duyệt</option>
-                        <option value="approved">Đã duyệt</option>
-                        <option value="rejected">Từ chối</option>
-                        <option value="pending_review">Đang chờ xem xét</option>
-                        <option value="waitlist">Danh sách chờ</option>
-                        <option value="approved_waiting_payment">Chờ thanh toán</option>
-                        <option value="assigned_room">Đã phân phòng</option>
-                        <option value="checked_in">Đã check-in</option>
-                        <option value="checked_out">Đã check-out</option>
-                        <option value="expired">Hết hạn</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label class="filter-label">Niên khóa:</label>
-                    <select class="filter-input" id="yearFilter">
-                        <option value="all">Tất cả</option>
-                        <option value="2025">2025</option>
-                        <option value="2024">2024</option>
-                        <option value="2023">2023</option>
-                        <option value="2022">2022</option>
-                        <option value="2021">2021</option>
-                    </select>
-                </div>
-                
-                <div class="filter-group">
-                    <label class="filter-label">Tìm kiếm:</label>
-                    <input type="text" class="filter-input" id="searchInput" placeholder="MSSV hoặc tên...">
-                </div>
-                
-                <button class="btn btn-primary" id="searchButton">
-                    <i class="fas fa-search"></i> Tìm kiếm
-                </button>
-            </div>
-
-            <div class="table-container">
-                <div id="loading-container" class="loading-spinner">
-                    <div class="spinner"></div>
-                    <p>Đang tải dữ liệu...</p>
-                </div>
-                
-                <table class="application-table" id="application-table" style="display: none;">
-                    <thead>
-                        <tr>
-                            <th>MSSV</th>
-                            <th>Họ và tên</th>
-                            <th>Ký túc xá</th>
-                            <th>Phòng</th>
-                            <th>Ngày đăng ký</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="application-body">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-                
-                <div id="empty-state" class="empty-state" style="display: none;">
-                    <i class="fas fa-file-alt"></i>
-                    <h3>Không có đơn đăng ký nào</h3>
-                    <p>Hiện tại không có đơn đăng ký nào phù hợp với bộ lọc đã chọn.</p>
-                </div>
-            </div>
-            
-            <div class="pagination-container">
-                <ul class="pagination" id="pagination">
-                    <!-- Pagination will be populated here -->
-                </ul>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <i class="fas fa-file-alt"></i>
+                <h3>Không có đơn đăng ký nào</h3>
+                <p>Hiện tại không có đơn đăng ký nào phù hợp với bộ lọc đã chọn.</p>
             </div>
         </div>
     </div>
-    
-    <!-- Reject Modal -->
-    <div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="rejectModalLabel">Từ chối đơn đăng ký</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="rejectApplicationId">
-                    <div class="mb-3">
-                        <label for="rejectionReason" class="form-label">Lý do từ chối:</label>
-                        <textarea class="form-control" id="rejectionReason" rows="3" placeholder="Nhập lý do từ chối đơn đăng ký..."></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-danger" id="confirmRejectBtn">Từ chối đơn</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Approve Modal -->
-    <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="approveModalLabel">Duyệt đơn đăng ký</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="hidden" id="approveApplicationId">
-                    <p>Bạn có chắc chắn muốn duyệt đơn đăng ký này không?</p>
-                    <p>Sinh viên sẽ được thông báo qua email và có thể tiến hành đăng ký phòng.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <button type="button" class="btn btn-success" id="confirmApproveBtn">Duyệt đơn</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Toast Notifications -->
-    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
-        <div id="successToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-success text-white">
-                <i class="fas fa-check-circle me-2"></i>
-                <strong class="me-auto">Thành công</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body" id="successToastMessage">
-                Thao tác đã được thực hiện thành công.
-            </div>
-        </div>
-        
-        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header bg-danger text-white">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                <strong class="me-auto">Lỗi</strong>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div class="toast-body" id="errorToastMessage">
-                Đã xảy ra lỗi. Vui lòng thử lại sau.
-            </div>
-        </div>
-    </div>
-    
+
+
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Constants and Variables
-            const applicationTable = document.getElementById('application-table');
-            const applicationBody = document.getElementById('application-body');
-            const loadingContainer = document.getElementById('loading-container');
-            const emptyState = document.getElementById('empty-state');
-            const pagination = document.getElementById('pagination');
-            const searchButton = document.getElementById('searchButton');
-            const refreshButton = document.getElementById('refreshButton');
-            const statusFilter = document.getElementById('statusFilter');
-            const yearFilter = document.getElementById('yearFilter');
-            const searchInput = document.getElementById('searchInput');
-            
-            // Stats elements
-            const pendingCount = document.getElementById('pending-count');
-            const approvedCount = document.getElementById('approved-count');
-            const rejectedCount = document.getElementById('rejected-count');
-            const totalCount = document.getElementById('total-count');
-            
-            // Modal elements
-            const rejectModal = new bootstrap.Modal(document.getElementById('rejectModal'));
-            const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
-            const rejectApplicationId = document.getElementById('rejectApplicationId');
-            const approveApplicationId = document.getElementById('approveApplicationId');
-            const rejectionReason = document.getElementById('rejectionReason');
-            const confirmRejectBtn = document.getElementById('confirmRejectBtn');
-            const confirmApproveBtn = document.getElementById('confirmApproveBtn');
-            
-            // Toast elements
-            const successToast = new bootstrap.Toast(document.getElementById('successToast'));
-            const errorToast = new bootstrap.Toast(document.getElementById('errorToast'));
-            const successToastMessage = document.getElementById('successToastMessage');
-            const errorToastMessage = document.getElementById('errorToastMessage');
-            
-            // Current state
-            let currentPage = 1;
-            let currentFilters = {
-                status: 'all',
-                year: 'all',
-                search: ''
+            const elements = {
+                table: document.getElementById('application-table'),
+                body: document.getElementById('application-body'),
+                loading: document.getElementById('loading-container'),
+                empty: document.getElementById('empty-state'),
+                pending: document.getElementById('pending-count'),
+                approved: document.getElementById('approved-count'),
+                rejected: document.getElementById('rejected-count'),
+                total: document.getElementById('total-count'),
+                statusFilter: document.getElementById('statusFilter'),
+                searchInput: document.getElementById('searchInput'),
+                searchBtn: document.getElementById('searchButton'),
+                refreshBtn: document.getElementById('refreshButton')
             };
-            
-            // Fetch and display applications
-            function fetchApplications() {
+
+            let currentFilter = { status: 'all', search: '' };
+
+            function showLoading() {
+                elements.table.style.display = 'none';
+                elements.empty.style.display = 'none';
+                elements.loading.style.display = 'block';
+            }
+
+            function showTable() {
+                elements.loading.style.display = 'none';
+                elements.empty.style.display = 'none';
+                elements.table.style.display = 'table';
+            }
+
+            function showEmpty() {
+                elements.loading.style.display = 'none';
+                elements.table.style.display = 'none';
+                elements.empty.style.display = 'block';
+            }
+
+            async function fetchData() {
                 showLoading();
-                
-                // Build API URL with filters
-                let apiUrl = '/api/admin/applications?';
-                if (currentFilters.status !== 'all') {
-                    apiUrl += `status=${currentFilters.status}&`;
+                try {
+                    const response = await fetch(`/admin/applications/list?status=${currentFilter.status}&search=${encodeURIComponent(currentFilter.search)}`);
+                    const data = await response.json();
+
+                    if (data.success && data.applications) {
+                        renderTable(data.applications);
+                        updateStats(data.applications);
+                    } else {
+                        showEmpty();
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showEmpty();
                 }
-                if (currentFilters.year !== 'all') {
-                    apiUrl += `academicYear=${currentFilters.year}&`;
-                }
-                if (currentFilters.search) {
-                    apiUrl += `search=${encodeURIComponent(currentFilters.search)}&`;
-                }
-                
-                // Add pagination
-                apiUrl += `page=${currentPage}`;
-                
-                fetch(apiUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            renderApplications(data.applications);
-                            fetchStats();
-                        } else {
-                            showError(data.error || 'Không thể tải dữ liệu.');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching applications:', error);
-                        showError('Lỗi kết nối máy chủ.');
-                    });
             }
-            
-            // Fetch stats
-            function fetchStats() {
-                // Thay đổi từ '/api/admin/applications/stats' thành '/api/admin/applications/statistics'
-                fetch('/api/admin/applications/statistics')
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            renderStats(data.stats);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching stats:', error);
-                    });
-            }
-            
-            // Render applications
-            function renderApplications(applications) {
-                if (!applications || applications.length === 0) {
-                    showEmptyState();
+
+            function renderTable(apps) {
+                if (!apps || apps.length === 0) {
+                    showEmpty();
                     return;
                 }
-                
-                applicationBody.innerHTML = '';
-                
-                applications.forEach(app => {
-                    const tr = document.createElement('tr');
-                    
-                    // Format date
-                    const createdAt = new Date(app.createdAt);
-                    const formattedDate = `${createdAt.getDate()}/${createdAt.getMonth() + 1}/${createdAt.getFullYear()}`;
-                    
-                    // Get status class and text
-                    let statusClass = '';
-                    let statusText = '';
-                    
-                    switch (app.status) {
-                        case 'pending':
-                        case 'pending_review':
-                            statusClass = 'status-pending';
-                            statusText = 'Chờ duyệt';
-                            break;
-                        case 'approved':
-                        case 'approved_waiting_payment':
-                            statusClass = 'status-approved';
-                            statusText = 'Đã duyệt';
-                            break;
-                        case 'rejected':
-                            statusClass = 'status-rejected';
-                            statusText = 'Từ chối';
-                            break;
-                        case 'waitlist':
-                            statusClass = 'status-waitlist';
-                            statusText = 'Chờ phân phòng';
-                            break;
-                        case 'assigned_room':
-                            statusClass = 'status-approved';
-                            statusText = 'Đã phân phòng';
-                            break;
-                        case 'checked_in':
-                            statusClass = 'status-approved';
-                            statusText = 'Đã check-in';
-                            break;
-                        case 'checked_out':
-                            statusClass = 'status-rejected';
-                            statusText = 'Đã check-out';
-                            break;
-                        case 'expired':
-                            statusClass = 'status-rejected';
-                            statusText = 'Hết hạn';
-                            break;
-                        default:
-                            statusClass = 'status-pending';
-                            statusText = 'Không xác định';
+
+                elements.body.innerHTML = apps.map(app => {
+                    const date = new Date(app.createdAt).toLocaleDateString('vi-VN');
+                    let statusClass = 'status-pending';
+                    let statusText = 'Chờ duyệt';
+
+                    if (app.status === 'approved' || app.status === 'approved_waiting_payment') {
+                        statusClass = 'status-approved';
+                        statusText = 'Đã duyệt';
+                    } else if (app.status === 'rejected') {
+                        statusClass = 'status-rejected';
+                        statusText = 'Từ chối';
                     }
                     
-                    tr.innerHTML = `
-                        <td>${app.studentId || '-'}</td>
-                        <td>${app.fullName || '-'}</td>
-                        <td>${app.dormitoryName || '-'}</td>
-                        <td>${app.roomNumber || '-'}</td>
-                        <td>${formattedDate}</td>
-                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="/admin/application/${app._id}" class="btn btn-sm btn-view">
-                                    <i class="fas fa-eye"></i> Xem
-                                </a>
-                                ${app.status === 'pending' || app.status === 'pending_review' ? `
-                                    <button class="btn btn-sm btn-approve approve-btn" data-id="${app._id}">
-                                        <i class="fas fa-check"></i> Duyệt
-                                    </button>
-                                    <button class="btn btn-sm btn-reject reject-btn" data-id="${app._id}">
-                                        <i class="fas fa-times"></i> Từ chối
-                                    </button>
-                                ` : ''}
-                            </div>
-                        </td>
-                    `;
+                    // Priority score display - minimalist & professional
+                    const priorityScore = app.priorityScore;
+                    let priorityHtml = '<span style="color: #999; font-size: 13px;">—</span>';
                     
-                    applicationBody.appendChild(tr);
-                });
-                
-                // Add event listeners to action buttons
-                document.querySelectorAll('.approve-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const applicationId = this.getAttribute('data-id');
-                        approveApplicationId.value = applicationId;
-                        approveModal.show();
-                    });
-                });
-                
-                document.querySelectorAll('.reject-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const applicationId = this.getAttribute('data-id');
-                        rejectApplicationId.value = applicationId;
-                        rejectModal.show();
-                    });
-                });
-                
+                    if (priorityScore !== undefined && priorityScore !== null) {
+                        let color = '#999';
+                        if (priorityScore >= 75) {
+                            color = '#e74c3c';
+                        } else if (priorityScore >= 60) {
+                            color = '#f39c12';
+                        } else if (priorityScore >= 45) {
+                            color = '#3498db';
+                        } else if (priorityScore >= 30) {
+                            color = '#95a5a6';
+                        }
+                        const breakdown = app.priorityBreakdown || {};
+                        const breakdownText = Object.entries(breakdown)
+                            .map(([key, value]) => `${key}: ${value}`)
+                            .join('\\n');
+                        priorityHtml = `<span style="font-size: 16px; font-weight: 600; color: ${color}; cursor: help;" title="${breakdownText}">${priorityScore}%</span>`;
+                    }
+
+                    return `
+                        <tr>
+                            <td><strong>${app.studentId || '-'}</strong></td>
+                            <td>${app.fullName || '-'}</td>
+                            <td>${app.dormitoryName || '-'}</td>
+                            <td>${app.roomNumber || '-'}</td>
+                            <td style="text-align: center;">${priorityHtml}</td>
+                            <td>${date}</td>
+                            <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td style="text-align: center;">
+                                <a href="/admin/application/${app._id}" class="btn btn-sm btn-view" title="Xem chi tiết & duyệt đơn">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
                 showTable();
             }
-            
-            // Render stats
-            function renderStats(stats) {
-                pendingCount.textContent = stats.pending || 0;
-                approvedCount.textContent = stats.approved || 0;
-                rejectedCount.textContent = stats.rejected || 0;
-                totalCount.textContent = stats.total || 0;
+
+            function updateStats(apps) {
+                const pending = apps.filter(a => a.status === 'pending').length;
+                const approved = apps.filter(a => a.status === 'approved').length;
+                const rejected = apps.filter(a => a.status === 'rejected').length;
+
+                elements.pending.textContent = pending;
+                elements.approved.textContent = approved;
+                elements.rejected.textContent = rejected;
+                elements.total.textContent = apps.length;
             }
-            
-            // UI helper functions
-            function showLoading() {
-                applicationTable.style.display = 'none';
-                emptyState.style.display = 'none';
-                loadingContainer.style.display = 'block';
-            }
-            
-            function showTable() {
-                loadingContainer.style.display = 'none';
-                emptyState.style.display = 'none';
-                applicationTable.style.display = 'table';
-            }
-            
-            function showEmptyState() {
-                loadingContainer.style.display = 'none';
-                applicationTable.style.display = 'none';
-                emptyState.style.display = 'block';
-            }
-            
-            function showSuccess(message) {
-                successToastMessage.textContent = message;
-                successToast.show();
-            }
-            
-            function showError(message) {
-                errorToastMessage.textContent = message;
-                errorToast.show();
-            }
-            
-            // Event Listeners
-            searchButton.addEventListener('click', function() {
-                currentPage = 1;
-                currentFilters.status = statusFilter.value;
-                currentFilters.year = yearFilter.value;
-                currentFilters.search = searchInput.value;
-                fetchApplications();
+
+            elements.searchBtn.addEventListener('click', () => {
+                currentFilter.status = elements.statusFilter.value;
+                currentFilter.search = elements.searchInput.value;
+                fetchData();
             });
-            
-            refreshButton.addEventListener('click', function() {
-                fetchApplications();
-            });
-            
-            confirmApproveBtn.addEventListener('click', function() {
-                const applicationId = approveApplicationId.value;
-                
-                fetch('/admin/approve-application', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        applicationId,
-                        action: 'approve'
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showSuccess(data.message || 'Đã duyệt đơn đăng ký thành công!');
-                        fetchApplications(); // Reload data
-                    } else {
-                        showError(data.message || 'Lỗi khi duyệt đơn đăng ký.');
-                    }
-                    approveModal.hide();
-                })
-                .catch(error => {
-                    console.error('Error approving application:', error);
-                    showError('Lỗi kết nối máy chủ.');
-                    approveModal.hide();
-                });
-            });
-            
-            confirmRejectBtn.addEventListener('click', function() {
-                const applicationId = rejectApplicationId.value;
-                const reason = rejectionReason.value;
-                
-                if (!reason.trim()) {
-                    alert('Vui lòng nhập lý do từ chối.');
-                    return;
-                }
-                
-                fetch('/admin/approve-application', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        applicationId,
-                        action: 'reject',
-                        rejectionReason: reason
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        showSuccess(data.message || 'Đã từ chối đơn đăng ký thành công!');
-                        fetchApplications(); // Reload data
-                    } else {
-                        showError(data.message || 'Lỗi khi từ chối đơn đăng ký.');
-                    }
-                    rejectModal.hide();
-                })
-                .catch(error => {
-                    console.error('Error rejecting application:', error);
-                    showError('Lỗi kết nối máy chủ.');
-                    rejectModal.hide();
-                });
-            });
-            
-            // Enter key on search input
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    searchButton.click();
-                }
-            });
-            
+
+            elements.refreshBtn.addEventListener('click', fetchData);
+
             // Initialize
-            fetchApplications();
+            fetchData();
         });
     </script>
 </body>

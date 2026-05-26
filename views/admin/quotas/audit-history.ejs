@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lịch sử thao tác quota</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f8fb; margin: 0; color: #1f2937; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 16px 24px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; gap: 12px; }
+    .toolbar h1 { margin: 0; font-size: 24px; }
+    .filter-bar { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; }
+    select, button { padding: 10px 12px; border-radius: 8px; border: 1px solid #d1d5db; font-size: 14px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-secondary { background: #374151; color: #fff; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid #eef2f7; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; font-size: 13px; color: #4b5563; }
+    .tag { display: inline-block; border-radius: 999px; padding: 4px 8px; font-size: 11px; font-weight: 700; }
+    .tag.CREATE { background: #dcfce7; color: #166534; }
+    .tag.UPDATE { background: #fef3c7; color: #92400e; }
+    .tag.PUBLISH { background: #dbeafe; color: #1e40af; }
+    .tag.FINALIZE { background: #f3e8ff; color: #6b21a8; }
+    details { background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 6px 10px; }
+    summary { cursor: pointer; font-weight: 600; }
+    pre { white-space: pre-wrap; word-break: break-word; font-size: 12px; margin-top: 8px; }
+    .muted { color: #6b7280; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="toolbar">
+      <h1>Lịch sử thao tác quota</h1>
+      <a class="btn btn-secondary" href="/admin/quotas"><i class="fas fa-arrow-left"></i> Quay lại quota</a>
+    </div>
+
+    <form class="filter-bar" method="GET" action="/admin/quotas/audit">
+      <select name="academicYear">
+        <option value="">Tất cả năm học</option>
+        <% (academicYears || []).forEach(function(year){ %>
+          <option value="<%= year %>" <%= selectedAcademicYear === year ? 'selected' : '' %>><%= year %></option>
+        <% }) %>
+      </select>
+
+      <select name="quotaId">
+        <option value="">Tất cả phiên bản quota</option>
+        <% (quotaOptions || []).forEach(function(quota){ %>
+          <option value="<%= quota._id %>" <%= selectedQuotaId === String(quota._id) ? 'selected' : '' %>>
+            <%= quota.academicYear %> - v<%= quota.version %> (<%= quota.isDraft ? 'Nháp' : 'Đã ban hành' %>)
+          </option>
+        <% }) %>
+      </select>
+
+      <button class="btn btn-primary" type="submit"><i class="fas fa-filter"></i> Lọc</button>
+    </form>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Thời gian</th>
+            <th>Hành động</th>
+            <th>Quota</th>
+            <th>Người thay đổi</th>
+            <th>Lý do</th>
+            <th>Trước / Sau</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% const actionLabels = { CREATE: 'Tạo mới', UPDATE: 'Cập nhật', PUBLISH: 'Ban hành', FINALIZE: 'Chốt quota' }; %>
+          <% if (!logs || logs.length === 0) { %>
+            <tr><td colspan="6">Không có bản ghi phù hợp với bộ lọc.</td></tr>
+          <% } %>
+
+          <% (logs || []).forEach(function(log){ %>
+            <tr>
+              <td>
+                <strong><%= new Date(log.timestamp).toLocaleString('vi-VN') %></strong>
+              </td>
+              <td>
+                <span class="tag <%= log.action %>"><%= actionLabels[log.action] || log.action %></span>
+              </td>
+              <td>
+                <% if (log.quotaId) { %>
+                  <strong><%= log.quotaId.academicYear %></strong><br/>
+                  <span class="muted">Phiên bản <%= log.quotaId.version %> - <%= log.quotaId.isDraft ? 'Nháp' : 'Đã ban hành' %></span>
+                <% } else { %>
+                  <span class="muted">N/A</span>
+                <% } %>
+              </td>
+              <td>
+                <%= log.changedBy?.username || log.changedBy?.name || 'Không rõ' %>
+              </td>
+              <td>
+                <%= log.reason || '-' %>
+              </td>
+              <td>
+                <details>
+                  <summary>Xem chi tiết</summary>
+                  <div class="muted">Trước</div>
+                  <pre><%= JSON.stringify(log.before, null, 2) %></pre>
+                  <div class="muted">Sau</div>
+                  <pre><%= JSON.stringify(log.after, null, 2) %></pre>
+                </details>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

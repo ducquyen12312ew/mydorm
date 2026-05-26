@@ -1,0 +1,267 @@
+\documentclass[a4paper,12pt]{report}
+
+% ==================================================
+% ENCODING + LANGUAGE
+% ==================================================
+
+\usepackage[utf8]{inputenc}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+
+% ==================================================
+% FONT
+% ==================================================
+
+\usepackage{times}
+
+% ==================================================
+% PAGE LAYOUT
+% ==================================================
+
+\usepackage[
+left=3cm,
+right=2.5cm,
+top=2.5cm,
+bottom=3cm
+]{geometry}
+
+% ==================================================
+% GRAPHICS
+% ==================================================
+
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% ==================================================
+% SPACING
+% ==================================================
+
+\usepackage{setspace}
+
+\onehalfspacing
+\linespread{1.15}
+
+\setlength{\parindent}{1.2cm}
+\setlength{\parskip}{0em}
+
+% ==================================================
+% TABLE
+% ==================================================
+
+\usepackage{array}
+\usepackage{longtable}
+\renewcommand{\arraystretch}{1.5}
+
+% ==================================================
+% DOCUMENT
+% ==================================================
+
+\begin{document}
+
+% ==================================================
+% TITLE PAGE
+% ==================================================
+
+\begin{titlepage}
+
+\thispagestyle{empty}
+
+% BORDER
+\begin{tikzpicture}[remember picture, overlay]
+\draw[line width=1pt]
+($(current page.north west)+(0.9cm,-0.9cm)$)
+rectangle
+($(current page.south east)+(-0.9cm,0.9cm)$);
+\end{tikzpicture}
+
+\centering
+
+\vspace*{0.35cm}
+
+{\fontsize{15.5pt}{19pt}\selectfont\bfseries
+ĐẠI HỌC BÁCH KHOA HÀ NỘI
+\par}
+
+\vspace{0.18cm}
+
+{\fontsize{14.5pt}{17pt}\selectfont\bfseries
+TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG
+\par}
+
+\vspace{0.9cm}
+
+\includegraphics[width=2.65cm]{image/hust.png}
+
+\vspace{1.0cm}
+
+{\fontsize{25pt}{30pt}\selectfont\bfseries
+ĐỒ ÁN TỐT NGHIỆP
+\par}
+
+\vspace{0.85cm}
+
+% Project title forced to two lines
+{\fontsize{17.5pt}{22pt}\selectfont\bfseries
+\parbox{12.8cm}{\centering Hệ thống quản lý và tiện ích ký túc xá cho sinh viên\\
+tích hợp phân bổ phòng tự động và trực quan hóa không gian}
+\par}
+
+\vspace{0.85cm}
+
+{\fontsize{16.5pt}{20pt}\selectfont\bfseries
+PHAN ĐỨC QUYỀN
+\par}
+
+\vspace{0.08cm}
+
+{\fontsize{12.5pt}{15pt}\selectfont
+quyenn.pd225916@sis.hust.edu.vn
+\par}
+
+\vspace{0.22cm}
+
+{\fontsize{13pt}{16pt}\selectfont
+Chương trình đào tạo: Công nghệ thông tin Việt -- Nhật
+\par}
+
+\vspace{0.85cm}
+
+\begin{flushleft}
+
+\fontsize{12.5pt}{15pt}\selectfont
+
+\begin{tabular}{p{5.6cm}p{8.7cm}}
+
+\textbf{Giảng viên hướng dẫn:}
+&
+PGS. TS. Cao Tuấn Dũng
+\\[7pt]
+
+\textbf{Khoa:}
+&
+Khoa học máy tính
+\\[7pt]
+
+\textbf{Trường:}
+&
+Trường Công nghệ thông tin và Truyền thông
+\\
+
+\end{tabular}
+
+\end{flushleft}
+
+\vspace{0.12cm}
+
+\begin{center}
+
+{\fontsize{13.5pt}{16pt}\selectfont
+HÀ NỘI, 05/2026
+\par}
+
+\end{center}
+
+\end{titlepage}
+
+% LỜI CẢM ƠN
+\cleardoublepage
+\thispagestyle{empty}
+
+\begin{center}
+    {\bfseries\fontsize{18pt}{20pt}\selectfont LỜI CẢM ƠN}
+\end{center}
+
+\vspace{1.5cm}
+
+Sinh viên có thể viết lời cảm ơn tới giảng viên hướng dẫn, gia đình, bạn bè, 
+thầy cô, và các cá nhân đã hỗ trợ trong quá trình thực hiện đồ án. 
+Nội dung nên ngắn gọn, súc tích, tránh liệt kê quá dài dòng, 
+thường trong khoảng 100--150 từ.
+
+\vspace{2cm}
+
+\begin{flushright}
+Sinh viên thực hiện\\
+{\itshape (Ký và ghi rõ họ tên)}
+\end{flushright}
+
+% TÓM TẮT
+\cleardoublepage
+\thispagestyle{empty}
+
+\begin{center}
+    {\bfseries\fontsize{18pt}{20pt}\selectfont TÓM TẮT NỘI DUNG ĐỒ ÁN}
+\end{center}
+
+\vspace{1.5cm}
+
+Sinh viên viết tóm tắt nội dung đồ án của mình trong khoảng 200 đến 350 từ. 
+Theo trình tự, các nội dung tóm tắt cần có:
+(i) Giới thiệu vấn đề;
+(ii) Mục tiêu và phạm vi đề tài;
+(iii) Phương pháp tiếp cận và hướng giải quyết;
+(iv) Kết quả đạt được;
+(v) Ý nghĩa và khả năng ứng dụng của hệ thống.
+
+Sinh viên nên viết thành đoạn văn hoàn chỉnh, không sử dụng gạch đầu dòng.
+
+\vspace{2cm}
+
+\begin{flushright}
+Sinh viên thực hiện\\
+{\itshape (Ký và ghi rõ họ tên)}
+\end{flushright}
+
+% MỤC LỤC
+\cleardoublepage
+\tableofcontents
+
+% DANH MỤC
+\cleardoublepage
+
+\begin{center}
+    {\bfseries\fontsize{18pt}{20pt}\selectfont
+    DANH MỤC KÝ HIỆU VÀ CHỮ VIẾT TẮT}
+\end{center}
+
+\vspace{1cm}
+
+\begin{longtable}{p{3cm} p{5cm} p{6cm}}
+\textbf{Ký hiệu} & \textbf{Tên tiếng Anh} & \textbf{Ý nghĩa tiếng Việt} \\
+
+AI & Artificial Intelligence & Trí tuệ nhân tạo \\
+
+API & Application Programming Interface & Giao diện lập trình ứng dụng \\
+
+\end{longtable}
+
+% PHẦN MỞ ĐẦU
+\cleardoublepage
+
+\chapter*{CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI}
+\addcontentsline{toc}{chapter}{CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI}
+
+% SECTION 1.1
+\section*{1.1 Đặt vấn đề}
+
+Quản lý ký túc xá là một công việc phức tạp mà hầu hết các trường đại học phải đối mặt, đặc biệt là các trường có quy mô lớn với hàng nghìn sinh viên đến từ nhiều khóa học khác nhau. Việc phân bổ phòng ở cho sinh viên không chỉ đơn thuần là gán mỗi sinh viên vào một phòng trống mà còn phải đảm bảo nhiều yêu cầu phức tạp: tôn trọng chính sách ưu tiên của trường, xử lý những sinh viên có hoàn cảnh đặc biệt, cân bằng số lượng sinh viên giữa các khóa học, tuân thủ các quy định về an toàn ký túc xá, và đồng thời duy trì tính công bằng và minh bạch trong toàn bộ quá trình.
+
+Trên thực tế, tại Đại học Bách Khoa Hà Nội (HUST) cũng như tại nhiều trường đại học khác, việc phân bổ phòng ký túc xá hiện nay vẫn được thực hiện thủ công hoặc bằng các công cụ đơn giản như bảng tính. Quy trình này bao gồm nhiều bước: quản lý danh sách sinh viên đăng ký, thu thập thông tin ưu tiên, tính điểm ưu tiên theo quy định, sắp xếp và xếp hạng, sau đó thực hiện phân bổ phòng theo thứ tự ưu tiên, và cuối cùng là kiểm tra kết quả để đảm bảo không vi phạm các ràng buộc. Các bước này không chỉ tốn rất nhiều thời gian mà còn dễ dàng phát sinh lỗi do tính toán sai, sơ sót dữ liệu hoặc việc hiểu nhầm các chính sách. Hơn nữa, vì quá trình xử lý kéo dài, sinh viên không thể biết ngay kết quả của mình hay theo dõi tiến độ phân bổ, dẫn đến sự lo lắng và nhiều câu hỏi liên tục từ sinh viên.
+
+Một vấn đề quan trọng khác là sự thiếu tính minh bạch trong quá trình phân bổ. Sinh viên thường không hiểu rõ vì sao họ được phân bổ vào phòng nào, điểm ưu tiên được tính như thế nào, hay tại sao một số sinh viên khác được ưu tiên hơn. Điều này dẫn đến sự không tin tưởng, tranh cãi, và thậm chí là những khiếu nại hay yêu cầu xem xét lại. Các cán bộ quản lý ký túc xá phải dành nhiều công sức để giải thích và xử lý những tranh chấp này, làm cản trở công việc thực sự của họ.
+
+Thêm vào đó, việc quản lý thông tin về phòng, sinh viên, và các ứng dụng của sinh viên cũng rất phức tạp. Các tài liệu lưu trữ dưới dạng không có cấu trúc, thông tin bị phân tán ở nhiều nơi, khó khăn trong việc tìm kiếm, cập nhật và bảo đảm tính nhất quán. Khi cần thay đổi chính sách hay điều chỉnh phân bổ, phải thực hiện công việc thủ công lặp lại trên toàn bộ dữ liệu, gây ra rủi ro cao.
+
+Ngoài ra, các sinh viên hiện nay mong muốn có khả năng truy cập thông tin từ thiết bị di động, thay vì chỉ qua máy tính để bàn. Họ muốn có thể xem các phòng có sẵn, đọc thông tin chi tiết, xem hình ảnh 360 độ của phòng, gửi đơn đăng ký bất kỳ lúc nào, và nhận được thông báo tức thì về kết quả phân bổ hoặc những cập nhật từ nhà quản lý. Đây là một yêu cầu tự nhiên trong kỷ nguyên di động và yêu cầu hệ thống phải được thiết kế với phương pháp mobile-first.
+
+Tóm lại, các vấn đề chính mà hệ thống quản lý ký túc xá hiện nay đang gặp phải bao gồm: (1) quá trình phân bổ chủ yếu dựa vào thủ công, tốn thời gian và dễ sai sót; (2) thiếu tính minh bạch và công bằng trong suốt quy trình; (3) quản lý dữ liệu không có tổ chức, phân tán và khó bảo trì; (4) không có khả năng mở rộng để xử lý dữ liệu lớn hoặc những thay đổi chính sách nhanh~chóng; (5) thiếu giao diện thân thiện với người dùng, đặc biệt là trên thiết bị di động; và (6) không có cơ chế để sinh viên theo dõi tiến độ hay lấy phản hồi nhanh~chóng.
+
+% SECTION 1.2
+\section*{1.2 Mục tiêu và phạm vi đề tài}
+
+\subsection*{1.2.1 Mục tiêu tổng quát}
+
+Mục tiêu chính của đề tài là xây dựng một hệ thống quản lý ký túc xá thông minh, được thiết kế để tự động hóa toàn bộ quy trình phân bổ phòng, nâng cao tính minh bạch và công bằng, cải thiện trải nghiệm của cả sinh viên và cán bộ quản lý, đồng thời tạo ra một nền tảng có khả năng mở rộng và dễ bảo trì cho các năm học tới.
+
+\end{document}

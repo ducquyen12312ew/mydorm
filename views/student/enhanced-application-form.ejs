@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enhanced Dormitory Application | Priority Ranking System</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
+        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .form-section {
+      padding: 40px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #667eea;
+    }
+
+    .form-group {
+      margin-bottom: 30px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .form-group small {
+      display: block;
+      color: #666;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .form-group input[type="number"],
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+    }
+
+    .form-group input[type="number"]:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* Distance Range Slider */
+    .distance-slider-container {
+      margin-top: 10px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: #e0e0e0;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #667eea;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .distance-display {
+      margin-top: 10px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      text-align: center;
+      font-weight: 600;
+      color: #667eea;
+    }
+
+    /* Financial Tier Cards */
+    .tier-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .tier-card {
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .tier-card:hover {
+      border-color: #667eea;
+      background: #f9f9ff;
+    }
+
+    .tier-card input[type="radio"] {
+      margin-right: 10px;
+    }
+
+    .tier-card.selected {
+      border-color: #667eea;
+      background: #f0f2ff;
+    }
+
+    .tier-card-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+
+    .tier-card-desc {
+      font-size: 12px;
+      color: #666;
+    }
+
+    /* Priority Level Buttons */
+    .priority-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .priority-btn {
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .priority-btn:hover {
+      border-color: #667eea;
+      background: #f9f9ff;
+    }
+
+    .priority-btn input[type="radio"] {
+      display: block;
+      margin: 0 0 8px 0;
+    }
+
+    .priority-btn.selected {
+      border-color: #667eea;
+      background: #667eea;
+      color: white;
+    }
+
+    /* File Upload */
+    .file-upload-area {
+      border: 2px dashed #667eea;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      background: #f9f9ff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+    }
+
+    .file-upload-area:hover {
+      background: #f0f2ff;
+    }
+
+    .file-upload-area.dragover {
+      border-color: #764ba2;
+      background: #f0f2ff;
+    }
+
+    .file-upload-area icon {
+      font-size: 40px;
+      margin-bottom: 10px;
+      display: block;
+      color: #667eea;
+    }
+
+    .file-upload-area input[type="file"] {
+      display: none;
+    }
+
+    .uploaded-files {
+      margin-top: 20px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .file-item {
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .file-item-name {
+      flex: 1;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .file-item-size {
+      color: #999;
+      margin: 0 15px;
+      font-size: 12px;
+    }
+
+    .btn-remove {
+      background: #ff6b6b;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.3s;
+    }
+
+    .btn-remove:hover {
+      background: #ff5252;
+    }
+
+    /* Scoring Preview */
+    .scoring-preview {
+      background: #f0f2ff;
+      border-left: 4px solid #667eea;
+      padding: 20px;
+      border-radius: 6px;
+      margin-bottom: 30px;
+    }
+
+    .score-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .score-item-name {
+      color: #555;
+      font-weight: 500;
+    }
+
+    .score-item-value {
+      color: #667eea;
+      font-weight: 600;
+    }
+
+    .score-total {
+      border-top: 1px solid #e0e0e0;
+      padding-top: 10px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Buttons */
+    .form-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 40px;
+      justify-content: center;
+    }
+
+    button {
+      padding: 14px 30px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 150px;
+    }
+
+    .btn-submit {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-reset {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    .btn-reset:hover {
+      background: #d0d0d0;
+    }
+
+    /* Messages */
+    .info-box {
+      padding: 15px;
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      border-radius: 4px;
+      margin-bottom: 30px;
+      font-size: 13px;
+      color: #1565c0;
+    }
+
+    .success-message {
+      display: none;
+      padding: 20px;
+      background: #4caf50;
+      color: white;
+      border-radius: 6px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .error-message {
+      display: none;
+      padding: 20px;
+      background: #f44336;
+      color: white;
+      border-radius: 6px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .form-section {
+        padding: 20px;
+      }
+
+      .header {
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        font-size: 22px;
+      }
+
+      .priority-buttons,
+      .tier-cards {
+        grid-template-columns: 1fr;
+      }
+
+      .form-actions {
+        flex-direction: column;
+      }
+
+      button {
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎓 Enhanced Dormitory Application</h1>
+      <p>Priority-Based Ranking System - Fair & Transparent Allocation</p>
+    </div>
+
+    <div class="form-section">
+      <div class="info-box">
+        ℹ️ This application uses a transparent ranking system based on distance, financial condition, and priority
+        level. Your ranking will determine allocation fairness. All information is used for fair distribution only.
+      </div>
+
+      <div class="success-message" id="successMessage">
+        ✅ Application submitted successfully! Check your ranking status.
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+
+      <form id="applicationForm" enctype="multipart/form-data">
+        <!-- BASIC INFO SECTION -->
+        <div class="section-title">📋 Basic Information</div>
+
+        <div class="form-group">
+          <label>Academic Year *</label>
+          <select name="academicYear" required>
+            <option value="">Select year...</option>
+            <option value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>">
+              <%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>
+            </option>
+          </select>
+          <small>Choose the academic year for your application</small>
+        </div>
+
+        <!-- DISTANCE SECTION -->
+        <div class="section-title">📍 Distance from Campus</div>
+
+        <div class="form-group">
+          <label>Home Distance from Campus (km) *</label>
+          <small>This affects your ranking score (35% weight)</small>
+
+          <div class="distance-slider-container">
+            <input
+              type="range"
+              name="distance"
+              min="0"
+              max="1000"
+              value="250"
+              oninput="updateDistanceDisplay(this.value)"
+              required
+            />
+          </div>
+
+          <div class="distance-display" id="distanceDisplay">
+            250 km - <span id="distanceDesc">Moderate distance</span>
+          </div>
+        </div>
+
+        <!-- FINANCIAL SECTION -->
+        <div class="section-title">💰 Financial Condition</div>
+
+        <div class="form-group">
+          <label>Financial Situation *</label>
+          <small>Select your financial condition (35% weight in ranking)</small>
+
+          <div class="tier-cards" id="financialTiers">
+            <% financialTiers.forEach(tier => { %>
+              <label class="tier-card">
+                <input type="radio" name="financialCondition" value="<%= tier.value %>" />
+                <div class="tier-card-title"><%= tier.label %></div>
+                <div class="tier-card-desc"><%= tier.description %></div>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+
+        <!-- PRIORITY SECTION -->
+        <div class="section-title">⭐ Priority Level</div>
+
+        <div class="form-group">
+          <label>Priority Category *</label>
+          <small>Choose category that applies to you (30% weight)</small>
+
+          <div class="priority-buttons">
+            <% priorityLevels.forEach(level => { %>
+              <label class="priority-btn">
+                <input type="radio" name="priorityLevel" value="<%= level.value %>" />
+                <strong><%= level.label %></strong>
+                <div style="font-size: 11px; margin-top: 5px;"><%= level.description %></div>
+              </label>
+            <% }); %>
+          </div>
+        </div>
+
+        <!-- REASON FOR PRIORITY -->
+        <div class="form-group">
+          <label>Why do you need priority? *</label>
+          <textarea
+            name="priorityReason"
+            placeholder="Explain your circumstances (orphan, financial hardship, medical, etc.)..."
+            required
+          ></textarea>
+          <small>This helps us understand your situation better</small>
+        </div>
+
+        <!-- SPECIAL NEEDS -->
+        <div class="form-group">
+          <label>Special Needs (if any)</label>
+          <textarea
+            name="specialNeeds"
+            placeholder="Wheelchair access, medical equipment, service animal, etc..."
+          ></textarea>
+          <small>Tell us about any accommodations you need</small>
+        </div>
+
+        <!-- PREFERENCES -->
+        <div class="section-title">🏢 Building Preferences</div>
+
+        <div class="form-group">
+          <label>Preferred Buildings</label>
+          <select name="preferredBuildings" multiple>
+            <option value="A">Building A - Main Campus</option>
+            <option value="B">Building B - South Wing</option>
+            <option value="C">Building C - North Campus</option>
+            <option value="D">Building D - East Complex</option>
+          </select>
+          <small>Hold Ctrl/Cmd to select multiple buildings (optional)</small>
+        </div>
+
+        <!-- FILE UPLOAD -->
+        <div class="section-title">📄 Supporting Documents</div>
+
+        <div class="form-group">
+          <label>Upload supporting documents *</label>
+          <small>PDF, Word, Excel, Images, Videos (up to 50MB per file)</small>
+
+          <div class="file-upload-area" id="fileUploadArea">
+            <div style="font-size: 30px;">📁</div>
+            <strong>Drag & drop files here</strong>
+            <p style="font-size: 12px; color: #999; margin-top: 5px;">or click to browse</p>
+            <input type="file" id="fileInput" name="attachments" multiple />
+          </div>
+
+          <div class="uploaded-files" id="uploadedFiles"></div>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="scoring-preview" id="scoringPreview" style="display: none;">
+          <strong>Score Preview</strong>
+          <div class="score-item">
+            <span class="score-item-name">Distance Score:</span>
+            <span class="score-item-value" id="previewDistanceScore">0</span>
+          </div>
+          <div class="score-item">
+            <span class="score-item-name">Financial Score:</span>
+            <span class="score-item-value" id="previewFinancialScore">0</span>
+          </div>
+          <div class="score-item">
+            <span class="score-item-name">Priority Score:</span>
+            <span class="score-item-value" id="previewPriorityScore">0</span>
+          </div>
+          <div class="score-total">
+            <span>Total Score:</span>
+            <span id="previewTotalScore">0</span>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" id="submitBtn">📤 Submit Application</button>
+          <button type="reset" class="btn-reset">🔄 Clear Form</button>
+        </div>
+
+        <div class="loading" id="loading">
+          <div class="spinner"></div>
+          <p>Processing your application...</p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const distanceRanges = <%- JSON.stringify(distanceRanges) %>;
+
+    function updateDistanceDisplay(value) {
+      const range = distanceRanges.find(r => r.value >= parseInt(value)) || distanceRanges[distanceRanges.length - 1];
+      document.getElementById('distanceDisplay').innerHTML = `${value} km - <span id="distanceDesc">${range.label}</span>`;
+      updateScoringPreview();
+    }
+
+    function calculateDistanceScore(distance) {
+      distance = parseInt(distance);
+      if (distance <= 0) return 10;
+      if (distance <= 50) return Math.round(10 + (distance / 50) * 20);
+      if (distance <= 100) return Math.round(30 + ((distance - 50) / 50) * 20);
+      if (distance <= 300) return Math.round(50 + ((distance - 100) / 200) * 20);
+      if (distance <= 500) return Math.round(70 + ((distance - 300) / 200) * 15);
+      return 100;
+    }
+
+    function calculateFinancialScore(tier) {
+      const scores = { '1': 100, '2': 75, '3': 50, '4': 20 };
+      return scores[tier] || 0;
+    }
+
+    function calculatePriorityScore(level) {
+      const scores = { 'SPECIAL': 100, 'HIGH': 75, 'MEDIUM': 50, 'LOW': 25 };
+      return scores[level] || 0;
+    }
+
+    function updateScoringPreview() {
+      const distance = document.querySelector('input[name="distance"]')?.value || 0;
+      const financial = document.querySelector('input[name="financialCondition"]:checked')?.value || 0;
+      const priority = document.querySelector('input[name="priorityLevel"]:checked')?.value || 0;
+
+      if (financial && priority) {
+        const dScore = calculateDistanceScore(distance);
+        const fScore = calculateFinancialScore(financial);
+        const pScore = calculatePriorityScore(priority);
+        const total = Math.round((dScore * 0.35 + fScore * 0.35 + pScore * 0.3));
+
+        document.getElementById('previewDistanceScore').textContent = dScore;
+        document.getElementById('previewFinancialScore').textContent = fScore;
+        document.getElementById('previewPriorityScore').textContent = pScore;
+        document.getElementById('previewTotalScore').textContent = total;
+        document.getElementById('scoringPreview').style.display = 'block';
+      }
+    }
+
+    // File upload
+    const fileUploadArea = document.getElementById('fileUploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const uploadedFilesDiv = document.getElementById('uploadedFiles');
+
+    fileUploadArea.addEventListener('click', () => fileInput.click());
+    fileUploadArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      fileUploadArea.classList.add('dragover');
+    });
+
+    fileUploadArea.addEventListener('dragleave', () => {
+      fileUploadArea.classList.remove('dragover');
+    });
+
+    fileUploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      fileUploadArea.classList.remove('dragover');
+      fileInput.files = e.dataTransfer.files;
+      displayFiles();
+    });
+
+    fileInput.addEventListener('change', displayFiles);
+
+    function displayFiles() {
+      uploadedFilesDiv.innerHTML = '';
+      Array.from(fileInput.files).forEach((file, index) => {
+        const size = (file.size / (1024 * 1024)).toFixed(2);
+        const fileItem = document.createElement('div');
+        fileItem.className = 'file-item';
+        fileItem.innerHTML = `
+          <span class="file-item-name">📎 ${file.name}</span>
+          <span class="file-item-size">${size} MB</span>
+          <button type="button" class="btn-remove" onclick="removeFile(${index})">Remove</button>
+        `;
+        uploadedFilesDiv.appendChild(fileItem);
+      });
+    }
+
+    function removeFile(index) {
+      const dt = new DataTransfer();
+      Array.from(fileInput.files).forEach((file, i) => {
+        if (i !== index) dt.items.add(file);
+      });
+      fileInput.files = dt.files;
+      displayFiles();
+    }
+
+    // Form submission
+    document.getElementById('applicationForm').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const loading = document.getElementById('loading');
+      const successMsg = document.getElementById('successMessage');
+      const errorMsg = document.getElementById('errorMessage');
+
+      submitBtn.disabled = true;
+      loading.style.display = 'block';
+
+      try {
+        const formData = new FormData(document.getElementById('applicationForm'));
+
+        const response = await fetch('/api/allocation/student/enhanced-application', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          successMsg.textContent = `✅ ${data.message} Your score: ${data.ranking.score.toFixed(1)}`;
+          successMsg.style.display = 'block';
+          document.getElementById('applicationForm').reset();
+          setTimeout(() => {
+            window.location.href = '/student/my-ranking';
+          }, 2000);
+        } else {
+          errorMsg.textContent = `❌ ${data.error}`;
+          errorMsg.style.display = 'block';
+        }
+      } catch (error) {
+        errorMsg.textContent = `❌ Error: ${error.message}`;
+        errorMsg.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        loading.style.display = 'none';
+      }
+    });
+
+    // Update preview on form changes
+    document.querySelectorAll('input, select, textarea').forEach(field => {
+      field.addEventListener('change', updateScoringPreview);
+    });
+  </script>
+</body>
+</html>

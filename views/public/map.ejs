@@ -280,6 +280,150 @@
             margin: 3px 0;
             transition: all 0.3s;
         }
+
+        /* Room Modal */
+        .room-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .room-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .room-modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 900px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        .room-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 1rem;
+        }
+
+        .room-modal-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+        }
+
+        .room-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .room-modal-close:hover {
+            color: var(--primary-color);
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .room-card-modal {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .room-card-modal:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.2);
+        }
+
+        .room-card-modal-image {
+            width: 100%;
+            height: 150px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #ddd;
+        }
+
+        .room-card-modal-info {
+            padding: 1rem;
+        }
+
+        .room-card-modal-number {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .room-card-modal-status {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-available {
+            background-color: #d4f1d4;
+            color: #28a745;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-full {
+            background-color: #f8d7da;
+            color: #dc3545;
+        }
+
+        .room-card-modal-capacity {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background-color: white;
+            margin: 3px 0;
+            transition: all 0.3s;
+        }
         
 
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@700&display=swap');
@@ -301,311 +445,237 @@
             color: #FF6B6B;
             line-height: 1.2;
         }
-        /* CSS cho Swiper và tính năng hover để chuyển slide */
-        .showcase {
+        /* === 3D STACKED CAROUSEL === */
+        .carousel-section {
+            padding: 80px 20px 50px;
+            background: linear-gradient(135deg, #f8f3ef 0%, #f0e8e0 100%);
             position: relative;
-            height: 85vh;
             overflow: hidden;
-            background-color: #f5f5f5;
         }
-        
-        .showcase-background {
+
+        .carousel-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            height: 520px;
+            perspective: 1200px;
+        }
+
+        .carousel-track {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide {
             position: absolute;
-            top: 0;
+            width: 100%;
+            height: 100%;
             left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0;
             background-size: cover;
             background-position: center;
-            filter: blur(10px);
-            opacity: 0.3;
-            z-index: 1;
-            transition: background-image 0.5s ease;
-        }
-        
-        /* Property slider styling */
-        .property-slider {
-            position: relative;
-            height: 100%;
-            z-index: 10;
-        }
-        
-        .slider-container {
-            position: relative;
-            height: 100%;
-            width: 100%;
+            border-radius: 16px;
             overflow: hidden;
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            opacity: 0;
+            transform: scale(0.7) translateY(40px);
+            z-index: 1;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
         }
-        
-        .slider-wrapper {
-            display: flex;
-            height: 100%;
-            transition: transform 0.5s ease;
+
+        /* Center (Active) slide */
+        .carousel-slide.active {
+            opacity: 1;
+            transform: scale(1) translateY(0) translateX(0);
+            z-index: 10;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
         }
-        
-        .slide {
-            flex: 0 0 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            position: relative;
+
+        .carousel-slide.active::after {
+            opacity: 0.3;
         }
-        
-        /* Navigation controls - updated for better interaction */
-        .slider-nav {
+
+        /* Slides behind (stack effect) */
+        .carousel-slide.stack-1 {
+            opacity: 0.7;
+            transform: scale(0.88) translateY(25px) translateX(0);
+            z-index: 9;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-slide.stack-2 {
+            opacity: 0.5;
+            transform: scale(0.76) translateY(50px) translateX(0);
+            z-index: 8;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Overlay gradient & caption */
+        .carousel-slide::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 40%, rgba(0, 0, 0, 0.6) 100%);
+            opacity: 0.5;
+            transition: opacity 0.6s ease;
+        }
+
+        .carousel-slide-title {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 40px;
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            z-index: 5;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .carousel-slide.active:hover .carousel-slide-title {
+            transform: translateY(-5px);
+            transition: transform 0.3s ease;
+        }
+
+        /* Navigation buttons */
+        .carousel-nav {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
             width: 50px;
             height: 50px;
-            background-color: rgba(230, 26, 26, 0.8);
-            border: none;
             border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            color: white;
             z-index: 20;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
-        
-        .slider-nav:hover {
-            background-color: rgba(230, 26, 26, 1);
+
+        .carousel-nav:hover {
+            background: rgba(230, 26, 26, 0.7);
+            border-color: rgba(230, 26, 26, 0.8);
             transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 8px 25px rgba(230, 26, 26, 0.4);
         }
-        
-        .slider-nav:active {
+
+        .carousel-nav:active {
             transform: translateY(-50%) scale(0.95);
         }
-        
-        .slider-nav-prev {
+
+        .carousel-nav-prev {
             left: 30px;
         }
-        
-        .slider-nav-next {
+
+        .carousel-nav-next {
             right: 30px;
         }
-        
-        /* Property info card */
-        .property-info-card {
+
+        /* Pagination dots */
+        .carousel-pagination {
             position: absolute;
-            bottom: 50px;
-            left: 50px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            padding: 25px;
-            max-width: 450px;
-            z-index: 20;
-            backdrop-filter: blur(5px);
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-        
-        .property-info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        }
-        
-        .property-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            color: #e61a1a;
-        }
-        
-        .property-address {
-            font-size: 16px;
-            color: #666;
-            margin: 0 0 20px 0;
-        }
-        
-        /* Property details styling */
-        .property-details {
-            margin-bottom: 20px;
-        }
-        
-        .detail-item {
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .detail-item i {
-            font-size: 18px;
-            color: #e61a1a;
-            margin-right: 15px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .detail-content {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .detail-label {
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .detail-value {
-            color: #333;
-        }
-        
-        /* Amenities styling */
-        .property-amenities {
-            display: flex;
-            flex-wrap: wrap;
             gap: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .amenity-tag {
-            background-color: #f0f0f0;
-            color: #555;
-            font-size: 13px;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-        
-        /* Register button */
-        .register-button {
-            display: inline-block;
-            background-color: #e61a1a;
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
-        }
-        
-        .register-button:hover {
-            background-color: #c01616;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(230, 26, 26, 0.4);
-            color: white;
-        }
-        
-        /* Pagination */
-        .slider-pagination {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
+            align-items: center;
             z-index: 20;
         }
-        
-        .pagination-dot {
-            width: 12px;
-            height: 12px;
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.6);
+            background: rgba(255, 255, 255, 0.4);
+            border: none;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            outline: none;
         }
-        
-        .pagination-dot.active {
-            background-color: #e61a1a;
+
+        .carousel-dot:hover {
+            background: rgba(255, 255, 255, 0.6);
             transform: scale(1.2);
         }
-        
-        /* Responsive adjustments */
+
+        .carousel-dot.active {
+            width: 28px;
+            border-radius: 5px;
+            background: #e61a1a;
+            box-shadow: 0 4px 15px rgba(230, 26, 26, 0.5);
+        }
+
         @media (max-width: 768px) {
-            .property-info-card {
-                left: 20px;
-                right: 20px;
-                bottom: 20px;
-                max-width: calc(100% - 40px);
+            .carousel-container {
+                height: 380px;
             }
-            
-            .slider-nav {
-                width: 40px;
-                height: 40px;
+
+            .carousel-nav {
+                width: 42px;
+                height: 42px;
                 font-size: 16px;
             }
-            
-            .property-title {
+
+            .carousel-nav-prev {
+                left: 15px;
+            }
+
+            .carousel-nav-next {
+                right: 15px;
+            }
+
+            .carousel-slide-title {
                 font-size: 22px;
+                padding: 20px 30px;
             }
         }
 
-/* Responsive */
-@media (max-width: 992px) {
-    .swiper-slide {
-        width: 70%;
-    }
-    
-    .slide-title {
-        font-size: 2.5rem;
-    }
-}
+        @media (max-width: 576px) {
+            .carousel-section {
+                padding: 60px 15px 40px;
+            }
 
-@media (max-width: 768px) {
-    .swiper-slide {
-        width: 85%;
-    }
-    
-    .slide-title {
-        font-size: 2rem;
-    }
-    
-    .slide-features li {
-        font-size: 0.9rem;
-    }
-    
-    .navigation-arrow {
-        font-size: 2rem;
-        width: 40px;
-        height: 40px;
-    }
-}
+            .carousel-container {
+                height: 300px;
+            }
 
-@media (max-width: 576px) {
-    .swiper-slide {
-        width: 95%;
-    }
-    
-    .slide-title {
-        font-size: 1.8rem;
-    }
-    
-    .slide-subtitle {
-        font-size: 1rem;
-    }
-    
-    .slide-features {
-        margin-bottom: 1rem;
-    }
-    
-    .slide-features li {
-        font-size: 0.8rem;
-    }
-    
-    .slide-cta {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.9rem;
-    }
-    
-    .navigation-arrow {
-        font-size: 1.5rem;
-        width: 30px;
-        height: 30px;
-    }
-}
+            .carousel-nav {
+                width: 38px;
+                height: 38px;
+                font-size: 14px;
+            }
+
+            .carousel-slide-title {
+                font-size: 18px;
+                padding: 15px 20px;
+            }
+
+            .carousel-pagination {
+                bottom: 20px;
+                gap: 6px;
+            }
+
+            .carousel-dot {
+                width: 8px;
+                height: 8px;
+            }
+
+            .carousel-dot.active {
+                width: 20px;
+            }
+        }
         
         /* Map section */
         #map-section {
@@ -1025,73 +1095,24 @@
         </div>
     </header>
 
-    <!-- Showcase section -->
-
-    <section class="showcase">
-        <!-- Background element -->
-        <div class="showcase-background"></div>
-        
-        <!-- Main slider container -->
-        <div class="property-slider">
-            <div class="slider-container">
-                <!-- Slides will be populated dynamically from database -->
-                <div class="slider-wrapper" id="sliderWrapper">
-                    <!-- Slides will be inserted here via JavaScript -->
-                </div>
-                
-                <!-- Navigation arrows with improved visibility and interaction -->
-                <button class="slider-nav slider-nav-prev" id="prevSlideBtn">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                <button class="slider-nav slider-nav-next" id="nextSlideBtn">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
-                
-                <!-- Info card overlay -->
-                <div class="property-info-card">
-                    <div class="property-info-content">
-                        <h2 class="property-title" id="propertyTitle"></h2>
-                        <p class="property-address" id="propertyAddress"></p>
-                        
-                        <div class="property-details">
-                            <div class="detail-item">
-                                <i class="fas fa-money-bill-wave"></i>
-                                <div class="detail-content">
-                                    <div class="detail-label">Giá phòng:</div>
-                                    <div class="detail-value" id="propertyPrice"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <i class="fas fa-building"></i>
-                                <div class="detail-content">
-                                    <div class="detail-label">Loại khu:</div>
-                                    <div class="detail-value" id="propertyCategory"></div>
-                                </div>
-                            </div>
-                            
-                            <div class="detail-item">
-                                <i class="fas fa-users"></i>
-                                <div class="detail-content">
-                                    <div class="detail-label">Sức chứa:</div>
-                                    <div class="detail-value" id="propertyCapacity"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="property-amenities" id="propertyAmenities">
-                            <!-- Amenities will be populated here -->
-                        </div>
-                        
-                        <a href="#" class="register-button" id="registerButton">
-                            <i class="fas fa-sign-in-alt"></i> Đăng ký ngay
-                        </a>
-                    </div>
-                </div>
-                
-                <!-- Pagination dots -->
-                <div class="slider-pagination" id="sliderPagination"></div>
+    <!-- 3D Stacked Carousel Section -->
+    <section class="carousel-section">
+        <div class="carousel-container">
+            <!-- Carousel track -->
+            <div class="carousel-track" id="carouselTrack">
+                <!-- Slides will be generated by JS -->
             </div>
+
+            <!-- Navigation buttons -->
+            <button class="carousel-nav carousel-nav-prev" id="carouselPrevBtn" aria-label="Ảnh trước">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="carousel-nav carousel-nav-next" id="carouselNextBtn" aria-label="Ảnh sau">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+
+            <!-- Pagination dots -->
+            <div class="carousel-pagination" id="carouselPagination"></div>
         </div>
     </section>
 
@@ -1311,107 +1332,148 @@ function initializeMap() {
     setupSearchInput();
 }
 
-// Hàm lấy dữ liệu ký túc xá nổi bật cho slideshow
+// Hàm lấy dữ liệu ký túc xá nổi bật cho carousel
 function fetchFeaturedDormitories() {
-    fetch('/api/map-data')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(dormitories => {
-            if (dormitories && dormitories.length > 0) {
-                // Tạo slides từ dữ liệu
-                createSlidesFromDormitories(dormitories);
-                
-                // Khởi tạo slideshow
-                initializeSlideshow();
-            } else {
-                console.log("Không có dữ liệu ký túc xá để hiển thị trong slideshow");
-            }
-        })
-        .catch(error => {
-            console.error('Error fetching featured dormitories:', error);
-        });
+    // Dữ liệu slides mặc định (room types)
+    const defaultSlides = [
+        {
+            name: 'Phòng Đơn',
+            description: 'Phòng tiêu chuẩn cho 1 sinh viên',
+            image: '/image/camp1.png'
+        },
+        {
+            name: 'Phòng Đôi',
+            description: 'Phòng tiêu chuẩn cho 2 sinh viên',
+            image: '/image/camp1.png'
+        },
+        {
+            name: 'Phòng VIP',
+            description: 'Phòng cao cấp với tiện nghi đầy đủ',
+            image: '/image/camp1.png'
+        },
+        {
+            name: 'Khu Sinh Hoạt Chung',
+            description: 'Không gian chung để sinh viên giao lưu',
+            image: '/image/camp1.png'
+        },
+        {
+            name: 'Nhà Ăn',
+            description: 'Cơ sở ăn uống chất lượng cho sinh viên',
+            image: '/image/camp1.png'
+        }
+    ];
+    
+    initializeCarousel(defaultSlides);
 }
 
-// Hàm tạo slides từ dữ liệu ký túc xá
-function createSlidesFromDormitories(dormitories) {
-    const slidesWrapper = document.querySelector('.swiper-wrapper');
+// Khởi tạo carousel 3D stacked
+function initializeCarousel(slides) {
+    const carouselTrack = document.getElementById('carouselTrack');
+    const carouselPagination = document.getElementById('carouselPagination');
     
-    if (!slidesWrapper) {
-        console.error("Không tìm thấy phần tử swiper-wrapper");
+    if (!carouselTrack || !carouselPagination) {
+        console.error('Carousel elements not found');
         return;
     }
     
-    // Xóa tất cả slides hiện tại
-    slidesWrapper.innerHTML = '';
+    // Xóa nội dung cũ
+    carouselTrack.innerHTML = '';
+    carouselPagination.innerHTML = '';
     
-    // Tạo slide mới cho mỗi ký túc xá
-    dormitories.forEach(dorm => {
-        const slide = document.createElement('div');
-        slide.className = 'swiper-slide';
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+    
+    // Tạo slides
+    slides.forEach((slide, index) => {
+        const slideEl = document.createElement('div');
+        slideEl.className = 'carousel-slide' + (index === 0 ? ' active' : '');
+        slideEl.style.backgroundImage = `url('${slide.image}')`;
+        slideEl.innerHTML = `<div class="carousel-slide-title">${slide.name}</div>`;
+        slideEl.setAttribute('data-index', index);
+        carouselTrack.appendChild(slideEl);
+    });
+    
+    // Tạo pagination dots
+    slides.forEach((slide, index) => {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (index === 0 ? ' active' : '');
+        dot.setAttribute('data-index', index);
+        dot.addEventListener('click', () => goToSlide(index));
+        carouselPagination.appendChild(dot);
+    });
+    
+    // Cập nhật carousel position
+    function updateCarouselPosition() {
+        const slideEls = carouselTrack.querySelectorAll('.carousel-slide');
+        const dots = carouselPagination.querySelectorAll('.carousel-dot');
         
-        // Lấy hình ảnh từ dữ liệu hoặc dùng ảnh mặc định
-        const backgroundImage = dorm.imageUrl || '/image/camp1.png';
-        slide.style.backgroundImage = `url('${backgroundImage}')`;
-        
-        // Lấy thông tin phân loại
-        let categoryText = "Khu tiêu chuẩn";
-        let roomTypeText = "Phòng tiêu chuẩn";
-        
-        if (dorm.details) {
-            // Phân loại khu
-            if (dorm.details.category) {
-                switch(dorm.details.category) {
-                    case 'basic': categoryText = 'Khu cơ bản'; break;
-                    case 'premium': categoryText = 'Khu cao cấp'; break;
-                    case 'international': categoryText = 'Khu du học sinh'; break;
-                }
-            }
+        slideEls.forEach((el, index) => {
+            el.classList.remove('active', 'stack-1', 'stack-2');
             
-            // Loại phòng
-            if (dorm.details.roomType) {
-                switch(dorm.details.roomType) {
-                    case '8-person': roomTypeText = 'Phòng 8 sinh viên'; break;
-                    case '4-person-service': roomTypeText = 'Phòng dịch vụ 4 sinh viên'; break;
-                    case '5-person': roomTypeText = 'Phòng 5 sinh viên'; break;
-                    case '10-person': roomTypeText = 'Phòng 10 sinh viên'; break;
-                }
+            const offset = (index - currentIndex + totalSlides) % totalSlides;
+            
+            if (offset === 0) {
+                el.classList.add('active');
+            } else if (offset === 1) {
+                el.classList.add('stack-1');
+            } else if (offset === 2) {
+                el.classList.add('stack-2');
             }
+        });
+        
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === currentIndex);
+        });
+    }
+    
+    // Hàm chuyển đến slide
+    function goToSlide(index) {
+        currentIndex = index;
+        updateCarouselPosition();
+    }
+    
+    // Hàm chuyển slide
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalSlides;
+        updateCarouselPosition();
+    }
+    
+    function prevSlide() {
+        currentIndex = (currentIndex - 1 + totalSlides) % totalSlides;
+        updateCarouselPosition();
+    }
+    
+    // Gắn sự kiện cho nút điều hướng
+    const prevBtn = document.getElementById('carouselPrevBtn');
+    const nextBtn = document.getElementById('carouselNextBtn');
+    
+    if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+    if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+    
+    // Auto play
+    let autoPlayInterval = setInterval(nextSlide, 5000);
+    
+    // Dừng auto play khi hover
+    carouselTrack.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+    carouselTrack.addEventListener('mouseleave', () => {
+        autoPlayInterval = setInterval(nextSlide, 5000);
+    });
+    
+    // Swipe support cho mobile
+    let touchStartX = 0;
+    let touchEndX = 0;
+    
+    carouselTrack.addEventListener('touchstart', e => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    carouselTrack.addEventListener('touchend', e => {
+        touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) {
+            nextSlide();
+        } else if (touchEndX - touchStartX > 50) {
+            prevSlide();
         }
-        
-        // Tạo danh sách tiện ích (tối đa 3 mục)
-        let amenitiesHTML = '';
-        if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
-            const amenities = dorm.details.amenities.slice(0, 3);
-            amenitiesHTML = amenities.map(amenity => `<li>${amenity}</li>`).join('');
-        } else {
-            amenitiesHTML = '<li>Chưa có thông tin tiện ích</li>';
-        }
-        
-        // Tạo thông tin giá
-        let priceText = '';
-        if (dorm.details && dorm.details.priceRange) {
-        }
-        
-        // Tạo nội dung HTML cho slide
-        slide.innerHTML = `
-            <div class="slide-overlay">
-                <h2 class="slide-title">${dorm.name}</h2>
-                <p class="slide-subtitle">${categoryText} - ${roomTypeText}</p>
-                <ul class="slide-features">
-                    ${dorm.details && dorm.details.capacity ? 
-                      `<li>Sức chứa ${dorm.details.capacity} sinh viên</li>` : ''}
-                    ${amenitiesHTML}
-                </ul>
-                <a href="#" class="slide-cta" onclick="registerDorm('${dorm._id}')">ĐĂNG KÝ NGAY</a>
-                <div class="price-tag">${priceText}</div>
-            </div>
-        `;
-        
-        slidesWrapper.appendChild(slide);
     });
 }
 
@@ -1635,9 +1697,13 @@ function fetchDormitories() {
             }
             return response.json();
         })
-        .then(dormitories => {
+        .then(data => {
+            console.log('[DEBUG] Map data received:', data);
+            const dormitories = data.success ? data.dormitories : [];
             if (dormitories && dormitories.length > 0) {
                 addDormsToMap(dormitories);
+            } else {
+                console.warn('[WARN] No dormitories to display on map');
             }
         })
         .catch(error => {
@@ -1802,479 +1868,117 @@ function showDirections(lat, lng) {
 
     </script>
     
-    <style>
-        /* Showcase section styling */
-        .showcase {
-            position: relative;
-            height: 85vh;
-            overflow: hidden;
-            background-color: #f5f5f5;
-        }
-        
-        .showcase-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            filter: blur(10px);
-            opacity: 0.3;
-            z-index: 1;
-            transition: background-image 0.5s ease;
-        }
-        
-        /* Property slider styling */
-        .property-slider {
-            position: relative;
-            height: 100%;
-            z-index: 10;
-        }
-        
-        .slider-container {
-            position: relative;
-            height: 100%;
-            width: 100%;
-            overflow: hidden;
-        }
-        
-        .slider-wrapper {
-            display: flex;
-            height: 100%;
-            transition: transform 0.5s ease;
-        }
-        
-        .slide {
-            flex: 0 0 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-        }
-        
-        /* Navigation controls - updated for better interaction */
-        .slider-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 50px;
-            height: 50px;
-            background-color: rgba(230, 26, 26, 0.8);
-            border: none;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 20px;
-            color: white;
-            z-index: 20;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .slider-nav:hover {
-            background-color: rgba(230, 26, 26, 1);
-            transform: translateY(-50%) scale(1.1);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        
-        .slider-nav:active {
-            transform: translateY(-50%) scale(0.95);
-        }
-        
-        .slider-nav-prev {
-            left: 30px;
-        }
-        
-        .slider-nav-next {
-            right: 30px;
-        }
-        
-        /* Property info card */
-        .property-info-card {
-            position: absolute;
-            bottom: 50px;
-            left: 50px;
-            background-color: rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-            padding: 25px;
-            max-width: 450px;
-            z-index: 20;
-            backdrop-filter: blur(5px);
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-        
-        .property-info-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-        }
-        
-        .property-title {
-            font-size: 26px;
-            font-weight: 700;
-            margin: 0 0 5px 0;
-            color: #e61a1a;
-        }
-        
-        .property-address {
-            font-size: 16px;
-            color: #666;
-            margin: 0 0 20px 0;
-        }
-        
-        /* Property details styling */
-        .property-details {
-            margin-bottom: 20px;
-        }
-        
-        .detail-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        
-        .detail-item i {
-            font-size: 18px;
-            color: #e61a1a;
-            margin-right: 15px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .detail-content {
-            flex: 1;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .detail-label {
-            font-weight: 600;
-            color: #555;
-        }
-        
-        .detail-value {
-            color: #333;
-        }
-        
-        /* Amenities styling */
-        .property-amenities {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .amenity-tag {
-            background-color: #f0f0f0;
-            color: #555;
-            font-size: 13px;
-            padding: 4px 10px;
-            border-radius: 20px;
-        }
-        
-        /* Register button */
-        .register-button {
-            display: inline-block;
-            background-color: #e61a1a;
-            color: white;
-            text-decoration: none;
-            padding: 12px 25px;
-            border-radius: 30px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 5px 15px rgba(230, 26, 26, 0.3);
-        }
-        
-        .register-button:hover {
-            background-color: #c01616;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(230, 26, 26, 0.4);
-            color: white;
-        }
-        
-        /* Pagination */
-        .slider-pagination {
-            position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            z-index: 20;
-        }
-        
-        .pagination-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-        
-        .pagination-dot.active {
-            background-color: #e61a1a;
-            transform: scale(1.2);
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .property-info-card {
-                left: 20px;
-                right: 20px;
-                bottom: 20px;
-                max-width: calc(100% - 40px);
-            }
-            
-            .slider-nav {
-                width: 40px;
-                height: 40px;
-                font-size: 16px;
-            }
-            
-            .property-title {
-                font-size: 22px;
-            }
-        }
-    </style>
-    
     <script>
+        // Khởi tạo carousel khi DOM đã sẵn sàng
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize the dormitory slider
-            initializeDormitorySlider();
-            
-            // Add direct event listeners to navigation buttons
-            document.getElementById('prevSlideBtn').addEventListener('click', function() {
-                navigateSlide('prev');
-            });
-            
-            document.getElementById('nextSlideBtn').addEventListener('click', function() {
-                navigateSlide('next');
-            });
+            fetchFeaturedDormitories();
         });
-        
-        let currentSlideIndex = 0;
-        let dormitoryData = [];
-        
-        // Navigation function
-        function navigateSlide(direction) {
-            if (direction === 'prev') {
-                goToSlide(currentSlideIndex - 1);
-            } else {
-                goToSlide(currentSlideIndex + 1);
-            }
-        }
-        
-        function initializeDormitorySlider() {
-            console.log("Initializing dormitory slider...");
+
+        // Room Modal Functions
+        function showRoomModal(dormId) {
+            console.log('[DEBUG] Opening room modal for dorm:', dormId);
             
-            // Fetch dormitory data from API
-            fetch('/api/map-data')
-                .then(response => response.json())
-                .then(dormitories => {
-                    console.log("Fetched dormitories:", dormitories.length);
+            // Fetch full dorm data with all floors and rooms
+            fetch(`/api/dormitories/${dormId}`)
+                .then(res => res.json())
+                .then(data => {
+                    console.log('[DEBUG] Dorm data received:', data);
                     
-                    if (dormitories && dormitories.length > 0) {
-                        dormitoryData = dormitories;
-                        createSlides(dormitories);
-                        
-                        // Update background with first slide
-                        updateBackgroundImage(dormitories[0].imageUrl || '/image/camp1.png');
-                        
-                        // Start auto-rotation after a delay
-                        setTimeout(startAutoRotation, 1000);
-                    } else {
-                        console.warn('No dormitories found');
-                        // Display a message or handle empty data case
+                    if (!data.success || !data.dormitory) {
+                        console.error('[ERROR] Invalid dorm data');
+                        return;
                     }
-                })
-                .catch(error => {
-                    console.error('Error fetching dormitories:', error);
-                    // Display error message
-                });
-        }
-        
-        function createSlides(dormitories) {
-            console.log("Creating slides for", dormitories.length, "dormitories");
-            
-            const sliderWrapper = document.getElementById('sliderWrapper');
-            const pagination = document.getElementById('sliderPagination');
-            
-            if (!sliderWrapper || !pagination) {
-                console.error("Required DOM elements not found");
-                return;
-            }
-            
-            // Clear any existing content
-            sliderWrapper.innerHTML = '';
-            pagination.innerHTML = '';
-            
-            // Create slides for each dormitory
-            dormitories.forEach((dorm, index) => {
-                // Create slide
-                const slide = document.createElement('div');
-                slide.className = 'slide';
-                
-                // Set background image - use dorm.imageUrl or a placeholder
-                const imageUrl = dorm.imageUrl || '/image/camp1.png';
-                slide.style.backgroundImage = `url('${imageUrl}')`;
-                
-                // Add to wrapper
-                sliderWrapper.appendChild(slide);
-                
-                // Create pagination dot
-                const dot = document.createElement('div');
-                dot.className = 'pagination-dot';
-                if (index === 0) dot.classList.add('active');
-                
-                // Add click event to dot
-                dot.addEventListener('click', function() {
-                    goToSlide(index);
-                });
-                
-                pagination.appendChild(dot);
-                
-                // If it's the first slide, update the info card
-                if (index === 0) {
-                    updatePropertyInfo(dorm);
-                }
-            });
-            
-            console.log("Created", sliderWrapper.children.length, "slides");
-        }
-        
-        function updatePropertyInfo(dorm) {
-            // Update basic info
-            document.getElementById('propertyTitle').textContent = dorm.name || '';
-            document.getElementById('propertyAddress').textContent = dorm.address || '';
-            
-            // Format price range
-            let priceText = '';
-            if (dorm.details && dorm.details.priceRange) {
-                const min = dorm.details.priceRange.min.toLocaleString();
-                const max = dorm.details.priceRange.max.toLocaleString();
-                priceText = `${min} - ${max} VNĐ/tháng`;
-            }
-            document.getElementById('propertyPrice').textContent = priceText;
-            
-            // Translate category
-            let categoryText = '';
-            if (dorm.details && dorm.details.category) {
-                switch(dorm.details.category) {
-                    case 'basic': categoryText = 'Khu cơ bản'; break;
-                    case 'premium': categoryText = 'Khu cao cấp'; break;
-                    case 'international': categoryText = 'Khu du học sinh'; break;
-                    default: categoryText = dorm.details.category;
-                }
-            }
-            document.getElementById('propertyCategory').textContent = categoryText;
-            
-            // Calculate capacity
-            let capacityText = '';
-            if (dorm.floors && dorm.floors.length > 0) {
-                let totalRooms = 0;
-                let totalCapacity = 0;
-                
-                dorm.floors.forEach(floor => {
-                    if (floor.rooms && floor.rooms.length > 0) {
-                        totalRooms += floor.rooms.length;
-                        floor.rooms.forEach(room => {
-                            totalCapacity += room.maxCapacity || 0;
+
+                    const dorm = data.dormitory;
+                    const modal = document.getElementById('roomModal');
+                    const title = document.getElementById('roomModalTitle');
+                    const grid = document.getElementById('roomsGrid');
+
+                    title.textContent = `Phòng - ${dorm.name}`;
+                    grid.innerHTML = '';
+
+                    let roomCount = 0;
+                    if (dorm.floors && Array.isArray(dorm.floors)) {
+                        dorm.floors.forEach(floor => {
+                            console.log('[DEBUG] Floor:', floor.floorNumber, 'Rooms:', floor.rooms?.length);
+                            
+                            if (floor.rooms && Array.isArray(floor.rooms)) {
+                                floor.rooms.forEach(room => {
+                                    roomCount++;
+                                    const currentOccupants = room.occupants ? room.occupants.filter(o => o.active).length : 0;
+                                    const maxCapacity = room.maxCapacity || 4;
+                                    
+                                    let statusClass, statusText;
+                                    if (currentOccupants >= maxCapacity) {
+                                        statusClass = 'status-full';
+                                        statusText = 'Đã đầy';
+                                    } else if (currentOccupants > 0) {
+                                        statusClass = 'status-pending';
+                                        statusText = 'Chờ duyệt';
+                                    } else {
+                                        statusClass = 'status-available';
+                                        statusText = 'Còn trống';
+                                    }
+
+                                    const roomCard = document.createElement('a');
+                                    roomCard.href = `/room/${dormId}/${room._id}`;
+                                    roomCard.className = 'room-card-modal';
+                                    roomCard.innerHTML = `
+                                        <div class="room-card-modal-image">
+                                            <i class="fas fa-door-open"></i>
+                                        </div>
+                                        <div class="room-card-modal-info">
+                                            <div class="room-card-modal-number">Phòng ${room.roomNumber || 'N/A'}</div>
+                                            <div class="room-card-modal-status ${statusClass}">${statusText}</div>
+                                            <div class="room-card-modal-capacity">
+                                                Tầng ${floor.floorNumber} • ${currentOccupants}/${maxCapacity}
+                                            </div>
+                                        </div>
+                                    `;
+                                    grid.appendChild(roomCard);
+                                });
+                            }
                         });
                     }
+
+                    console.log('[DEBUG] Total rooms rendered:', roomCount);
+                    if (roomCount === 0) {
+                        grid.innerHTML = '<p style="text-align: center; color: #999; padding: 2rem;">Không có phòng nào</p>';
+                    }
+
+                    modal.classList.add('show');
+                })
+                .catch(err => {
+                    console.error('[ERROR] Failed to load rooms:', err);
+                    alert('Lỗi khi tải phòng: ' + err.message);
                 });
-                
-                capacityText = `${totalRooms} phòng, ${totalCapacity} sinh viên`;
-            }
-            document.getElementById('propertyCapacity').textContent = capacityText;
-            
-            // Update amenities
-            const amenitiesContainer = document.getElementById('propertyAmenities');
-            if (amenitiesContainer) {
-                amenitiesContainer.innerHTML = '';
-                
-                if (dorm.details && dorm.details.amenities && dorm.details.amenities.length > 0) {
-                    // Display up to 6 amenities
-                    const displayAmenities = dorm.details.amenities.slice(0, 6);
-                    
-                    displayAmenities.forEach(amenity => {
-                        const tag = document.createElement('span');
-                        tag.className = 'amenity-tag';
-                        tag.textContent = amenity;
-                        amenitiesContainer.appendChild(tag);
-                    });
-                }
-            }
-            
-            // Update registration button
-            const registerButton = document.getElementById('registerButton');
-            if (registerButton && dorm._id) {
-                registerButton.href = `/register?dormId=${dorm._id}`;
-            }
         }
-        
-        function updateBackgroundImage(imageUrl) {
-            const background = document.querySelector('.showcase-background');
-            if (background) {
-                background.style.backgroundImage = `url('${imageUrl}')`;
-            }
+
+        function closeRoomModal() {
+            const modal = document.getElementById('roomModal');
+            modal.classList.remove('show');
         }
-        
-        function startAutoRotation() {
-            // Auto rotate slides every 7 seconds
-            setInterval(function() {
-                goToSlide(currentSlideIndex + 1);
-            }, 7000);
-        }
-        
-        function goToSlide(index) {
-            console.log("Going to slide:", index);
-            
-            const slides = document.querySelectorAll('.slide');
-            const sliderWrapper = document.getElementById('sliderWrapper');
-            const dots = document.querySelectorAll('.pagination-dot');
-            
-            if (!slides.length || !sliderWrapper) {
-                console.error("Required DOM elements not found for slide navigation");
-                return;
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('roomModal');
+            if (event.target === modal) {
+                closeRoomModal();
             }
-            
-            // Calculate the actual index with wrap-around
-            const totalSlides = slides.length;
-            const newIndex = ((index % totalSlides) + totalSlides) % totalSlides; // Ensure positive value
-            
-            console.log("New slide index:", newIndex, "Total slides:", totalSlides);
-            
-            // Update current slide index
-            currentSlideIndex = newIndex;
-            
-            // Move the slider
-            sliderWrapper.style.transform = `translateX(-${currentSlideIndex * 100}%)`;
-            
-            // Update pagination dots
-            dots.forEach((dot, i) => {
-                if (i === currentSlideIndex) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-            
-            // Update info card with current dormitory data
-            if (dormitoryData && dormitoryData.length > currentSlideIndex) {
-                const currentDorm = dormitoryData[currentSlideIndex];
-                updatePropertyInfo(currentDorm);
-                updateBackgroundImage(currentDorm.imageUrl || '/image/camp1.png');
-            }
-        }
+        });
     </script>
+
+    <!-- Room Modal -->
+    <div id="roomModal" class="room-modal">
+        <div class="room-modal-content">
+            <div class="room-modal-header">
+                <h2 class="room-modal-title" id="roomModalTitle">Phòng</h2>
+                <button class="room-modal-close" onclick="closeRoomModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="rooms-grid" id="roomsGrid"></div>
+        </div>
+    </div>
 </body>
 </html>
