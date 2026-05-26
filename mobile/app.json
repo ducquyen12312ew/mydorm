@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "Ký túc xá HUST",
+    "slug": "dormitory-student",
+    "version": "1.0.0",
+    "scheme": "dormitory-student",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#d63031"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "vn.edu.hust.dormitory.student"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#d63031"
+      },
+      "package": "vn.edu.hust.dormitory.student"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-font",
+        {
+          "fonts": []
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2:5000",
+      "apiBaseUrlIos": "http://localhost:5000"
+    }
+  }
+}
