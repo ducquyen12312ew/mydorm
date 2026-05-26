@@ -1,0 +1,25 @@
+@startuml
+top to bottom direction
+skinparam packageStyle rectangle
+skinparam usecase {
+  BackgroundColor LightGoldenRodYellow
+  BorderColor GoldenRod
+  FontName Arial
+  FontSize 12
+  ArrowColor GoldenRod
+}
+
+actor "Cán bộ quản lý" as Manager
+
+rectangle "Quản lý danh sách phòng và kiểm duyệt" {
+  (Nhập/Sửa/Xóa thông tin phòng) as UC_EditRoom
+  (Kiểm tra tính hợp lệ phòng) as UC_ValidateRoom
+  (Lưu danh sách phòng) as UC_SaveRoom
+}
+
+Manager --> UC_EditRoom : "1. Nhập/sửa/xóa thông tin phòng, sức chứa, thuộc tính"
+UC_EditRoom .> UC_ValidateRoom : include
+UC_ValidateRoom --> UC_SaveRoom : "Nếu hợp lệ - cho phép lưu"
+UC_ValidateRoom --> Manager : "Nếu không hợp lệ - thông báo lỗi"
+
+@enduml

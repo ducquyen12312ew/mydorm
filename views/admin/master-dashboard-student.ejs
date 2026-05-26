@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Quick Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #13202f;
+      --muted: #5f6f83;
+      --line: #d7e0ea;
+      --surface: #ffffff;
+      --accent: #0f9c8f;
+      --bg: #edf2f7;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 0%, rgba(15,156,143,0.18), transparent 35%),
+        var(--bg);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 760px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      box-shadow: 0 14px 28px rgba(19,32,47,.08);
+      overflow: hidden;
+    }
+
+    .head {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(120deg, rgba(15,156,143,.1), rgba(245,159,11,.08));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .sub {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .body {
+      padding: 18px 20px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 12px;
+      border-bottom: 1px dashed var(--line);
+      padding-bottom: 8px;
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: .88rem;
+      font-weight: 600;
+    }
+
+    .value {
+      font-weight: 600;
+      font-size: .92rem;
+      word-break: break-word;
+    }
+
+    .actions {
+      padding: 0 20px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      text-decoration: none;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-weight: 600;
+      font-size: .9rem;
+      background: #fff;
+    }
+
+    .btn.primary {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fff;
+    }
+
+    @media (max-width: 640px) {
+      .row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <article class="card">
+    <header class="head">
+      <div>
+        <h1>Student Quick Profile</h1>
+        <p class="sub"><%= student.name || 'Unknown' %></p>
+      </div>
+      <a class="btn" href="<%= backUrl %>">Back to Dashboard</a>
+    </header>
+
+    <section class="body">
+      <div class="row"><div class="label">Student Code</div><div class="value"><%= student.studentId || '-' %></div></div>
+      <div class="row"><div class="label">Email</div><div class="value"><%= student.email || '-' %></div></div>
+      <div class="row"><div class="label">Phone</div><div class="value"><%= student.phone || '-' %></div></div>
+      <div class="row"><div class="label">Academic Year</div><div class="value"><%= student.academicYear || '-' %></div></div>
+      <div class="row"><div class="label">Dormitory</div><div class="value"><%= dormitoryName || '-' %></div></div>
+      <div class="row"><div class="label">Room</div><div class="value"><%= student.roomNumber || '-' %></div></div>
+      <div class="row"><div class="label">Status</div><div class="value"><%= student.status || '-' %></div></div>
+      <div class="row"><div class="label">Updated At</div><div class="value"><%= student.updatedAt ? new Date(student.updatedAt).toLocaleString('vi-VN') : '-' %></div></div>
+    </section>
+
+    <section class="actions">
+      <a class="btn primary" href="/api/allocation/student-history/<%= student._id %>" target="_blank" rel="noopener">Open Allocation History</a>
+      <a class="btn" href="/admin/maintenance-requests?studentCode=<%= encodeURIComponent(student.studentId || '') %>&roomNumber=<%= encodeURIComponent(student.roomNumber || '') %>">Open Maintenance Board</a>
+    </section>
+  </article>
+</body>
+</html>

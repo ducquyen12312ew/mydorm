@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KTX HUST - Danh sách ký túc xá</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="/css/premium-home.css" />
+    <link rel="stylesheet" href="/css/student-premium-shell.css" />
+</head>
+<body class="student-shell-page">
+    <%- include('navbar', { currentPage: 'list', user: user }) %>
+
+    <section class="student-page-hero">
+        <div class="student-page-badge"><i class="fas fa-list-ul"></i> Danh sách nơi ở</div>
+        <h1 class="student-page-title">Khám phá toàn bộ khu ký túc xá theo dạng danh sách trực quan</h1>
+        <p class="student-page-subtitle">Trang này thay cho bản đồ cũ trong menu sinh viên. Bạn có thể xem nhanh từng tòa, số lượng phòng, chỗ trống và đi thẳng tới trang chi tiết mà không cần chuyển qua bản đồ.</p>
+        <div class="student-page-meta">
+            <div class="student-page-meta-card">
+                <strong>Điều hướng nhanh</strong>
+                <span>Vuốt ngang hoặc dùng nút điều hướng để duyệt các tòa nhà như ngay trên trang chủ.</span>
+            </div>
+            <div class="student-page-meta-card">
+                <strong>Ra quyết định nhanh</strong>
+                <span>Xem trước số phòng và số chỗ trống để chọn khu phù hợp trước khi vào đăng ký.</span>
+            </div>
+            <div class="student-page-meta-card">
+                <strong>Liên kết trực tiếp</strong>
+                <span>Mỗi thẻ dẫn thẳng tới trang chi tiết ký túc xá để bạn tiếp tục xem sâu hơn.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="rooms-section">
+        <div class="container">
+            <h2 class="section-title">Danh mục ký túc xá</h2>
+            <p class="section-subtitle">Cùng kiểu thẻ với trang chủ để trải nghiệm duyệt khu ở nhất quán trên toàn bộ phần sinh viên.</p>
+            <div class="room-carousel">
+                <button class="carousel-btn" id="roomPrev" type="button" aria-label="Kéo trái"><i class="fas fa-chevron-left"></i></button>
+                <div class="room-track" id="roomGrid"><div class="rooms-loading">Đang tải danh sách ký túc xá...</div></div>
+                <button class="carousel-btn" id="roomNext" type="button" aria-label="Kéo phải"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+    </section>
+
+    <section class="student-accent-grid">
+        <article class="student-accent-card">
+            <i class="fas fa-door-open"></i>
+            <h3>Dễ so sánh từng khu</h3>
+            <p>Các thẻ tập trung vào thông tin thực dụng: tên tòa, số phòng và số chỗ trống hiện có.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-layer-group"></i>
+            <h3>Trình bày bớt trống</h3>
+            <p>Bố cục được kéo dài hợp lý bằng các khối nội dung cùng vibe với trang chủ, tránh cảm giác rời rạc.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-bolt"></i>
+            <h3>Ưu tiên tốc độ</h3>
+            <p>Không còn phụ thuộc vào thao tác trên bản đồ, phù hợp hơn khi cần duyệt nhanh trên điện thoại.</p>
+        </article>
+        <article class="student-accent-card">
+            <i class="fas fa-route"></i>
+            <h3>Tiếp tục quy trình ngay</h3>
+            <p>Sau khi chọn được khu phù hợp, bạn có thể chuyển sang đăng ký phòng hoặc xem trạng thái mà không bị đứt mạch thao tác.</p>
+        </article>
+    </section>
+
+    <section class="benefits-section">
+        <div class="container benefits-layout">
+            <div>
+                <p class="benefits-label">CHỌN NHANH THEO NHU CẦU</p>
+                <h2 class="benefits-title">Một trang danh sách rõ ràng, đủ thông tin để ra quyết định</h2>
+                <p class="benefits-desc">Thay vì xem vị trí trên bản đồ, sinh viên thường cần biết khu nào còn chỗ, khu nào phù hợp để đăng ký và vào xem chi tiết ngay. Trang này được tối ưu theo đúng luồng đó.</p>
+                <div class="benefits-grid">
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-building"></i></span><span class="benefit-text">Duyệt theo tòa</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-bed"></i></span><span class="benefit-text">Xem số chỗ trống</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-image"></i></span><span class="benefit-text">Ảnh minh họa rõ ràng</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-mobile-screen-button"></i></span><span class="benefit-text">Tối ưu cho di động</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-arrow-up-right-from-square"></i></span><span class="benefit-text">Đi thẳng tới chi tiết</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-check-circle"></i></span><span class="benefit-text">Đồng bộ với trang chủ</span></article>
+                </div>
+            </div>
+            <div class="benefits-image-wrap">
+                <img class="benefits-image" src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg" alt="Không gian ký túc xá" />
+            </div>
+        </div>
+    </section>
+
+    <section class="student-cta-strip">
+        <div>
+            <h3 class="benefits-title" style="font-size: 1.55rem; margin-bottom: 0.35rem;">Đã chọn được khu phù hợp?</h3>
+            <p>Tiếp tục sang đăng ký phòng để nộp hồ sơ, hoặc vào trạng thái phòng để theo dõi những đơn bạn đã gửi trước đó.</p>
+        </div>
+        <a href="/register"><i class="fas fa-arrow-right"></i> Tới đăng ký phòng</a>
+    </section>
+
+    <script src="/js/premium-home.js"></script>
+</body>
+</html>

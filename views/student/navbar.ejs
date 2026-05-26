@@ -1,0 +1,101 @@
+<!-- Navbar chung cho tất cả trang Student -->
+<header class="header">
+    <div class="header-content">
+        <div class="header-logo">
+            <img src="/image/logo.png" alt="HUST Logo" class="logo">
+        </div>
+        <div class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-container" id="navContainer">
+            <nav class="nav-links">
+                <a href="/" class="nav-link <%= currentPage === 'home' ? 'active-link' : '' %>">TRANG CHỦ</a>
+                <a href="/map" class="nav-link <%= currentPage === 'map' || currentPage === 'list' ? 'active-link' : '' %>">DANH SÁCH</a>
+                <a href="/register" class="nav-link <%= currentPage === 'register' ? 'active-link' : '' %>">ĐĂNG KÝ PHÒNG</a>
+                <a href="/room-status" class="nav-link <%= currentPage === 'room-status' ? 'active-link' : '' %>">TRẠNG THÁI PHÒNG</a>
+                <a href="/student/maintenance-requests" class="nav-link <%= currentPage === 'maintenance' ? 'active-link' : '' %>">BẢO TRÌ</a>
+            </nav>
+            
+            <!-- User profile dropdown -->
+            <div class="user-profile">
+                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                    <div class="avatar"><%= (user && user.name) ? user.name.trim().charAt(0).toUpperCase() : (student && student.name) ? student.name.trim().charAt(0).toUpperCase() : 'U' %></div>
+                    <span class="user-name"><%= (user && user.name) ? user.name : (student && student.name) ? student.name : 'Người dùng' %></span>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="/profile" class="dropdown-item">
+                        <i class="fas fa-user-circle"></i> Hồ sơ
+                    </a>
+                    <a href="/logout" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="overlay" id="overlay"></div>
+
+<script>
+// Mobile menu toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const menuToggle = document.getElementById('menuToggle');
+    const navContainer = document.getElementById('navContainer');
+    const overlay = document.getElementById('overlay');
+    
+    if (menuToggle && navContainer && overlay) {
+        if (navContainer.dataset.navReady === 'true') {
+            return;
+        }
+
+        navContainer.dataset.navReady = 'true';
+        menuToggle.addEventListener('click', function() {
+            menuToggle.classList.toggle('active');
+            navContainer.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        navContainer.querySelectorAll('.nav-link').forEach(function(link) {
+            link.addEventListener('click', function() {
+                menuToggle.classList.remove('active');
+                navContainer.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        });
+        
+        overlay.addEventListener('click', function() {
+            menuToggle.classList.remove('active');
+            navContainer.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    }
+    
+    // User profile dropdown
+    const userProfile = document.querySelector('.user-profile');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
+    
+    if (userProfile && dropdownMenu) {
+        if (userProfile.dataset.dropdownReady === 'true') {
+            return;
+        }
+
+        userProfile.dataset.dropdownReady = 'true';
+        userProfile.addEventListener('click', function(e) {
+            if (e.target.closest('.avatar-container')) {
+                e.preventDefault();
+                dropdownMenu.classList.toggle('show');
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userProfile.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+});
+</script>

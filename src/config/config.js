@@ -1,6 +1,13 @@
 const mongoose = require('mongoose');
 
-mongoose.connect('mongodb://0.0.0.0:27017/Dormitory', {
+require('dotenv').config();
+
+const mongoUri =
+    process.env.MONGO_URI ||
+    process.env.MONGODB_URI ||
+    'mongodb://0.0.0.0:27017/Dormitory';
+
+mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
 });
@@ -58,6 +65,25 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         enum: ['male', 'female', 'other']
     },
+    nationality: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    citizenship: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    country: {
+        type: String,
+        trim: true,
+        default: ''
+    },
+    isInternational: {
+        type: Boolean,
+        default: false
+    },
     role: {
         type: String,
         enum: ['user', 'admin'],
@@ -69,6 +95,18 @@ const StudentSchema = new mongoose.Schema({
     },
     roomNumber: {
         type: String
+    },
+    priorityScore: {
+        type: Number,
+        default: 0
+    },
+    priorityDetails: {
+        type: Object,
+        default: {}
+    },
+    favoriteRoomIds: {
+        type: [{ type: mongoose.Schema.Types.ObjectId }],
+        default: []
     },
     createdAt: {
         type: Date,
@@ -242,6 +280,14 @@ const DormitorySchema = new mongoose.Schema({
     updatedAt: {
         type: Date,
         default: Date.now
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        default: null
     }
 });
 
@@ -316,9 +362,37 @@ const PendingApplicationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    priorityPolicies: [{
+        type: {
+            type: String
+        },
+        ethnicity: {
+            type: String
+        },
+        proofDocument: {
+            type: String
+        }
+    }],
+    priorityScore: {
+        type: Number,
+        default: 0
+    },
+    priorityBreakdown: {
+        type: Object,
+        default: {}
+    },
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected'],
+        enum: [
+            'pending',
+            'pending_review',
+            'approved_waiting_payment',
+            'approved',
+            'rejected',
+            'waitlist',
+            'expired',
+            'checked_out'
+        ],
         default: 'pending'
     },
     comments: {
@@ -447,16 +521,55 @@ const ActivityLogSchema = new mongoose.Schema({
     }
 });
 
+const AcademicWindowSchema = new mongoose.Schema({
+    academicYear: {
+        type: String,
+        required: true
+    },
+    startDate: {
+        type: Date,
+        required: true
+    },
+    endDate: {
+        type: Date,
+        required: true
+    },
+    status: {
+        type: String,
+        enum: ['upcoming', 'active', 'closed'],
+        default: 'upcoming'
+    },
+    // Danh sách năm học được phép đăng ký (1, 2, 3, 4, 5, 6 hoặc 'all')
+    allowedAcademicYears: {
+        type: [String],
+        default: ['1', '2', '3', '4', '5', '6'],
+        enum: ['1', '2', '3', '4', '5', '6', 'all']
+    },
+    description: {
+        type: String
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: {
+        type: Date,
+        default: Date.now
+    }
+});
+
 const StudentCollection = mongoose.model('students', StudentSchema);
 const DormitoryCollection = mongoose.model('dormitories', DormitorySchema);
 const PendingApplicationCollection = mongoose.model('pendingApplications', PendingApplicationSchema);
 const NotificationCollection = mongoose.model('notifications', NotificationSchema);
 const ActivityLogCollection = mongoose.model('activity_logs', ActivityLogSchema);
+const AcademicWindowCollection = mongoose.model('academic_windows', AcademicWindowSchema);
 
 module.exports = { 
     StudentCollection, 
     DormitoryCollection,
     PendingApplicationCollection,
     NotificationCollection,
-    ActivityLogCollection
+    ActivityLogCollection,
+    AcademicWindowCollection
 };

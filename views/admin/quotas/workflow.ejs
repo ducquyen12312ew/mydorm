@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lịch triển khai quota</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f6f8fb; margin: 0; color: #1f2937; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 16px 24px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0; gap: 10px; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; font-size: 14px; display: inline-flex; gap: 8px; align-items: center; }
+    .btn-secondary { background: #374151; color: #fff; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-warning { background: #d97706; color: #fff; }
+    .muted { color: #6b7280; font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eef2f7; padding: 10px; text-align: left; }
+    th { background: #f8fafc; color: #475569; font-size: 13px; }
+    .timeline-item { border-left: 3px solid #94a3b8; padding: 8px 0 8px 12px; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1 style="margin: 0;">Lịch triển khai quota</h1>
+        <div class="muted">Năm học <strong><%= quota.academicYear %></strong> - phiên bản #<%= quota.version %></div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <a class="btn btn-secondary" href="/admin/quotas/<%= quota._id %>/dashboard">Thực tế</a>
+        <a class="btn btn-secondary" href="/admin/quotas">Quay lại</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Lịch triển khai theo mốc năm học</h3>
+
+      <% if (canManage) { %>
+        <button class="btn btn-primary" onclick="regenerateWorkflow()">Tạo lại lịch</button>
+      <% } %>
+
+      <% 
+        const milestoneTitleMap = {
+          'Annual quota rebalance approved': 'Phê duyệt tái cân bằng quota năm học',
+          'Round 1 notice to potentially affected students': 'Đợt 1: Thông báo cho sinh viên có khả năng bị ảnh hưởng',
+          'Round 2 final notice': 'Đợt 2: Thông báo chốt danh sách',
+          'Quota effective date': 'Ngày quota có hiệu lực',
+          'Mid-year micro adjustment checkpoint': 'Mốc rà soát vi chỉnh giữa năm',
+          'Graduation checkout checkpoint': 'Mốc thống kê trả phòng của sinh viên sắp tốt nghiệp'
+        };
+
+        const milestoneDescriptionMap = {
+          'Chot quota cho nam hoc moi va xac nhan policy over-cap.': 'Chốt quota cho năm học mới và xác nhận chính sách cho phép vượt trần.',
+          'Gui thong bao du kien tra phong cho nhom co nguy co vuot quota.': 'Gửi thông báo dự kiến trả phòng cho nhóm có nguy cơ vượt quota.',
+          'Chot danh sach can tra phong theo nhu cau thuc te sat ngay don tan sinh vien.': 'Chốt danh sách cần trả phòng theo nhu cầu thực tế sát ngày đón tân sinh viên.',
+          'Ap dung quota version moi cho nam hoc.': 'Áp dụng phiên bản quota mới cho năm học.',
+          'Cho phep vi chinh nho trong nam hoc neu co chenh lech cau-thue.': 'Cho phép vi chỉnh nhỏ trong năm học nếu có chênh lệch cung cầu.',
+          'Thong ke sinh vien nam cuoi tra phong truoc dot tiep nhan moi.': 'Thống kê sinh viên năm cuối trả phòng trước đợt tiếp nhận mới.'
+        };
+
+        const milestoneStatusMap = {
+          PENDING: 'Đang chờ',
+          READY: 'Sẵn sàng',
+          DONE: 'Hoàn tất',
+          SENT: 'Đã gửi',
+          FAILED: 'Lỗi'
+        };
+      %>
+
+      <% if (!workflow || !workflow.milestones || workflow.milestones.length === 0) { %>
+        <p class="muted" style="margin-top:12px;">Chưa có lịch triển khai. Hãy tạo lịch để bắt đầu theo dõi vận hành.</p>
+      <% } else { %>
+        <div style="margin-top:12px;">
+          <% workflow.milestones.forEach(function(m){ %>
+            <div class="timeline-item">
+              <% const cleanTitle = String(m.title || '').trim(); %>
+              <% const cleanTitleKey = cleanTitle.replace(/\s*-\s*\d{1,2}\/\d{1,2}\/\d{4}$/,''); %>
+              <% const localizedTitle = milestoneTitleMap[cleanTitleKey] || cleanTitle; %>
+              <% const cleanDescription = String(m.description || '').trim(); %>
+              <% const localizedDescription = milestoneDescriptionMap[cleanDescription] || cleanDescription; %>
+
+              <div><strong><%= localizedTitle %></strong> - <span class="muted"><%= new Date(m.dueDate).toLocaleDateString('vi-VN') %></span></div>
+              <div class="muted">Trạng thái: <%= milestoneStatusMap[m.status] || m.status %></div>
+              <div><%= localizedDescription %></div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
+
+    <div class="card">
+      <h3>Đợt thông báo trả phòng</h3>
+      <p class="muted">Lập từng đợt thông báo chính thức cho nhóm sinh viên dự kiến cần trả phòng.</p>
+
+      <% if (canManage) { %>
+        <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+          <select id="stage" style="padding:10px;border:1px solid #d1d5db;border-radius:8px;">
+            <option value="PRE_NOTICE">Thông báo sớm</option>
+            <option value="FINAL_NOTICE">Thông báo cuối</option>
+            <option value="EMERGENCY_ADJUSTMENT">Điều chỉnh khẩn</option>
+          </select>
+          <input id="scheduledAt" type="date" style="padding:10px;border:1px solid #d1d5db;border-radius:8px;" />
+          <input id="batchReason" placeholder="Lý do" style="padding:10px;border:1px solid #d1d5db;border-radius:8px;min-width:240px;" />
+          <button class="btn btn-warning" onclick="planBatch()">Lập đợt</button>
+        </div>
+      <% } %>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Đợt</th>
+            <th>Lịch gửi</th>
+            <th>Trạng thái</th>
+            <th>Đối tượng</th>
+            <th>Đã gửi</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% const stageLabels = { PRE_NOTICE: 'Thông báo sớm', FINAL_NOTICE: 'Thông báo cuối', EMERGENCY_ADJUSTMENT: 'Điều chỉnh khẩn' }; %>
+          <% const statusLabels = { PLANNED: 'Đã lập kế hoạch', READY: 'Sẵn sàng', SENT: 'Đã gửi', FAILED: 'Lỗi' }; %>
+          <% if (!batches || batches.length === 0) { %>
+            <tr><td colspan="6">Chưa có đợt thông báo.</td></tr>
+          <% } %>
+          <% (batches || []).forEach(function(batch){ %>
+            <tr>
+              <td><%= stageLabels[batch.stage] || batch.stage %></td>
+              <td><%= new Date(batch.scheduledAt).toLocaleDateString('vi-VN') %></td>
+              <td><%= statusLabels[batch.status] || batch.status %></td>
+              <td><%= batch.stats ? batch.stats.targeted : 0 %></td>
+              <td><%= batch.stats ? batch.stats.sent : 0 %></td>
+              <td>
+                <% if (canManage && batch.status !== 'SENT') { %>
+                  <button class="btn btn-primary" onclick="sendBatch('<%= batch._id %>')">Gửi ngay</button>
+                <% } else { %>
+                  -
+                <% } %>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function regenerateWorkflow() {
+      const response = await fetch('/admin/quotas/<%= quota._id %>/workflow/regenerate', { method: 'POST' });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        alert(data.error || 'Không thể tạo lại lịch');
+        return;
+      }
+      window.location.reload();
+    }
+
+    async function planBatch() {
+      const stage = document.getElementById('stage').value;
+      const scheduledAt = document.getElementById('scheduledAt').value;
+      const reason = document.getElementById('batchReason').value;
+
+      const body = new URLSearchParams();
+      body.append('stage', stage);
+      if (scheduledAt) body.append('scheduledAt', scheduledAt);
+      if (reason) body.append('reason', reason);
+
+      const response = await fetch('/admin/quotas/<%= quota._id %>/notifications/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString()
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        alert(data.error || 'Không thể lập đợt thông báo');
+        return;
+      }
+
+      alert('Đã lập đợt. Số sinh viên mục tiêu: ' + data.targeted);
+      window.location.reload();
+    }
+
+    async function sendBatch(batchId) {
+      if (!confirm('Gửi đợt này ngay bây giờ?')) return;
+      const response = await fetch('/admin/quotas/<%= quota._id %>/notifications/' + batchId + '/send', {
+        method: 'POST'
+      });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        alert(data.error || 'Không thể gửi đợt thông báo');
+        return;
+      }
+      alert('Đã gửi: ' + data.sent + ', lỗi: ' + data.failed);
+      window.location.reload();
+    }
+  </script>
+</body>
+</html>

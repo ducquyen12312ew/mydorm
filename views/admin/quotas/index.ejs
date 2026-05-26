@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quota - Quản trị</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top left, #fff8f1, #f3f6fb 45%); margin: 0; color: #1f2937; }
+    .container { max-width: 1240px; margin: 0 auto; padding: 0 18px 28px; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin: 18px 0; gap: 12px; background: linear-gradient(135deg, #ffffff, #fff6eb); border: 1px solid #f0dfcb; border-radius: 14px; padding: 16px; }
+    .toolbar h1 { margin: 0; font-size: 26px; color: #7c2d12; }
+    .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
+    .btn-primary { background: #b35a5a; color: #fff; }
+    .btn-secondary { background: #4b5563; color: #fff; }
+    .btn-warning { background: #9a3412; color: #fff; }
+    .btn-success { background: #7f4a4a; color: #fff; }
+    .btn-soft { background: #f7f1f1; color: #7f4a4a; border: 1px solid #e8d5d5; }
+    .message { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; }
+    .message.success { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+    .message.error { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
+    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; border-bottom: 1px solid #eef2f7; text-align: left; vertical-align: top; }
+    th { background: #f8f4ee; font-size: 13px; color: #6b3f24; }
+    .status { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+    .status.draft { background: #ffedd5; color: #9a3412; }
+    .status.published { background: #f3e8e8; color: #7f4a4a; }
+    .quota-line { font-size: 13px; color: #4b5563; line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    .small { font-size: 12px; color: #6b7280; }
+    details.advanced { margin-top: 10px; }
+    details.advanced summary { cursor: pointer; font-size: 13px; color: #7f4a4a; font-weight: 600; }
+    .advanced-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: activeNav }) %>
+
+  <div class="container">
+    <div class="toolbar">
+      <h1>Quota ký túc xá</h1>
+      <div class="toolbar-actions">
+        <a class="btn btn-secondary" href="/admin/quotas/audit"><i class="fas fa-history"></i> Lịch sử thao tác</a>
+      <% if (canManage) { %>
+          <a class="btn btn-primary" href="/admin/quotas/create"><i class="fas fa-plus"></i> Tạo bản nháp</a>
+      <% } %>
+      </div>
+    </div>
+
+    <% if (message) { %>
+      <div class="message <%= message.type === 'error' ? 'error' : 'success' %>"><%= message.text %></div>
+    <% } %>
+
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Năm học</th>
+            <th>Phiên bản</th>
+            <th>Trạng thái</th>
+            <th>Tổng sức chứa</th>
+            <th>Quota</th>
+            <th>Hiệu lực</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% const yearGroupLabels = { year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3', year4_plus: 'Năm 4 và các năm còn lại' }; %>
+          <% const publishedYears = new Set((quotas || []).filter((q) => !q.isDraft).map((q) => q.academicYear)); %>
+          <% if (!quotas || quotas.length === 0) { %>
+            <tr><td colspan="7">Chưa có cấu hình quota.</td></tr>
+          <% } %>
+          <% (quotas || []).forEach(function(item){ %>
+            <tr>
+              <td><strong><%= item.academicYear %></strong></td>
+              <td>#<%= item.version %></td>
+              <td>
+                <span class="status <%= item.isDraft ? 'draft' : 'published' %>">
+                  <%= item.isDraft ? 'Nháp' : 'Đã ban hành' %>
+                </span>
+              </td>
+              <td><%= item.totalCapacity %></td>
+              <td>
+                <% (item.quotas || []).forEach(function(q){ %>
+                  <div class="quota-line"><%= yearGroupLabels[q.yearGroup] || q.yearGroup %>: <%= q.percentage %>% - <strong><%= q.slot %></strong> chỗ</div>
+                <% }) %>
+              </td>
+              <td>
+                <div class="small">Từ: <%= new Date(item.effectiveFrom).toLocaleDateString('vi-VN') %></div>
+                <div class="small">Đến: <%= new Date(item.effectiveTo).toLocaleDateString('vi-VN') %></div>
+              </td>
+              <td>
+                <% if (canManage) { %>
+                  <div class="actions">
+                    <% if (item.isDraft) { %>
+                      <a class="btn btn-warning" href="/admin/quotas/<%= item._id %>/edit">Kế hoạch</a>
+                    <% } %>
+                    <a class="btn btn-secondary" href="/admin/quotas/<%= item._id %>/dashboard">Thực tế</a>
+                    <a class="btn btn-secondary" href="/admin/quotas/<%= item._id %>/preview">Mô phỏng</a>
+                    <% if (item.isDraft) { %>
+                      <% if (publishedYears.has(item.academicYear)) { %>
+                        <button class="btn btn-success" type="button" disabled title="Năm học này đã có quota ban hành">Ban hành</button>
+                      <% } else { %>
+                        <button class="btn btn-success" onclick="publishQuota('<%= item._id %>')">Ban hành</button>
+                      <% } %>
+                    <% } %>
+                  </div>
+                  <% if (item.isDraft && publishedYears.has(item.academicYear)) { %>
+                    <div class="small">Năm học này đã có bản quota ban hành, không thể ban hành thêm.</div>
+                  <% } %>
+                <% } else { %>
+                  <div class="small">Tài khoản hiện tại chỉ có quyền xem.</div>
+                <% } %>
+
+                <details class="advanced">
+                  <summary>Chi tiết nâng cao</summary>
+                  <div class="advanced-links">
+                    <a class="btn btn-soft" href="/admin/quotas/<%= item._id %>/workflow">Lịch triển khai</a>
+                    <a class="btn btn-soft" href="/admin/quotas/leadership/dashboard">Bảng điều hành</a>
+                    <a class="btn btn-soft" href="/admin/quotas/audit">Lịch sử thao tác</a>
+                  </div>
+                </details>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    async function publishQuota(id) {
+      if (!confirm('Ban hành quota này thành phiên bản mới?')) return;
+      const response = await fetch('/admin/quotas/' + id + '/publish', { method: 'POST' });
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        alert(data.error || 'Ban hành thất bại');
+        return;
+      }
+      window.location.href = '/admin/quotas?message=' + encodeURIComponent(data.message || 'Ban hành thành công') + '&type=success';
+    }
+  </script>
+</body>
+</html>

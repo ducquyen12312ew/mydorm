@@ -4,9 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cổng đăng ký KTX - DomiSys</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/student-premium-shell.css">
     <link rel="stylesheet" href="/css/student-registration-portal.css">
 </head>
-<body>
+<body class="student-shell-page">
+    <%- include('navbar', { currentPage: 'register', user: user }) %>
+
+    <section class="student-page-hero">
+        <div class="student-page-badge"><i class="fas fa-door-open"></i> Cổng đăng ký</div>
+        <h1 class="student-page-title">Kiểm tra điều kiện và tiếp tục đăng ký phòng từ một màn hình trung tâm rõ ràng hơn</h1>
+        <p class="student-page-subtitle">Cổng đăng ký giờ dùng cùng thanh điều hướng và cùng lớp giao diện với các trang student khác, nên việc chuyển qua lại giữa danh sách, đăng ký và trạng thái phòng liền mạch hơn trước.</p>
+    </section>
+
     <div class="portal-container">
         <header class="portal-header">
             <div class="header-content">

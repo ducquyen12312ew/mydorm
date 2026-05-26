@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Phân Bổ - <%= academicYear %></title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 24px;
+        }
+        
+        .back-btn {
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        
+        .back-btn:hover {
+            background: #5a6268;
+        }
+        
+        .filter-bar {
+            background: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-bar select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .rebalance-alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .rebalance-alert .text {
+            color: #856404;
+        }
+        
+        .rebalance-btn {
+            padding: 8px 16px;
+            background: #ffc107;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .rebalance-btn:hover {
+            background: #e0a800;
+        }
+        
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .category-header {
+            padding: 20px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .category-header.year1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .category-header.year2_3 {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .category-header.year4_plus {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .category-body {
+            padding: 20px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+        
+        .status-badge.sufficient {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-badge.deficit {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-badge.surplus {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .status-badge.available_capacity {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            color: #333;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+        
+        .progress-fill.warning {
+            background: #ffc107;
+        }
+        
+        .progress-fill.danger {
+            background: #dc3545;
+        }
+        
+        .buildings-list {
+            margin-top: 20px;
+        }
+
+        .smart-panel {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .smart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .smart-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .smart-controls input {
+            width: 90px;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1f6feb;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #1958bc;
+        }
+
+        .btn-accent {
+            background: #0f9d58;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 9px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .btn-accent:hover {
+            background: #0b7a43;
+        }
+
+        .smart-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .smart-stat {
+            background: #f7f9fc;
+            border: 1px solid #e7ecf3;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .smart-stat .label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .smart-stat .value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .smart-lists {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+
+        .smart-list {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .smart-list h3 {
+            background: #f8fafc;
+            padding: 10px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .smart-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .smart-table th,
+        .smart-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #f1f5f9;
+            text-align: left;
+        }
+
+        .smart-table th {
+            color: #334155;
+            background: #fafafa;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .fairness-line {
+            margin: 10px 0 0;
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .fairness-line.balanced {
+            background: #e8f7ee;
+            color: #176534;
+        }
+
+        .fairness-line.needs-review {
+            background: #fff4e5;
+            color: #8a5a00;
+        }
+
+        .empty-note {
+            padding: 16px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        @media (max-width: 980px) {
+            .smart-lists {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .building-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .building-item .name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .building-item .stats {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .building-item .rooms-bar {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Dashboard Phân Bổ Phòng - <%= academicYear %></h1>
+            <a href="/admin/allocation/policies" class="back-btn">← Quay lại</a>
+        </div>
+        
+        <div class="filter-bar">
+            <label for="yearGroupFilter">Lọc theo nhóm năm:</label>
+            <select id="yearGroupFilter" onchange="filterYearGroup(this.value)">
+                <option value="">Tất cả</option>
+                <option value="year1" <%= selectedYearGroup === 'year1' ? 'selected' : '' %>>Năm 1</option>
+                <option value="year2_3" <%= selectedYearGroup === 'year2_3' ? 'selected' : '' %>>Năm 2-3</option>
+                <option value="year4_plus" <%= selectedYearGroup === 'year4_plus' ? 'selected' : '' %>>Năm 4+</option>
+            </select>
+        </div>
+        
+        <% if (rebalancingNeeded) { %>
+        <div class="rebalance-alert">
+            <div class="text">
+                <strong>⚠️ Cần tái cân bằng!</strong> Có sự mất cân bằng giữa các nhóm năm. Nhấn để xem đề xuất.
+            </div>
+            <button class="rebalance-btn" onclick="viewRebalanceSuggestions()">
+                Xem đề xuất tái cân bằng
+            </button>
+        </div>
+        <% } %>
+
+        <div class="smart-panel">
+            <div class="smart-header">
+                <div>
+                    <h2 style="font-size: 20px; color: #0f172a; margin-bottom: 4px;">Approval Dashboard</h2>
+                    <% if (selectedCycle) { %>
+                    <div style="font-size: 13px; color: #475569;">Chu kỳ: <strong><%= selectedCycle.name %></strong> (<%= selectedCycle.status %>)</div>
+                    <% } else { %>
+                    <div style="font-size: 13px; color: #b45309;">Không tìm thấy chu kỳ PENDING/RUNNING để tự động duyệt.</div>
+                    <% } %>
+                </div>
+                <div class="smart-controls">
+                    <label for="autoPercentInput" style="font-size: 13px; color: #475569;">Auto approve %</label>
+                    <input id="autoPercentInput" type="number" min="50" max="60" value="55" />
+                    <button class="btn-primary" onclick="refreshApprovalDashboard()">Refresh Ranking</button>
+                    <button class="btn-accent" onclick="runAutoAssignment()">Auto Assign Top</button>
+                </div>
+            </div>
+
+            <div id="smartSummary" class="smart-summary"></div>
+            <div id="fairnessLine"></div>
+
+            <div class="smart-lists">
+                <div class="smart-list">
+                    <h3>Quick Approve List</h3>
+                    <div id="quickApproveContainer" class="empty-note">Chưa có dữ liệu</div>
+                </div>
+                <div class="smart-list">
+                    <h3>Manual Review List</h3>
+                    <div id="manualReviewContainer" class="empty-note">Chưa có dữ liệu</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="categories-grid">
+            <% if (dashboard && dashboard.categories) { 
+                Object.keys(dashboard.categories).forEach(categoryKey => {
+                    const category = dashboard.categories[categoryKey];
+                    const fillPercent = category.quota > 0 
+                        ? (category.allocated / category.quota * 100).toFixed(1) 
+                        : 0;
+                    const progressClass = fillPercent >= 100 ? 'danger' : (fillPercent >= 80 ? 'warning' : '');
+            %>
+            <div class="category-card">
+                <div class="category-header <%= categoryKey %>">
+                    <%= categoryKey === 'year1' ? 'Sinh viên Năm 1' : 
+                        categoryKey === 'year2_3' ? 'Sinh viên Năm 2-3' : 
+                        'Sinh viên Năm 4+' %>
+                </div>
+                
+                <div class="category-body">
+                    <span class="status-badge <%= category.status.toLowerCase().replace('_', '') %>">
+                        <%= category.status %>
+                    </span>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Đã đăng ký</span>
+                        <span class="stat-value"><%= category.registered %></span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Đã phân bổ</span>
+                        <span class="stat-value"><%= category.allocated %></span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Quota</span>
+                        <span class="stat-value"><%= category.quota %></span>
+                    </div>
+                    
+                    <div class="stat-row">
+                        <span class="stat-label">Phòng trống</span>
+                        <span class="stat-value"><%= category.available %></span>
+                    </div>
+                    
+                    <% if (category.waitlisted > 0) { %>
+                    <div class="stat-row">
+                        <span class="stat-label">Đang chờ</span>
+                        <span class="stat-value" style="color: #dc3545;"><%= category.waitlisted %></span>
+                    </div>
+                    <% } %>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill <%= progressClass %>" 
+                             style="width: <%= Math.min(fillPercent, 100) %>%">
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin-top: 8px; font-size: 14px; color: #666;">
+                        <%= fillPercent %>% lấp đầy
+                    </div>
+                    
+                    <% if (category.buildings && category.buildings.length > 0) { %>
+                    <div class="buildings-list">
+                        <strong style="display: block; margin-bottom: 10px;">Tòa nhà:</strong>
+                        <% category.buildings.forEach(building => { 
+                            const buildingFill = building.totalRooms > 0 
+                                ? (building.allocatedRooms / building.totalRooms * 100).toFixed(0) 
+                                : 0;
+                        %>
+                        <div class="building-item">
+                            <div class="name"><%= building.name %></div>
+                            <div class="stats">
+                                Phân bổ: <%= building.allocatedRooms %>/<%= building.totalRooms %> 
+                                (<%= buildingFill %>%)
+                            </div>
+                            <div class="rooms-bar">
+                                <div class="progress-bar" style="height: 6px;">
+                                    <div class="progress-fill" style="width: <%= buildingFill %>%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <% }); %>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+            <% }); %>
+            <% } %>
+        </div>
+    </div>
+    
+    <script>
+        const selectedCycleId = '<%= selectedCycle ? selectedCycle._id : "" %>';
+
+        function getAutoPercent() {
+            const input = document.getElementById('autoPercentInput');
+            const value = Number(input.value || 55);
+            if (!Number.isFinite(value)) return 55;
+            if (value < 50) return 50;
+            if (value > 60) return 60;
+            return Math.round(value);
+        }
+
+        function renderSmartSummary(data) {
+            const summary = document.getElementById('smartSummary');
+            const totals = data.totals || {};
+            const settings = data.settings || {};
+
+            summary.innerHTML = `
+                <div class="smart-stat"><div class="label">Applications</div><div class="value">${totals.applications || 0}</div></div>
+                <div class="smart-stat"><div class="label">Auto %</div><div class="value">${settings.autoApprovePercent || 0}%</div></div>
+                <div class="smart-stat"><div class="label">Auto Slots</div><div class="value">${settings.autoSlots || 0}</div></div>
+                <div class="smart-stat"><div class="label">Quick Approve</div><div class="value">${totals.quickApprove || 0}</div></div>
+                <div class="smart-stat"><div class="label">Manual Review</div><div class="value">${totals.manualReview || 0}</div></div>
+            `;
+
+            const fairness = data.fairness || {};
+            const fairnessLine = document.getElementById('fairnessLine');
+            const fairnessClass = (fairness.fairnessStatus || '') === 'BALANCED'
+                ? 'fairness-line balanced'
+                : 'fairness-line needs-review';
+            fairnessLine.className = fairnessClass;
+            fairnessLine.textContent = `Fairness: ${(fairness.fairnessStatus || 'UNKNOWN')} | Max deviation ${fairness.maxDeviationPercent || 0}%`;
+        }
+
+        function renderStudentTable(items) {
+            if (!items || items.length === 0) {
+                return '<div class="empty-note">Không có dữ liệu.</div>';
+            }
+
+            const rows = items.slice(0, 50).map(item => {
+                const score = Number(item.smartScore || 0).toFixed(2);
+                const distance = item.criteria?.distanceFromHomeKm ?? 0;
+                const fin = item.criteria?.financialDifficultyScore ?? 0;
+                const pri = item.criteria?.priorityLevelScore ?? 0;
+                return `
+                    <tr>
+                        <td>#${item.rank}</td>
+                        <td>${item.studentName || 'N/A'}</td>
+                        <td>${item.yearGroup || '-'}</td>
+                        <td>${score}</td>
+                        <td>${distance}km / ${fin} / ${pri}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            return `
+                <table class="smart-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Student</th>
+                            <th>Year</th>
+                            <th>Score</th>
+                            <th>Criteria (D/F/P)</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            `;
+        }
+
+        async function refreshApprovalDashboard() {
+            if (!selectedCycleId) return;
+            const autoApprovePercent = getAutoPercent();
+
+            try {
+                const response = await fetch(`/api/allocation/cycles/${selectedCycleId}/approval-dashboard?autoApprovePercent=${autoApprovePercent}`);
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Không tải được approval dashboard');
+                }
+
+                const data = payload.data || {};
+                renderSmartSummary(data);
+                document.getElementById('quickApproveContainer').innerHTML = renderStudentTable(data.quickApproveList || []);
+                document.getElementById('manualReviewContainer').innerHTML = renderStudentTable(data.manualReviewList || []);
+            } catch (error) {
+                alert(error.message || 'Đã xảy ra lỗi khi tải ranking');
+            }
+        }
+
+        async function runAutoAssignment() {
+            if (!selectedCycleId) return;
+            const autoApprovePercent = getAutoPercent();
+
+            try {
+                const response = await fetch(`/api/allocation/cycles/${selectedCycleId}/auto-assign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ autoApprovePercent })
+                });
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Auto assign thất bại');
+                }
+
+                const assigned = payload.results?.assigned?.length || 0;
+                const failed = payload.results?.failed?.length || 0;
+                alert(`Auto assign hoàn tất. Assigned: ${assigned}, Failed: ${failed}`);
+                await refreshApprovalDashboard();
+            } catch (error) {
+                alert(error.message || 'Đã xảy ra lỗi khi auto assign');
+            }
+        }
+
+        function filterYearGroup(yearGroup) {
+            const url = new URL(window.location);
+            if (yearGroup) {
+                url.searchParams.set('yearGroup', yearGroup);
+            } else {
+                url.searchParams.delete('yearGroup');
+            }
+            window.location.href = url.toString();
+        }
+        
+        function viewRebalanceSuggestions() {
+            // Get current cycle ID (you might need to pass this from backend)
+            alert('Chức năng xem đề xuất tái cân bằng đang được phát triển. Sử dụng API để xem chi tiết.');
+            // window.location.href = '/admin/allocation/rebalance/' + cycleId;
+        }
+
+        if (selectedCycleId) {
+            refreshApprovalDashboard();
+        }
+    </script>
+</body>
+</html>

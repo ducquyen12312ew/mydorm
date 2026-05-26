@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Đợt Đăng Ký - Admin KTX</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e61a1a;
+            --primary-hover: #c01515;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --text-dark: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg-light: #f8f9fa;
+            --border-color: #e9ecef;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: var(--text-dark);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }
+
+        .navbar-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            gap: 5px;
+            list-style: none;
+        }
+
+        .navbar-menu a {
+            padding: 10px 20px;
+            color: #2c3e50;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-menu a:hover {
+            background: #f8f9fa;
+        }
+
+        .navbar-menu a.active {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Page header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            color: var(--text-dark);
+            font-size: 2rem;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        /* Windows grid */
+        .windows-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .window-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s;
+        }
+
+        .window-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .window-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+
+        .window-title {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .window-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-upcoming {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-closed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .window-info {
+            margin-bottom: 1rem;
+        }
+
+        .info-row {
+            display: flex;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .info-label {
+            flex: 0 0 200px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .info-value {
+            flex: 1;
+            color: var(--text-dark);
+        }
+
+        .window-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.9rem;
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-light);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="/admin/dashboard" class="navbar-brand">
+                <i class="fas fa-building"></i> KTX HUST
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/admin/dashboard">
+                    <i class="fas fa-chart-line"></i> Dashboard
+                </a></li>
+                <li><a href="/admin/dormitories">
+                    <i class="fas fa-building"></i> Ký túc xá
+                </a></li>
+                <li><a href="/admin/application">
+                    <i class="fas fa-file-alt"></i> Đơn đăng ký
+                </a></li>
+                <li><a href="/admin/academic-windows" class="active">
+                    <i class="fas fa-calendar-alt"></i> Đợt đăng ký
+                </a></li>
+                <li><a href="/admin/violations">
+                    <i class="fas fa-shield-alt"></i> Vi phạm
+                </a></li>
+                <li><a href="/admin/logs">
+                    <i class="fas fa-history"></i> Nhật ký
+                </a></li>
+                <li><a href="/logout">
+                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                </a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <div class="container">
+        <div class="page-header">
+            <h1><i class="fas fa-calendar-alt"></i> Quản Lý Đợt Đăng Ký</h1>
+            <button class="btn btn-primary" onclick="showCreateModal()">
+                <i class="fas fa-plus"></i> Tạo đợt mới
+            </button>
+        </div>
+
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            Đợt đăng ký xác định thời gian sinh viên có thể đăng ký KTX. Chỉ có đợt đang "active" mới cho phép đăng ký. <strong>Hệ thống sẽ tự động tính điểm ưu tiên</strong> dựa trên diện ưu tiên, năm học và học lực của sinh viên.
+        </div>
+
+        <div id="windowsList" class="windows-grid"></div>
+    </div>
+
+    <!-- Create/Edit Modal -->
+    <div id="windowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">Tạo Đợt Đăng Ký Mới</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="windowForm">
+                    <div class="form-group">
+                        <label class="form-label">Năm học <span style="color: red;">*</span></label>
+                        <input type="text" class="form-control" id="academicYear" 
+                               placeholder="VD: 2025-2026" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ngày bắt đầu <span style="color: red;">*</span></label>
+                        <input type="datetime-local" class="form-control" id="startDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ngày kết thúc <span style="color: red;">*</span></label>
+                        <input type="datetime-local" class="form-control" id="endDate" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-control" id="status">
+                            <option value="upcoming">Sắp tới</option>
+                            <option value="active">Đang mở</option>
+                            <option value="closed">Đã đóng</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mô tả</label>
+                        <textarea class="form-control" id="description" rows="3" 
+                                  placeholder="Mô tả về đợt đăng ký..."></textarea>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                            Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Lưu
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let windows = [];
+        let editingWindowId = null;
+
+        // Load windows on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🟢 DOMContentLoaded fired');
+            loadWindows();
+
+            // Handle form submission
+            document.getElementById('windowForm').addEventListener('submit', async function(e) {
+                e.preventDefault();
+                await saveWindow();
+            });
+        });
+
+        // Load academic windows
+        async function loadWindows() {
+            console.log('🔵 loadWindows() called');
+            try {
+                console.log('🔵 Fetching from /api/admin/academic-windows');
+                const response = await fetch('/api/admin/academic-windows');
+                console.log('🔵 Response status:', response.status);
+                
+                if (!response.ok) {
+                    console.error('🔴 Response not OK:', response.status, response.statusText);
+                    throw new Error('Failed to fetch windows');
+                }
+                
+                const data = await response.json();
+                console.log('🔵 Raw API data:', data);
+                
+                windows = Array.isArray(data) ? data : (data.windows || data.data || []);
+                console.log('🔵 Parsed windows:', windows);
+                console.log('🔵 Windows count:', windows.length);
+                
+                renderWindows();
+            } catch (error) {
+                console.error('🔴 Error loading windows:', error);
+                const container = document.getElementById('windowsList');
+                if (container) {
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Lỗi tải dữ liệu</h3>
+                            <p>${error.message}</p>
+                            <p style="color: red; font-size: 12px;">Kiểm tra console để xem chi tiết lỗi</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Render windows list
+        function renderWindows() {
+            console.log('🟡 renderWindows() called');
+            const container = document.getElementById('windowsList');
+            console.log('🟡 Container element:', container);
+            
+            if (!container) {
+                console.error('🔴 Container not found');
+                return;
+            }
+            
+            try {
+                console.log('🟡 Windows array length:', windows.length);
+                
+                if (!windows || windows.length === 0) {
+                    console.log('🟡 No windows, showing empty state');
+                    container.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-calendar-times"></i>
+                            <h3>Chưa có đợt đăng ký nào</h3>
+                            <p>Tạo đợt đăng ký mới để sinh viên có thể đăng ký KTX</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                console.log('🟡 Rendering', windows.length, 'windows');
+                const html = windows.map((window, idx) => {
+                    console.log(`🟡 Rendering window ${idx}:`, window);
+                    try {
+                        const startDate = new Date(window.startDate);
+                        const endDate = new Date(window.endDate);
+                        const now = new Date();
+                        
+                        console.log(`🟡 Window ${idx} dates: start=${startDate}, end=${endDate}`);
+                        
+                        let statusClass = 'status-upcoming';
+                        let statusText = 'Sắp tới';
+                        
+                        if (window.status === 'active') {
+                            statusClass = 'status-active';
+                            statusText = 'Đang mở';
+                        } else if (window.status === 'closed' || endDate < now) {
+                            statusClass = 'status-closed';
+                            statusText = 'Đã đóng';
+                        }
+
+                        // Priority statistics
+                        const priorityStats = window.priorityStats || { dantoc: 0, hongho: 0, khuyettat: 0, mocoι: 0, total: 0 };
+                        const priorityHtml = priorityStats.total > 0
+                            ? `<div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                ${priorityStats.dantoc > 0 ? `<span class="badge bg-success">Dân tộc: ${priorityStats.dantoc}</span>` : ''}
+                                ${priorityStats.hongho > 0 ? `<span class="badge bg-info">Hộ nghèo: ${priorityStats.hongho}</span>` : ''}
+                                ${priorityStats.khuyettat > 0 ? `<span class="badge bg-warning">Khuyết tật: ${priorityStats.khuyettat}</span>` : ''}
+                                ${priorityStats.mocoι > 0 ? `<span class="badge bg-danger">Mồ côi: ${priorityStats.mocoι}</span>` : ''}
+                            </div>`
+                            : '<span class="text-muted">-</span>';
+
+                        return `
+                            <div class="window-card">
+                                <div class="window-header">
+                                    <div class="window-title">${window.academicYear || 'N/A'}</div>
+                                    <span class="window-status ${statusClass}">${statusText}</span>
+                                </div>
+                                <div class="window-info">
+                                    <div class="info-row">
+                                        <div class="info-label">Thời gian bắt đầu:</div>
+                                        <div class="info-value">${formatDate(startDate)}</div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Thời gian kết thúc:</div>
+                                        <div class="info-value">${formatDate(endDate)}</div>
+                                    </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Diện ưu tiên:</div>
+                                        <div class="info-value">${priorityHtml}</div>
+                                    </div>
+                                    ${window.description ? `
+                                        <div class="info-row">
+                                            <div class="info-label">Mô tả:</div>
+                                            <div class="info-value">${window.description}</div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                <div class="window-actions">
+                                    ${window.status !== 'active' ? `
+                                        <button class="btn btn-sm btn-success" onclick="activateWindow('${window._id}')">
+                                            <i class="fas fa-check-circle"></i> Kích hoạt
+                                        </button>
+                                    ` : `
+                                        <button class="btn btn-sm btn-danger" onclick="deactivateWindow('${window._id}')">
+                                            <i class="fas fa-times-circle"></i> Đóng đăng ký
+                                        </button>
+                                    `}
+                                    <button class="btn btn-sm btn-secondary" onclick="editWindow('${window._id}')">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="deleteWindow('${window._id}')">
+                                        <i class="fas fa-trash"></i> Xóa
+                                    </button>
+                                </div>
+                            </div>
+                        `;
+                    } catch (itemError) {
+                        console.error('🔴 Error rendering window item:', itemError, window);
+                        return `
+                            <div class="window-card" style="background: #fef2f2; border: 2px solid #fecaca;">
+                                <div style="padding: 1rem; color: #991b1b;">
+                                    <i class="fas fa-exclamation-circle"></i> Lỗi hiển thị dữ liệu
+                                    <br><small>${itemError.message}</small>
+                                </div>
+                            </div>
+                        `;
+                    }
+                }).join('');
+                
+                console.log('🟡 HTML length:', html.length);
+                container.innerHTML = html;
+                console.log('🟢 Render complete!');
+            } catch (error) {
+                console.error('🔴 Error rendering windows:', error);
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Lỗi hiển thị</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Format date
+        function formatDate(date) {
+            try {
+                if (!date) return 'Không xác định';
+                const d = new Date(date);
+                if (isNaN(d.getTime())) return 'Không xác định';
+                const options = { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                };
+                return d.toLocaleDateString('vi-VN', options);
+            } catch (e) {
+                return 'Không xác định';
+            }
+        }
+
+        // Show create modal
+        function showCreateModal() {
+            editingWindowId = null;
+            document.getElementById('modalTitle').textContent = 'Tạo Đợt Đăng Ký Mới';
+            document.getElementById('windowForm').reset();
+            
+            // Set default values
+            const now = new Date();
+            const later = new Date(now.getTime() + (90 * 24 * 60 * 60 * 1000)); // 3 months later
+            
+            document.getElementById('startDate').value = formatDateTimeLocal(now);
+            document.getElementById('endDate').value = formatDateTimeLocal(later);
+            document.getElementById('status').value = 'active';
+            
+            document.getElementById('windowModal').classList.add('show');
+        }
+
+        // Edit window
+        function editWindow(id) {
+            const window = windows.find(w => w._id === id);
+            if (!window) return;
+
+            editingWindowId = id;
+            document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Đợt Đăng Ký';
+            
+            document.getElementById('academicYear').value = window.academicYear;
+            document.getElementById('startDate').value = formatDateTimeLocal(new Date(window.startDate));
+            document.getElementById('endDate').value = formatDateTimeLocal(new Date(window.endDate));
+            document.getElementById('status').value = window.status;
+            document.getElementById('description').value = window.description || '';
+            
+            document.getElementById('windowModal').classList.add('show');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('windowModal').classList.remove('show');
+            editingWindowId = null;
+        }
+
+        // Save window
+        async function saveWindow() {
+            const policyId = document.getElementById('policyId').value;
+            if (!policyId) {
+                alert('Vui lòng chọn chính sách phân bổ');
+                return;
+            }
+
+            const data = {
+                academicYear: document.getElementById('academicYear').value,
+                policyId: policyId,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value,
+                status: document.getElementById('status').value,
+                description: document.getElementById('description').value
+            };
+
+            try {
+                const url = editingWindowId 
+                    ? `/api/admin/academic-windows/${editingWindowId}`
+                    : '/api/admin/academic-windows';
+                    
+                const method = editingWindowId ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Failed to save window');
+
+                closeModal();
+                await loadWindows();
+                
+                alert(editingWindowId ? 'Cập nhật thành công!' : 'Tạo đợt mới thành công!');
+            } catch (error) {
+                console.error('Error saving window:', error);
+                alert('Có lỗi xảy ra khi lưu dữ liệu');
+            }
+        }
+
+        // Activate window
+        async function activateWindow(id) {
+            if (!confirm('Kích hoạt đợt đăng ký này?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/academic-windows/${id}/activate`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 400 && data.error) {
+                        alert(data.error);
+                    } else {
+                        throw new Error('Failed to activate');
+                    }
+                    return;
+                }
+
+                await loadWindows();
+                alert('Đã kích hoạt đợt đăng ký!');
+            } catch (error) {
+                console.error('Error activating window:', error);
+                alert('Có lỗi xảy ra');
+            }
+        }
+
+        // Deactivate window
+        async function deactivateWindow(id) {
+            if (!confirm('Đóng đợt đăng ký này?')) return;
+
+            try {
+                const response = await fetch(`/api/admin/academic-windows/${id}/deactivate`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) throw new Error('Failed to deactivate');
+
+                await loadWindows();
+                alert('Đã đóng đợt đăng ký!');
+            } catch (error) {
+                console.error('Error deactivating window:', error);
+                alert('Có lỗi xảy ra');
+            }
+        }
+
+        // Delete window
+        async function deleteWindow(id) {
+            if (!confirm('Xóa đợt đăng ký này? Thao tác không thể hoàn tác!')) return;
+
+            try {
+                const response = await fetch(`/api/admin/academic-windows/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (!response.ok) throw new Error('Failed to delete');
+
+                await loadWindows();
+                alert('Đã xóa đợt đăng ký!');
+            } catch (error) {
+                console.error('Error deleting window:', error);
+                alert('Có lỗi xảy ra');
+            }
+        }
+
+        // Format datetime for input
+        function formatDateTimeLocal(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+    </script>
+</body>
+</html>
