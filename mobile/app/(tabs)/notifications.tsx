@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchNotifications, markNotificationRead, Notification } from '../../src/api/notifications';
+import { fetchNotifications, markNotificationRead, markAllNotificationsRead, Notification } from '../../src/api/notifications';
 import { SafeLayout } from '../../src/components/SafeLayout';
 import { ScreenHeader } from '../../src/components/ScreenHeader';
 import { SkeletonNotifItem } from '../../src/components/ui/Skeleton';
@@ -100,17 +100,38 @@ export default function NotificationsScreen() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
   });
 
+  const markAllMutation = useMutation({
+    mutationFn: markAllNotificationsRead,
+    onMutate: () => haptic.light(),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+  });
+
   const handleMarkRead = useCallback((id: string) => {
     markReadMutation.mutate(id);
   }, [markReadMutation]);
 
-  const unreadCount = (notifications ?? []).filter((n) => !n.isRead).length;
+  const unreadCount = (notifications ?? []).filter((n: { isRead: boolean }) => !n.isRead).length;
+
+  const markAllButton = unreadCount > 0 ? (
+    <TouchableOpacity
+      onPress={() => markAllMutation.mutate()}
+      disabled={markAllMutation.isPending}
+      hitSlop={10}
+    >
+      <Ionicons
+        name="checkmark-done-outline"
+        size={22}
+        color={markAllMutation.isPending ? Colors.textMuted : Colors.primary}
+      />
+    </TouchableOpacity>
+  ) : null;
 
   return (
     <SafeLayout edges={['top']}>
       <ScreenHeader
         title="Thông báo"
         subtitle={unreadCount > 0 ? `${unreadCount} chưa đọc` : 'Đã đọc tất cả'}
+        right={markAllButton}
       />
 
       {isLoading ? (

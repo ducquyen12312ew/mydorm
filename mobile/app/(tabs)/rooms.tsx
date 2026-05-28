@@ -219,7 +219,7 @@ export default function RoomsScreen() {
   });
 
   const favoriteIds = useMemo(
-    () => new Set((favorites ?? []).map((f: any) => String(f.id))),
+    () => new Set<string>((favorites ?? []).map((f: any) => String(f.id))),
     [favorites]
   );
 
@@ -243,16 +243,16 @@ export default function RoomsScreen() {
   const filtered = useMemo(() => {
     const searchLow = search.toLowerCase();
     return (dormitories ?? [])
-      .map((dorm) => ({
+      .map((dorm: Dormitory) => ({
         ...dorm,
-        rooms: dorm.rooms.filter((r) =>
+        rooms: dorm.rooms.filter((r: Room) =>
           searchLow ? r.roomNumber.toLowerCase().includes(searchLow) : true
         ),
       }))
-      .filter((dorm) => dorm.rooms.length > 0);
+      .filter((dorm: Dormitory) => dorm.rooms.length > 0);
   }, [dormitories, search]);
 
-  const totalRooms = filtered.reduce((sum, d) => sum + d.rooms.length, 0);
+  const totalRooms = filtered.reduce((sum: number, d: Dormitory) => sum + d.rooms.length, 0);
 
   return (
     <SafeLayout edges={['top']}>

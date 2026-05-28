@@ -23,6 +23,8 @@ const {
   getRegistrationAvailability,
   assignStudentToRoom
 } = require('../../services/studentMobileService');
+const { MaintenanceRequestModel } = require('../../schemas/MaintenanceRequestSchema');
+const { ViolationModel } = require('../../schemas/ViolationSchema');
 
 const router = express.Router();
 
@@ -537,6 +539,238 @@ router.post('/student/apply', requireMobileJwt, async (req, res) => {
     });
   } catch (error) {
     console.error('Error assigning student to room:', error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================
+// MOBILE: PROFILE UPDATE (JWT-protected)
+// ============================================================
+
+router.patch('/mobile/profile', requireMobileJwt, async (req, res) => {
+  try {
+    const { phone, email } = req.body;
+    const update = {};
+
+    if (phone !== undefined) {
+      const p = String(phone).trim();
+      if (p && !/^\+?[0-9\s\-]{7,20}$/.test(p)) {
+        return res.status(400).json({ success: false, error: 'Số điện thoại không hợp lệ' });
+      }
+      update.phone = p;
+    }
+
+    if (email !== undefined) {
+      const e = String(email).trim().toLowerCase();
+      if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+        return res.status(400).json({ success: false, error: 'Email không hợp lệ' });
+      }
+      update.email = e;
+    }
+
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, error: 'Không có trường nào để cập nhật' });
+    }
+
+    const student = await StudentCollection.findByIdAndUpdate(
+      req.mobileAuth.userId,
+      { $set: update },
+      { new: true, select: 'name email studentId gender academicYear faculty phone priorityScore dormitoryId roomNumber' }
+    ).lean();
+
+    if (!student) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy sinh viên' });
+    }
+
+    return res.json({ success: true, user: student });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================
+// MOBILE: VIOLATIONS (JWT-protected)
+// ============================================================
+
+router.get('/mobile/violations', requireMobileJwt, async (req, res) => {
+  try {
+    const student = await StudentCollection.findById(req.mobileAuth.userId)
+      .select('studentId')
+      .lean();
+
+    const query = {
+      $or: [
+        { studentObjectId: req.mobileAuth.userId },
+        ...(student?.studentId ? [{ studentId: String(student.studentId) }] : [])
+      ]
+    };
+
+    const violations = await ViolationModel
+      .find(query)
+      .sort({ reportedAt: -1 })
+      .limit(50)
+      .select('type description severity status reportedAt resolution dormitoryName roomNumber')
+      .lean();
+
+    return res.json({ success: true, violations });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================
+// MOBILE: ROOMMATES (JWT-protected)
+// ============================================================
+
+router.get('/mobile/roommates', requireMobileJwt, async (req, res) => {
+  try {
+    const student = await StudentCollection.findById(req.mobileAuth.userId)
+      .select('studentId roomNumber dormitoryId')
+      .lean();
+
+    if (!student?.dormitoryId || !student?.roomNumber) {
+      return res.json({ success: true, roommates: [], room: null });
+    }
+
+    const dormitory = await DormitoryCollection.findById(student.dormitoryId)
+      .select('name floors')
+      .lean();
+
+    let roommates = [];
+    let roomInfo = null;
+
+    for (const floor of (dormitory?.floors || [])) {
+      const room = (floor.rooms || []).find(r => r.roomNumber === student.roomNumber);
+      if (room) {
+        roomInfo = {
+          roomNumber: room.roomNumber,
+          floor: floor.floorNumber,
+          dormitoryName: dormitory.name,
+          maxCapacity: room.maxCapacity,
+        };
+        roommates = (room.occupants || [])
+          .filter(o => o.active && String(o.studentId) !== String(student.studentId || ''))
+          .map(o => ({
+            name: o.name,
+            studentId: o.studentId,
+            phone: o.phone || null,
+            checkInDate: o.checkInDate,
+          }));
+        break;
+      }
+    }
+
+    return res.json({ success: true, roommates, room: roomInfo });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================
+// MOBILE: MAINTENANCE REQUESTS (JWT-protected)
+// ============================================================
+
+router.get('/mobile/maintenance/requests', requireMobileJwt, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const query = { 'reportedBy.userId': req.mobileAuth.userId };
+    if (status && status !== 'all') query.status = status;
+
+    const requests = await MaintenanceRequestModel
+      .find(query)
+      .sort({ reportedAt: -1 })
+      .limit(50)
+      .lean();
+
+    return res.json({ success: true, requests });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+router.post('/mobile/maintenance/requests', requireMobileJwt, async (req, res) => {
+  try {
+    const { type, title, description, priority } = req.body;
+
+    const VALID_TYPES = [
+      'electrical', 'plumbing', 'hvac', 'furniture',
+      'door_lock', 'window', 'internet', 'cleaning',
+      'pest_control', 'other'
+    ];
+
+    if (!type || !VALID_TYPES.includes(type)) {
+      return res.status(400).json({ success: false, error: 'Loại yêu cầu không hợp lệ' });
+    }
+    if (!title || String(title).trim().length < 5 || String(title).trim().length > 200) {
+      return res.status(400).json({ success: false, error: 'Tiêu đề phải từ 5-200 ký tự' });
+    }
+    if (!description || String(description).trim().length < 10 || String(description).trim().length > 2000) {
+      return res.status(400).json({ success: false, error: 'Mô tả phải từ 10-2000 ký tự' });
+    }
+
+    const student = await StudentCollection.findById(req.mobileAuth.userId)
+      .select('name studentId phone dormitoryId roomNumber')
+      .lean();
+
+    if (!student) {
+      return res.status(404).json({ success: false, error: 'Không tìm thấy sinh viên' });
+    }
+    if (!student.dormitoryId || !student.roomNumber) {
+      return res.status(400).json({ success: false, error: 'Bạn chưa được phân phòng. Vui lòng liên hệ quản lý KTX.' });
+    }
+
+    const dormitory = await DormitoryCollection.findById(student.dormitoryId)
+      .select('name floors')
+      .lean();
+
+    let floorNumber = 1;
+    if (dormitory?.floors) {
+      for (const floor of dormitory.floors) {
+        if ((floor.rooms || []).some(r => r.roomNumber === student.roomNumber)) {
+          floorNumber = floor.floorNumber;
+          break;
+        }
+      }
+    }
+
+    const request = await MaintenanceRequestModel.create({
+      dormitoryId: student.dormitoryId,
+      dormitoryName: dormitory?.name ?? '',
+      floorNumber,
+      roomNumber: student.roomNumber,
+      type,
+      title: String(title).trim(),
+      description: String(description).trim(),
+      priority: priority || 'medium',
+      imageUrls: [],
+      reportedBy: {
+        userId: student._id,
+        name: student.name,
+        studentId: student.studentId,
+        phone: student.phone,
+      },
+      status: 'submitted',
+    });
+
+    return res.status(201).json({ success: true, request });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================
+// MOBILE: MARK ALL NOTIFICATIONS READ (JWT-protected)
+// ============================================================
+
+router.post('/mobile/notifications/read-all', requireMobileJwt, async (req, res) => {
+  try {
+    const userId = req.mobileAuth.userId;
+    const result = await NotificationCollection.updateMany(
+      { 'readBy.userId': { $ne: userId } },
+      { $push: { readBy: { userId, readAt: new Date() } } }
+    );
+    return res.json({ success: true, count: result.modifiedCount });
+  } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
 });

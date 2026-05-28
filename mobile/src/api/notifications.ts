@@ -21,3 +21,10 @@ export async function fetchNotifications(limit = 30): Promise<Notification[]> {
 export async function markNotificationRead(id: string): Promise<void> {
   await api.post(`/mobile/notifications/${id}/read`);
 }
+
+export async function markAllNotificationsRead(): Promise<number> {
+  const { data } = await api.post<{ success: boolean; count: number }>(
+    '/mobile/notifications/read-all'
+  );
+  return data.count;
+}

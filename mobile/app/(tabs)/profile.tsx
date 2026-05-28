@@ -14,6 +14,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/store/authStore';
 import { fetchProfile } from '../../src/api/dashboard';
 import { fetchRegistrationAvailability, applyForRoom } from '../../src/api/registration';
+import { fetchRoommates } from '../../src/api/violations';
 import { SafeLayout } from '../../src/components/SafeLayout';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
@@ -79,6 +80,13 @@ export default function ProfileScreen() {
     queryKey: ['registration', 'availability'],
     queryFn: fetchRegistrationAvailability,
     staleTime: 60000,
+  });
+
+  const { data: roommatesData } = useQuery({
+    queryKey: ['roommates'],
+    queryFn: fetchRoommates,
+    staleTime: 120000,
+    enabled: !!profile?.roomNumber,
   });
 
   const handleLogout = () => {
@@ -258,6 +266,37 @@ export default function ProfileScreen() {
           )}
         </Card>
 
+        {/* Roommates */}
+        {(roommatesData?.roommates?.length ?? 0) > 0 && (
+          <Card style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="people-outline" size={16} color={Colors.primary} />
+              <Text style={styles.sectionTitle}>Bạn cùng phòng</Text>
+            </View>
+            {roommatesData!.roommates.map((rm, i) => (
+              <View
+                key={rm.studentId || i}
+                style={[styles.row, i === roommatesData!.roommates.length - 1 && { borderBottomWidth: 0 }]}
+              >
+                <View style={styles.roommateAvatar}>
+                  <Text style={styles.roommateAvatarText}>
+                    {rm.name?.charAt(0)?.toUpperCase() ?? '?'}
+                  </Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.roommateName}>{rm.name}</Text>
+                  {rm.studentId ? (
+                    <Text style={styles.roommateId}>MSSV: {rm.studentId}</Text>
+                  ) : null}
+                </View>
+                {rm.phone ? (
+                  <Text style={styles.roommatePhone}>{rm.phone}</Text>
+                ) : null}
+              </View>
+            ))}
+          </Card>
+        )}
+
         {/* Actions */}
         <Card style={styles.section} padding={false}>
           <View style={styles.sectionHeader}>
@@ -269,6 +308,20 @@ export default function ProfileScreen() {
             label="Phòng yêu thích"
             description="Xem các phòng đã lưu"
             onPress={() => { haptic.light(); router.push('/(tabs)/rooms'); }}
+          />
+          <View style={styles.menuDivider} />
+          <MenuItem
+            icon="construct-outline"
+            label="Yêu cầu bảo trì"
+            description="Báo cáo sự cố phòng ở"
+            onPress={() => { haptic.light(); router.push('/maintenance'); }}
+          />
+          <View style={styles.menuDivider} />
+          <MenuItem
+            icon="warning-outline"
+            label="Vi phạm"
+            description="Xem lịch sử vi phạm của bạn"
+            onPress={() => { haptic.light(); router.push('/violations'); }}
           />
           <View style={styles.menuDivider} />
           <MenuItem
@@ -358,6 +411,21 @@ const styles = StyleSheet.create({
   rowIcon: { marginRight: 8 },
   rowLabel: { fontSize: FontSize.sm, color: Colors.textSecondary },
   rowValue: { fontSize: FontSize.sm, color: Colors.text, fontWeight: FontWeight.medium, maxWidth: '55%', textAlign: 'right' },
+
+  roommateAvatar: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: Spacing.sm,
+    flexShrink: 0,
+  },
+  roommateAvatarText: { fontSize: FontSize.base, fontWeight: FontWeight.bold, color: Colors.textInverse },
+  roommateName: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.text },
+  roommateId: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 1 },
+  roommatePhone: { fontSize: FontSize.xs, color: Colors.textMuted },
 
   menuItem: {
     flexDirection: 'row',

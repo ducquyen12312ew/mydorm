@@ -41,7 +41,7 @@ function NotifTabIcon({ focused }: { focused: boolean }) {
     staleTime: 30000,
   });
 
-  const unreadCount = notifications?.filter((n) => !n.isRead).length ?? 0;
+  const unreadCount = notifications?.filter((n: { isRead: boolean }) => !n.isRead).length ?? 0;
 
   return (
     <View style={styles.tabItem}>

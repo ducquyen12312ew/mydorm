@@ -35,8 +35,8 @@ export function Skeleton({ width = '100%', height = 16, radius = Radius.sm, styl
   );
 }
 
-function Row({ gap = Spacing.sm, style }: { gap?: number; style?: ViewStyle }) {
-  return <View style={[{ flexDirection: 'row', alignItems: 'center', gap }, style]} />;
+function Row({ gap = Spacing.sm, style, children }: { gap?: number; style?: ViewStyle; children?: React.ReactNode }) {
+  return <View style={[{ flexDirection: 'row', alignItems: 'center', gap }, style]}>{children}</View>;
 }
 
 export function SkeletonDashboard() {
@@ -143,7 +143,6 @@ const sk = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: Radius.md,
     padding: Spacing.md,
-    marginLeft: Spacing.sm,
     borderWidth: 1,
     borderColor: Colors.border,
   },

@@ -77,10 +77,19 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen
               name="room/[id]"
-              options={{
-                presentation: 'card',
-                animation: 'slide_from_right',
-              }}
+              options={{ presentation: 'card', animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="maintenance"
+              options={{ presentation: 'card', animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="maintenance/new"
+              options={{ presentation: 'card', animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="violations"
+              options={{ presentation: 'card', animation: 'slide_from_right' }}
             />
           </Stack>
         </QueryClientProvider>

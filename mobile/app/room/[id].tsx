@@ -99,7 +99,7 @@ export default function RoomDetailScreen() {
   const queryClient = useQueryClient();
 
   const { data: dormitories, isLoading } = useQuery({
-    queryKey: ['rooms', {}],
+    queryKey: ['rooms', { roomType: '', onlyAvailable: false }],
     queryFn: () => fetchRooms(),
     staleTime: 30000,
   });
@@ -122,8 +122,8 @@ export default function RoomDetailScreen() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['favorites'] }),
   });
 
-  const dorm = dormitories?.find((d) => String(d.id) === dormId);
-  const room: Room | undefined = dorm?.rooms.find((r) => r.id === id);
+  const dorm = dormitories?.find((d: { id: string | number; rooms: Room[] }) => String(d.id) === dormId);
+  const room: Room | undefined = dorm?.rooms.find((r: Room) => r.id === id);
   const isFavorite = (favorites ?? []).some((f: any) => String(f.id) === id);
 
   const handleToggleFav = () => {
