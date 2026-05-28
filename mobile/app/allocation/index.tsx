@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -73,7 +73,10 @@ export default function AllocationScreen() {
     staleTime: 30000,
   });
 
-  const steps = dashboard ? buildTimeline(dashboard) : [];
+  const steps = useMemo(
+    () => (dashboard ? buildTimeline(dashboard) : []),
+    [dashboard?.application?.status, dashboard?.assignment?.status, dashboard?.assignment?.updatedAt]
+  );
   const profile = dashboard?.profile;
   const assignment = dashboard?.assignment;
   const cycle = dashboard?.cycle;

@@ -59,7 +59,7 @@ function typeIcon(type: string): IoniconsName {
   return (MAINTENANCE_TYPES.find((t) => t.key === type)?.icon ?? 'build-outline') as IoniconsName;
 }
 
-function RequestCard({ item, onPress }: { item: MaintenanceRequest; onPress: () => void }) {
+const RequestCard = React.memo(function RequestCard({ item, onPress }: { item: MaintenanceRequest; onPress: () => void }) {
   const status = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.submitted;
   const priority = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.medium;
 
@@ -105,7 +105,7 @@ function RequestCard({ item, onPress }: { item: MaintenanceRequest; onPress: () 
       </View>
     </TouchableOpacity>
   );
-}
+});
 
 function SkeletonCard() {
   return (

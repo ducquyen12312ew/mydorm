@@ -156,9 +156,12 @@ export default function NotificationsScreen() {
     markReadMutation.mutate(id);
   }, [markReadMutation]);
 
-  const unreadCount = (notifications ?? []).filter((n: { isRead: boolean }) => !n.isRead).length;
+  const unreadCount = useMemo(
+    () => (notifications ?? []).filter((n: { isRead: boolean }) => !n.isRead).length,
+    [notifications]
+  );
 
-  const markAllButton = unreadCount > 0 ? (
+  const markAllButton = useMemo(() => unreadCount > 0 ? (
     <TouchableOpacity
       onPress={() => markAllMutation.mutate()}
       disabled={markAllMutation.isPending}
@@ -170,7 +173,7 @@ export default function NotificationsScreen() {
         color={markAllMutation.isPending ? Colors.textMuted : Colors.primary}
       />
     </TouchableOpacity>
-  ) : null;
+  ) : null, [unreadCount, markAllMutation.isPending]);
 
   return (
     <SafeLayout edges={['top']}>
@@ -217,9 +220,10 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
-          initialNumToRender={10}
-          maxToRenderPerBatch={10}
-          windowSize={7}
+          initialNumToRender={12}
+          maxToRenderPerBatch={8}
+          windowSize={5}
+          removeClippedSubviews
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
           }

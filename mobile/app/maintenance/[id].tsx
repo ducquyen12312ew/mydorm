@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -122,10 +122,13 @@ export default function MaintenanceDetailScreen() {
     staleTime: 30000,
   });
 
-  const typeInfo = MAINTENANCE_TYPES.find(t => t.key === request?.type);
+  const typeInfo = useMemo(() => MAINTENANCE_TYPES.find(t => t.key === request?.type), [request?.type]);
   const statusInfo = STATUS_CONFIG[request?.status ?? 'submitted'];
   const priorityInfo = PRIORITY_CONFIG[request?.priority ?? 'medium'];
-  const timeline = request ? buildStatusTimeline(request) : [];
+  const timeline = useMemo(
+    () => (request ? buildStatusTimeline(request) : []),
+    [request?.status, request?.assignedAt, request?.startedAt, request?.completedAt]
+  );
 
   return (
     <SafeLayout edges={['top']}>

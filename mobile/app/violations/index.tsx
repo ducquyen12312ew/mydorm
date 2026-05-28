@@ -44,7 +44,7 @@ const RESOLUTION_LABELS: Record<string, string> = {
   dismissed: 'Bác bỏ',
 };
 
-function ViolationCard({ item }: { item: Violation }) {
+const ViolationCard = React.memo(function ViolationCard({ item }: { item: Violation }) {
   const severity = SEVERITY_CONFIG[item.severity] ?? SEVERITY_CONFIG.medium;
   const status = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.pending;
   const typeLabel = VIOLATION_TYPE_LABELS[item.type] ?? item.type;
@@ -98,7 +98,7 @@ function ViolationCard({ item }: { item: Violation }) {
       </View>
     </View>
   );
-}
+});
 
 function SkeletonCard() {
   return (
@@ -143,6 +143,10 @@ export default function ViolationsScreen() {
           keyExtractor={(item) => item._id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          initialNumToRender={8}
+          maxToRenderPerBatch={6}
+          windowSize={5}
+          removeClippedSubviews
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
           }
