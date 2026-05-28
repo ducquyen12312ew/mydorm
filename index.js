@@ -1,8 +1,13 @@
 // ============================================
-// SENTRY — must be the very first require
+// ENV VALIDATION — must run before anything else
+// Fails fast on missing/weak secrets in production
+// ============================================
+require('./src/config/validateEnv');
+
+// ============================================
+// SENTRY — must be second (before other requires)
 // Instruments mongoose, http, and other modules at load time
 // ============================================
-require('dotenv').config();
 const Sentry = require('./src/config/sentry');
 
 const express = require("express");

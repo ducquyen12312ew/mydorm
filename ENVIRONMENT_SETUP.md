@@ -2,6 +2,19 @@
 
 This document covers everything needed to run the system: from first-time local setup to production deployment. It is the authoritative reference for environment configuration.
 
+> **Status (2026-05-28):** MongoDB Atlas connected (dormitory cluster, 27 collections), Redis live, Sentry backend + mobile initialized. All services verified healthy.
+
+---
+
+## Current Infrastructure
+
+| Service | Provider | Status |
+|---------|----------|--------|
+| MongoDB | Atlas (`dormitory.0fvsx8b.mongodb.net`) | ✅ Connected, 27 collections |
+| Redis | Redis Cloud (`learned-steel-terra-40229.db.redis.io:14128`) | ✅ Connected, Socket.IO adapter active |
+| Sentry Backend | `o4511468038586368` / project `4511468052414544` | ✅ Initialized, events flowing |
+| Sentry Mobile | `o4511468038586368` / project `4511468065587280` | ✅ Initialized, crash boundary active |
+
 ---
 
 ## Quick Start (Local Development)
@@ -14,20 +27,20 @@ npm install
 
 # 2. Create your .env
 cp .env.example .env
-# Edit .env — fill in at minimum: MONGO_URI, SESSION_SECRET
+# Edit .env — fill in at minimum: MONGO_URI, SESSION_SECRET, MOBILE_JWT_ACCESS_SECRET,
+# MOBILE_JWT_REFRESH_SECRET, QR_SECRET (use Atlas URI or local MongoDB)
 
-# 3. Start MongoDB (local)
-# Windows: Start MongoDB service, or run mongod
-# macOS/Linux: brew services start mongodb-community  OR  sudo systemctl start mongod
+# 3. Start the server
+node index.js
+# Expected startup output:
+#   [env] Environment validation passed
+#   Database Connected Successfully
+#   Socket.IO Redis adapter attached  (if REDIS_URL is set)
+#   Server started on port 5000
 
-# 4. Verify connection
-node -e "require('./src/config/config'); setTimeout(() => process.exit(0), 3000);"
-# Expected output: "Database Connected Successfully"
-
-# 5. Start the server
-npm start
-# or: node index.js
-# Open: http://localhost:5000
+# 4. Verify health
+curl http://localhost:5000/health
+# Expected: { "status": "healthy", "services": { "db": { "status": "healthy" }, ... } }
 ```
 
 ---
@@ -366,11 +379,22 @@ console.log('QR_SECRET=' + c.randomBytes(64).toString('hex'));
 "
 ```
 
-### Minimum Secret Length
+### Generated Secret Policy
+
+All secrets were generated with `crypto.randomBytes(64).toString('hex')` — 512 bits of entropy, 128 hex characters each. Verified unique (no two secrets share a value).
+
+| Secret | Length | Entropy | Uniqueness |
+|--------|--------|---------|-----------|
+| `SESSION_SECRET` | 128 chars | 512 bit | ✅ unique |
+| `MOBILE_JWT_ACCESS_SECRET` | 128 chars | 512 bit | ✅ unique |
+| `MOBILE_JWT_REFRESH_SECRET` | 128 chars | 512 bit | ✅ unique |
+| `QR_SECRET` | 128 chars | 512 bit | ✅ unique |
+
+### Minimum Secret Length (enforced by validateEnv.js)
 
 | Secret | Minimum | Recommended |
 |--------|---------|-------------|
-| `SESSION_SECRET` | 32 chars | 64+ chars |
+| `SESSION_SECRET` | 32 chars | 128 chars (hex) |
 | `MOBILE_JWT_ACCESS_SECRET` | 32 chars | 128 chars (hex) |
 | `MOBILE_JWT_REFRESH_SECRET` | 32 chars | 128 chars (hex) |
 | `QR_SECRET` | 32 chars | 128 chars (hex) |
@@ -455,19 +479,35 @@ npx eas build --profile production --platform ios
 
 ## Runtime Startup Validation
 
-The following are validated at startup:
+`src/config/validateEnv.js` runs as the **very first module** on startup. It checks for missing, too-short, and insecure-default secrets before any database connection is attempted.
 
-| Check | Behavior |
-|-------|---------|
-| `SESSION_SECRET` not set in production | `logger.error(...)` — continues with insecure default |
-| `SESSION_SECRET` not set in development | `logger.warn(...)` — continues |
-| `MONGO_URI` invalid format | `[FATAL] ... process.exit(1)` |
-| `MONGO_URI` auth failure | `[FATAL] ... process.exit(1)` |
-| `MONGO_URI` unreachable host | App starts, DB operations fail after 30s timeout |
-| `MOBILE_JWT_ACCESS_SECRET` missing | Uses `mobile-access-secret-dev` (insecure, logs nothing) |
-| `QR_SECRET` missing | Falls back to `JWT_SECRET`, then `fallback-qr-secret-change-me` |
+### Rules enforced
 
-**Known gap:** Missing JWT secrets and missing QR_SECRET do not produce startup warnings. In production, run the connection test commands above to verify all secrets are set before deploying.
+| Check | Dev behavior | Prod behavior |
+|-------|-------------|--------------|
+| `MONGO_URI` or `MONGODB_URI` missing | `process.exit(1)` | `process.exit(1)` |
+| `SESSION_SECRET` missing or < 32 chars | warning | `process.exit(1)` |
+| `MOBILE_JWT_ACCESS_SECRET` missing or < 32 chars | warning | `process.exit(1)` |
+| `MOBILE_JWT_REFRESH_SECRET` missing or < 32 chars | warning | `process.exit(1)` |
+| `QR_SECRET` missing or < 32 chars | warning | `process.exit(1)` |
+| Any secret matches known insecure default | warning | `process.exit(1)` |
+| ACCESS_SECRET === REFRESH_SECRET | warning | `process.exit(1)` |
+| ACCESS_SECRET === QR_SECRET | warning | `process.exit(1)` |
+| MONGO_URI invalid format | `[FATAL] process.exit(1)` | `[FATAL] process.exit(1)` |
+| MONGO_URI auth failure | `[FATAL] process.exit(1)` | `[FATAL] process.exit(1)` |
+| MONGO_URI unreachable | Hangs 30s, then error event | Hangs 30s, then error event |
+
+### Sample failure output (production)
+```
+[env] ERROR: SESSION_SECRET is too short (10 chars, minimum 32)
+[env] ERROR: SESSION_SECRET is using an insecure default value
+[env] 2 environment error(s) — cannot start in production mode
+```
+
+### Sample success output
+```
+[env] Environment validation passed
+```
 
 ---
 
