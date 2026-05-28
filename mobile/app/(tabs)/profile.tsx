@@ -8,8 +8,8 @@ import {
   Alert,
   RefreshControl,
   Linking,
-  Clipboard,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -302,7 +302,7 @@ export default function ProfileScreen() {
                     </TouchableOpacity>
                     <TouchableOpacity
                       style={styles.roommateActionBtn}
-                      onPress={() => { haptic.selection(); Clipboard.setString(rm.phone!); Alert.alert('Đã sao chép', rm.phone!); }}
+                      onPress={async () => { haptic.selection(); await Clipboard.setStringAsync(rm.phone!); Alert.alert('Đã sao chép', rm.phone!); }}
                       hitSlop={8}
                     >
                       <Ionicons name="copy-outline" size={16} color={Colors.textMuted} />

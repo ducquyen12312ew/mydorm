@@ -9,6 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchNotifications, markNotificationRead, markAllNotificationsRead, Notification } from '../../src/api/notifications';
 import { SafeLayout } from '../../src/components/SafeLayout';
@@ -42,26 +43,33 @@ const PRIORITY_ACCENT: Record<string, string> = {
   low: Colors.border,
 };
 
+const DEEP_LINK_MAP: Record<string, string> = {
+  allocation: '/allocation',
+  registration: '/allocation',
+  maintenance: '/maintenance',
+};
+
 interface NotifItemProps {
   item: Notification;
   onMarkRead: (id: string) => void;
+  onNavigate: (route: string) => void;
 }
 
-const NotifItem = React.memo(function NotifItem({ item, onMarkRead }: NotifItemProps) {
+const NotifItem = React.memo(function NotifItem({ item, onMarkRead, onNavigate }: NotifItemProps) {
   const { name: iconName, color: iconColor } = TYPE_ICON[item.type] ?? DEFAULT_ICON;
   const accentColor = PRIORITY_ACCENT[item.priority] ?? Colors.border;
+  const deepLink = DEEP_LINK_MAP[item.type];
 
   const handlePress = () => {
-    if (!item.isRead) {
-      haptic.light();
-      onMarkRead(item.id);
-    }
+    haptic.light();
+    if (!item.isRead) onMarkRead(item.id);
+    if (deepLink) onNavigate(deepLink);
   };
 
   return (
     <TouchableOpacity
       onPress={handlePress}
-      activeOpacity={item.isRead ? 1 : 0.8}
+      activeOpacity={0.82}
       style={[styles.item, !item.isRead && styles.itemUnread]}
     >
       {/* Priority accent line */}
@@ -81,7 +89,15 @@ const NotifItem = React.memo(function NotifItem({ item, onMarkRead }: NotifItemP
           {!item.isRead && <View style={styles.unreadDot} />}
         </View>
         <Text style={styles.message} numberOfLines={3}>{item.message}</Text>
-        <Text style={styles.time}>{formatRelativeTime(item.createdAt)}</Text>
+        <View style={styles.notifFooter}>
+          <Text style={styles.time}>{formatRelativeTime(item.createdAt)}</Text>
+          {deepLink && (
+            <View style={styles.deepLinkHint}>
+              <Text style={styles.deepLinkText}>Xem chi tiết</Text>
+              <Ionicons name="chevron-forward" size={10} color={Colors.primary} />
+            </View>
+          )}
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -96,6 +112,7 @@ const CATEGORIES = [
 ];
 
 export default function NotificationsScreen() {
+  const router = useRouter();
   const queryClient = useQueryClient();
   const [category, setCategory] = useState('');
 
@@ -194,7 +211,11 @@ export default function NotificationsScreen() {
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
           }
           renderItem={({ item }) => (
-            <NotifItem item={item} onMarkRead={handleMarkRead} />
+            <NotifItem
+              item={item}
+              onMarkRead={handleMarkRead}
+              onNavigate={(route) => router.push(route as any)}
+            />
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
@@ -269,7 +290,10 @@ const styles = StyleSheet.create({
     lineHeight: 18,
     marginBottom: 6,
   },
+  notifFooter: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
   time: { fontSize: FontSize.xs, color: Colors.textMuted },
+  deepLinkHint: { flexDirection: 'row', alignItems: 'center', gap: 2 },
+  deepLinkText: { fontSize: 10, color: Colors.primary, fontWeight: FontWeight.semibold },
 
   separator: {
     height: 1,

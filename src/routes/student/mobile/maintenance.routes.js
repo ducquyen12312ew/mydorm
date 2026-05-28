@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const { StudentCollection, DormitoryCollection } = require('../../../config/config');
 const { requireMobileJwt } = require('../../../middleware/mobileJwtAuth');
 const { MaintenanceRequestModel } = require('../../../schemas/MaintenanceRequestSchema');
@@ -10,6 +11,24 @@ const VALID_TYPES = [
   'door_lock', 'window', 'internet', 'cleaning',
   'pest_control', 'other',
 ];
+
+// GET /mobile/maintenance/requests/:id — detail (must be before list to avoid shadowing)
+router.get('/mobile/maintenance/requests/:id', requireMobileJwt, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, error: 'Invalid request ID' });
+    }
+    const request = await MaintenanceRequestModel.findOne({
+      _id: id,
+      'reportedBy.userId': req.mobileAuth.userId,
+    }).lean();
+    if (!request) return res.status(404).json({ success: false, error: 'Request not found' });
+    return res.json({ success: true, request });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 // GET /mobile/maintenance/requests
 router.get('/mobile/maintenance/requests', requireMobileJwt, async (req, res) => {

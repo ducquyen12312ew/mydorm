@@ -20,6 +20,12 @@ export const MAINTENANCE_PRIORITIES = [
   { key: 'urgent', label: 'Khẩn cấp' },
 ] as const;
 
+export interface MaintenanceUpdate {
+  addedBy: { name: string; role: string };
+  message: string;
+  addedAt: string;
+}
+
 export interface MaintenanceRequest {
   _id: string;
   requestNumber: string;
@@ -33,6 +39,15 @@ export interface MaintenanceRequest {
   dormitoryName: string;
   roomNumber: string;
   floorNumber: number;
+  assignedTo?: { name: string; phone?: string };
+  assignedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
+  estimatedCost?: number;
+  actualCost?: number;
+  completionNotes?: string;
+  updates?: MaintenanceUpdate[];
+  resolution?: { action?: string; notes?: string };
 }
 
 export interface CreateMaintenancePayload {
@@ -56,6 +71,13 @@ export async function createMaintenanceRequest(payload: CreateMaintenancePayload
   const { data } = await api.post<{ success: boolean; request: MaintenanceRequest }>(
     '/mobile/maintenance/requests',
     payload
+  );
+  return data.request;
+}
+
+export async function fetchRequestDetail(id: string): Promise<MaintenanceRequest> {
+  const { data } = await api.get<{ success: boolean; request: MaintenanceRequest }>(
+    `/mobile/maintenance/requests/${id}`
   );
   return data.request;
 }

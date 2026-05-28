@@ -48,14 +48,31 @@ export default function ResidentCardScreen() {
 
   const qrValue = useMemo(() => {
     if (!profile) return '';
-    return JSON.stringify({
-      studentId: profile.studentId || '',
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = iat + 86400; // 24-hour validity
+    const sid = profile.studentId || '';
+    const payload = {
+      v: 1,
+      sid,
       name: profile.name || '',
       room: assignment?.status === 'assigned' ? (assignment.roomNumber || '') : '',
       dorm: assignment?.status === 'assigned' ? (assignment.dormitoryName || '') : '',
-      ts: Math.floor(Date.now() / 1000),
-    });
+      iat,
+      exp,
+    };
+    // Simple checksum for basic anti-tamper (not cryptographic — for display/convenience scanning)
+    let h = 0;
+    const raw = `${sid}:${iat}:HUST_KTX`;
+    for (let i = 0; i < raw.length; i++) {
+      h = Math.imul(31, h) + raw.charCodeAt(i) | 0;
+    }
+    return JSON.stringify({ ...payload, sig: Math.abs(h).toString(16).padStart(8, '0') });
   }, [profile, assignment]);
+
+  const expiryStr = useMemo(() => {
+    const d = new Date(Date.now() + 86400000);
+    return d.toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  }, []);
 
   const handleShare = async () => {
     haptic.light();
@@ -157,6 +174,7 @@ export default function ResidentCardScreen() {
           {/* Footer */}
           <View style={styles.cardFooter}>
             <Text style={styles.cardFooterText}>Xuất trình thẻ khi ra/vào ký túc xá</Text>
+            <Text style={styles.cardFooterExpiry}>Hết hạn: {expiryStr}</Text>
           </View>
         </View>
 
@@ -279,6 +297,7 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
   },
   cardFooterText: { fontSize: FontSize.xs, color: Colors.textMuted, fontStyle: 'italic' },
+  cardFooterExpiry: { fontSize: 9, color: Colors.textMuted, marginTop: 2 },
 
   hintBox: {
     flexDirection: 'row',

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -59,12 +60,12 @@ function typeIcon(type: string): IoniconsName {
   return (MAINTENANCE_TYPES.find((t) => t.key === type)?.icon ?? 'build-outline') as IoniconsName;
 }
 
-function RequestCard({ item }: { item: MaintenanceRequest }) {
+function RequestCard({ item, onPress }: { item: MaintenanceRequest; onPress: () => void }) {
   const status = STATUS_CONFIG[item.status] ?? STATUS_CONFIG.submitted;
   const priority = PRIORITY_CONFIG[item.priority] ?? PRIORITY_CONFIG.medium;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
       {/* Top row */}
       <View style={styles.cardTop}>
         <View style={styles.typeRow}>
@@ -98,9 +99,12 @@ function RequestCard({ item }: { item: MaintenanceRequest }) {
         <Text style={styles.dateText}>{formatRelativeTime(item.reportedAt)}</Text>
       </View>
 
-      {/* Request number */}
-      <Text style={styles.requestNumber}>{item.requestNumber}</Text>
-    </View>
+      {/* Request number + chevron */}
+      <View style={styles.cardMeta}>
+        <Text style={styles.requestNumber}>{item.requestNumber}</Text>
+        <Ionicons name="chevron-forward" size={14} color={Colors.textMuted} />
+      </View>
+    </TouchableOpacity>
   );
 }
 
@@ -185,7 +189,12 @@ export default function MaintenanceIndexScreen() {
           refreshControl={
             <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={Colors.primary} />
           }
-          renderItem={({ item }) => <RequestCard item={item} />}
+          renderItem={({ item }) => (
+            <RequestCard
+              item={item}
+              onPress={() => { haptic.light(); router.push({ pathname: '/maintenance/[id]', params: { id: item._id } }); }}
+            />
+          )}
           ItemSeparatorComponent={() => <View style={{ height: Spacing.sm }} />}
         />
       )}
@@ -264,7 +273,8 @@ const styles = StyleSheet.create({
   priorityText: { fontSize: FontSize.xs, fontWeight: FontWeight.medium },
   dateText: { fontSize: FontSize.xs, color: Colors.textMuted },
 
-  requestNumber: { fontSize: FontSize.xs, color: Colors.textMuted, fontWeight: FontWeight.medium, marginTop: 2 },
+  cardMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
+  requestNumber: { fontSize: FontSize.xs, color: Colors.textMuted, fontWeight: FontWeight.medium },
 
   fab: {
     position: 'absolute',

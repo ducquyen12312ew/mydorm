@@ -88,6 +88,10 @@ export default function RootLayout() {
               options={{ presentation: 'card', animation: 'slide_from_right' }}
             />
             <Stack.Screen
+              name="maintenance/[id]"
+              options={{ presentation: 'card', animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
               name="violations"
               options={{ presentation: 'card', animation: 'slide_from_right' }}
             />

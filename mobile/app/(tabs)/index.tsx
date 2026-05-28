@@ -24,6 +24,27 @@ import { FontSize, FontWeight } from '../../src/constants/typography';
 import { haptic } from '../../src/utils/haptics';
 import { formatDate, formatDateTime, statusLabel } from '../../src/utils/format';
 
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 6) return 'Chào đêm khuya';
+  if (h < 11) return 'Chào buổi sáng';
+  if (h < 14) return 'Chào buổi trưa';
+  if (h < 18) return 'Chào buổi chiều';
+  return 'Chào buổi tối';
+}
+
+function getStatusLine(dashboard: DashboardData): { text: string; color: string } {
+  const { application, assignment, notifications: notif } = dashboard;
+  if (assignment?.status === 'assigned') {
+    return { text: `Phòng ${assignment.roomNumber} · ${assignment.dormitoryName}`, color: Colors.success };
+  }
+  if (application?.status === 'pending') return { text: 'Đơn đang chờ xét duyệt', color: Colors.warning };
+  if (application?.status === 'waitlist') return { text: 'Đang trong danh sách chờ', color: Colors.info };
+  if (application?.status === 'rejected') return { text: 'Đơn bị từ chối — hãy liên hệ quản lý', color: Colors.error };
+  if (application?.status === 'approved') return { text: 'Đơn đã được phê duyệt, chờ xếp phòng', color: Colors.success };
+  return { text: 'Chưa đăng ký phòng ở', color: Colors.textMuted };
+}
+
 function SectionRow({ label, value, icon }: { label: string; value: string; icon?: React.ComponentProps<typeof Ionicons>['name'] }) {
   return (
     <View style={styles.sectionRow}>
@@ -64,8 +85,8 @@ function DashboardContent({ dashboard, onRefresh, refreshing, availability }: {
 }) {
   const router = useRouter();
   const { profile, application, assignment, cycle, notifications: notifStats } = dashboard;
-
-  const academicYearLabel = profile.academicYear ? `Năm ${profile.academicYear}` : '—';
+  const statusLine = getStatusLine(dashboard);
+  const greeting = getGreeting();
 
   return (
     <ScrollView
@@ -78,9 +99,14 @@ function DashboardContent({ dashboard, onRefresh, refreshing, availability }: {
       {/* Profile header */}
       <View style={styles.profileHeader}>
         <View style={styles.profileLeft}>
-          <Text style={styles.greeting}>Xin chào 👋</Text>
-          <Text style={styles.profileName} numberOfLines={2}>{profile.name}</Text>
-          <Text style={styles.profileMeta}>MSSV: {profile.studentId || '—'} · {academicYearLabel}</Text>
+          <Text style={styles.greeting}>{greeting} 👋</Text>
+          <Text style={styles.profileName} numberOfLines={1}>{profile.name}</Text>
+          <View style={styles.statusLine}>
+            <View style={[styles.statusDot, { backgroundColor: statusLine.color }]} />
+            <Text style={[styles.statusLineText, { color: statusLine.color }]} numberOfLines={1}>
+              {statusLine.text}
+            </Text>
+          </View>
         </View>
         <View style={styles.avatarBox}>
           <Text style={styles.avatarText}>{profile.name?.charAt(0)?.toUpperCase() ?? '?'}</Text>
@@ -343,7 +369,9 @@ const styles = StyleSheet.create({
   profileLeft: { flex: 1, gap: 3 },
   greeting: { fontSize: FontSize.sm, color: 'rgba(255,255,255,0.75)' },
   profileName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.textInverse, lineHeight: 26 },
-  profileMeta: { fontSize: FontSize.xs, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
+  statusLine: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 4 },
+  statusDot: { width: 6, height: 6, borderRadius: 3 },
+  statusLineText: { fontSize: FontSize.xs, fontWeight: FontWeight.medium, flex: 1 },
   avatarBox: {
     width: 50,
     height: 50,
