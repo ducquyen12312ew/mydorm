@@ -91,6 +91,14 @@ export default function RootLayout() {
               name="violations"
               options={{ presentation: 'card', animation: 'slide_from_right' }}
             />
+            <Stack.Screen
+              name="allocation"
+              options={{ presentation: 'card', animation: 'slide_from_right' }}
+            />
+            <Stack.Screen
+              name="card"
+              options={{ presentation: 'modal' }}
+            />
           </Stack>
         </QueryClientProvider>
       </SafeAreaProvider>

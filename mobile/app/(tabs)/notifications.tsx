@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ScrollView,
 } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
@@ -86,14 +87,29 @@ const NotifItem = React.memo(function NotifItem({ item, onMarkRead }: NotifItemP
   );
 });
 
+const CATEGORIES = [
+  { key: '', label: 'Tất cả' },
+  { key: 'allocation', label: 'Xếp phòng' },
+  { key: 'registration', label: 'Đăng ký' },
+  { key: 'maintenance', label: 'Bảo trì' },
+  { key: 'system', label: 'Hệ thống' },
+];
+
 export default function NotificationsScreen() {
   const queryClient = useQueryClient();
+  const [category, setCategory] = useState('');
 
   const { data: notifications, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['notifications'],
-    queryFn: () => fetchNotifications(50),
+    queryFn: () => fetchNotifications(100),
     staleTime: 30000,
   });
+
+  const filtered = useMemo(() => {
+    if (!notifications) return [];
+    if (!category) return notifications;
+    return notifications.filter((n: Notification) => n.type === category);
+  }, [notifications, category]);
 
   const markReadMutation = useMutation({
     mutationFn: markNotificationRead,
@@ -134,19 +150,40 @@ export default function NotificationsScreen() {
         right={markAllButton}
       />
 
+      {/* Category filter chips */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.catScroll}
+        contentContainerStyle={styles.catChips}
+      >
+        {CATEGORIES.map(({ key, label }) => {
+          const active = category === key;
+          return (
+            <TouchableOpacity
+              key={key}
+              style={[styles.catChip, active && styles.catChipActive]}
+              onPress={() => { haptic.selection(); setCategory(key); }}
+            >
+              <Text style={[styles.catChipText, active && styles.catChipTextActive]}>{label}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </ScrollView>
+
       {isLoading ? (
         <View style={styles.skeletonList}>
           {[1, 2, 3, 4, 5].map((i) => <SkeletonNotifItem key={i} />)}
         </View>
-      ) : !notifications?.length ? (
+      ) : !filtered.length ? (
         <EmptyState
           iconName="notifications-off-outline"
-          title="Chưa có thông báo"
-          subtitle="Các thông báo từ hệ thống sẽ xuất hiện ở đây"
+          title={category ? 'Không có thông báo' : 'Chưa có thông báo'}
+          subtitle={category ? `Không có thông báo loại "${CATEGORIES.find(c => c.key === category)?.label}"` : 'Các thông báo từ hệ thống sẽ xuất hiện ở đây'}
         />
       ) : (
         <FlatList
-          data={notifications}
+          data={filtered}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
@@ -169,6 +206,16 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   list: { paddingVertical: Spacing.xs, paddingBottom: 32 },
   skeletonList: { paddingTop: Spacing.sm },
+
+  catScroll: { backgroundColor: Colors.surface, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  catChips: { paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm, gap: Spacing.sm, flexDirection: 'row' },
+  catChip: {
+    paddingHorizontal: 14, paddingVertical: 6, borderRadius: Radius.full,
+    backgroundColor: Colors.surfaceAlt, borderWidth: 1, borderColor: Colors.border,
+  },
+  catChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  catChipText: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
+  catChipTextActive: { color: Colors.textInverse, fontWeight: FontWeight.semibold },
 
   item: {
     flexDirection: 'row',

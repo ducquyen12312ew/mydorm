@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
+  Linking,
+  Clipboard,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
@@ -290,7 +292,22 @@ export default function ProfileScreen() {
                   ) : null}
                 </View>
                 {rm.phone ? (
-                  <Text style={styles.roommatePhone}>{rm.phone}</Text>
+                  <View style={styles.roommateActions}>
+                    <TouchableOpacity
+                      style={styles.roommateActionBtn}
+                      onPress={() => { haptic.light(); Linking.openURL(`tel:${rm.phone}`); }}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="call-outline" size={16} color={Colors.success} />
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.roommateActionBtn}
+                      onPress={() => { haptic.selection(); Clipboard.setString(rm.phone!); Alert.alert('Đã sao chép', rm.phone!); }}
+                      hitSlop={8}
+                    >
+                      <Ionicons name="copy-outline" size={16} color={Colors.textMuted} />
+                    </TouchableOpacity>
+                  </View>
                 ) : null}
               </View>
             ))}
@@ -426,6 +443,12 @@ const styles = StyleSheet.create({
   roommateName: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.text },
   roommateId: { fontSize: FontSize.xs, color: Colors.textSecondary, marginTop: 1 },
   roommatePhone: { fontSize: FontSize.xs, color: Colors.textMuted },
+  roommateActions: { flexDirection: 'row', gap: 4 },
+  roommateActionBtn: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: Colors.surfaceAlt, alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: Colors.border,
+  },
 
   menuItem: {
     flexDirection: 'row',

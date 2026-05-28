@@ -109,6 +109,39 @@ function DashboardContent({ dashboard, onRefresh, refreshing, availability }: {
         />
       </View>
 
+      {/* Quick actions */}
+      <View style={styles.quickActions}>
+        <TouchableOpacity style={styles.actionBtn} onPress={() => { haptic.light(); router.push('/allocation'); }} activeOpacity={0.8}>
+          <View style={[styles.actionIcon, { backgroundColor: Colors.primaryLight }]}>
+            <Ionicons name="git-branch-outline" size={20} color={Colors.primary} />
+          </View>
+          <Text style={styles.actionLabel}>Tiến trình</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionBtn} onPress={() => { haptic.light(); router.push('/card'); }} activeOpacity={0.8}>
+          <View style={[styles.actionIcon, { backgroundColor: Colors.infoLight }]}>
+            <Ionicons name="card-outline" size={20} color={Colors.info} />
+          </View>
+          <Text style={styles.actionLabel}>Thẻ cư trú</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionBtn} onPress={() => { haptic.light(); router.push('/maintenance'); }} activeOpacity={0.8}>
+          <View style={[styles.actionIcon, { backgroundColor: Colors.warningLight }]}>
+            <Ionicons name="construct-outline" size={20} color={Colors.warning} />
+          </View>
+          <Text style={styles.actionLabel}>Bảo trì</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.actionBtn} onPress={() => { haptic.light(); router.push('/(tabs)/notifications'); }} activeOpacity={0.8}>
+          <View style={[styles.actionIcon, { backgroundColor: Colors.successLight, position: 'relative' as const }]}>
+            <Ionicons name="notifications-outline" size={20} color={Colors.success} />
+            {notifStats.unreadCount > 0 && (
+              <View style={styles.actionBadge}>
+                <Text style={styles.actionBadgeText}>{notifStats.unreadCount > 9 ? '9+' : notifStats.unreadCount}</Text>
+              </View>
+            )}
+          </View>
+          <Text style={styles.actionLabel}>Thông báo</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Registration open banner */}
       {availability?.openForRegistration && (
         <TouchableOpacity
@@ -340,6 +373,34 @@ const styles = StyleSheet.create({
   },
   quickStatValue: { fontSize: FontSize.sm, fontWeight: FontWeight.bold, textAlign: 'center' },
   quickStatLabel: { fontSize: FontSize.xs, color: Colors.textMuted, textAlign: 'center' },
+
+  quickActions: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+  },
+  actionBtn: { flex: 1, alignItems: 'center', gap: 6 },
+  actionIcon: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Shadow.sm,
+  },
+  actionLabel: { fontSize: FontSize.xs, color: Colors.textSecondary, fontWeight: FontWeight.medium, textAlign: 'center' },
+  actionBadge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+  },
+  actionBadgeText: { fontSize: 9, fontWeight: FontWeight.bold, color: Colors.textInverse },
 
   registrationBanner: {
     flexDirection: 'row',
