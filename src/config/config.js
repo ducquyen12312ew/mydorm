@@ -10,6 +10,12 @@ const mongoUri =
 mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
+}).catch((err) => {
+    // Surface fatal connection errors (bad URI format, auth failure) instead of
+    // letting them become unhandled rejections that crash the process silently.
+    console.error('[FATAL] MongoDB initial connection failed:', err.message);
+    console.error('Check MONGO_URI / MONGODB_URI in your .env file.');
+    process.exit(1);
 });
 
 mongoose.connection.on('connected', () => {

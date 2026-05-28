@@ -41,7 +41,8 @@
     },
     "extra": {
       "apiBaseUrl": "http://10.0.2.2:5000",
-      "apiBaseUrlIos": "http://localhost:5000"
+      "apiBaseUrlIos": "http://localhost:5000",
+      "apiBaseUrlProd": "https://api.hust-dormitory.edu.vn"
     }
   }
 }
