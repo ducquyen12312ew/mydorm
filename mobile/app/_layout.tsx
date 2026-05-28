@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { Stack } from 'expo-router';
+import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -8,6 +9,10 @@ import { StyleSheet } from 'react-native';
 import { useAuthStore } from '../src/store/authStore';
 import { connectSocket, disconnectSocket, ensureConnected } from '../src/realtime/socket';
 import { registerSessionExpiredCallback } from '../src/api/client';
+import { initSentry } from '../src/config/sentry';
+
+// Initialize Sentry before anything else renders
+initSentry();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -66,7 +71,7 @@ function AppLifecycle() {
   return null;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
@@ -111,3 +116,6 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({ root: { flex: 1 } });
+
+// Wrap with Sentry to catch unhandled JS crashes and report navigation context
+export default Sentry.wrap(RootLayout);

@@ -1,3 +1,10 @@
+// ============================================
+// SENTRY — must be the very first require
+// Instruments mongoose, http, and other modules at load time
+// ============================================
+require('dotenv').config();
+const Sentry = require('./src/config/sentry');
+
 const express = require("express");
 const path = require("path");
 const http = require('http');
@@ -13,7 +20,6 @@ const { requestLogger } = require('./src/observability/observability');
 // ============================================
 // LOGGING IMPORTS
 // ============================================
-require('dotenv').config();
 const { logger } = require('./src/config/logger');
 
 // ============================================
@@ -39,6 +45,7 @@ if (!process.env.SESSION_SECRET && process.env.NODE_ENV === 'production') {
 }
 
 // Routes
+const healthRoutes = require('./src/routes/health-routes');
 const dormitoryRoutes = require('./src/routes/dormitory-routes');
 const registrationRoutes = require('./src/routes/student/registration-routes');
 const adminApplicationRoutes = require('./src/routes/admin/admin-application-routes');
@@ -232,9 +239,7 @@ app.use((req, res, next) => {
 // PUBLIC ROUTES
 // ============================================
 
-app.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
+app.use('/health', healthRoutes);
 
 app.get("/", (req, res) => {
     if (req.session && req.session.userId) {
@@ -340,6 +345,10 @@ app.use((req, res) => {
         error: `Trang "${req.path}" không tìm thấy`
     });
 });
+
+// Sentry error handler — must be before the custom error handler
+// Captures Express errors and attaches request context to Sentry events
+Sentry.setupExpressErrorHandler(app);
 
 // Global Error Handler (must be last)
 app.use(errorHandler);

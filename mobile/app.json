@@ -42,7 +42,9 @@
     "extra": {
       "apiBaseUrl": "http://10.0.2.2:5000",
       "apiBaseUrlIos": "http://localhost:5000",
-      "apiBaseUrlProd": "https://api.hust-dormitory.edu.vn"
+      "apiBaseUrlProd": "https://api.hust-dormitory.edu.vn",
+      "sentryDsn": "https://e3b13223e6cf2f5e4a864a775b4f835e@o4511468038586368.ingest.de.sentry.io/4511468065587280",
+      "appEnv": "development"
     }
   }
 }
