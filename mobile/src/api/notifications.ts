@@ -4,7 +4,8 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: string;
+  type: string;            // visual: 'info' | 'success' | 'warning' | 'error'
+  category: string | null; // semantic: 'allocation' | 'maintenance' | 'registration' | 'system' | null
   priority: string;
   createdAt: string;
   isRead: boolean;

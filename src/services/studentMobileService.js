@@ -263,6 +263,7 @@ async function getStudentNotifications(userId, limit = 20) {
       title: item.title,
       message: item.message,
       type: item.type,
+      category: item.category || null,
       priority: item.priority,
       createdAt: item.createdAt,
       isRead

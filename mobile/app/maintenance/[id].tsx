@@ -11,6 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import {
   fetchRequestDetail,
+  MaintenanceUpdate,
   MAINTENANCE_TYPES,
   MAINTENANCE_PRIORITIES,
 } from '../../src/api/maintenance';
@@ -207,7 +208,7 @@ export default function MaintenanceDetailScreen() {
           {(request.updates?.length ?? 0) > 0 && (
             <Card style={styles.section}>
               <Text style={styles.sectionTitle}>Cập nhật từ nhân viên</Text>
-              {request.updates!.map((u, i) => (
+              {request.updates!.map((u: MaintenanceUpdate, i: number) => (
                 <View key={i} style={[styles.update, i < request.updates!.length - 1 && styles.updateBorder]}>
                   <View style={styles.updateHeader}>
                     <View style={styles.updateAvatar}>

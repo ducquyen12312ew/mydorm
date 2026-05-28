@@ -24,14 +24,23 @@ import { formatRelativeTime } from '../../src/utils/format';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
+// Icon by visual type (what DB stores)
 const TYPE_ICON: Record<string, { name: IoniconsName; color: string }> = {
   info: { name: 'information-circle-outline', color: Colors.info },
   success: { name: 'checkmark-circle-outline', color: Colors.success },
   warning: { name: 'warning-outline', color: Colors.warning },
   error: { name: 'alert-circle-outline', color: Colors.error },
+};
+
+// Override icon by semantic category (when present)
+const CATEGORY_ICON: Record<string, { name: IoniconsName; color: string }> = {
   allocation: { name: 'home-outline', color: Colors.primary },
   registration: { name: 'document-text-outline', color: Colors.info },
+  maintenance: { name: 'construct-outline', color: Colors.warning },
+  violation: { name: 'warning-outline', color: Colors.error },
+  payment: { name: 'cash-outline', color: Colors.success },
   system: { name: 'settings-outline', color: Colors.textMuted },
+  announcement: { name: 'megaphone-outline', color: Colors.info },
 };
 
 const DEFAULT_ICON: { name: IoniconsName; color: string } = { name: 'notifications-outline', color: Colors.textMuted };
@@ -43,7 +52,7 @@ const PRIORITY_ACCENT: Record<string, string> = {
   low: Colors.border,
 };
 
-const DEEP_LINK_MAP: Record<string, string> = {
+const CATEGORY_DEEP_LINK: Record<string, string> = {
   allocation: '/allocation',
   registration: '/allocation',
   maintenance: '/maintenance',
@@ -56,9 +65,13 @@ interface NotifItemProps {
 }
 
 const NotifItem = React.memo(function NotifItem({ item, onMarkRead, onNavigate }: NotifItemProps) {
-  const { name: iconName, color: iconColor } = TYPE_ICON[item.type] ?? DEFAULT_ICON;
+  // Use category icon when available, otherwise fall back to visual type icon
+  const { name: iconName, color: iconColor } =
+    (item.category && CATEGORY_ICON[item.category]) ||
+    TYPE_ICON[item.type] ||
+    DEFAULT_ICON;
   const accentColor = PRIORITY_ACCENT[item.priority] ?? Colors.border;
-  const deepLink = DEEP_LINK_MAP[item.type];
+  const deepLink = item.category ? CATEGORY_DEEP_LINK[item.category] : undefined;
 
   const handlePress = () => {
     haptic.light();
@@ -125,7 +138,7 @@ export default function NotificationsScreen() {
   const filtered = useMemo(() => {
     if (!notifications) return [];
     if (!category) return notifications;
-    return notifications.filter((n: Notification) => n.type === category);
+    return notifications.filter((n: Notification) => n.category === category);
   }, [notifications, category]);
 
   const markReadMutation = useMutation({

@@ -473,6 +473,12 @@ const NotificationSchema = new mongoose.Schema({
         enum: ['low', 'normal', 'high'],
         default: 'normal'
     },
+    // Semantic category for mobile filtering/deep-linking (optional, backward-compat)
+    category: {
+        type: String,
+        enum: ['allocation', 'registration', 'maintenance', 'violation', 'payment', 'system', 'announcement'],
+        default: null
+    },
     expiresAt: {
         type: Date
     },

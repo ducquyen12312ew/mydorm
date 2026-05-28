@@ -16,7 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/store/authStore';
 import { fetchProfile } from '../../src/api/dashboard';
 import { fetchRegistrationAvailability, applyForRoom } from '../../src/api/registration';
-import { fetchRoommates } from '../../src/api/violations';
+import { fetchRoommates, Roommate } from '../../src/api/violations';
 import { SafeLayout } from '../../src/components/SafeLayout';
 import { Card } from '../../src/components/ui/Card';
 import { Button } from '../../src/components/ui/Button';
@@ -275,7 +275,7 @@ export default function ProfileScreen() {
               <Ionicons name="people-outline" size={16} color={Colors.primary} />
               <Text style={styles.sectionTitle}>Bạn cùng phòng</Text>
             </View>
-            {roommatesData!.roommates.map((rm, i) => (
+            {roommatesData!.roommates.map((rm: Roommate, i: number) => (
               <View
                 key={rm.studentId || i}
                 style={[styles.row, i === roommatesData!.roommates.length - 1 && { borderBottomWidth: 0 }]}
