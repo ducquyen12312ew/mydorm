@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -85,8 +85,10 @@ function DashboardContent({ dashboard, onRefresh, refreshing, availability }: {
 }) {
   const router = useRouter();
   const { profile, application, assignment, cycle, notifications: notifStats } = dashboard;
-  const statusLine = getStatusLine(dashboard);
-  const greeting = getGreeting();
+  // Memoize derived values that depend on dashboard data
+  const statusLine = useMemo(() => getStatusLine(dashboard), [assignment, application]);
+  // Greeting only needs to compute once per mount
+  const greeting = useMemo(() => getGreeting(), []);
 
   return (
     <ScrollView

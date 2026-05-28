@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   ScrollView,
   RefreshControl,
-  Animated,
 } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
