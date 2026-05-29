@@ -46,7 +46,7 @@ export default function LoginScreen() {
     try {
       await login(username.trim(), password);
       haptic.success();
-      router.replace('/(tabs)/');
+      router.replace('/(tabs)');
     } catch (err: any) {
       haptic.error();
       const raw = err?.response?.data?.error || err?.message || '';

@@ -1,0 +1,15 @@
+{
+  "_query": "db.pendingapplications.find({studentId: '20220001'})",
+  "count": 1,
+  "records": [
+    {
+      "_id": "6a19ce6c09976c883165551b",
+      "studentId": "20220001",
+      "fullName": "Nguyễn Văn Minh",
+      "dormitoryName": "KTX A1 - Bách Khoa",
+      "roomNumber": "202",
+      "status": "approved",
+      "priorityScore": 82
+    }
+  ]
+}

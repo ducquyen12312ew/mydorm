@@ -1,0 +1,2 @@
+REPOSITORY      TAG       SIZE      CREATED AT
+dormitory-app   rc1       588MB     2026-05-29 23:05:36 +0700 +07

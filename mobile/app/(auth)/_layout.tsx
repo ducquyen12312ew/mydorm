@@ -6,7 +6,7 @@ export default function AuthLayout() {
   const { isAuthenticated, isLoading } = useAuthStore();
 
   if (isLoading) return <LoadingSpinner fullScreen />;
-  if (isAuthenticated) return <Redirect href="/(tabs)/" />;
+  if (isAuthenticated) return <Redirect href="/(tabs)" />;
 
   return <Stack screenOptions={{ headerShown: false }} />;
 }

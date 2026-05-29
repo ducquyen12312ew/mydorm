@@ -1,0 +1,52 @@
+{
+  "_query": "db.maintenancerequests.find({'reportedBy.userId': ObjectId(student._id)})",
+  "connection": "mongodb+srv://dormitory.0fvsx8b.mongodb.net/dormitory",
+  "count": 3,
+  "records": [
+    {
+      "_id": "6a19ce6c09976c8831655513",
+      "requestNumber": "MR-2026-00003",
+      "title": "WiFi phòng 202 chập chờn tốc độ thấp",
+      "type": "internet",
+      "status": "submitted",
+      "priority": "medium",
+      "roomNumber": "202",
+      "dormitoryName": "KTX A1 - Bách Khoa",
+      "reportedBy": {
+        "userId": "6a19ba230c1321790c289d18",
+        "name": "Nguyễn Văn Minh"
+      },
+      "reportedAt": "2026-05-29T05:35:40.362Z"
+    },
+    {
+      "_id": "6a19ce6c09976c8831655511",
+      "requestNumber": "MR-2026-00001",
+      "title": "Ổ điện cạnh cửa sổ bị hỏng",
+      "type": "electrical",
+      "status": "in_progress",
+      "priority": "high",
+      "roomNumber": "202",
+      "dormitoryName": "KTX A1 - Bách Khoa",
+      "reportedBy": {
+        "userId": "6a19ba230c1321790c289d18",
+        "name": "Nguyễn Văn Minh"
+      },
+      "reportedAt": "2026-05-26T17:35:40.362Z"
+    },
+    {
+      "_id": "6a19ce6c09976c8831655512",
+      "requestNumber": "MR-2026-00002",
+      "title": "Vòi nước trong phòng tắm bị rò rỉ",
+      "type": "plumbing",
+      "status": "completed",
+      "priority": "medium",
+      "roomNumber": "202",
+      "dormitoryName": "KTX A1 - Bách Khoa",
+      "reportedBy": {
+        "userId": "6a19ba230c1321790c289d18",
+        "name": "Nguyễn Văn Minh"
+      },
+      "reportedAt": "2026-05-19T17:35:40.362Z"
+    }
+  ]
+}

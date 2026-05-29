@@ -1,0 +1,59 @@
+{
+  "_query": "db.notifications.find({$or:[{isGlobal:true},{targetUsers:student._id}]})",
+  "connection": "mongodb+srv://dormitory.0fvsx8b.mongodb.net/dormitory",
+  "count": 5,
+  "records": [
+    {
+      "_id": "6a19ba230c1321790c289d34",
+      "title": "Thông báo đóng phí ký túc xá HK1",
+      "type": "warning",
+      "category": "system",
+      "priority": "high",
+      "isGlobal": true,
+      "targetRole": "user",
+      "targetUsers": []
+    },
+    {
+      "_id": "6a19ba230c1321790c289d33",
+      "title": "Yêu cầu bảo trì được tiếp nhận",
+      "type": "info",
+      "category": "maintenance",
+      "priority": "normal",
+      "isGlobal": false,
+      "targetUsers": [
+        "6a19ba230c1321790c289d18"
+      ]
+    },
+    {
+      "_id": "6a19ba230c1321790c289d35",
+      "title": "Quy định ra vào KTX ban đêm",
+      "type": "info",
+      "category": "announcement",
+      "priority": "normal",
+      "isGlobal": true,
+      "targetRole": "user",
+      "targetUsers": []
+    },
+    {
+      "_id": "6a19ba230c1321790c289d32",
+      "title": "Xếp phòng thành công",
+      "type": "success",
+      "category": "allocation",
+      "priority": "high",
+      "isGlobal": false,
+      "targetUsers": [
+        "6a19ba230c1321790c289d18"
+      ]
+    },
+    {
+      "_id": "6a19ba230c1321790c289d36",
+      "title": "Hệ thống bảo trì định kỳ",
+      "type": "info",
+      "category": "system",
+      "priority": "low",
+      "isGlobal": true,
+      "targetRole": "all",
+      "targetUsers": []
+    }
+  ]
+}
