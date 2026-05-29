@@ -28,10 +28,10 @@ type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
 const ROOM_TYPES: { key: string; label: string }[] = [
   { key: '', label: 'Tất cả' },
-  { key: 'single', label: 'Đơn' },
-  { key: 'double', label: 'Đôi' },
-  { key: 'triple', label: 'Ba người' },
-  { key: 'quad', label: 'Bốn người' },
+  { key: '8-person', label: '8 người' },
+  { key: '5-person', label: '5 người' },
+  { key: '4-person-service', label: '4 người (DV)' },
+  { key: '10-person', label: '10 người' },
 ];
 
 // Occupancy color by percentage
@@ -69,10 +69,14 @@ const RoomTypeIcon: Record<string, IoniconsName> = {
 };
 
 const ROOM_TYPE_VI: Record<string, string> = {
-  single: 'Phòng đơn',
-  double: 'Phòng đôi',
-  triple: 'Phòng 3 người',
-  quad: 'Phòng 4 người',
+  'single': 'Phòng đơn',
+  'double': 'Phòng đôi',
+  'triple': 'Phòng 3 người',
+  'quad': 'Phòng 4 người',
+  '8-person': 'Phòng 8 người',
+  '5-person': 'Phòng 5 người',
+  '4-person-service': 'Phòng 4 người (DV)',
+  '10-person': 'Phòng 10 người',
 };
 
 interface RoomCardProps {

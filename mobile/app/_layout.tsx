@@ -26,9 +26,14 @@ const queryClient = new QueryClient({
 });
 
 function AppLifecycle() {
-  const { isAuthenticated, forceReset } = useAuthStore();
+  const { isAuthenticated, forceReset, restoreSession } = useAuthStore();
   const qc = useQueryClient();
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
+
+  // Restore session on every cold start (including deep links bypassing index.tsx)
+  useEffect(() => {
+    restoreSession();
+  }, []);
 
   // Register the session-expired callback once so the API interceptor can
   // force a logout without a circular import.

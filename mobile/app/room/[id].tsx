@@ -177,10 +177,14 @@ export default function RoomDetailScreen() {
   }
 
   const ROOM_TYPE_VI: Record<string, string> = {
-    single: 'Phòng đơn',
-    double: 'Phòng đôi',
-    triple: 'Phòng 3 người',
-    quad: 'Phòng 4 người',
+    'single': 'Phòng đơn',
+    'double': 'Phòng đôi',
+    'triple': 'Phòng 3 người',
+    'quad': 'Phòng 4 người',
+    '8-person': 'Phòng 8 người',
+    '5-person': 'Phòng 5 người',
+    '4-person-service': 'Phòng 4 người (DV)',
+    '10-person': 'Phòng 10 người',
   };
   const roomTypeLabel = ROOM_TYPE_VI[room.roomType ?? ''] ?? ((room.roomType ?? '').charAt(0).toUpperCase() + (room.roomType ?? '').slice(1));
 

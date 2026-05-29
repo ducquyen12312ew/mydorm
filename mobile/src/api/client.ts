@@ -1,4 +1,5 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
+import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import { API_BASE, API_PREFIX } from '../config';
 
@@ -9,37 +10,37 @@ const KEYS = {
   fingerprint: 'mobile_fingerprint',
 } as const;
 
+// Web-safe SecureStore wrapper: falls back to localStorage on web (screenshots/demo only)
+const isWeb = Platform.OS === 'web';
+
+async function secureSet(key: string, value: string) {
+  if (isWeb) { try { localStorage.setItem(key, value); } catch (_) {} return; }
+  await SecureStore.setItemAsync(key, value);
+}
+async function secureGet(key: string): Promise<string | null> {
+  if (isWeb) { try { return localStorage.getItem(key); } catch (_) { return null; } }
+  return SecureStore.getItemAsync(key);
+}
+async function secureDel(key: string) {
+  if (isWeb) { try { localStorage.removeItem(key); } catch (_) {} return; }
+  try { await SecureStore.deleteItemAsync(key); } catch (_) {}
+}
+
 export const TokenStore = {
   async save(access: string, refresh: string): Promise<void> {
-    await Promise.all([
-      SecureStore.setItemAsync(KEYS.accessToken, access),
-      SecureStore.setItemAsync(KEYS.refreshToken, refresh),
-    ]);
+    await Promise.all([secureSet(KEYS.accessToken, access), secureSet(KEYS.refreshToken, refresh)]);
   },
-  async getAccess(): Promise<string | null> {
-    return SecureStore.getItemAsync(KEYS.accessToken);
-  },
-  async getRefresh(): Promise<string | null> {
-    return SecureStore.getItemAsync(KEYS.refreshToken);
-  },
+  async getAccess(): Promise<string | null> { return secureGet(KEYS.accessToken); },
+  async getRefresh(): Promise<string | null> { return secureGet(KEYS.refreshToken); },
   async saveDevice(deviceId: string, fingerprint: string): Promise<void> {
-    await Promise.all([
-      SecureStore.setItemAsync(KEYS.deviceId, deviceId),
-      SecureStore.setItemAsync(KEYS.fingerprint, fingerprint),
-    ]);
+    await Promise.all([secureSet(KEYS.deviceId, deviceId), secureSet(KEYS.fingerprint, fingerprint)]);
   },
   async getDevice(): Promise<{ deviceId: string; fingerprint: string }> {
-    const [deviceId, fingerprint] = await Promise.all([
-      SecureStore.getItemAsync(KEYS.deviceId),
-      SecureStore.getItemAsync(KEYS.fingerprint),
-    ]);
+    const [deviceId, fingerprint] = await Promise.all([secureGet(KEYS.deviceId), secureGet(KEYS.fingerprint)]);
     return { deviceId: deviceId ?? 'unknown', fingerprint: fingerprint ?? 'unknown' };
   },
   async clear(): Promise<void> {
-    await Promise.all([
-      SecureStore.deleteItemAsync(KEYS.accessToken),
-      SecureStore.deleteItemAsync(KEYS.refreshToken),
-    ]);
+    await Promise.all([secureDel(KEYS.accessToken), secureDel(KEYS.refreshToken)]);
   },
 };
 
