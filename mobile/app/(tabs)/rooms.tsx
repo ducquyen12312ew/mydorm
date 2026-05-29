@@ -68,6 +68,13 @@ const RoomTypeIcon: Record<string, IoniconsName> = {
   quad: 'people',
 };
 
+const ROOM_TYPE_VI: Record<string, string> = {
+  single: 'Phòng đơn',
+  double: 'Phòng đôi',
+  triple: 'Phòng 3 người',
+  quad: 'Phòng 4 người',
+};
+
 interface RoomCardProps {
   room: Room;
   dormId: string;
@@ -104,7 +111,7 @@ const RoomCard = React.memo(function RoomCard({ room, dormId, isFavorite, onTogg
           <View style={styles.roomMeta}>
             <View style={styles.roomMetaRow}>
               <Ionicons name={RoomTypeIcon[room.roomType] ?? 'person'} size={12} color={Colors.textMuted} />
-              <Text style={styles.roomType}>{room.roomType}</Text>
+              <Text style={styles.roomType}>{ROOM_TYPE_VI[room.roomType] ?? room.roomType}</Text>
             </View>
             <View style={styles.roomMetaRow}>
               <Ionicons name="layers-outline" size={12} color={Colors.textMuted} />

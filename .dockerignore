@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+mobile/node_modules/
+student-web/node_modules/
+
+# Environment & secrets
+.env
+.env.*
+!.env.example
+
+# Dev tools
+.git/
+.github/
+.vscode/
+
+# Mobile app source (not deployed to server)
+mobile/
+student-web/
+
+# Documentation & scripts
+docs/
+tests/
+scripts/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist/
+build/
+.expo/

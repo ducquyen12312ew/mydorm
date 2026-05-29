@@ -177,7 +177,9 @@ export default function MaintenanceIndexScreen() {
         <EmptyState
           iconName="construct-outline"
           title="Chưa có yêu cầu nào"
-          subtitle="Nhấn dấu + để gửi yêu cầu bảo trì mới"
+          subtitle="Báo cáo sự cố phòng ở để được hỗ trợ kịp thời"
+          actionLabel="Tạo yêu cầu mới"
+          onAction={() => { haptic.medium(); router.push('/maintenance/new'); }}
         />
       ) : (
         <FlatList

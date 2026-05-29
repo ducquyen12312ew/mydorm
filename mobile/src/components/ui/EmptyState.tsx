@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../constants/colors';
 import { FontSize, FontWeight } from '../../constants/typography';
-import { Spacing } from '../../constants/spacing';
+import { Spacing, Radius } from '../../constants/spacing';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -11,11 +11,13 @@ interface EmptyStateProps {
   title: string;
   subtitle?: string;
   iconName?: IoniconsName;
-  // Legacy emoji fallback — prefer iconName
+  /** Legacy emoji fallback — prefer iconName */
   icon?: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
-export function EmptyState({ title, subtitle, iconName = 'file-tray-outline', icon }: EmptyStateProps) {
+export function EmptyState({ title, subtitle, iconName = 'file-tray-outline', icon, actionLabel, onAction }: EmptyStateProps) {
   return (
     <View style={styles.container}>
       {icon ? (
@@ -27,6 +29,11 @@ export function EmptyState({ title, subtitle, iconName = 'file-tray-outline', ic
       )}
       <Text style={styles.title}>{title}</Text>
       {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      {actionLabel && onAction ? (
+        <TouchableOpacity style={styles.actionBtn} onPress={onAction} activeOpacity={0.8}>
+          <Text style={styles.actionText}>{actionLabel}</Text>
+        </TouchableOpacity>
+      ) : null}
     </View>
   );
 }
@@ -55,5 +62,17 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     lineHeight: 20,
+  },
+  actionBtn: {
+    marginTop: Spacing.md,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: 11,
+    borderRadius: Radius.md,
+  },
+  actionText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
+    color: Colors.textInverse,
   },
 });

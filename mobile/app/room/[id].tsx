@@ -176,7 +176,13 @@ export default function RoomDetailScreen() {
     );
   }
 
-  const roomTypeLabel = (room.roomType ?? '').charAt(0).toUpperCase() + (room.roomType ?? '').slice(1);
+  const ROOM_TYPE_VI: Record<string, string> = {
+    single: 'Phòng đơn',
+    double: 'Phòng đôi',
+    triple: 'Phòng 3 người',
+    quad: 'Phòng 4 người',
+  };
+  const roomTypeLabel = ROOM_TYPE_VI[room.roomType ?? ''] ?? ((room.roomType ?? '').charAt(0).toUpperCase() + (room.roomType ?? '').slice(1));
 
   return (
     <SafeLayout edges={['top', 'bottom']}>

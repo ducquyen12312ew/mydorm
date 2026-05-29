@@ -1,5 +1,5 @@
 import { Tabs, Redirect } from 'expo-router';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/store/authStore';
 import { useQuery } from '@tanstack/react-query';
@@ -53,7 +53,7 @@ function NotifTabIcon({ focused }: { focused: boolean }) {
         />
         {unreadCount > 0 && (
           <View style={styles.badge}>
-            <Ionicons name="ellipse" size={8} color={Colors.primary} />
+            <Text style={styles.badgeText}>{unreadCount > 9 ? '9+' : String(unreadCount)}</Text>
           </View>
         )}
       </View>
@@ -152,7 +152,21 @@ const styles = StyleSheet.create({
   },
   badge: {
     position: 'absolute',
-    top: -2,
-    right: -4,
+    top: -5,
+    right: -9,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: Colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 3,
+    borderWidth: 1.5,
+    borderColor: Colors.surface,
+  },
+  badgeText: {
+    fontSize: 9,
+    fontWeight: FontWeight.bold,
+    color: Colors.textInverse,
   },
 });
