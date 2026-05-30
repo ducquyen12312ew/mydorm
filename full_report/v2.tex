@@ -961,106 +961,60 @@ thống backend cùng mối quan hệ phụ thuộc giữa chúng theo kiến tr
 \label{fig:package_diagram}
 \end{figure}
 
-\textbf{Các package của backend và trách nhiệm.}
-Bảng~\ref{tab:backend_pkg} liệt kê toàn bộ package của backend cùng tầng kiến
-trúc và trách nhiệm tương ứng.
+\textbf{Tổ chức package của backend.}
+Tầng giao diện của hệ thống web được đảm nhận bởi các template EJS, có nhiệm
+vụ render HTML phía server cho admin portal và student portal. Đây là tầng duy
+nhất trực tiếp tạo ra nội dung HTML gửi về trình duyệt.
 
-\begin{table}[htbp]
-\centering
-\caption{Danh sách package backend và trách nhiệm}
-\label{tab:backend_pkg}
-\renewcommand{\arraystretch}{1.4}
-\begin{tabular}{p{3.2cm} p{2.8cm} p{7.5cm}}
-\toprule
-\textbf{Package (thư mục)} & \textbf{Tầng} & \textbf{Trách nhiệm} \\
-\midrule
-\texttt{views/}
-  & Presentation
-  & Template EJS render HTML phía server cho admin portal và student portal. \\
-\texttt{src/routes/}
-  & Controller
-  & Định nghĩa toàn bộ HTTP route; phân nhánh theo nhóm tác nhân
-    (admin / student / mobile). \\
-\texttt{src/controllers/}
-  & Controller
-  & Logic xử lý cho các module phức tạp, tách biệt khỏi định nghĩa route. \\
-\texttt{src/middleware/}
-  & Controller
-  & Xác thực JWT, phân quyền theo vai trò và xử lý bảo mật HTTP
-    trước khi request đến route handler. \\
-\texttt{src/services/}
-  & Service
-  & Toàn bộ logic nghiệp vụ: Allocation Engine, xử lý đơn đăng ký,
-    thông báo, quản lý năm học và chỉ tiêu phòng. \\
-\texttt{src/realtime/}
-  & Service
-  & Quản lý kết nối Socket.IO và phân phối thông báo realtime
-    đến các client đang kết nối. \\
-\texttt{src/events/}
-  & Service
-  & Định nghĩa, lưu trữ và điều phối các sự kiện nghiệp vụ
-    theo cơ chế bất đồng bộ. \\
-\texttt{src/auth/}
-  & Service
-  & Quản lý vòng đời xác thực và cấp phát token cho ứng dụng di động. \\
-\texttt{src/schemas/}
-  & Model
-  & Mongoose schema definitions; mỗi file tương ứng một MongoDB collection. \\
-\texttt{src/config/}
-  & Cross-cutting
-  & Kết nối cơ sở dữ liệu, khởi tạo dịch vụ giám sát và cấu hình
-    môi trường. \\
-\texttt{src/utils/}
-  & Cross-cutting
-  & Tính điểm ưu tiên, chuẩn hoá response, gửi email và các hằng
-    số nghiệp vụ. \\
-\texttt{src/observability/}
-  & Cross-cutting
-  & Ghi nhật ký và theo dõi hiệu năng hệ thống. \\
-\bottomrule
-\end{tabular}
-\end{table}
+Tầng điều khiển bao gồm ba nhóm thành phần phối hợp với nhau. Route handlers
+tiếp nhận toàn bộ HTTP request và phân nhánh xử lý theo nhóm tác nhân: quản
+trị viên, sinh viên và ứng dụng di động. Với các module phức tạp như quản lý
+chỉ tiêu, logic xử lý được tách ra thành controller riêng để giữ cho file
+route gọn gàng. Trước khi request đến được route handler, middleware đảm nhận
+việc xác thực JWT, kiểm tra phân quyền theo vai trò và xử lý bảo mật HTTP
+ở cấp độ toàn hệ thống.
 
-\textbf{Các package của mobile và trách nhiệm.}
-Ứng dụng mobile (React Native/Expo) được tổ chức theo năm lớp chức năng.
+Tầng service tập trung toàn bộ nghiệp vụ của hệ thống. Phần lõi chứa các
+service xử lý đăng ký phòng, vận hành Allocation Engine, quản lý năm học và
+chỉ tiêu phòng, gửi thông báo cho sinh viên. Song song đó, một nhóm service
+chuyên trách quản lý kết nối Socket.IO và phân phối thông báo thời gian thực
+đến các client đang hoạt động. Cơ chế sự kiện bất đồng bộ được tổ chức tách
+biệt, đảm nhận việc định nghĩa, lưu trữ và điều phối các domain event trong
+hệ thống. Ngoài ra, một module riêng quản lý toàn bộ vòng đời xác thực và
+cấp phát token dành cho ứng dụng di động.
 
-\begin{itemize}
-    \item \textbf{Screens}: Các màn hình giao diện người dùng, tổ chức theo
-    cấu trúc điều hướng file-based của Expo Router. Tab chính gồm Home,
-    Rooms, Notifications, Profile; các màn hình sâu hơn gồm Allocation,
-    QR Card, Maintenance, Room Detail, Violations.
+Tầng model chứa các Mongoose schema định nghĩa cấu trúc và ràng buộc dữ liệu
+cho tất cả collection trong MongoDB. Đây là tầng duy nhất trong hệ thống trực
+tiếp tương tác với cơ sở dữ liệu.
 
-    \item \textbf{Hooks}: Các custom hook quản lý dữ liệu từ server thông qua
-    TanStack Query --- bao gồm tải dữ liệu, lưu cache và đồng bộ nền. Các
-    hook đóng vai trò trung gian giữa giao diện và tầng API, đồng thời hỗ
-    trợ quản lý dữ liệu trao đổi giữa ứng dụng di động và hệ thống backend.
+Ngoài bốn tầng chính, hệ thống có nhóm package dùng chung được sử dụng xuyên
+suốt các tầng. Nhóm này bao gồm module cấu hình môi trường và khởi tạo kết
+nối, module tiện ích tập hợp các hàm hỗ trợ nghiệp vụ như tính điểm ưu tiên
+và chuẩn hoá dữ liệu trả về, cùng module ghi nhật ký và theo dõi hiệu năng
+hệ thống.
 
-    \item \textbf{Store}: Quản lý trạng thái toàn cục phía client thông qua
-    Zustand --- lưu trữ thông tin người dùng đã đăng nhập và trạng thái
-    thông báo chưa đọc.
+\textbf{Tổ chức package của ứng dụng di động.}
+Ứng dụng di động (React Native/Expo) được tổ chức theo kiến trúc phân lớp
+tương tự phía backend. Tầng giao diện bao gồm các màn hình phục vụ sinh viên,
+được chia thành bốn tab chính --- Home, Rooms, Notifications, Profile --- và
+các màn hình chi tiết như Allocation, QR Card, Maintenance, Room Detail và
+Violations. Các hook dữ liệu đóng vai trò trung gian giữa giao diện và tầng
+API: chúng quản lý việc tải dữ liệu từ server, duy trì cache phía client và
+đồng bộ nền khi dữ liệu thay đổi. Trạng thái toàn cục của ứng dụng --- bao
+gồm thông tin người dùng đã đăng nhập và số thông báo chưa đọc --- được quản
+lý tập trung trong một store dùng chung. Lớp API xử lý toàn bộ giao tiếp
+HTTP với backend, bao gồm xác thực và chuẩn hoá các yêu cầu trước khi gửi đi.
+Cấu trúc điều hướng sử dụng file-based routing, trong đó các layout stack,
+tab và modal được tổ chức theo phân cấp thư mục của ứng dụng.
 
-    \item \textbf{API}: Lớp giao tiếp HTTP với backend thông qua Axios, chịu
-    trách nhiệm xử lý xác thực và chuẩn hoá các yêu cầu gửi đi.
-
-    \item \textbf{Navigation}: Cấu trúc điều hướng file-based với Expo
-    Router; các layout stack, tab và modal được tổ chức theo phân cấp thư
-    mục của ứng dụng.
-\end{itemize}
-
-\textbf{Các hệ thống hạ tầng và vai trò.}
-Ba hệ thống ngoài được tích hợp từ backend nhưng không thuộc codebase dự án.
-
-\begin{itemize}
-    \item \textbf{MongoDB Atlas}: Cơ sở dữ liệu đám mây lưu toàn bộ dữ liệu
-    nghiệp vụ của hệ thống.
-
-    \item \textbf{Redis}: Hỗ trợ Socket.IO hoạt động theo kiến trúc phân
-    tán, đảm bảo thông báo realtime được đồng bộ nhất quán giữa các
-    instance server.
-
-    \item \textbf{Sentry}: Giám sát lỗi và theo dõi hiệu năng của cả backend
-    lẫn ứng dụng di động.
-\end{itemize}
+\textbf{Các thành phần hạ tầng.}
+Hệ thống tích hợp với ba dịch vụ hạ tầng bên ngoài codebase. MongoDB Atlas
+đảm nhận vai trò lưu trữ toàn bộ dữ liệu nghiệp vụ của hệ thống theo mô hình
+cơ sở dữ liệu đám mây được quản lý. Redis hỗ trợ tầng service thực hiện các
+chức năng thời gian thực, đảm bảo thông báo được đồng bộ nhất quán khi hệ
+thống chạy theo kiến trúc phân tán với nhiều instance server. Sentry được tích
+hợp vào cả backend lẫn ứng dụng di động để giám sát lỗi và theo dõi hiệu
+năng trong quá trình vận hành thực tế.
 
 \textbf{Quan hệ phụ thuộc và các nguyên tắc thiết kế.}
 Sơ đồ phụ thuộc giữa các package backend tuân theo nguyên tắc một chiều từ
@@ -1072,32 +1026,32 @@ trên xuống dưới:
 
 \noindent Middleware được gắn vào pipeline trước khi request đến route handler, do đó
 phụ thuộc đi theo chiều: \texttt{middleware} $\rightarrow$ \texttt{config}.
-Package \texttt{config} và \texttt{utils} là hai package cross-cutting được
-import bởi hầu hết các package khác. Package \texttt{schemas} là package duy
-nhất trực tiếp tương tác với MongoDB Atlas qua Mongoose connection.
+Các package \texttt{config} và \texttt{utils} là hai package cross-cutting
+được sử dụng bởi hầu hết các package khác trong hệ thống.
 
-Ba nguyên tắc không vi phạm trong cấu trúc package:
+Nguyên tắc đầu tiên cần đảm bảo là \textbf{không có phụ thuộc ngược}: tầng
+dưới không bao giờ import tầng trên. Tầng model không phụ thuộc vào tầng
+service; tầng service không phụ thuộc vào tầng controller. Nguyên tắc này
+đảm bảo rằng các thay đổi ở tầng trên không kéo theo việc phải sửa đổi tầng
+dưới.
 
-\begin{enumerate}
-    \item \textbf{Không phụ thuộc ngược (no reverse dependency)}: Tầng dưới
-    không bao giờ import tầng trên. Ví dụ, \texttt{schemas} không import
-    \texttt{services}; \texttt{services} không import \texttt{routes}.
+Nguyên tắc thứ hai là \textbf{không được bỏ qua tầng}: tầng controller không
+gọi trực tiếp tầng model để xử lý nghiệp vụ phức tạp mà phải đi qua tầng
+service. Quy tắc này ngăn chặn việc logic nghiệp vụ bị phân tán vào nhiều
+vị trí khác nhau trong codebase. Ngoại lệ duy nhất được chấp nhận là các
+truy vấn đọc đơn giản, nơi việc thêm một tầng service trung gian sẽ tạo ra
+sự phức tạp không cần thiết.
 
-    \item \textbf{Không bỏ qua tầng (no layer skipping)}: \texttt{routes}
-    không gọi trực tiếp \texttt{schemas} để xử lý nghiệp vụ phức tạp ---
-    phải đi qua \texttt{services}. (Ngoại lệ: các truy vấn đọc đơn giản có
-    thể được thực hiện trực tiếp trong route handler để tránh over-engineering.)
-
-    \item \textbf{Không phụ thuộc vòng (no circular dependency)}: Không có
-    cặp package nào phụ thuộc lẫn nhau. Nếu hai package cần giao tiếp hai
-    chiều, cần trích xuất interface chung vào package thứ ba.
-\end{enumerate}
+Nguyên tắc thứ ba là \textbf{không có phụ thuộc vòng}: không có cặp package
+nào phụ thuộc lẫn nhau. Khi hai module cần giao tiếp hai chiều, giải pháp
+là trích xuất phần dùng chung vào một module thứ ba độc lập, thay vì tạo
+liên kết vòng tròn giữa hai module ban đầu.
 
 Cách tổ chức package theo kiến trúc phân tầng mang lại lợi ích trực tiếp
 trong quá trình phát triển hệ thống. Khi các tầng chỉ phụ thuộc theo một
 chiều từ trên xuống dưới, mỗi thay đổi trong một package ít có khả năng gây
 ảnh hưởng lan rộng đến các package khác. Cụ thể, việc điều chỉnh thuật toán
-phân bổ phòng trong tầng Service không đòi hỏi thay đổi route handler hay
+phân bổ phòng trong tầng service không đòi hỏi thay đổi route handler hay
 schema; tương tự, việc bổ sung một API endpoint mới chỉ cần thêm route và
 service tương ứng mà không ảnh hưởng đến tầng dữ liệu. Mức độ coupling thấp
 giữa các tầng cũng tạo điều kiện để kiểm thử từng module độc lập và mở rộng
