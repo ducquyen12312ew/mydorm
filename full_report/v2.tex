@@ -961,6 +961,30 @@ thống backend cùng mối quan hệ phụ thuộc giữa chúng theo kiến tr
 \label{fig:package_diagram}
 \end{figure}
 
+Bảng~\ref{tab:layer_overview} tóm tắt các tầng kiến trúc của hệ thống trước
+khi phân tích chi tiết từng thành phần.
+
+\begin{table}[H]
+\centering
+\caption{Tổng quan kiến trúc phân tầng của hệ thống}
+\label{tab:layer_overview}
+\begin{tabular}{|p{3.6cm}|p{4.8cm}|p{5.4cm}|}
+\hline
+\textbf{Tầng kiến trúc} & \textbf{Thành phần chính} & \textbf{Vai trò} \\
+\hline
+Tầng giao diện & Template EJS, màn hình React Native & Hiển thị nội dung và tiếp nhận tương tác từ người dùng \\
+\hline
+Tầng điều khiển & Routes, Controllers, Middleware & Định tuyến yêu cầu, xác thực và phân quyền truy cập \\
+\hline
+Tầng nghiệp vụ & Services, Allocation Engine & Xử lý toàn bộ logic và quy trình nghiệp vụ \\
+\hline
+Tầng dữ liệu & Mongoose schemas & Định nghĩa cấu trúc dữ liệu và tương tác với cơ sở dữ liệu \\
+\hline
+Thành phần dùng chung & Config, Utils, Logger & Hỗ trợ cắt ngang, được sử dụng xuyên suốt mọi tầng \\
+\hline
+\end{tabular}
+\end{table}
+
 \textbf{Tổ chức package của backend.}
 Tầng giao diện của hệ thống web được đảm nhận bởi các template EJS, có nhiệm
 vụ render HTML phía server cho admin portal và student portal. Đây là tầng duy
@@ -1029,23 +1053,19 @@ phụ thuộc đi theo chiều: \texttt{middleware} $\rightarrow$ \texttt{config
 Các package \texttt{config} và \texttt{utils} là hai package cross-cutting
 được sử dụng bởi hầu hết các package khác trong hệ thống.
 
-Nguyên tắc đầu tiên cần đảm bảo là \textbf{không có phụ thuộc ngược}: tầng
-dưới không bao giờ import tầng trên. Tầng model không phụ thuộc vào tầng
-service; tầng service không phụ thuộc vào tầng controller. Nguyên tắc này
-đảm bảo rằng các thay đổi ở tầng trên không kéo theo việc phải sửa đổi tầng
-dưới.
-
-Nguyên tắc thứ hai là \textbf{không được bỏ qua tầng}: tầng controller không
-gọi trực tiếp tầng model để xử lý nghiệp vụ phức tạp mà phải đi qua tầng
-service. Quy tắc này ngăn chặn việc logic nghiệp vụ bị phân tán vào nhiều
-vị trí khác nhau trong codebase. Ngoại lệ duy nhất được chấp nhận là các
-truy vấn đọc đơn giản, nơi việc thêm một tầng service trung gian sẽ tạo ra
-sự phức tạp không cần thiết.
-
-Nguyên tắc thứ ba là \textbf{không có phụ thuộc vòng}: không có cặp package
-nào phụ thuộc lẫn nhau. Khi hai module cần giao tiếp hai chiều, giải pháp
-là trích xuất phần dùng chung vào một module thứ ba độc lập, thay vì tạo
-liên kết vòng tròn giữa hai module ban đầu.
+Ba nguyên tắc cốt lõi định hình quan hệ phụ thuộc trong hệ thống. Trước hết,
+\textbf{không có phụ thuộc ngược}: tầng dưới không bao giờ import tầng trên
+--- tầng model không phụ thuộc vào tầng service, và tầng service không phụ
+thuộc vào tầng controller. Nguyên tắc này đảm bảo các thay đổi ở tầng trên
+không kéo theo việc phải sửa đổi tầng dưới. Tiếp theo, \textbf{không được
+bỏ qua tầng}: tầng controller không gọi trực tiếp tầng model để xử lý nghiệp
+vụ phức tạp mà phải đi qua tầng service, từ đó ngăn chặn việc logic nghiệp
+vụ bị phân tán vào nhiều vị trí khác nhau trong codebase --- ngoại lệ duy nhất
+được chấp nhận là các truy vấn đọc đơn giản, nơi việc thêm một tầng service
+trung gian sẽ tạo ra sự phức tạp không cần thiết. Cuối cùng, \textbf{không có
+phụ thuộc vòng}: không có cặp package nào phụ thuộc lẫn nhau; khi hai module
+cần giao tiếp hai chiều, giải pháp là trích xuất phần dùng chung vào một
+module thứ ba độc lập thay vì tạo liên kết vòng tròn giữa hai module ban đầu.
 
 Cách tổ chức package theo kiến trúc phân tầng mang lại lợi ích trực tiếp
 trong quá trình phát triển hệ thống. Khi các tầng chỉ phụ thuộc theo một
