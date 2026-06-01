@@ -77,17 +77,43 @@ Nội dung mới gồm 3 phần:
 
 ## 2. Citations đã thêm
 
-| Key | Tài liệu | Vị trí cite |
-|-----|---------|------------|
-| `fowler2002patterns` | Fowler, *Patterns of Enterprise Application Architecture*, 2002 | Ch4 4.1.1 — MVC + Service Layer |
-| `omg2017uml` | OMG UML Specification 2.5.1, 2017 | Ch4 4.1.2 — Package Diagram |
-| `rfc7519` | RFC 7519 — JSON Web Token, IETF 2015 | Ch3 3.5 — JWT |
-| `mongodb2024datamodel` | MongoDB Manual — Data Model Design, 2024 | Ch3 3.4 — MongoDB |
-| `redis2024pubsub` | Redis Documentation — Pub/Sub, 2024 | Ch3 3.7 — Redis |
-| `reactnative2024` | React Native Documentation, Meta 2024 | Ch3 3.6 — React Native |
-| `expo2024router` | Expo Router Documentation, SDK 52 2024 | Ch3 3.6 — Expo |
+### Chiến lược phân phối (Round 2 revision)
 
-Tất cả citations sử dụng môi trường `thebibliography` tiêu chuẩn LaTeX. Không dùng Wikipedia, Medium, Blog cá nhân hay StackOverflow.
+- **Chương 3** — Tất cả citation về công nghệ và kiến thức nền
+- **Chương 4** — Chỉ giữ citation giải thích UML và MVC/kiến trúc; KHÔNG cite các gói thiết kế (Allocation, Notification, Auth)
+
+### Bảng citation
+
+| Key | Loại tài liệu | Vị trí cite | Chương |
+|-----|--------------|------------|--------|
+| `fowler2002patterns` | Sách | 3.1 (kiến trúc phân lớp) + 4.1.1 (MVC) | Ch3 + Ch4 |
+| `mongodb2024datamodel` | Tài liệu chính thức | 3.4 (data model hướng document) | Ch3 |
+| `rfc7519` | RFC / Tiêu chuẩn internet | 3.5 (JWT authentication) | Ch3 |
+| `reactnative2024` | Tài liệu chính thức | 3.6 (React Native 0.76) | Ch3 |
+| `expo2024router` | Tài liệu chính thức | 3.6 (Expo SDK 52) | Ch3 |
+| `redis2024pubsub` | Tài liệu chính thức | 3.7 (Redis Pub/Sub) | Ch3 |
+| `socketio2024docs` | Tài liệu chính thức | 3.7 (Socket.IO cluster adapter) | Ch3 |
+| `omg2017uml` | Đặc tả kỹ thuật | 4.1.2 (Package Diagram) + 4.1.3 (Class Diagram) | Ch4 |
+
+### Tài liệu tham khảo theo loại
+
+**Sách:**
+- M. Fowler, *Patterns of Enterprise Application Architecture*, Addison-Wesley, 2002
+
+**Đặc tả kỹ thuật:**
+- OMG, *OMG Unified Modeling Language, Version 2.5.1*, formal/2017-12-05, 2017
+
+**RFC / Tiêu chuẩn internet:**
+- M. Jones et al., RFC 7519 — JSON Web Token, IETF, 2015
+
+**Tài liệu chính thức (Online Reference):**
+- MongoDB, Inc. — Data Model Design (MongoDB Manual 7.0)
+- Redis Ltd. — Pub/Sub (Redis Documentation)
+- Socket.IO — Socket.IO Documentation v4.x
+- Meta Platforms — React Native Documentation 0.76
+- Expo — Expo Router Documentation SDK 52
+
+Không dùng Wikipedia, Blog, Medium, Viblo, StackOverflow.
 
 ---
 

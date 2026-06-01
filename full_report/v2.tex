@@ -865,7 +865,7 @@ kế chi tiết sẽ được phân tích.
 
 \section{Kiến trúc hệ thống}
 
-Hệ thống quản lý phân bổ phòng ký túc xá được thiết kế theo kiến trúc phân lớp với backend chịu trách nhiệm xử lý nghiệp vụ và truy xuất dữ liệu, frontend thực hiện hiển thị động theo mẫu server-side rendering, cùng các tác vụ ngoại vi đảm nhiệm sinh dữ liệu, kiểm thử và thao tác hàng loạt. Việc lựa chọn kiến trúc này xuất phát từ yêu cầu về tính nhất quán dữ liệu khi thực hiện các chu kỳ phân bổ, tính mở rộng cho cơ chế kế thừa chính sách phân bổ, và khả năng tự động hóa các quy trình xử lý vi phạm nội quy. Kiến trúc ưu tiên phân tách rõ ràng giữa tầng truy vấn dữ liệu (MongoDB Atlas qua Mongoose), tầng API REST (Node.js + Express), và tầng trình bày (EJS), nhằm giảm độ phức tạp đồng thời tạo điều kiện cho nhóm tác vụ sinh dữ liệu mô phỏng và nhóm tác vụ phân phòng tự động vận hành độc lập nhưng vẫn tương tác an toàn với API lõi.
+Hệ thống quản lý phân bổ phòng ký túc xá được thiết kế theo kiến trúc phân lớp~\cite{fowler2002patterns} với backend chịu trách nhiệm xử lý nghiệp vụ và truy xuất dữ liệu, frontend thực hiện hiển thị động theo mẫu server-side rendering, cùng các tác vụ ngoại vi đảm nhiệm sinh dữ liệu, kiểm thử và thao tác hàng loạt. Việc lựa chọn kiến trúc này xuất phát từ yêu cầu về tính nhất quán dữ liệu khi thực hiện các chu kỳ phân bổ, tính mở rộng cho cơ chế kế thừa chính sách phân bổ, và khả năng tự động hóa các quy trình xử lý vi phạm nội quy. Kiến trúc ưu tiên phân tách rõ ràng giữa tầng truy vấn dữ liệu (MongoDB Atlas qua Mongoose), tầng API REST (Node.js + Express), và tầng trình bày (EJS), nhằm giảm độ phức tạp đồng thời tạo điều kiện cho nhóm tác vụ sinh dữ liệu mô phỏng và nhóm tác vụ phân phòng tự động vận hành độc lập nhưng vẫn tương tác an toàn với API lõi.
 
 Mô hình luồng xử lý chính bao gồm: client gửi yêu cầu qua trình duyệt hoặc ứng dụng di động, server xác thực và cấp token/session, service thực hiện tính toán điểm ưu tiên (\texttt{priority\_score} allocation) và ghi nhận vào cơ sở dữ liệu, sau đó hệ thống cập nhật trạng thái phân bổ và phản hồi client. Thiết kế này cho phép tách biệt các quy trình dài (batch seeding, migration) khỏi các yêu cầu thời gian thực, đồng thời vẫn bảo đảm nhất quán thông qua cơ chế kiểm soát trạng thái ở tầng ứng dụng và kiểm tra tuần tự trong các script tác nghiệp.
 
@@ -998,8 +998,8 @@ JavaScript trong \texttt{src/} bằng \texttt{node -{}-check}; job \texttt{mobil
 thực hiện \texttt{npm install} và TypeScript type check bằng \texttt{npx tsc
 -{}-noEmit}. Pipeline chạy trên mọi push và pull request đến mọi branch.
 
-Redis~\cite{redis2024pubsub} đóng vai trò tầng hỗ trợ cho Socket.IO cluster
-adapter (\texttt{@socket.io/redis-adapter}). Khi biến môi trường
+Redis~\cite{redis2024pubsub} đóng vai trò tầng hỗ trợ cho Socket.IO~\cite{socketio2024docs}
+cluster adapter (\texttt{@socket.io/redis-adapter}). Khi biến môi trường
 \texttt{REDIS\_URL} được cấu hình, adapter tự động kết nối và gắn vào Socket.IO
 instance, cho phép events được broadcast nhất quán qua nhiều instance backend. Khi Redis không khả
 dụng, hệ thống gracefully fallback về chế độ local Socket.IO broadcast mà không
@@ -1239,9 +1239,9 @@ Mục này đi sâu vào cấu trúc nội tại của ba gói có vai trò cố
 thống: Allocation Package thực thi toàn bộ quy trình phân bổ phòng tự động,
 Notification and Realtime Package điều phối thông báo thời gian thực qua
 Socket.IO và Redis, và Authentication Package quản lý vòng đời xác thực cho
-cả web portal lẫn ứng dụng di động. Với mỗi gói, một Class Diagram riêng biệt
-được trình bày nhằm làm rõ các lớp tham gia và quan hệ cấu trúc giữa chúng,
-độc lập với Package Diagram tổng thể đã trình bày ở mục~\ref{subsec:package_overview}.
+cả web portal lẫn ứng dụng di động. Với mỗi gói, một Class Diagram~\cite{omg2017uml} riêng biệt được trình bày
+nhằm làm rõ các lớp tham gia và quan hệ cấu trúc giữa chúng, độc lập với
+Package Diagram tổng thể đã trình bày ở mục~\ref{subsec:package_overview}.
 
 \subsubsection*{Allocation Package}
 
@@ -1404,49 +1404,62 @@ lược kiểm thử và đánh giá kết quả vận hành thực tế của h
 
 \begin{thebibliography}{99}
 
+% ---- Sách -------------------------------------------------------
 \bibitem{fowler2002patterns}
 M. Fowler,
 \textit{Patterns of Enterprise Application Architecture}.
-Boston: Addison-Wesley, 2002,
-ch.~9 (Service Layer), pp.~133--145;
-ch.~14 (Model View Controller), pp.~330--344.
+Boston, MA: Addison-Wesley, 2002.
+[Chương 9: Service Layer, tr. 133--145;
+Chương 14: MVC, tr. 330--344]
 
+% ---- Đặc tả kỹ thuật -------------------------------------------
 \bibitem{omg2017uml}
 Object Management Group (OMG),
-\textit{OMG Unified Modeling Language (OMG UML), Version 2.5.1},
-OMG Document No. formal/2017-12-05.
-Needham, MA: OMG, 2017,
-ch.~12 (Packages), pp.~239--262.
+\textit{OMG Unified Modeling Language, Version 2.5.1},
+Tài liệu số formal/2017-12-05.
+Needham, MA: OMG, 2017.
+[Chương 12: Packages, tr. 239--262;
+Chương 9: Classes, tr. 99--138]
+[Trực tuyến]. Địa chỉ: \url{https://www.omg.org/spec/UML/2.5.1/PDF}
 
+% ---- RFC / Tiêu chuẩn internet ----------------------------------
 \bibitem{rfc7519}
-M. Jones, J. Bradley, and N. Sakimura,
+M. Jones, J. Bradley, và N. Sakimura,
 ``JSON Web Token (JWT),''
-\textit{RFC 7519}, Internet Engineering Task Force (IETF), May 2015.
-[Online]. Available: \url{https://www.rfc-editor.org/rfc/rfc7519}
+RFC 7519, Internet Engineering Task Force (IETF), tháng 5, 2015.
+[Trực tuyến]. Địa chỉ: \url{https://www.rfc-editor.org/rfc/rfc7519}
 
+% ---- Tài liệu chính thức (Online Reference) ---------------------
 \bibitem{mongodb2024datamodel}
 MongoDB, Inc.,
 ``Data Model Design,''
-\textit{MongoDB Manual}, version 7.0, 2024.
-[Online]. Available: \url{https://www.mongodb.com/docs/manual/core/data-model-design/}
+trong \textit{MongoDB Manual}, phiên bản 7.0, 2024.
+[Trực tuyến]. Địa chỉ:
+\url{https://www.mongodb.com/docs/manual/core/data-model-design/}
 
 \bibitem{redis2024pubsub}
 Redis Ltd.,
 ``Pub/Sub,''
-\textit{Redis Documentation}, 2024.
-[Online]. Available: \url{https://redis.io/docs/manual/pubsub/}
+trong \textit{Redis Documentation}, 2024.
+[Trực tuyến]. Địa chỉ: \url{https://redis.io/docs/manual/pubsub/}
+
+\bibitem{socketio2024docs}
+Socket.IO,
+``Socket.IO Documentation,''
+\textit{Socket.IO}, phiên bản 4.x, 2024.
+[Trực tuyến]. Địa chỉ: \url{https://socket.io/docs/v4/}
 
 \bibitem{reactnative2024}
 Meta Platforms, Inc.,
-``React Native --- Learn once, write anywhere,''
-\textit{React Native Documentation}, version 0.76, 2024.
-[Online]. Available: \url{https://reactnative.dev/docs/getting-started}
+``Introduction to React Native,''
+trong \textit{React Native Documentation}, phiên bản 0.76, 2024.
+[Trực tuyến]. Địa chỉ: \url{https://reactnative.dev/docs/getting-started}
 
 \bibitem{expo2024router}
 Expo,
-``Expo Router --- File-based routing for native apps,''
-\textit{Expo Documentation}, SDK 52, 2024.
-[Online]. Available: \url{https://docs.expo.dev/router/introduction/}
+``Introduction to Expo Router,''
+trong \textit{Expo Documentation}, SDK 52, 2024.
+[Trực tuyến]. Địa chỉ: \url{https://docs.expo.dev/router/introduction/}
 
 \end{thebibliography}
 
