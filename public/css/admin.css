@@ -108,11 +108,11 @@ body {
     border-color: #cdd2dc;
 }
 
-.stat-card.blue  { border-left-color: #3b82f6; }
-.stat-card.green { border-left-color: #10b981; }
-.stat-card.orange{ border-left-color: #f59e0b; }
+.stat-card.blue  { border-left-color: var(--adm-primary); }
+.stat-card.green { border-left-color: #15803D; }
+.stat-card.orange{ border-left-color: #D97706; }
 .stat-card.red   { border-left-color: var(--adm-primary); }
-.stat-card.purple{ border-left-color: #8b5cf6; }
+.stat-card.purple{ border-left-color: var(--adm-primary); }
 
 .stat-card h3 {
     font-size: 0.78rem;
@@ -150,9 +150,9 @@ body {
     flex-shrink: 0;
 }
 
-.stat-card.blue  .stat-icon { background: #eff6ff; color: #3b82f6; }
-.stat-card.green .stat-icon { background: #ecfdf5; color: #10b981; }
-.stat-card.orange .stat-icon { background: #fffbeb; color: #f59e0b; }
+.stat-card.blue  .stat-icon { background: var(--adm-primary-light); color: var(--adm-primary); }
+.stat-card.green .stat-icon { background: #F0FDF4; color: #15803D; }
+.stat-card.orange .stat-icon { background: #FFFBEB; color: #D97706; }
 .stat-card.red   .stat-icon { background: var(--adm-primary-light); color: var(--adm-primary); }
 
 /* ── Status badges ────────────────────────────────────── */
@@ -172,7 +172,7 @@ body {
 .status-pending  { background: #fffbeb; color: #92400e; border-color: #fde68a; }
 .status-approved { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
 .status-rejected { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
-.status-waitlist { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+.status-waitlist { background: #FFFBEB; color: #92400E; border-color: #fde68a; }
 .status-active   { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
 .status-inactive { background: #f9fafb; color: #6b7280; border-color: #e5e7eb; }
 .status-warning  { background: #fffbeb; color: #b45309; border-color: #fde68a; }
@@ -277,13 +277,13 @@ body {
 }
 
 .btn-info {
-    background: #0ea5e9;
+    background: #6B7280;
     color: white;
 }
 
 .btn-info:hover {
-    background: #0284c7;
-    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.28);
+    background: #4B5563;
+    box-shadow: 0 2px 8px rgba(107, 114, 128, 0.28);
 }
 
 .btn-sm {

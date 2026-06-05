@@ -7,6 +7,7 @@
     "dev": "nodemon index.js",
     "seed": "node scripts/seed-production.js",
     "seed:production": "node scripts/seed-production.js",
+    "migrate:faculty": "node scripts/migrate-faculty-and-data.js",
     "seed:quota-admins": "node scripts/seed-quota-admins.js",
     "migrate:remove-legacy-quota": "node scripts/remove-legacy-quota-fields.js",
     "test:quota-api": "node --test tests/quota-admin-api.test.js"

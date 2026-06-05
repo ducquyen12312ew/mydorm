@@ -29,17 +29,30 @@
     }
 
     .admin-navbar-brand {
-        font-weight: 700;
-        font-size: 15px;
-        color: #111827;
         text-decoration: none;
-        letter-spacing: -0.01em;
         white-space: nowrap;
         flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
     }
 
-    .admin-navbar-brand span {
-        color: #d63031;
+    .admin-navbar-brand .brand-top {
+        font-weight: 800;
+        font-size: 13px;
+        color: #C8102E;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        line-height: 1.2;
+    }
+
+    .admin-navbar-brand .brand-sub {
+        font-size: 10px;
+        font-weight: 600;
+        color: #6B7280;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        line-height: 1.2;
     }
 
     .admin-navbar-menu {
@@ -204,7 +217,10 @@
 
 <nav class="admin-navbar" role="navigation" aria-label="Admin navigation">
     <div class="admin-navbar-container">
-        <a href="/admin/dormitories" class="admin-navbar-brand">KTX<span>HUST</span></a>
+        <a href="/admin/dormitories" class="admin-navbar-brand">
+            <span class="brand-top">Ký túc xá</span>
+            <span class="brand-sub">Đại học Bách Khoa Hà Nội</span>
+        </a>
 
         <ul class="admin-navbar-menu">
             <li><a href="/admin/dormitories" class="admin-navbar-link <%= navActive === 'dormitories' ? 'active' : '' %>"><i class="fas fa-building"></i><span>Ký túc xá</span></a></li>

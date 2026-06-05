@@ -169,9 +169,8 @@ const TEN_NU = [
 ];
 
 const KHOA = [
-  'Công nghệ Thông tin', 'Điện - Điện tử', 'Cơ khí', 'Hóa học',
-  'Vật lý kỹ thuật', 'Toán - Tin học ứng dụng', 'Cơ kỹ thuật',
-  'Kỹ thuật Hàng không', 'Kinh tế & Quản lý', 'Khoa học Máy tính',
+  'Công nghệ Thông tin', 'Khoa học Máy tính', 'Kỹ thuật Máy tính',
+  'Điện tử Viễn thông', 'Cơ điện tử', 'Cơ khí', 'Toán Tin', 'Kinh tế',
 ];
 
 const removeDiacritics = (str) => str.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');

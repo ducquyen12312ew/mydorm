@@ -108,6 +108,51 @@ router.get('/admin/dormitories/:dormId/rooms/:floorNumber/:roomNumber', isAdmin,
     });
 });
 
+router.get('/admin/students', isAdmin, async (req, res) => {
+    try {
+        const students = await StudentCollection.find({ role: 'user' })
+            .sort({ name: 1 })
+            .limit(200)
+            .lean();
+        res.render('admin/student/admin-student-list', {
+            students,
+            user: { name: req.session.name, role: req.session.role }
+        });
+    } catch (error) {
+        logger.error('Error fetching students', { error: error.message });
+        res.redirect('/admin/dormitories');
+    }
+});
+
+router.get('/admin/students/:id', isAdmin, async (req, res) => {
+    try {
+        const student = await StudentCollection.findById(req.params.id).lean();
+        if (!student) return res.status(404).render('404', { user: { name: req.session.name, role: req.session.role } });
+
+        let dormitory = null;
+        let roomInfo = null;
+        if (student.dormitoryId) {
+            dormitory = await DormitoryCollection.findById(student.dormitoryId, { name: 1, address: 1, floors: 1 }).lean();
+            if (dormitory && student.roomNumber) {
+                for (const floor of (dormitory.floors || [])) {
+                    const room = (floor.rooms || []).find(r => r.roomNumber === student.roomNumber);
+                    if (room) { roomInfo = { ...room, floorNumber: floor.floorNumber }; break; }
+                }
+            }
+        }
+
+        res.render('admin/student/admin-student-profile', {
+            student,
+            dormitory,
+            roomInfo,
+            user: { name: req.session.name, role: req.session.role }
+        });
+    } catch (error) {
+        logger.error('Error fetching student profile', { error: error.message });
+        res.redirect('/admin/dormitories');
+    }
+});
+
 router.get('/admin/cleanup', isAdmin, (req, res) => {
     res.render('admin/cleanup', {
         user: { name: req.session.name, role: req.session.role }

@@ -157,19 +157,19 @@
       font-weight: 700;
       text-align: center;
       cursor: pointer;
-      background: #f8fbfd;
-      color: #213247;
+      background: #F7F7F7;
+      color: #111827;
     }
 
     .heat-cell:hover {
       transform: translateY(-1px);
     }
 
-    .heat-zero { background: #f5f9fc; }
-    .heat-low { background: #d8f4ef; border-color: #96e0d3; }
-    .heat-medium { background: #b9ece2; border-color: #66d4bf; }
-    .heat-high { background: #ffe6bf; border-color: #ffc06a; }
-    .heat-full { background: #ffd7db; border-color: #ff9eaa; }
+    .heat-zero { background: #F7F7F7; }
+    .heat-low { background: #F0FDF4; border-color: #86efac; }
+    .heat-medium { background: #DCFCE7; border-color: #4ade80; }
+    .heat-high { background: #FEF9C3; border-color: #fde047; }
+    .heat-full { background: #FEE2E2; border-color: #fca5a5; }
 
     .kpi {
       border-radius: 14px;
@@ -271,7 +271,7 @@
     .item:hover,
     .item.active {
       border-color: var(--accent);
-      background: #f4fffd;
+      background: #FFF0F2;
       transform: translateX(2px);
     }
 
@@ -339,8 +339,8 @@
     }
 
     .bed.occupied {
-      border-color: #9ec5fe;
-      background: #f1f7ff;
+      border-color: #D1D5DB;
+      background: #F9FAFB;
     }
 
     .bed .label {
@@ -448,7 +448,7 @@
       border-radius: 12px;
       padding: 12px;
       display: none;
-      background: #fcfefe;
+      background: #FAFAFA;
     }
 
     .three-d-zone.active {
@@ -471,7 +471,7 @@
       font-size: .78rem;
       transform: perspective(400px) rotateX(30deg) rotateY(-20deg);
       transform-origin: center;
-      background: linear-gradient(145deg, #fefefe, #dce7f3);
+      background: linear-gradient(145deg, #FFFFFF, #F3F4F6);
       box-shadow: 4px 4px 12px rgba(0,0,0,.1);
     }
 
@@ -486,7 +486,7 @@
       padding: 14px;
       text-align: center;
       font-size: .85rem;
-      background: #fafcfd;
+      background: #FAFAFA;
     }
 
     @media (max-width: 1100px) {
@@ -513,7 +513,7 @@
       </div>
       <div class="nav-actions">
         <a class="btn btn-secondary" href="/admin/dashboard"><i class="fas fa-arrow-left"></i> Dashboard</a>
-        <a class="btn btn-primary" href="/admin/dormitories"><i class="fas fa-building"></i> Dormitories</a>
+        <a class="btn btn-primary" href="/admin/dormitories"><i class="fas fa-building"></i> Ký túc xá</a>
       </div>
     </div>
 
@@ -556,21 +556,23 @@
 
       <section class="panel">
         <div class="panel-head">
-          <h2 id="detailTitle">Building Overview</h2>
+          <h2 id="detailTitle">Tổng quan hệ thống</h2>
         </div>
         <div class="panel-body">
-          <div id="detailBody" class="empty">Click "Available Rooms" to view buildings, then continue building → floor → room.</div>
+          <div id="detailBody" class="empty">Chọn KTX để xem chi tiết → tầng → phòng.</div>
 
           <div class="tools">
-            <input id="studentSearchInput" type="text" placeholder="Search by student name, code, email" />
+            <input id="studentSearchInput" type="text" placeholder="Tìm theo tên, MSSV, email..." />
             <select id="cohortFilterSelect">
-              <option value="">All Cohorts</option>
+              <option value="">Tất cả khóa</option>
               <option value="K70">K70</option>
               <option value="K69">K69</option>
+              <option value="K68">K68</option>
+              <option value="K67">K67</option>
             </select>
             <div class="tool-actions">
-              <button id="exportCsvBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-csv"></i> CSV</button>
-              <button id="exportXlsxBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-excel"></i> XLSX</button>
+              <button id="exportCsvBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-csv"></i> Xuất CSV</button>
+              <button id="exportXlsxBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-excel"></i> Xuất Excel</button>
             </div>
           </div>
 
@@ -578,13 +580,13 @@
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Code</th>
-                  <th>Cohort</th>
-                  <th>Building</th>
-                  <th>Floor</th>
-                  <th>Room</th>
-                  <th>Bed</th>
+                  <th>Họ tên</th>
+                  <th>MSSV</th>
+                  <th>Khóa</th>
+                  <th>KTX</th>
+                  <th>Tầng</th>
+                  <th>Phòng</th>
+                  <th>Giường</th>
                 </tr>
               </thead>
               <tbody id="studentTableBody">
@@ -595,10 +597,10 @@
 
           <label class="three-d-toggle">
             <input type="checkbox" id="threeDToggle" />
-            Optional 3D room block view
+            Xem sơ đồ phòng 3D (tùy chọn)
           </label>
           <div id="threeDZone" class="three-d-zone">
-            <div style="font-size:.82rem; color:var(--muted);">Visual block map for selected floor (optional).</div>
+            <div style="font-size:.82rem; color:var(--muted);">Sơ đồ khối phòng theo tầng (tùy chọn).</div>
             <div id="threeDBlocks" class="three-d-blocks"></div>
           </div>
         </div>
