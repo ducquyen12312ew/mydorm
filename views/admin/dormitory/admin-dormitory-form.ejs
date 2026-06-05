@@ -105,9 +105,19 @@
                             value="<%= dormitory && dormitory.contact ? dormitory.contact.email : '' %>">
                     </div>
                     <div class="col-12 mb-3">
-                        <label for="imageUrl" class="form-label">URL hình ảnh</label>
+                        <label class="form-label">Hình ảnh ký túc xá</label>
+                        <% if (dormitory && dormitory.imageUrl) { %>
+                        <div class="mb-2">
+                            <img src="<%= dormitory.imageUrl %>" style="height:80px;border-radius:6px;object-fit:cover;" alt="Ảnh hiện tại">
+                            <small class="text-muted d-block mt-1">Ảnh hiện tại. Upload file mới để thay thế.</small>
+                        </div>
+                        <% } %>
+                        <input type="file" class="form-control mb-2" id="imageFile" name="image"
+                            accept="image/jpeg,image/png,image/webp">
                         <input type="text" class="form-control" id="imageUrl" name="imageUrl"
+                            placeholder="Hoặc nhập URL hình ảnh trực tiếp"
                             value="<%= dormitory ? dormitory.imageUrl : '' %>">
+                        <small class="text-muted">Upload file sẽ được ưu tiên hơn URL.</small>
                     </div>
                 </div>
             </div>
@@ -546,20 +556,21 @@
                     jsonData.details.available = false;
                 }
 
-                const url = '<%= action %>' === 'add' 
-                    ? '/api/dormitories' 
+                const url = '<%= action %>' === 'add'
+                    ? '/api/dormitories'
                     : '/api/dormitories/<%= dormitory ? dormitory._id : "" %>';
 
                 const method = '<%= action %>' === 'add' ? 'POST' : 'PUT';
 
-                fetch(url, {
+                // Upload image first if file selected, then submit JSON
+                const imageFileInput = document.getElementById('imageFile');
+                const hasFile = imageFileInput && imageFileInput.files && imageFileInput.files[0];
+
+                const doSubmit = (finalData) => fetch(url, {
                     method: method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(jsonData)
-                })
-                .then(response => {
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(finalData)
+                }).then(response => {
                     if (!response.ok) {
                         return response.json().then(errData => {
                             throw new Error(errData.error || 'Lỗi kết nối');
@@ -579,6 +590,20 @@
                     console.error('Error:', error);
                     alert('Lỗi: ' + error.message);
                 });
+
+                if (hasFile) {
+                    const fd = new FormData();
+                    fd.append('image', imageFileInput.files[0]);
+                    fetch('/api/upload/dormitory-image', { method: 'POST', body: fd })
+                        .then(r => r.json())
+                        .then(r => {
+                            if (r.success) jsonData.imageUrl = r.url;
+                            doSubmit(jsonData);
+                        })
+                        .catch(() => doSubmit(jsonData));
+                } else {
+                    doSubmit(jsonData);
+                }
             });
         });
     </script>

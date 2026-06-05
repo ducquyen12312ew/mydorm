@@ -1,591 +1,648 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý <%= dormitory.name %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= dormitory.name %> — KTX HUST Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f0f2f5;
-            color: #2c3e50;
-        }
+    :root {
+      --primary:   #C8102E;
+      --primary-dk:#A20D25;
+      --primary-bg:#FFF0F2;
+      --bg:        #F7F7F7;
+      --surface:   #FFFFFF;
+      --border:    #E5E7EB;
+      --text:      #111827;
+      --text-2:    #6B7280;
+      --text-3:    #9CA3AF;
+      --success:   #15803D;
+      --success-bg:#F0FDF4;
+      --warning:   #D97706;
+      --warning-bg:#FFFBEB;
+      --danger:    #DC2626;
+      --danger-bg: #FEF2F2;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --radius:    8px;
+      --radius-sm: 6px;
+    }
 
+    body {
+      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
+    a { text-decoration: none; color: inherit; }
 
-        /* Header */
-        .page-header {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+    }
 
-        .page-header h1 {
-            color: #2c3e50;
-            1.3rem;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    /* ── Page header ── */
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 0 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 20px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
 
-        .page-header-image {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            background: #d63031;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            color: white;
-            box-shadow: 0 4px 12px rgba(230, 26, 26, 0.2);
-        }
+    .page-head-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
 
-        .btn {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
 
-        .btn-primary {
-            background: #d63031;
-            color: white;
-        }
+    .breadcrumb a { color: var(--text-2); }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb .sep { color: var(--text-3); }
+    .breadcrumb .current { color: var(--text); font-weight: 600; }
 
-        .btn-primary:hover {
-            background: #b71c1c;
-            box-shadow: 0 4px 12px rgba(230, 26, 26, 0.3);
-        }
+    .page-head-right { display: flex; gap: 8px; flex-wrap: wrap; }
 
-        .btn-back {
-            background: #95a5a6;
-            color: white;
-        }
+    /* ── Buttons ── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 13px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background 0.15s, box-shadow 0.15s;
+      white-space: nowrap;
+    }
 
-        .btn-back:hover {
-            background: #7f8c8d;
-            }
+    .btn-primary   { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .btn-primary:hover { background: var(--primary-dk); border-color: var(--primary-dk); }
 
-        .btn-edit {
-            background: #3498db;
-            color: white;
-        }
+    .btn-ghost  { background: var(--surface); color: var(--text-2); border-color: var(--border); }
+    .btn-ghost:hover { background: var(--bg); color: var(--text); }
 
-        .btn-edit:hover {
-            background: #2980b9;
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-        }
+    .btn-danger-ghost { background: transparent; color: var(--danger); border-color: transparent; }
+    .btn-danger-ghost:hover { background: var(--danger-bg); border-color: #FECACA; }
 
-        .btn-delete {
-            background: #d63031;
-            color: white;
-        }
+    /* ── KPI row ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 
-        .btn-delete:hover {
-            background: #b71c1c;
-            }
+    .kpi-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
+    }
 
-        .btn-sm {
-            padding: 6px 12px;
-            font-size: 13px;
-        }
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      margin-bottom: 4px;
+    }
 
-        .btn.flex-fill {
-            flex: 1;
-        }
+    .kpi-value {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      line-height: 1;
+    }
 
-        .header-actions {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+    .kpi-value.accent { color: var(--primary); }
 
-        /* Info Grid */
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
-        }
+    .kpi-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
 
-        .info-box {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-left: 4px solid #d63031;
-            transition: all 0.3s;
-        }
+    /* ── Dormitory info card ── */
+    .dorm-info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+    }
 
-        .info-box:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
+    .dorm-info-img {
+      width: 100px;
+      height: 68px;
+      object-fit: cover;
+      border-radius: 6px;
+      flex-shrink: 0;
+    }
 
-        .info-label {
-            font-size: 12px;
-            color: #95a5a6;
-            text-transform: uppercase;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
-        }
+    .dorm-info-img-placeholder {
+      width: 100px;
+      height: 68px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      font-size: 24px;
+    }
 
-        .info-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #2c3e50;
-        }
+    .dorm-info-meta { flex: 1; }
+    .dorm-info-meta h2 { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+    .dorm-info-meta p  { font-size: 12px; color: var(--text-2); margin-top: 4px; }
 
-        /* Floors Section */
-        .floors-section {
-            background: white;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
+    .dorm-info-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
 
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .tag {
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+      border: 1px solid transparent;
+    }
+    .tag-school   { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
+    .tag-private  { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+    .tag-basic    { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
+    .tag-premium  { background: #FAF5FF; color: #7C3AED; border-color: #DDD6FE; }
+    .tag-international { background: #FFF7ED; color: #C2410C; border-color: #FDBA74; }
+    .tag-female   { background: #FDF2F8; color: #9D174D; border-color: #FBCFE8; }
+    .tag-male     { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
+    .tag-amenity  { background: #F3F4F6; color: var(--text-2); border-color: var(--border); }
 
-        .section-title i {
-            color: #d63031;
-        }
+    /* ── Floors section ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
 
-        .floor-container {
-            margin-bottom: 25px;
-            padding: 20px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #d63031;
-        }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-        .floor-header {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 18px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .section-title i { color: var(--primary); font-size: 13px; }
 
-        .floor-header i {
-            color: #d63031;
-            font-size: 18px;
-        }
+    /* ── Floor block ── */
+    .floor-block {
+      margin-bottom: 16px;
+    }
 
-        .rooms-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-        }
+    .floor-heading {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      background: #F9FAFB;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
 
-        .room-card {
-            background: white;
-            padding: 18px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-            border-top: 3px solid #d63031;
-            transition: all 0.3s;
-        }
+    .floor-heading i { color: var(--text-3); font-size: 11px; }
+    .floor-badge {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--text-3);
+      font-weight: 500;
+    }
 
-        .room-card:hover {
-            box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-        }
+    /* ── Room grid ── */
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
 
-        .room-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 12px;
-        }
+    /* ── Room card ── */
+    .room-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
 
-        .room-stat {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #555;
-            margin-bottom: 8px;
-        }
+    .room-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px 9px;
+      border-bottom: 1px solid var(--border);
+    }
 
-        .room-stat i {
-            width: 18px;
-            color: #d63031;
-            font-size: 14px;
-        }
+    .room-num {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
 
-        .capacity-bar {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e9ecef;
-        }
+    .room-type-label {
+      font-size: 11px;
+      color: var(--text-3);
+      font-weight: 500;
+    }
 
-        .capacity-label {
-            font-size: 12px;
-            color: #95a5a6;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            font-weight: 600;
-        }
+    .room-occ-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
 
-        .progress {
-            height: 6px;
-            background: #ecf0f1;
-            border-radius: 3px;
-            overflow: hidden;
-        }
+    .occ-full    { background: var(--danger-bg); color: var(--danger); }
+    .occ-most    { background: var(--warning-bg); color: var(--warning); }
+    .occ-part    { background: var(--success-bg); color: var(--success); }
+    .occ-empty   { background: #F3F4F6; color: var(--text-3); }
 
-        .progress-bar {
-            background: #d63031;
-            border-radius: 3px;
-            transition: width 0.3s;
-        }
+    .room-card-body { padding: 10px 14px 12px; }
 
-        .occupants-section {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #e9ecef;
-        }
+    /* mini progress */
+    .room-prog {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
 
-        .occupants-title {
-            font-size: 12px;
-            color: #95a5a6;
-            font-weight: 600;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+    .room-prog-track {
+      flex: 1;
+      height: 4px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
 
-        .occupant-item {
-            font-size: 13px;
-            color: #2c3e50;
-            padding: 6px 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+    .room-prog-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
 
-        .occupant-avatar {
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            background: #d63031;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 11px;
-            font-weight: 700;
-        }
+    .room-prog-fill.occ-high   { background: var(--danger); }
+    .room-prog-fill.occ-mid    { background: var(--warning); }
+    .room-prog-fill.occ-low    { background: var(--success); }
 
-        .empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #999;
-        }
+    .room-prog-label { font-size: 11px; color: var(--text-3); white-space: nowrap; }
 
-        .empty-state i {
-            font-size: 48px;
-            color: #ddd;
-            margin-bottom: 15px;
-        }
+    /* occupants list */
+    .occupants-list { display: flex; flex-direction: column; gap: 5px; }
 
-        .room-actions {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-            display: flex;
-            gap: 8px;
-        }
+    .occupant-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      transition: background 0.1s;
+    }
 
-        .btn-danger {
-            background: #d63031;
-            color: white;
-        }
+    .occupant-row:hover { background: #F9FAFB; }
 
-        .btn-danger:hover {
-            background: #b71c1c;
-            }
+    .occ-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: var(--primary-bg);
+      color: var(--primary);
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
 
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px 10px;
-            }
+    .occ-info { flex: 1; min-width: 0; }
+    .occ-name { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .occ-id   { font-size: 11px; color: var(--text-3); }
 
+    .occ-icon { color: var(--text-3); font-size: 11px; }
 
-            .page-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+    .empty-room-msg {
+      font-size: 12px;
+      color: var(--text-3);
+      text-align: center;
+      padding: 8px 0;
+    }
 
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
+    .more-residents {
+      font-size: 11px;
+      color: var(--text-3);
+      text-align: center;
+      padding: 4px 0;
+      font-style: italic;
+    }
 
-            .btn {
-                flex: 1;
-                min-width: 80px;
-            }
-
-            .info-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .rooms-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .room-actions {
-                flex-direction: column;
-            }
-
-            .btn.flex-fill {
-                width: 100%;
-            }
-        }
-    </style>
+    /* room footer */
+    .room-card-foot {
+      padding: 8px 12px;
+      border-top: 1px solid var(--border);
+      background: #FAFAFA;
+      display: flex;
+      gap: 6px;
+    }
+  </style>
 </head>
 <body>
-    <%- include('../navbar', { activeNav: 'dormitories' }) %>
+  <%- include('../navbar', { activeNav: 'dormitories' }) %>
 
-    <div class="container">
-        <!-- Page Header -->
-        <div class="page-header">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="page-header-image">
-                    <i class="fas fa-building"></i>
-                </div>
-                <div>
-                    <h1><%= dormitory.name %></h1>
-                    <p style="color: #95a5a6; margin: 5px 0 0 0;"><%= dormitory.address || 'N/A' %></p>
-                </div>
-            </div>
-            <div class="header-actions">
-                <a href="/admin/dormitories/edit/<%= dormitory._id %>" class="btn btn-edit">
-                    <i class="fas fa-pen"></i> Sửa
-                </a>
-                <button onclick="deleteDormitory('<%= dormitory._id %>')" class="btn btn-delete">
-                    <i class="fas fa-trash"></i> Xóa
-                </button>
-                <a href="/admin/dormitories" class="btn btn-back">
-                    <i class="fas fa-arrow-left"></i> Quay lại
-                </a>
-            </div>
+  <div class="page">
+
+    <!-- Page header -->
+    <div class="page-head">
+      <div class="page-head-left">
+        <div class="breadcrumb">
+          <a href="/admin/dormitories"><i class="fas fa-building"></i> Ký túc xá</a>
+          <span class="sep">/</span>
+          <span class="current"><%= dormitory.name %></span>
         </div>
-
-        <!-- Info Grid -->
-        <div class="info-grid">
-            <% 
-            let totalFloors = dormitory.floors ? dormitory.floors.length : 0;
-            let totalRooms = 0;
-            let totalCapacity = 0;
-            let occupiedSpots = 0;
-
-            if (dormitory.floors) {
-                dormitory.floors.forEach(floor => {
-                    if (floor.rooms) {
-                        totalRooms += floor.rooms.length;
-                        floor.rooms.forEach(room => {
-                            totalCapacity += room.maxCapacity || 0;
-                            if (room.occupants) {
-                                occupiedSpots += room.occupants.filter(o => o.active).length;
-                            }
-                        });
-                    }
-                });
-            }
-
-            const occupancyRate = totalCapacity > 0 ? Math.round((occupiedSpots / totalCapacity) * 100) : 0;
-            %>
-
-            <div class="info-box">
-                <div class="info-label">Tổng số tầng</div>
-                <div class="info-value"><%= totalFloors %></div>
-            </div>
-
-            <div class="info-box">
-                <div class="info-label">Tổng số phòng</div>
-                <div class="info-value"><%= totalRooms %></div>
-            </div>
-
-            <div class="info-box">
-                <div class="info-label">Sức chứa tối đa</div>
-                <div class="info-value"><%= totalCapacity %> chỗ</div>
-            </div>
-
-            <div class="info-box">
-                <div class="info-label">Tỷ lệ lấp đầy</div>
-                <div class="info-value" style="color: <%= occupancyRate > 80 ? '#e74c3c' : occupancyRate > 50 ? '#f39c12' : '#2ecc71' %>;">
-                    <%= occupancyRate %>%
-                </div>
-            </div>
-        </div>
-
-        <!-- Floors Section -->
-        <div class="floors-section">
-            <h2 class="section-title">
-                <i class="fas fa-layer-group"></i> Danh sách phòng theo tầng
-            </h2>
-
-            <% if (dormitory.floors && dormitory.floors.length > 0) { %>
-                <% dormitory.floors.forEach(function(floor) { %>
-                    <div class="floor-container">
-                        <div class="floor-header">
-                            <i class="fas fa-arrows-alt-v"></i>
-                            Tầng <%= floor.floorNumber %>
-                        </div>
-
-                        <% if (floor.rooms && floor.rooms.length > 0) { %>
-                            <div class="rooms-grid">
-                                <% floor.rooms.forEach(function(room) { %>
-                                    <% 
-                                    const occupied = room.occupants ? room.occupants.filter(o => o.active).length : 0;
-                                    const occupancyPercent = room.maxCapacity > 0 ? Math.round((occupied / room.maxCapacity) * 100) : 0;
-                                    %>
-                                    <div class="room-card">
-                                        <div class="room-name">Phòng <%= room.roomNumber %></div>
-
-                                        <div class="room-stat">
-                                            <i class="fas fa-users"></i>
-                                            <span><%= occupied %>/<%= room.maxCapacity %> chỗ</span>
-                                        </div>
-
-                                        <div class="capacity-bar">
-                                            <div class="capacity-label">
-                                                <span>Lấp đầy</span>
-                                                <span><strong><%= occupancyPercent %>%</strong></span>
-                                            </div>
-                                            <div class="progress">
-                                                <div class="progress-bar" style="width: <%= occupancyPercent %>%"></div>
-                                            </div>
-                                        </div>
-
-                                        <% if (room.occupants && room.occupants.length > 0) { %>
-                                            <div class="occupants-section">
-                                                <div class="occupants-title">Cư dân</div>
-                                                <% room.occupants.forEach(function(occ) { %>
-                                                    <% if (occ.active) { %>
-                                                        <div class="occupant-item">
-                                                            <div class="occupant-avatar">
-                                                                <%= occ.name ? occ.name.charAt(0).toUpperCase() : 'U' %>
-                                                            </div>
-                                                            <span><%= occ.name || 'N/A' %></span>
-                                                        </div>
-                                                    <% } %>
-                                                <% }); %>
-                                            </div>
-                                        <% } %>
-                                        
-                                        <!-- Room action buttons -->
-                                        <div class="room-actions">
-                                            <button class="btn btn-primary flex-fill" 
-                                                    onclick="viewRoomDetails('<%= dormitory._id %>', <%= floor.floorNumber %>, '<%= room.roomNumber %>')">
-                                                <i class="fas fa-eye"></i> Chi tiết
-                                            </button>
-                                            <% if (occupied > 0) { %>
-                                                <button class="btn btn-danger" 
-                                                        onclick="clearRoom('<%= dormitory._id %>', <%= floor.floorNumber %>, '<%= room.roomNumber %>')">
-                                                    <i class="fas fa-trash"></i> Xóa
-                                                </button>
-                                            <% } %>
-                                        </div>
-                                    </div>
-                                <% }); %>
-                            </div>
-                        <% } else { %>
-                            <div class="empty-state">
-                                <i class="fas fa-door-open"></i>
-                                <p>Không có phòng trên tầng này</p>
-                            </div>
-                        <% } %>
-                    </div>
-                <% }); %>
-            <% } else { %>
-                <div class="empty-state">
-                    <i class="fas fa-layer-group"></i>
-                    <p>Chưa có tầng nào</p>
-                </div>
-            <% } %>
-        </div>
+      </div>
+      <div class="page-head-right">
+        <a href="/admin/dormitories/edit/<%= dormitory._id %>" class="btn btn-ghost">
+          <i class="fas fa-pen"></i> Sửa
+        </a>
+        <button onclick="deleteDorm('<%= dormitory._id %>')" class="btn btn-danger-ghost">
+          <i class="fas fa-trash"></i>
+        </button>
+        <a href="/admin/dormitories" class="btn btn-ghost">
+          <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+      </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function deleteDormitory(dormitoryId) {
-            if (confirm('Bạn chắc chắn muốn xóa ký túc xá này? Hành động này không thể hoàn tác.')) {
-                fetch(`/dormitories/${dormitoryId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Xóa ký túc xá thành công!');
-                        window.location.href = '/admin/dormitories';
-                    } else {
-                        alert('Lỗi: ' + (data.message || data.error || 'Không thể xóa ký túc xá'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Lỗi khi xóa ký túc xá');
-                });
+    <%
+    let dFloors = dormitory.floors ? dormitory.floors.length : 0;
+    let dRooms  = 0, dCap = 0, dOcc = 0;
+    let minPrice = Infinity, maxPrice = 0;
+
+    if (dormitory.floors) {
+      dormitory.floors.forEach(fl => {
+        if (fl.rooms) {
+          fl.rooms.forEach(rm => {
+            dRooms++;
+            dCap += rm.maxCapacity || 0;
+            dOcc += (rm.occupants || []).filter(o => o.active).length;
+            if (rm.pricePerMonth) {
+              if (rm.pricePerMonth < minPrice) minPrice = rm.pricePerMonth;
+              if (rm.pricePerMonth > maxPrice) maxPrice = rm.pricePerMonth;
             }
+          });
         }
-        
-        function viewRoomDetails(dormId, floorNumber, roomNumber) {
-            window.location.href = `/admin/dormitories/${dormId}/rooms/${floorNumber}/${roomNumber}`;
-        }
-        
-        function clearRoom(dormId, floorNumber, roomNumber) {
-            if (confirm('Bạn chắc chắn muốn xóa tất cả sinh viên khỏi phòng này?')) {
-                // Implement clearing all occupants from room
-                alert('Tính năng này sẽ được thêm vào. Vui lòng xóa từng sinh viên một.');
-            }
-        }
-    </script>
+      });
+    }
+    if (minPrice === Infinity) minPrice = 0;
+
+    const occRate = dCap > 0 ? Math.round(dOcc / dCap * 100) : 0;
+    const available = dOcc < dCap;
+    %>
+
+    <!-- Dormitory info card -->
+    <div class="dorm-info-card">
+      <% if (dormitory.imageUrl) { %>
+        <img class="dorm-info-img" src="<%= dormitory.imageUrl %>" alt="<%= dormitory.name %>" loading="lazy">
+      <% } else { %>
+        <div class="dorm-info-img-placeholder"><i class="fas fa-building"></i></div>
+      <% } %>
+
+      <div class="dorm-info-meta">
+        <h2><%= dormitory.name %></h2>
+        <p><i class="fas fa-map-marker-alt" style="color:#C8102E;margin-right:4px;"></i><%= dormitory.address || '' %></p>
+        <% if (dormitory.contact && (dormitory.contact.phone || dormitory.contact.email)) { %>
+        <p style="margin-top:3px;">
+          <% if (dormitory.contact.phone) { %><i class="fas fa-phone" style="margin-right:4px;"></i><%= dormitory.contact.phone %><% } %>
+          <% if (dormitory.contact.email) { %>&nbsp;&nbsp;<i class="fas fa-envelope" style="margin-right:4px;"></i><%= dormitory.contact.email %><% } %>
+        </p>
+        <% } %>
+        <div class="dorm-info-tags">
+          <% if (dormitory.details && dormitory.details.type) { %>
+            <span class="tag tag-<%= dormitory.details.type %>">
+              <%= dormitory.details.type === 'school' ? 'Trường học' : 'Tư nhân' %>
+            </span>
+          <% } %>
+          <% if (dormitory.details && dormitory.details.category) { %>
+            <span class="tag tag-<%= dormitory.details.category %>">
+              <% if (dormitory.details.category === 'basic') { %>Cơ bản<% } %>
+              <% if (dormitory.details.category === 'premium') { %>Cao cấp<% } %>
+              <% if (dormitory.details.category === 'international') { %>Quốc tế<% } %>
+            </span>
+          <% } %>
+          <% if (dormitory.details && dormitory.details.gender && dormitory.details.gender !== 'mixed') { %>
+            <span class="tag tag-<%= dormitory.details.gender %>">
+              <%= dormitory.details.gender === 'female' ? '♀ Nữ' : '♂ Nam' %>
+            </span>
+          <% } %>
+          <% if (dormitory.details && dormitory.details.amenities) { %>
+            <% dormitory.details.amenities.slice(0, 3).forEach(a => { %>
+              <span class="tag tag-amenity"><%= a %></span>
+            <% }); %>
+            <% if (dormitory.details.amenities.length > 3) { %>
+              <span class="tag tag-amenity">+<%= dormitory.details.amenities.length - 3 %></span>
+            <% } %>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Tổng tầng</div>
+        <div class="kpi-value"><%= dFloors %></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Tổng phòng</div>
+        <div class="kpi-value"><%= dRooms %></div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Sức chứa</div>
+        <div class="kpi-value"><%= dCap %></div>
+        <div class="kpi-sub">chỗ tối đa</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Sinh viên</div>
+        <div class="kpi-value"><%= dOcc %></div>
+        <div class="kpi-sub"><%= dCap - dOcc %> chỗ trống</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Lấp đầy</div>
+        <div class="kpi-value accent"><%= occRate %>%</div>
+        <div class="kpi-sub"><%= available ? 'Còn chỗ' : 'Hết chỗ' %></div>
+      </div>
+    </div>
+
+    <!-- Floors & Rooms -->
+    <div>
+      <div class="section-header">
+        <div class="section-title">
+          <i class="fas fa-layer-group"></i>
+          Danh sách phòng theo tầng
+        </div>
+        <span style="font-size:12px;color:var(--text-3);"><%= dRooms %> phòng · <%= dOcc %>/<%= dCap %> chỗ</span>
+      </div>
+
+      <% if (dormitory.floors && dormitory.floors.length > 0) { %>
+        <% dormitory.floors.forEach(function(floor) {
+          let fRooms = floor.rooms ? floor.rooms.length : 0;
+          let fOcc = 0, fCap = 0;
+          if (floor.rooms) {
+            floor.rooms.forEach(r => {
+              fCap += r.maxCapacity || 0;
+              fOcc += (r.occupants || []).filter(o => o.active).length;
+            });
+          }
+        %>
+        <div class="floor-block">
+          <div class="floor-heading">
+            <i class="fas fa-arrows-alt-v"></i>
+            Tầng <%= floor.floorNumber %>
+            <span class="floor-badge"><%= fRooms %> phòng · <%= fOcc %>/<%= fCap %> chỗ</span>
+          </div>
+
+          <% if (floor.rooms && floor.rooms.length > 0) { %>
+          <div class="rooms-grid">
+            <% floor.rooms.forEach(function(room) {
+              const occ  = (room.occupants || []).filter(o => o.active);
+              const occN = occ.length;
+              const cap  = room.maxCapacity || 0;
+              const pct  = cap > 0 ? Math.round(occN / cap * 100) : 0;
+              const occClass = pct >= 90 ? 'occ-high' : pct >= 50 ? 'occ-mid' : 'occ-low';
+              const badgeClass = pct >= 100 ? 'occ-full' : pct >= 70 ? 'occ-most' : pct > 0 ? 'occ-part' : 'occ-empty';
+
+              const typeLabel = {
+                '8-person': '8 người', '4-person-service': '4 người (DV)',
+                '5-person': '5 người', '10-person': '10 người'
+              }[room.roomType] || room.roomType || '';
+            %>
+            <div class="room-card">
+              <div class="room-card-head">
+                <div>
+                  <div class="room-num">Phòng <%= room.roomNumber %></div>
+                  <div class="room-type-label"><%= typeLabel %></div>
+                </div>
+                <span class="room-occ-badge <%= badgeClass %>"><%= occN %>/<%= cap %></span>
+              </div>
+
+              <div class="room-card-body">
+                <!-- Progress -->
+                <div class="room-prog">
+                  <div class="room-prog-track">
+                    <div class="room-prog-fill <%= occClass %>" style="width:<%= pct %>%"></div>
+                  </div>
+                  <span class="room-prog-label"><%= pct %>%</span>
+                </div>
+
+                <!-- Occupants -->
+                <% if (occN > 0) { %>
+                <div class="occupants-list">
+                  <% const showOcc = occ.slice(0, 4); %>
+                  <% showOcc.forEach(function(o) {
+                    const initials = o.name ? o.name.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase() : 'SV';
+                  %>
+                  <div class="occupant-row">
+                    <div class="occ-avatar"><%= initials %></div>
+                    <div class="occ-info">
+                      <div class="occ-name"><%= o.name || 'N/A' %></div>
+                      <% if (o.studentId) { %><div class="occ-id">MSSV: <%= o.studentId %></div><% } %>
+                    </div>
+                    <% if (o.userId) { %>
+                    <a href="/admin/students/<%= o.userId %>" title="Xem hồ sơ" style="color:var(--text-3);">
+                      <i class="fas fa-external-link-alt occ-icon"></i>
+                    </a>
+                    <% } %>
+                  </div>
+                  <% }); %>
+                  <% if (occN > 4) { %>
+                  <div class="more-residents">+<%= occN - 4 %> sinh viên khác</div>
+                  <% } %>
+                </div>
+                <% } else { %>
+                <div class="empty-room-msg">Phòng trống</div>
+                <% } %>
+              </div>
+
+              <div class="room-card-foot">
+                <button class="btn btn-ghost" style="font-size:12px;padding:4px 10px;"
+                  onclick="viewRoom('<%= dormitory._id %>', <%= floor.floorNumber %>, '<%= room.roomNumber %>')">
+                  <i class="fas fa-eye"></i> Chi tiết
+                </button>
+              </div>
+            </div>
+            <% }); %>
+          </div>
+          <% } %>
+        </div>
+        <% }); %>
+      <% } else { %>
+      <div style="text-align:center;padding:48px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
+        <i class="fas fa-layer-group" style="font-size:32px;color:var(--text-3);margin-bottom:10px;display:block;"></i>
+        <p style="color:var(--text-2);font-weight:500;">Chưa có tầng nào</p>
+        <p style="color:var(--text-3);font-size:12px;margin-top:4px;">Thêm tầng và phòng vào ký túc xá này.</p>
+      </div>
+      <% } %>
+    </div>
+
+  </div><!-- /page -->
+
+  <script>
+    function deleteDorm(id) {
+      if (!confirm('Xóa ký túc xá này?\n\nHành động này không thể hoàn tác.')) return;
+      fetch('/api/dormitories/' + id, { method: 'DELETE' })
+        .then(r => r.json())
+        .then(res => {
+          if (res.success || !res.error) {
+            window.location.href = '/admin/dormitories';
+          } else {
+            alert('Lỗi: ' + (res.error || 'Không thể xóa'));
+          }
+        })
+        .catch(() => alert('Lỗi hệ thống.'));
+    }
+
+    function viewRoom(dormId, floor, roomNum) {
+      window.location.href = '/admin/dormitories/' + dormId + '/rooms/' + floor + '/' + roomNum;
+    }
+  </script>
 </body>
 </html>

@@ -6,21 +6,21 @@
    ========================================================== */
 
 :root {
-    --adm-primary:        #d63031;
-    --adm-primary-hover:  #b71c1c;
-    --adm-primary-light:  #fef2f2;
-    --adm-primary-glow:   rgba(214, 48, 49, 0.12);
+    --adm-primary:        #C8102E;
+    --adm-primary-hover:  #A20D25;
+    --adm-primary-light:  #FFF0F2;
+    --adm-primary-glow:   rgba(200, 16, 46, 0.10);
 
-    --adm-text:           #1a2332;
-    --adm-text-soft:      #566070;
-    --adm-text-muted:     #9ca3af;
+    --adm-text:           #111827;
+    --adm-text-soft:      #6B7280;
+    --adm-text-muted:     #9CA3AF;
 
-    --adm-bg:             #f4f6f9;
+    --adm-bg:             #F7F7F7;
     --adm-surface:        #ffffff;
-    --adm-surface-raised: #f8f9fb;
+    --adm-surface-raised: #FAFAFA;
 
-    --adm-border:         #e3e7ef;
-    --adm-border-soft:    #eef0f4;
+    --adm-border:         #E5E7EB;
+    --adm-border-soft:    #F3F4F6;
 
     --adm-shadow-sm:  0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
     --adm-shadow:     0 2px 8px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
@@ -34,7 +34,7 @@
 /* ── Body / page base ─────────────────────────────────── */
 body {
     background: var(--adm-bg);
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     color: var(--adm-text);
 }
 
