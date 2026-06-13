@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= plan.planName %> — Admin KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --red:#C8102E; --red-dark:#9E0D25; --bg:#F5F6F8; --card:#FFF; --border:#EAECF0; --text:#2D3748; --muted:#9AA3AD; --success:#6BAF95; --radius:12px; }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); }
+    .admin-content { min-height:100vh; }
+    .page-wrap { max-width:1300px; margin:0 auto; padding:1.5rem; }
+    .back-link { display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);font-size:.85rem;text-decoration:none;margin-bottom:1.25rem; }
+    .back-link:hover { color:var(--red); }
+    .page-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap; }
+    .page-header h1 { font-size:1.25rem;font-weight:700; }
+
+    .badge { display:inline-flex;align-items:center;padding:.25rem .65rem;border-radius:20px;font-size:.75rem;font-weight:700; }
+    .badge-draft    { background:#F3F4F6;color:#6B7280; }
+    .badge-review   { background:#FEF3C7;color:#92400E; }
+    .badge-approved { background:#D1FAE5;color:#065F46; }
+    .badge-locked   { background:#EDE9FE;color:#5B21B6; }
+
+    .kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem; }
+    .kpi { background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem; }
+    .kpi .label { font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
+    .kpi .value { font-size:1.8rem;font-weight:800;margin-top:.2rem; }
+    .kpi .value.red { color:var(--red); }
+    .kpi .value.green { color:var(--success); }
+    .kpi .sub { font-size:.75rem;color:var(--muted);margin-top:.15rem; }
+
+    .grid-2 { display:grid;grid-template-columns:1fr 1.5fr;gap:1.25rem;margin-bottom:1.25rem; }
+    .card { background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem; }
+    .card-title { font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem; }
+
+    .btn { display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none; }
+    .btn-red { background:var(--red);color:#fff; } .btn-red:hover { background:var(--red-dark); }
+    .btn-outline { background:transparent;border:1px solid var(--border);color:var(--text); }
+    .btn-outline:hover { border-color:var(--red);color:var(--red); }
+
+    .prog-table { width:100%;border-collapse:collapse; }
+    .prog-table th { background:#F8F9FB;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;padding:.6rem .75rem;text-align:left;border-bottom:1px solid var(--border); }
+    .prog-table td { padding:.6rem .75rem;border-bottom:1px solid var(--border);font-size:.84rem;vertical-align:middle; }
+    .prog-table tr:last-child td { border-bottom:none; }
+
+    .bar-track { height:6px;background:#EEF0F5;border-radius:3px;width:80px;overflow:hidden; }
+    .bar-fill { height:100%;background:var(--red);border-radius:3px; }
+
+    .workflow-steps { display:flex;gap:0;overflow:hidden;border-radius:8px;border:1px solid var(--border); }
+    .wf-step { flex:1;padding:.6rem .5rem;text-align:center;font-size:.72rem;font-weight:700;background:#F8F9FB;color:var(--muted); }
+    .wf-step.done { background:var(--success);color:#fff; }
+    .wf-step.active { background:var(--red);color:#fff; }
+    .wf-step + .wf-step { border-left:1px solid var(--border); }
+
+    .tl { list-style:none; } .tl li { display:flex;gap:.6rem;padding-bottom:1rem; }
+    .tl-dot { width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0;margin-top:.1rem; }
+    .tl-step { font-size:.82rem;font-weight:600;text-transform:capitalize; }
+    .tl-meta { font-size:.75rem;color:var(--muted);margin-top:.1rem; }
+    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'enrollmentplanning' }) %>
+<div class="admin-content">
+<div class="page-wrap">
+
+  <a href="/admin/enrollment-planning" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại</a>
+
+  <div class="page-header">
+    <div>
+      <div style="font-size:.78rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem"><%= plan.academicYear %></div>
+      <h1><%= plan.planName %></h1>
+      <div style="margin-top:.5rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
+        <% const sl={draft:'Nháp',review:'Chờ duyệt',approved:'Đã duyệt',locked:'Đã khoá'} %>
+        <span class="badge badge-<%= plan.status %>"><%= sl[plan.status] %></span>
+        <% if (plan.description) { %><span style="font-size:.82rem;color:var(--muted)"><%= plan.description %></span><% } %>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <% if (plan.status !== 'locked') { %>
+        <% const nextLabel={draft:'Gửi duyệt',review:'Phê duyệt',approved:'Khoá kế hoạch'} %>
+        <% const nextAction={draft:'submitted',review:'approved',approved:'locked'} %>
+        <% if (nextAction[plan.status]) { %>
+          <button class="btn btn-red" onclick="advanceWorkflow('<%= nextAction[plan.status] %>')">
+            <i class="fas fa-arrow-right"></i> <%= nextLabel[plan.status] %>
+          </button>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Workflow -->
+  <div class="card" style="margin-bottom:1.25rem">
+    <div class="card-title">Tiến trình phê duyệt</div>
+    <div class="workflow-steps">
+      <% const steps=['draft','review','approved','locked']; const slWf={draft:'Nháp',review:'Xét duyệt',approved:'Phê duyệt',locked:'Khoá'}; %>
+      <% const planStepIdx = steps.indexOf(plan.status); %>
+      <% steps.forEach((s,i) => { %>
+        <div class="wf-step <%= i < planStepIdx ? 'done' : i === planStepIdx ? 'active' : '' %>">
+          <%= i < planStepIdx ? '✓ ' : '' %><%= slWf[s] %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-row">
+    <div class="kpi"><div class="label">Tổng chỉ tiêu</div><div class="value"><%= (plan.totalPlannedQuota||0).toLocaleString('vi-VN') %></div><div class="sub">sinh viên</div></div>
+    <div class="kpi"><div class="label">Dự kiến ở KTX</div><div class="value red"><%= (plan.totalExpectedDorm||0).toLocaleString('vi-VN') %></div><div class="sub">sinh viên</div></div>
+    <div class="kpi"><div class="label">Lấp đầy dự kiến</div>
+      <div class="value <%= (plan.projectedOccupancy||0) > 95 ? 'red' : 'green' %>"><%= plan.projectedOccupancy||0 %>%</div>
+      <div class="sub">/ 1308 chỗ</div>
+    </div>
+    <div class="kpi"><div class="label">Chênh lệch</div>
+      <div class="value <%= (plan.capacityGap||0) > 0 ? 'red' : 'green' %>">
+        <%= (plan.capacityGap||0) > 0 ? '+' : '' %><%= (plan.capacityGap||0).toLocaleString('vi-VN') %>
+      </div>
+      <div class="sub"><%= (plan.capacityGap||0) > 0 ? 'thiếu chỗ' : 'còn dư chỗ' %></div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-title">Phân bổ chỉ tiêu theo khoa</div>
+      <canvas id="facultyChart" height="260"></canvas>
+    </div>
+
+    <!-- Workflow history -->
+    <div class="card">
+      <div class="card-title">Lịch sử phê duyệt</div>
+      <% if (!plan.workflowHistory || plan.workflowHistory.length === 0) { %>
+        <p style="color:var(--muted);font-size:.85rem">Chưa có lịch sử</p>
+      <% } else { %>
+        <ul class="tl">
+          <% plan.workflowHistory.forEach(w => { %>
+          <li>
+            <div class="tl-dot"><i class="fas fa-check" style="font-size:.5rem"></i></div>
+            <div>
+              <div class="tl-step"><%= w.step %></div>
+              <div class="tl-meta"><%= w.actorName || 'System' %> · <%= w.timestamp ? new Date(w.timestamp).toLocaleString('vi-VN') : '—' %></div>
+              <% if (w.note) { %><div style="font-size:.8rem;color:#4A5568;font-style:italic;margin-top:.15rem"><%= w.note %></div><% } %>
+            </div>
+          </li>
+          <% }) %>
+        </ul>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Programs table -->
+  <div class="card">
+    <div class="card-title">Chỉ tiêu chi tiết theo ngành (<%= (plan.programs||[]).length %> ngành)</div>
+    <div style="overflow-x:auto">
+      <table class="prog-table">
+        <thead>
+          <tr>
+            <th>Ngành</th>
+            <th>Khoa</th>
+            <th>Loại</th>
+            <th>Chỉ tiêu kế hoạch</th>
+            <th>Thực tế tuyển</th>
+            <th>Tỷ lệ KTX</th>
+            <th>Dự kiến KTX</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% (plan.programs||[]).forEach(p => { %>
+          <tr>
+            <td><strong><%= p.programName %></strong><br><span style="color:var(--muted);font-size:.72rem"><%= p.programCode %></span></td>
+            <td style="font-size:.8rem"><%= p.faculty %></td>
+            <td><span style="font-size:.72rem;background:#F0F4FF;border-radius:4px;padding:.1rem .4rem;color:#1E40AF"><%= p.programType %></span></td>
+            <td style="font-weight:700"><%= (p.plannedQuota||0).toLocaleString('vi-VN') %></td>
+            <td style="color:var(--muted)"><%= p.actualEnrollment || '—' %></td>
+            <td>
+              <%= Math.round((p.dormApplicationRate||0)*100) %>%
+              <div class="bar-track" style="margin-top:3px">
+                <div class="bar-fill" style="width:<%= Math.round((p.dormApplicationRate||0)*100) %>%"></div>
+              </div>
+            </td>
+            <td style="font-weight:600;color:var(--red)"><%= (p.expectedDormResidents||0).toLocaleString('vi-VN') %></td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- Workflow modal -->
+<div id="wfModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:1.5rem;width:min(420px,90vw)">
+    <h3 id="wfModalTitle" style="margin-bottom:.75rem">Xác nhận</h3>
+    <p id="wfModalDesc" style="font-size:.88rem;color:var(--muted);margin-bottom:1rem"></p>
+    <div style="margin-bottom:1rem">
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:.35rem">Ghi chú (tuỳ chọn)</label>
+      <textarea id="wfNote" style="width:100%;padding:.6rem .9rem;border:1px solid #EAECF0;border-radius:8px;font-size:.88rem" rows="2"></textarea>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:.5rem">
+      <button class="btn btn-outline" onclick="document.getElementById('wfModal').style.display='none'">Huỷ</button>
+      <button class="btn btn-red" id="wfConfirmBtn" onclick="confirmWorkflow()">Xác nhận</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const PLAN_ID = '<%= plan._id %>';
+let pendingAction = '';
+const actionLabels = { submitted:'Gửi duyệt', approved:'Phê duyệt', locked:'Khoá kế hoạch' };
+
+function advanceWorkflow(action) {
+  pendingAction = action;
+  document.getElementById('wfModalTitle').textContent = actionLabels[action] || action;
+  document.getElementById('wfModalDesc').textContent = 'Bạn có chắc muốn chuyển kế hoạch sang trạng thái tiếp theo?';
+  document.getElementById('wfNote').value = '';
+  document.getElementById('wfModal').style.display = 'flex';
+}
+
+async function confirmWorkflow() {
+  const note = document.getElementById('wfNote').value;
+  const r = await fetch(`/admin/enrollment-planning/${PLAN_ID}/workflow`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ action: pendingAction, note })
+  });
+  const d = await r.json();
+  if (d.success) location.reload();
+  else alert('Lỗi: ' + d.error);
+}
+
+// Faculty chart
+const programs = <%- JSON.stringify(plan.programs||[]) %>;
+const byFaculty = {};
+programs.forEach(p => {
+  if (!byFaculty[p.faculty]) byFaculty[p.faculty] = 0;
+  byFaculty[p.faculty] += p.plannedQuota || 0;
+});
+new Chart(document.getElementById('facultyChart'), {
+  type: 'doughnut',
+  data: {
+    labels: Object.keys(byFaculty),
+    datasets: [{ data: Object.values(byFaculty),
+      backgroundColor: ['#C8102E','#6B9FC8','#6BAF95','#C8AA60','#9B7EC8','#7EC8C8','#C87E9B','#7EC87E','#C8A07E','#7E9BC8','#A0C87E']
+    }]
+  },
+  options: { plugins: { legend: { position:'right', labels:{ font:{ size:11 }, boxWidth:12 } } }, responsive:true, maintainAspectRatio:false }
+});
+</script>
+</body>
+</html>

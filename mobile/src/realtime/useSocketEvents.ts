@@ -30,21 +30,56 @@ export function useStudentSocket(enabled: boolean) {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     };
 
+    // Domain event bridge signals — server emits these after business events
+    const onDashboardRefresh = () => {
+      if (!mounted) return;
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    };
+
+    const onStudentAssigned = () => {
+      if (!mounted) return;
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    };
+
+    const onAllocationRevoked = () => {
+      if (!mounted) return;
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+    };
+
+    const onApplicationUpdated = () => {
+      if (!mounted) return;
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    };
+
     function registerHandlers(s: Socket) {
       // De-register first to avoid doubling on reconnect cycles.
       s.off('student:dashboard', onDashboard);
       s.off('allocation:result', onAllocationResult);
       s.off('notification:new', onNewNotification);
+      s.off('student:dashboard:refresh', onDashboardRefresh);
+      s.off('student:assigned', onStudentAssigned);
+      s.off('student:allocation-revoked', onAllocationRevoked);
+      s.off('application:updated', onApplicationUpdated);
 
       s.on('student:dashboard', onDashboard);
       s.on('allocation:result', onAllocationResult);
       s.on('notification:new', onNewNotification);
+      s.on('student:dashboard:refresh', onDashboardRefresh);
+      s.on('student:assigned', onStudentAssigned);
+      s.on('student:allocation-revoked', onAllocationRevoked);
+      s.on('application:updated', onApplicationUpdated);
     }
 
     function deregisterHandlers(s: Socket) {
       s.off('student:dashboard', onDashboard);
       s.off('allocation:result', onAllocationResult);
       s.off('notification:new', onNewNotification);
+      s.off('student:dashboard:refresh', onDashboardRefresh);
+      s.off('student:assigned', onStudentAssigned);
+      s.off('student:allocation-revoked', onAllocationRevoked);
+      s.off('application:updated', onApplicationUpdated);
       s.off('connect', onReconnect);
     }
 

@@ -1,7 +1,7 @@
 import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
-import { API_BASE, API_PREFIX } from '../config';
+import { apiConfig, API_PREFIX } from '../config';
 
 const KEYS = {
   accessToken: 'mobile_access_token',
@@ -53,10 +53,15 @@ export function registerSessionExpiredCallback(cb: () => void): void {
 }
 
 export const api: AxiosInstance = axios.create({
-  baseURL: `${API_BASE}${API_PREFIX}`,
+  baseURL: `${apiConfig.baseUrl}${API_PREFIX}`,
   timeout: 15000,
   headers: { 'Content-Type': 'application/json' },
 });
+
+// Called after initApiConfig() resolves so axios uses the correct URL
+export function refreshApiBaseUrl(): void {
+  api.defaults.baseURL = `${apiConfig.baseUrl}${API_PREFIX}`;
+}
 
 let isRefreshing = false;
 let refreshQueue: Array<(token: string | null) => void> = [];
@@ -108,7 +113,7 @@ api.interceptors.response.use(
         throw new Error('No refresh token');
       }
 
-      const { data } = await axios.post(`${API_BASE}${API_PREFIX}/auth/mobile/refresh`, {
+      const { data } = await axios.post(`${apiConfig.baseUrl}${API_PREFIX}/auth/mobile/refresh`, {
         refreshToken,
         deviceId,
         fingerprint,

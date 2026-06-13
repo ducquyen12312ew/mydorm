@@ -5,756 +5,1289 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trạng thái phòng - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/student-premium-shell.css">
+    <link rel="stylesheet" href="/css/premium-home.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        :root {
-            --primary-color: #d63031;
-            --text-color: #333;
-            --bg-color: #f8f3ef;
-        }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    :root {
+        --red:       #C8102E;
+        --red-l:     #FFF1F3;
+        --red-m:     rgba(200,16,46,.1);
+        --green:     #059669;
+        --green-l:   #ECFDF5;
+        --blue:      #4F46E5;
+        --blue-l:    #EEF2FF;
+        --teal:      #0891B2;
+        --amber:     #D97706;
+        --amber-l:   #FFFBEB;
+        --bg:        #F4F6FB;
+        --surface:   #FFFFFF;
+        --border:    #EEF0F5;
+        --border2:   #E5E7EB;
+        --t1:        #111827;
+        --t2:        #6B7280;
+        --t3:        #9CA3AF;
+        --r18:       18px;
+        --r12:       12px;
+        --sh0:       0 1px 3px rgba(0,0,0,.04);
+        --sh1:       0 2px 12px rgba(0,0,0,.06);
+        --sh2:       0 6px 28px rgba(0,0,0,.09);
+        --sh3:       0 16px 56px rgba(0,0,0,.13);
+    }
 
-        body {
-            font-family: 'Quicksand', Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-        }
+    body { font-family:'Inter','Segoe UI',sans-serif; background:var(--bg); color:var(--t1); }
 
-        .main-content {
-            margin-bottom: 3rem;
-        }
+    /* ─── ANIMATIONS ─── */
+    @keyframes fadeUp  { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeIn  { from{opacity:0} to{opacity:1} }
+    @keyframes slideR  { from{transform:translateX(110%)} to{transform:translateX(0)} }
+    @keyframes scaleIn { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:scale(1)} }
+    @keyframes spin    { to{transform:rotate(360deg)} }
+    @keyframes blink   { 0%,100%{opacity:1} 50%{opacity:.25} }
+    @keyframes shimmer { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.8rem;
-        }
+    .au1{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
+    .au2{animation:fadeUp .5s .08s cubic-bezier(.22,1,.36,1) both}
+    .au3{animation:fadeUp .5s .16s cubic-bezier(.22,1,.36,1) both}
+    .au4{animation:fadeUp .5s .24s cubic-bezier(.22,1,.36,1) both}
+    .au5{animation:fadeUp .5s .32s cubic-bezier(.22,1,.36,1) both}
 
-        .stat-card {
-            padding: 1.5rem;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.96);
-            border: 1px solid rgba(205, 197, 184, 0.42);
-            box-shadow: 0 18px 36px rgba(22, 24, 29, 0.08);
-        }
+    /* ─── PAGE ─── */
+    .rs-page { max-width:1040px; margin:0 auto; padding:1.75rem 1.25rem 5rem; }
 
-        .stat-icon {
-            width: 52px;
-            height: 52px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(230, 26, 26, 0.14), rgba(192, 129, 87, 0.16));
-            color: var(--primary-color);
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
+    /* ─── STATUS BAR ─── */
+    .rs-bar { display:flex; align-items:center; gap:.65rem; flex-wrap:wrap; margin-bottom:1.75rem; }
+    .spill { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem; border-radius:999px; font-size:.76rem; font-weight:700; letter-spacing:.02em; }
+    .spill-green { background:var(--green-l); color:#065F46; }
+    .spill-blue  { background:var(--blue-l);  color:#3730A3; }
+    .spill-amber { background:var(--amber-l); color:#92400E; }
+    .spill-red   { background:var(--red-l);   color:#991B1B; }
+    .spill-gray  { background:#F3F4F6; color:#6B7280; }
+    .room-tag { display:inline-flex; align-items:center; gap:.3rem; padding:.32rem .8rem; border-radius:999px; background:var(--surface); border:1.5px solid var(--border2); font-size:.75rem; font-weight:600; color:var(--t2); }
+    .room-tag strong { color:var(--t1); }
+    .reg-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem 1.1rem; border-radius:8px; background:var(--red); color:#fff; font-size:.78rem; font-weight:700; text-decoration:none; transition:opacity .15s,transform .15s; }
+    .reg-btn:hover { opacity:.88; transform:translateY(-1px); }
+    .reg-btn-off { display:inline-flex; align-items:center; gap:.4rem; padding:.4rem 1.1rem; border-radius:8px; background:#F3F4F6; color:var(--t3); font-size:.78rem; font-weight:700; border:1.5px solid var(--border2); cursor:not-allowed; }
 
-        .stat-label {
-            font-size: 0.82rem;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #746d66;
-            font-weight: 700;
-            margin-bottom: 0.4rem;
-            font-family: 'Montserrat', sans-serif;
-        }
+    /* ─── LAYOUT ─── */
+    .rs-sec { margin-bottom:1.25rem; }
+    .g-65-35 { display:grid; grid-template-columns:65fr 35fr; gap:1.25rem; }
 
-        .stat-value {
-            font-size: 1.35rem;
-            font-weight: 800;
-            color: #1f232a;
-        }
+    /* ══════════════════════════════════════
+       QR CARD — white, clean, sáng
+    ══════════════════════════════════════ */
+    .qr-card {
+        background:var(--surface);
+        border-radius:var(--r18);
+        border:1.5px solid var(--border);
+        box-shadow:var(--sh1);
+        padding:2.5rem 2rem 2rem;
+        text-align:center;
+        position:relative; overflow:hidden;
+        cursor:pointer; user-select:none;
+        transition:transform .28s cubic-bezier(.22,1,.36,1), box-shadow .28s;
+    }
+    .qr-card:hover { transform:translateY(-5px); box-shadow:var(--sh3); }
+    /* dot pattern top-right */
+    .qr-card::before {
+        content:''; position:absolute; top:0; right:0;
+        width:150px; height:150px; pointer-events:none;
+        background-image:radial-gradient(circle,#D1D5DB 1.3px,transparent 1.3px);
+        background-size:14px 14px; opacity:.5;
+    }
+    /* soft glow bottom-left */
+    .qr-card::after {
+        content:''; position:absolute; bottom:-40px; left:-40px;
+        width:130px; height:130px; border-radius:50%;
+        background:radial-gradient(circle,rgba(200,16,46,.06) 0%,transparent 70%);
+        pointer-events:none;
+    }
+    .qr-eyebrow { font-size:.66rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--t3); margin-bottom:1.5rem; position:relative; z-index:1; }
+    .qr-code-wrap { display:inline-block; background:#fff; border-radius:14px; padding:10px; box-shadow:0 4px 20px rgba(0,0,0,.09),0 1px 4px rgba(0,0,0,.05); margin-bottom:1.5rem; position:relative; z-index:1; transition:transform .28s cubic-bezier(.22,1,.36,1); }
+    .qr-card:hover .qr-code-wrap { transform:scale(1.04); }
+    .qr-code-wrap canvas,.qr-code-wrap img { display:block; border-radius:6px; }
+    .qr-skeleton { width:160px; height:160px; border-radius:8px; background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%); background-size:400% 100%; animation:shimmer 1.8s infinite; }
+    .qr-name { font-size:1.2rem; font-weight:800; color:var(--t1); letter-spacing:-.02em; margin-bottom:.25rem; position:relative; z-index:1; }
+    .qr-sub  { font-size:.8rem; color:var(--t3); font-weight:500; margin-bottom:1.1rem; position:relative; z-index:1; }
+    .qr-badge { display:inline-flex; align-items:center; gap:.4rem; padding:.38rem 1rem; border-radius:999px; background:var(--green-l); color:#065F46; font-size:.76rem; font-weight:700; position:relative; z-index:1; }
+    .qr-expand-hint { display:block; margin-top:.85rem; font-size:.7rem; color:var(--t3); font-weight:600; position:relative; z-index:1; transition:color .2s; }
+    .qr-card:hover .qr-expand-hint { color:var(--red); }
 
-        .content-card {
-            padding: 2rem;
-            margin-bottom: 1.4rem;
-        }
+    /* ══════════════════════════════════════
+       QUICK ACTION CARDS
+    ══════════════════════════════════════ */
+    .qa-stack { display:flex; flex-direction:column; gap:.85rem; }
+    .qa-card {
+        background:var(--surface); border-radius:var(--r18);
+        border:1.5px solid var(--border); padding:1.3rem 1.2rem;
+        display:flex; align-items:center; gap:1rem;
+        cursor:pointer; box-shadow:var(--sh0); user-select:none;
+        transition:transform .25s cubic-bezier(.22,1,.36,1), box-shadow .25s, border-color .25s;
+    }
+    .qa-card:hover { transform:translateY(-4px); box-shadow:var(--sh2); border-color:transparent; }
+    .qa-card:hover .qa-arrow  { transform:translateX(5px); color:var(--t1); }
+    .qa-card:hover .qa-iw svg { transform:scale(1.1); }
+    .qa-card:hover .qa-iw .qa-num { transform:scale(1.08); }
+    .qa-iw {
+        width:54px; height:54px; border-radius:14px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center;
+    }
+    .qa-iw svg { transition:transform .25s; }
+    .qa-iw-red   { background:var(--red-l); }
+    .qa-iw-blue  { background:var(--blue-l); }
+    .qa-iw-green { background:#ECFDF5; }
+    .qa-num { font-size:1.35rem; font-weight:900; letter-spacing:-.04em; color:var(--red); font-style:italic; line-height:1; transition:transform .25s; }
+    .qa-text { flex:1; min-width:0; }
+    .qa-title { font-size:.92rem; font-weight:800; color:var(--t1); margin-bottom:.18rem; }
+    .qa-desc  { font-size:.73rem; color:var(--t2); line-height:1.5; }
+    .qa-arrow { color:var(--t3); flex-shrink:0; font-size:.85rem; transition:transform .25s cubic-bezier(.22,1,.36,1), color .2s; }
 
-        .card-header {
-            display: flex;
-            align-items: center;
-            gap: 0.9rem;
-            margin-bottom: 1.5rem;
-        }
+    /* ══════════════════════════════════════
+       NOTIFICATION BAND
+    ══════════════════════════════════════ */
+    .notif-band {
+        background:var(--surface); border-radius:var(--r18);
+        border:1.5px solid var(--border); box-shadow:var(--sh0);
+        display:flex; align-items:stretch; overflow:hidden;
+    }
+    .notif-hd-col {
+        display:flex; align-items:center; gap:.6rem; flex-shrink:0;
+        padding:.95rem 1.25rem; border-right:1.5px solid var(--border);
+        min-width:160px;
+    }
+    .bell-wrap { width:34px; height:34px; border-radius:10px; background:var(--red-l); color:var(--red); display:flex; align-items:center; justify-content:center; font-size:.82rem; flex-shrink:0; }
+    .notif-hd-lbl { font-size:.8rem; font-weight:800; color:var(--t1); line-height:1.3; }
+    .notif-row { display:flex; align-items:stretch; flex:1; min-width:0; overflow:hidden; }
+    .ni {
+        display:flex; align-items:flex-start; gap:.65rem;
+        padding:.9rem 1.1rem; border-right:1.5px solid var(--border);
+        flex:1; min-width:0; cursor:pointer; transition:background .15s;
+    }
+    .ni:last-child { border-right:none; }
+    .ni:hover { background:#FAFBFF; }
+    .ni-ico { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.76rem; flex-shrink:0; margin-top:.05rem; }
+    .ni-cal   { background:#FFF1F3; color:#C8102E; }
+    .ni-fix   { background:#FFFBEB; color:#D97706; }
+    .ni-info  { background:#EEF2FF; color:#4F46E5; }
+    .ni-home2 { background:#ECFDF5; color:#059669; }
+    .ni-warn  { background:#FFF7ED; color:#EA580C; }
+    .ni-title { font-size:.78rem; font-weight:700; color:var(--t1); margin-bottom:.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ni-sub   { font-size:.7rem; color:var(--t3); }
+    .ni-link  { font-size:.7rem; color:var(--blue); font-weight:600; }
+    .notif-all { flex-shrink:0; display:flex; align-items:center; padding:0 .95rem; color:var(--t3); cursor:pointer; font-size:.8rem; transition:color .15s; border-left:1.5px solid var(--border); }
+    .notif-all:hover { color:var(--t1); }
+    .notif-empty-band { flex:1; display:flex; align-items:center; padding:.9rem 1.1rem; font-size:.8rem; color:var(--t3); gap:.45rem; }
 
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #c08157, #9d5f38);
-            color: #fff;
-            font-size: 1.2rem;
-        }
+    /* ══════════════════════════════════════
+       RESIDENT CARD — pastel light gradient
+    ══════════════════════════════════════ */
+    .res-eyebrow { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; color:var(--t3); margin-bottom:.75rem; }
+    .res-card {
+        border-radius:var(--r18); overflow:hidden; box-shadow:var(--sh2);
+        background:linear-gradient(130deg,#FDE8ED 0%,#EDE7F6 38%,#E3F2FD 65%,#E8F5E9 100%);
+        position:relative;
+    }
+    .res-card::before {
+        content:''; position:absolute; inset:0; pointer-events:none;
+        background:linear-gradient(140deg,rgba(255,255,255,.6) 0%,rgba(255,255,255,.15) 100%);
+    }
+    /* 2-col: QR left, description right */
+    .res-inner { display:grid; grid-template-columns:auto 1fr; gap:0; position:relative; z-index:1; }
+    .res-qr-side {
+        padding:2rem 1.75rem;
+        display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.65rem;
+        border-right:1px solid rgba(0,0,0,.07);
+    }
+    .res-qr-box { background:#fff; border-radius:14px; padding:10px; box-shadow:0 4px 16px rgba(0,0,0,.1); }
+    .res-qr-box canvas,.res-qr-box img { display:block; border-radius:6px; }
+    .res-qr-skel { width:130px; height:130px; border-radius:8px; background:linear-gradient(90deg,rgba(0,0,0,.06) 25%,rgba(0,0,0,.1) 50%,rgba(0,0,0,.06) 75%); background-size:400% 100%; animation:shimmer 1.8s infinite; }
+    .res-qr-lbl { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--t2); }
+    .res-desc-side {
+        padding:2rem 2rem;
+        display:flex; flex-direction:column; justify-content:center; gap:1.1rem;
+        position:relative;
+    }
+    .res-wm { position:absolute; bottom:.5rem; right:.75rem; width:110px; height:110px; opacity:.07; pointer-events:none; }
+    .res-wm img { width:100%; height:100%; object-fit:contain; }
+    .res-card-tag { font-size:.62rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--t2); display:flex; align-items:center; gap:.4rem; }
+    .res-card-title { font-size:1.1rem; font-weight:900; color:var(--t1); letter-spacing:-.02em; line-height:1.2; }
+    .res-card-desc { font-size:.76rem; color:var(--t2); line-height:1.6; max-width:480px; }
+    .res-badges { display:flex; flex-wrap:wrap; gap:.5rem; }
+    .res-badge {
+        display:inline-flex; align-items:center; gap:.35rem;
+        padding:.3rem .7rem; border-radius:8px;
+        font-size:.7rem; font-weight:700;
+        background:rgba(255,255,255,.7); color:var(--t1);
+        border:1px solid rgba(0,0,0,.07);
+    }
+    .res-badge i { font-size:.65rem; }
 
-        .card-title {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.35rem;
-            font-weight: 800;
-        }
+    /* ══════════════════════════════════════
+       AMENITIES GRID
+    ══════════════════════════════════════ */
+    .am-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.85rem; }
+    .am-head-title { font-size:.88rem; font-weight:800; color:var(--t1); }
+    .am-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; }
+    .am-card { background:var(--surface); border-radius:var(--r12); border:1.5px solid var(--border); padding:1.1rem .95rem .9rem; transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s; box-shadow:var(--sh0); }
+    .am-card:hover { transform:translateY(-4px); box-shadow:var(--sh2); border-color:transparent; }
+    .am-ico  { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:.95rem; margin-bottom:.6rem; }
+    .am-name { font-size:.79rem; font-weight:700; color:var(--t1); margin-bottom:.12rem; }
+    .am-desc { font-size:.68rem; color:var(--t3); line-height:1.4; }
 
-        .info-grid,
-        .rs-application-grid,
-        .rs-roommates {
-            display: grid;
-            gap: 1rem;
-        }
+    /* ══════════════════════════════════════
+       STATE CARDS
+    ══════════════════════════════════════ */
+    .state-wrap { display:flex; justify-content:center; }
+    .state-card { background:var(--surface); border-radius:var(--r18); border:1.5px solid var(--border); box-shadow:var(--sh1); max-width:540px; width:100%; }
+    .state-inner { padding:3rem 2.5rem; text-align:center; }
+    .state-ico { width:78px; height:78px; border-radius:50%; margin:0 auto 1.5rem; display:flex; align-items:center; justify-content:center; font-size:1.9rem; }
+    .state-title { font-size:1.25rem; font-weight:900; margin-bottom:.5rem; }
+    .state-sub { font-size:.88rem; color:var(--t2); line-height:1.65; margin-bottom:1.75rem; }
+    .wl-ring { width:96px; height:96px; border-radius:50%; margin:0 auto 1.5rem; background:var(--blue-l); color:var(--blue); display:flex; align-items:center; justify-content:center; font-size:1.9rem; font-weight:900; box-shadow:0 0 0 10px rgba(79,70,229,.07); }
+    .wl-stats { display:flex; justify-content:center; gap:2rem; padding:1.2rem; background:var(--bg); border-radius:var(--r12); margin-bottom:1.5rem; }
+    .wl-sn { font-size:1.45rem; font-weight:900; color:var(--t1); }
+    .wl-sl { font-size:.7rem; color:var(--t3); font-weight:600; margin-top:.12rem; }
+    .live-dot { display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--green); animation:blink 2s infinite; margin-right:.35rem; vertical-align:middle; }
+    .pending-chips { display:flex; gap:.55rem; justify-content:center; flex-wrap:wrap; }
+    .p-chip { padding:.38rem .9rem; border-radius:999px; background:var(--bg); border:1.5px solid var(--border2); font-size:.76rem; font-weight:600; color:var(--t2); }
+    .empty-card { background:var(--surface); border-radius:var(--r18); border:1.5px solid var(--border); padding:4rem 2rem; text-align:center; max-width:460px; margin:0 auto; }
+    .empty-ico { width:70px; height:70px; border-radius:50%; background:var(--bg); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; font-size:1.75rem; color:var(--t3); }
+    .empty-card h2 { font-size:1.15rem; font-weight:800; margin-bottom:.5rem; }
+    .empty-card p  { font-size:.85rem; color:var(--t2); line-height:1.65; margin-bottom:1.75rem; }
 
-        .info-grid,
-        .rs-application-grid {
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        }
+    /* ─── LOADING ─── */
+    .loading-c { display:flex; align-items:center; justify-content:center; padding:5rem 0; }
+    .loading-c i { font-size:1.6rem; animation:spin 1.2s linear infinite; display:block; margin-bottom:.55rem; color:var(--t3); }
+    .loading-c span { font-size:.82rem; color:var(--t3); font-weight:600; }
 
-        .rs-roommates {
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        }
+    /* ══════════════════════════════════════
+       MODAL
+    ══════════════════════════════════════ */
+    .modal-ov { position:fixed; inset:0; z-index:9000; background:rgba(0,0,0,.6); backdrop-filter:blur(8px); display:none; align-items:center; justify-content:center; padding:1.5rem; }
+    .modal-ov.open { display:flex; animation:fadeIn .2s ease; }
+    .modal-box { background:#0F172A; border-radius:24px; padding:2.5rem 2rem; max-width:350px; width:100%; position:relative; text-align:center; box-shadow:0 32px 80px rgba(0,0,0,.4); animation:scaleIn .3s cubic-bezier(.22,1,.36,1); }
+    .modal-close { position:absolute; top:.9rem; right:.9rem; background:rgba(255,255,255,.1); border:none; cursor:pointer; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.6); font-size:.8rem; transition:background .15s; }
+    .modal-close:hover { background:rgba(255,255,255,.2); }
+    .modal-qr-wrap { background:#fff; border-radius:16px; padding:12px; display:inline-block; margin-bottom:1.25rem; box-shadow:0 8px 32px rgba(0,0,0,.4); }
+    .modal-qr-wrap canvas,.modal-qr-wrap img { display:block; border-radius:8px; }
+    .modal-name { font-size:1.1rem; font-weight:800; color:#fff; margin-bottom:.5rem; }
+    .modal-tags { display:flex; gap:.5rem; justify-content:center; flex-wrap:wrap; }
+    .modal-tag  { padding:.28rem .7rem; border-radius:7px; background:rgba(255,255,255,.09); color:rgba(255,255,255,.6); font-size:.7rem; font-weight:600; }
+    .modal-tag span { color:#fff; }
 
-        .info-item,
-        .application-item,
-        .rs-roommate-card {
-            padding: 1.15rem;
-            border-radius: 18px;
-            background: linear-gradient(180deg, #ffffff, #fbfaf7);
-            border: 1px solid rgba(214, 205, 193, 0.6);
-        }
+    /* ══════════════════════════════════════
+       DRAWER
+    ══════════════════════════════════════ */
+    .drawer-ov { position:fixed; inset:0; z-index:8000; background:rgba(0,0,0,.35); backdrop-filter:blur(3px); display:none; }
+    .drawer-ov.open { display:block; animation:fadeIn .2s ease; }
+    .drawer { position:fixed; top:0; right:0; bottom:0; width:430px; max-width:100vw; background:var(--surface); z-index:8001; display:flex; flex-direction:column; box-shadow:-4px 0 40px rgba(0,0,0,.14); animation:slideR .3s cubic-bezier(.22,1,.36,1); }
+    .drawer-w { width:520px; }
+    .drawer-hd { display:flex; align-items:center; justify-content:space-between; padding:1.1rem 1.4rem; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .drawer-hd-title { font-size:.95rem; font-weight:800; color:var(--t1); }
+    .drawer-close { background:var(--bg); border:none; cursor:pointer; width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:var(--t2); font-size:.8rem; transition:background .15s; }
+    .drawer-close:hover { background:var(--border2); }
+    .drawer-body { flex:1; overflow-y:auto; padding:1.4rem; }
 
-        .info-label {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: #7b736b;
-            margin-bottom: 0.5rem;
-            font-weight: 700;
-        }
+    /* Drawer components */
+    .dw-s { margin-bottom:1.75rem; }
+    .dw-s-title { font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--t3); font-weight:700; margin-bottom:.8rem; }
+    .dw-hero { background:linear-gradient(135deg,#0F172A 0%,#334155 100%); border-radius:var(--r12); padding:1.4rem 1.5rem; display:flex; align-items:flex-start; gap:1rem; margin-bottom:1.1rem; position:relative; overflow:hidden; }
+    .dw-hero::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 85% 20%,rgba(200,16,46,.18),transparent 55%); pointer-events:none; }
+    .dw-rn { font-size:2.4rem; font-weight:900; color:#fff; letter-spacing:-.04em; line-height:1; }
+    .dw-rt { font-size:.74rem; color:rgba(255,255,255,.45); margin-top:.25rem; font-weight:600; }
+    .dw-bg { margin-left:auto; padding:.28rem .7rem; border-radius:7px; background:rgba(74,222,128,.15); border:1px solid rgba(74,222,128,.25); color:#4ADE80; font-size:.7rem; font-weight:700; }
+    .dw-grid { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; }
+    .dw-item { background:var(--bg); border-radius:10px; padding:.65rem .85rem; }
+    .dw-item-lbl { font-size:.62rem; text-transform:uppercase; letter-spacing:.07em; color:var(--t3); font-weight:700; margin-bottom:.18rem; }
+    .dw-item-val { font-size:.86rem; font-weight:700; color:var(--t1); }
+    .am-chips { display:flex; flex-wrap:wrap; gap:.45rem; }
+    .am-chip  { display:inline-flex; align-items:center; gap:.3rem; padding:.3rem .7rem; border-radius:7px; background:var(--bg); border:1px solid var(--border2); font-size:.74rem; font-weight:600; color:var(--t2); }
+    .dw-info-row { display:flex; align-items:flex-start; gap:.6rem; padding:.5rem 0; border-bottom:1px solid var(--border); }
+    .dw-info-row:last-child { border-bottom:none; }
+    .dw-ii  { color:var(--t3); font-size:.78rem; margin-top:.14rem; min-width:14px; }
+    .dw-il  { font-size:.7rem; color:var(--t3); font-weight:600; }
+    .dw-iv  { font-size:.8rem; color:var(--t1); font-weight:600; }
+    .rm-item { display:flex; align-items:center; gap:.9rem; padding:.85rem .95rem; border-radius:var(--r12); background:var(--bg); margin-bottom:.6rem; transition:background .15s; }
+    .rm-item:hover { background:#EEF2FF; }
+    .rm-av  { width:42px; height:42px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.95rem; font-weight:800; color:#fff; }
+    .rm-name{ font-size:.86rem; font-weight:700; color:var(--t1); }
+    .rm-meta{ font-size:.72rem; color:var(--t3); margin-top:.08rem; }
+    .rm-tag { display:inline-block; margin-top:.2rem; font-size:.63rem; font-weight:700; padding:.12rem .45rem; border-radius:6px; background:var(--green-l); color:var(--green); }
+    .rm-empty { text-align:center; padding:2.5rem 1rem; color:var(--t3); font-size:.82rem; }
+    .map-wrap { border-radius:var(--r12); overflow:hidden; height:330px; }
+    .map-addr { display:flex; align-items:center; gap:.55rem; margin-top:.9rem; padding:.85rem .95rem; border-radius:var(--r12); background:var(--bg); }
+    .map-addr-icon { color:var(--red); font-size:.9rem; }
+    .map-addr-main { font-size:.82rem; font-weight:700; color:var(--t1); }
+    .map-addr-sub  { font-size:.72rem; color:var(--t3); margin-top:.08rem; }
 
-        .info-value {
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #1f232a;
-        }
+    /* ─── RESPONSIVE ─── */
+    @media(max-width:860px){
+        .g-65-35 { grid-template-columns:1fr; }
+        .am-grid { grid-template-columns:repeat(2,1fr); }
+        .notif-row { flex-direction:column; }
+        .ni { border-right:none; border-bottom:1.5px solid var(--border); padding:.75rem 0; }
+        .ni:last-child { border-bottom:none; }
+        .notif-band { flex-direction:column; }
+        .notif-hd-col { border-right:none; border-bottom:1.5px solid var(--border); min-width:0; }
+        .notif-all { border-left:none; border-top:1.5px solid var(--border); justify-content:center; padding:.7rem; }
+        .res-inner { grid-template-columns:1fr; }
+        .res-vdiv { display:none; }
+        .drawer { width:100%; }
+        .drawer-w { width:100%; }
+        .rs-page { padding:1.1rem .9rem 4rem; }
+    }
+    @media(max-width:480px){
+        .am-grid { grid-template-columns:repeat(2,1fr); }
+        .wl-stats { flex-direction:column; gap:1rem; }
+    }
 
-        .rs-section-title {
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.05rem;
-            margin: 1.75rem 0 1rem;
-        }
+    /* misc */
+    .btn-primary { display:inline-flex; align-items:center; gap:.45rem; padding:.55rem 1.3rem; border-radius:10px; background:var(--red); color:#fff; border:none; cursor:pointer; font-size:.84rem; font-weight:700; transition:opacity .15s; }
+    .btn-primary:hover { opacity:.88; }
 
-        .rs-section-title i {
-            color: var(--primary-color);
-        }
+    /* ══════════════════════════════════════
+       HERO SECTION
+    ══════════════════════════════════════ */
+    .rs-hero {
+        position:relative; height:300px; margin-bottom:1.25rem;
+        border-radius:20px; overflow:hidden;
+        background:linear-gradient(135deg,#1a1a2e 0%,#16213e 55%,#0f3460 100%);
+    }
+    .hero-img {
+        position:absolute; inset:0; width:100%; height:100%;
+        object-fit:cover; object-position:center 40%;
+        transition:opacity .45s ease;
+    }
+    .hero-ov {
+        position:absolute; inset:0;
+        background:linear-gradient(90deg,rgba(10,10,20,.82) 0%,rgba(10,10,20,.52) 40%,rgba(10,10,20,.12) 75%,transparent 100%);
+    }
+    .hero-body {
+        position:absolute; left:2.5rem; bottom:2.25rem; z-index:1;
+        max-width:540px;
+    }
+    .hero-eyebrow {
+        font-size:.62rem; font-weight:700; letter-spacing:.2em;
+        text-transform:uppercase; color:rgba(255,255,255,.55);
+        margin-bottom:.55rem;
+    }
+    .hero-h1 {
+        font-size:2.5rem; font-weight:900; color:#fff;
+        letter-spacing:-.035em; line-height:1.08;
+        margin-bottom:.55rem;
+        text-shadow:0 2px 24px rgba(0,0,0,.45);
+    }
+    .hero-h2 {
+        font-size:.84rem; color:rgba(255,255,255,.68);
+        line-height:1.6; font-weight:400;
+        margin-bottom:1.25rem; max-width:400px;
+    }
+    .hero-btn {
+        display:inline-flex; align-items:center; gap:.65rem;
+        background:#fff; color:#111827;
+        border:none; cursor:pointer; font-family:inherit;
+        padding:.58rem 1rem .58rem 1.3rem;
+        border-radius:999px; font-size:.82rem; font-weight:700;
+        box-shadow:0 4px 18px rgba(0,0,0,.22);
+        transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s;
+        text-decoration:none; white-space:nowrap;
+    }
+    .hero-btn:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(0,0,0,.28); }
+    .hero-btn-arr {
+        width:26px; height:26px; border-radius:50%; flex-shrink:0;
+        background:#111827; color:#fff;
+        display:flex; align-items:center; justify-content:center;
+        font-size:.7rem;
+    }
+    @media(max-width:640px) {
+        .rs-hero { height:230px; }
+        .hero-body { left:1.25rem; bottom:1.5rem; }
+        .hero-h1 { font-size:1.65rem; }
+        .hero-h2 { display:none; }
+    }
 
-        .rs-roommate-card {
-            display: flex;
-            align-items: center;
-            gap: 0.95rem;
-        }
+    /* ══════════════════════════════════════
+       AMENITIES CHIP SCROLL
+    ══════════════════════════════════════ */
+    .am-scroll {
+        display:flex; gap:.6rem;
+        overflow-x:auto; padding:.2rem .05rem .85rem;
+        scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    }
+    .am-scroll::-webkit-scrollbar { display:none; }
+    .am-chip-item {
+        display:inline-flex; align-items:center; gap:.45rem;
+        padding:.48rem 1rem; border-radius:999px;
+        background:var(--surface); border:1.5px solid var(--border);
+        white-space:nowrap; font-size:.78rem; font-weight:600; color:var(--t1);
+        flex-shrink:0; box-shadow:var(--sh0);
+        transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s;
+        text-decoration:none; cursor:default;
+    }
+    .am-chip-item:hover { transform:translateY(-2px); box-shadow:var(--sh1); border-color:transparent; }
+    .am-chip-item .am-chip-ico { font-size:.82rem; }
+    .am-chip-maint {
+        background:var(--amber-l); border-color:transparent; color:#92400E; cursor:pointer;
+    }
+    .am-chip-maint:hover { box-shadow:0 4px 14px rgba(217,119,6,.22); }
 
-        .rs-roommate-avatar {
-            width: 52px;
-            height: 52px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #c08157, #9d5f38);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 1.15rem;
-            flex-shrink: 0;
-        }
-
-        .rs-roommate-name {
-            font-weight: 700;
-            color: #1f232a;
-        }
-
-        .rs-roommate-sub,
-        .rs-muted {
-            color: #6b655d;
-            font-size: 0.92rem;
-            line-height: 1.55;
-        }
-
-        .rs-application-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-
-        .rs-application-id {
-            font-weight: 700;
-            color: #1f232a;
-        }
-
-        .rs-status {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.45rem;
-            padding: 0.45rem 0.9rem;
-            border-radius: 999px;
-            font-size: 0.88rem;
-            font-weight: 700;
-        }
-
-        .rs-status.pending,
-        .rs-status.pending_review,
-        .rs-status.waitlist {
-            background: #fff2cc;
-            color: #8a5b00;
-        }
-
-        .rs-status.approved,
-        .rs-status.approved_waiting_payment {
-            background: #dff6e8;
-            color: #15653f;
-        }
-
-        .rs-status.rejected,
-        .rs-status.expired {
-            background: #fde3e3;
-            color: #9b1c1c;
-        }
-
-        .rs-status.checked_out {
-            background: #edf1f5;
-            color: #41505f;
-        }
-
-        .rs-empty {
-            text-align: center;
-            padding: 3rem 1.25rem;
-            color: #7b736b;
-        }
-
-        .rs-empty i {
-            font-size: 2.8rem;
-            color: #c4b39f;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        .rs-empty h3 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 1.2rem;
-            margin-bottom: 0.45rem;
-            color: #1f232a;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.85rem 1.3rem;
-            border-radius: 999px;
-            border: none;
-            text-decoration: none;
-            font-family: 'Montserrat', sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #c08157, #9d5f38);
-            color: #fff;
-        }
-
-        .filter-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.75rem;
-            margin-bottom: 1.4rem;
-        }
-
-        .filter-tab {
-            padding: 0.78rem 1.05rem;
-            border-radius: 999px;
-            background: #f3efe9;
-            border: 1px solid #e1d8cc;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .filter-tab.active {
-            background: linear-gradient(135deg, #c08157, #9d5f38);
-            color: #fff;
-            border-color: #9d5f38;
-        }
-
-        .app-image {
-            width: 100%;
-            height: 260px;
-            object-fit: cover;
-            border-radius: 18px;
-        }
-
-        @media (max-width: 768px) {
-            .content-card {
-                padding: 1.2rem;
-            }
-
-            .app-image {
-                height: 220px;
-            }
-        }
+    /* ══════════════════════════════════════
+       FOOTER
+    ══════════════════════════════════════ */
+    .rs-footer { background:#1a1a2e; margin-top:2.5rem; padding:2.5rem 1.25rem 1.5rem; }
+    .footer-inner {
+        max-width:1040px; margin:0 auto;
+        display:grid; grid-template-columns:1fr 2fr; gap:2.5rem; align-items:start;
+        padding-bottom:1.75rem; border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .footer-logo-txt { font-size:1.6rem; font-weight:900; color:#fff; letter-spacing:-.03em; line-height:1; margin-bottom:.4rem; }
+    .footer-tagline  { font-size:.78rem; color:rgba(255,255,255,.4); line-height:1.5; }
+    .footer-cols { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    .footer-col-title { font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:rgba(255,255,255,.35); margin-bottom:.85rem; }
+    .footer-info-row { font-size:.79rem; color:rgba(255,255,255,.55); margin-bottom:.5rem; display:flex; align-items:flex-start; gap:.5rem; line-height:1.45; }
+    .footer-info-row i { flex-shrink:0; margin-top:.15rem; color:rgba(255,255,255,.28); font-size:.72rem; }
+    .footer-link { display:block; font-size:.81rem; color:rgba(255,255,255,.5); text-decoration:none; margin-bottom:.45rem; transition:color .15s; }
+    .footer-link:hover { color:#fff; }
+    .footer-copy { max-width:1040px; margin:1.2rem auto 0; font-size:.72rem; color:rgba(255,255,255,.25); text-align:center; }
+    @media(max-width:640px) {
+        .footer-inner { grid-template-columns:1fr; gap:1.5rem; }
+    }
     </style>
 </head>
 <body class="student-shell-page">
-    <%- include('navbar', { currentPage: 'room-status', user: user, student: student }) %>
+<%- include('navbar', { currentPage: 'room-status', user: user, student: student }) %>
 
-    <section class="student-page-hero">
-        <div class="student-page-badge"><i class="fas fa-house-circle-check"></i> Trạng thái phòng</div>
-        <h1 class="student-page-title">Theo dõi phòng ở hiện tại và toàn bộ lịch sử đăng ký trong cùng một màn hình gọn hơn</h1>
-        <p class="student-page-subtitle">Trang này được dọn lại hoàn toàn để bỏ cấu trúc HTML lỗi, đồng thời đưa về cùng phong cách với trang chủ và các trang student khác. Bạn vẫn giữ nguyên dữ liệu đang xem: phòng hiện tại, bạn cùng phòng và lịch sử các đơn đã nộp.</p>
-        <div class="student-page-meta">
-            <div class="student-page-meta-card">
-                <strong>Phòng hiện tại</strong>
-                <span>Xem thông tin ký túc xá, số phòng, giá và ngày vào ở nếu đã được phân phòng.</span>
-            </div>
-            <div class="student-page-meta-card">
-                <strong>Lịch sử hồ sơ</strong>
-                <span>Lọc nhanh theo trạng thái để biết đơn nào đang chờ duyệt, đã duyệt hoặc bị từ chối.</span>
-            </div>
-            <div class="student-page-meta-card">
-                <strong>Tiếp tục thao tác</strong>
-                <span>Nếu chưa có phòng, bạn có thể quay lại đăng ký ngay từ các nút hành động trong trang.</span>
+<div class="rs-page" id="rsPage">
+
+    <!-- STATUS BAR -->
+    <div class="rs-bar au1" id="rsBar">
+        <div id="rsChipWrap"><span class="spill spill-gray"><i class="fa-solid fa-circle-notch" style="animation:spin 1s linear infinite"></i> <span data-i18n="rs.loading">Đang tải...</span></span></div>
+        <div id="rsBtnWrap"></div>
+    </div>
+
+    <!-- LOADING -->
+    <div id="viewLoading" class="loading-c">
+        <div style="text-align:center">
+            <i class="fa-solid fa-circle-notch"></i>
+            <span data-i18n="rs.loadingInfo">Đang tải thông tin...</span>
+        </div>
+    </div>
+
+    <!-- ═══════ ALLOCATED VIEW ═══════ -->
+    <div id="viewAllocated" style="display:none">
+
+        <!-- HERO SECTION -->
+        <div class="rs-hero au1" id="rsHero">
+            <img class="hero-img" id="heroBgImg" src="" alt="" style="opacity:0" onerror="this.style.opacity=0">
+            <div class="hero-ov"></div>
+            <div class="hero-body">
+                <div class="hero-eyebrow">KÝ TÚC XÁ</div>
+                <div class="hero-h1" id="heroTitle">Ký túc xá HUST</div>
+                <div class="hero-h2" id="heroSub">Không gian sống hiện đại, an toàn và tiện nghi dành cho sinh viên Đại học Bách Khoa Hà Nội.</div>
+                <button class="hero-btn" onclick="openOv('roomOv')">
+                    <span data-i18n="rs.viewMyRoom">Xem phòng của tôi</span>
+                    <span class="hero-btn-arr"><i class="fa-solid fa-arrow-right"></i></span>
+                </button>
             </div>
         </div>
-    </section>
 
-    <main class="main-content">
-        <section class="student-shell-section">
-            <div class="stats-grid">
-                <article class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-bed"></i></div>
-                    <div class="stat-label">Tình trạng hiện tại</div>
-                    <div class="stat-value" id="statRoomStatus">Đang tải</div>
-                </article>
-                <article class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-file-lines"></i></div>
-                    <div class="stat-label">Hồ sơ</div>
-                    <div class="stat-value">Theo dõi theo thời gian thực</div>
-                </article>
-                <article class="stat-card">
-                    <div class="stat-icon"><i class="fas fa-user-group"></i></div>
-                    <div class="stat-label">Bạn cùng phòng</div>
-                    <div class="stat-value">Hiển thị khi có dữ liệu</div>
-                </article>
+        <!-- SECTION 1: QR + QUICK ACTIONS -->
+        <div class="rs-sec g-65-35 au2">
+
+            <!-- QR CARD -->
+            <div class="qr-card" id="qrCard" role="button" tabindex="0" aria-label="Phóng to mã QR">
+                <div class="qr-eyebrow" data-i18n="rs.qrEyebrow">Mã xác minh cư trú</div>
+                <div class="qr-code-wrap">
+                    <div class="qr-skeleton" id="qrSkeleton"></div>
+                    <div id="qrCodeEl" style="display:none"></div>
+                </div>
+                <div class="qr-name" id="qrName"></div>
+                <div class="qr-sub"  id="qrSub"></div>
+                <div class="qr-badge" id="qrBadge"><i class="fa-solid fa-circle-check"></i> <span data-i18n="rs.qrBadge">Đã được phân phòng</span></div>
+                <span class="qr-expand-hint"><i class="fa-solid fa-expand" style="font-size:.64rem"></i> <span data-i18n="rs.qrExpand">Nhấn để phóng to QR</span></span>
             </div>
 
-            <div class="content-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-home"></i>
+            <!-- QUICK ACTIONS -->
+            <div class="qa-stack au3">
+                <div class="qa-card" id="qaRoom" role="button" tabindex="0">
+                    <div class="qa-iw qa-iw-red">
+                        <span class="qa-num" id="qaRoomNum">104</span>
                     </div>
-                    <h2 class="card-title">Phòng hiện tại</h2>
+                    <div class="qa-text">
+                        <div class="qa-title" data-i18n="rs.qaRoomTitle">Phòng của bạn</div>
+                        <div class="qa-desc" data-i18n="rs.qaRoomDesc">Xem thông tin phòng, tiện ích và trạng thái hiện tại.</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right qa-arrow"></i>
                 </div>
-                <div id="currentRoomContent">
-                    <div class="rs-empty">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <h3>Đang tải thông tin...</h3>
+                <div class="qa-card" id="qaRoommates" role="button" tabindex="0">
+                    <div class="qa-iw qa-iw-blue">
+                        <svg width="32" height="27" viewBox="0 0 32 27" fill="none">
+                            <circle cx="10" cy="7.5" r="5" fill="#4F46E5" opacity=".65"/>
+                            <path d="M1 25c0-4.97 4.03-9 9-9 .83 0 1.64.11 2.42.31" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" opacity=".65" fill="none"/>
+                            <circle cx="20.5" cy="7.5" r="6" fill="#4F46E5"/>
+                            <path d="M10 25c0-5.52 4.48-10 10.5-10s10.5 4.48 10.5 10" stroke="#4F46E5" stroke-width="2" stroke-linecap="round" fill="none"/>
+                        </svg>
+                    </div>
+                    <div class="qa-text">
+                        <div class="qa-title" data-i18n="rs.qaRoommatesTitle">Bạn cùng phòng</div>
+                        <div class="qa-desc" data-i18n="rs.qaRoommatesDesc">Xem danh sách thành viên và thông tin chi tiết.</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right qa-arrow"></i>
+                </div>
+                <div class="qa-card" id="qaMap" role="button" tabindex="0">
+                    <div class="qa-iw qa-iw-green">
+                        <svg width="24" height="32" viewBox="0 0 24 32" fill="none">
+                            <path d="M12 0C5.373 0 0 5.373 0 12c0 9.333 12 20 12 20s12-10.667 12-20C24 5.373 18.627 0 12 0z" fill="#059669"/>
+                            <circle cx="12" cy="12" r="5" fill="white"/>
+                        </svg>
+                    </div>
+                    <div class="qa-text">
+                        <div class="qa-title" data-i18n="rs.qaMapTitle">Bản đồ</div>
+                        <div class="qa-desc" data-i18n="rs.qaMapDesc">Xem vị trí KTX và chỉ đường tới phòng của bạn.</div>
+                    </div>
+                    <i class="fa-solid fa-arrow-right qa-arrow"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 2: NOTIFICATIONS -->
+        <div class="rs-sec au3">
+            <div class="notif-band">
+                <div class="notif-hd-col">
+                    <div class="bell-wrap"><i class="fa-regular fa-bell"></i></div>
+                    <div class="notif-hd-lbl" data-i18n="rs.notifLatest">Thông báo<br>mới nhất</div>
+                </div>
+                <div class="notif-row" id="notifRow">
+                    <div class="notif-empty-band"><i class="fa-solid fa-circle-notch" style="animation:spin 1s linear infinite;font-size:.78rem"></i> Đang tải...</div>
+                </div>
+                <div class="notif-all" onclick="window.location='/notifications'" title="Xem tất cả thông báo">
+                    <i class="fa-solid fa-chevron-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: RESIDENT CARD -->
+        <div class="rs-sec au4">
+            <div class="res-eyebrow"><i class="fa-solid fa-id-card" style="margin-right:.3rem;color:var(--t3)"></i><span data-i18n="rs.resEyebrow">Thẻ cư trú điện tử</span></div>
+            <div class="res-card">
+                <div class="res-inner">
+                    <!-- LEFT: QR Code -->
+                    <div class="res-qr-side">
+                        <div class="res-qr-box">
+                            <div class="res-qr-skel" id="resQrSkel"></div>
+                            <div id="resQrEl" style="display:none"></div>
+                        </div>
+                        <div class="res-qr-lbl" data-i18n="rs.resScanQr">Quét mã</div>
+                    </div>
+                    <!-- RIGHT: Description -->
+                    <div class="res-desc-side">
+                        <div class="res-wm"><img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png" alt="eDorm" style="max-height:32px;width:auto;object-fit:contain;"></div>
+                        <div class="res-card-tag" data-i18n="rs.resCardTag"><i class="fa-solid fa-id-card"></i> Thẻ cư trú · KTX HUST</div>
+                        <div class="res-card-title" data-i18n="rs.resCardTitle">Mã xác minh cư trú</div>
+                        <div class="res-card-desc">Quét mã QR để xác minh thông tin cư trú của sinh viên tại ký túc xá. Mã này có thể được sử dụng bởi Ban quản lý KTX để kiểm tra tình trạng cư trú, xác thực danh tính khi nhận phòng, xử lý thủ tục hành chính hoặc đối chiếu thông tin nội bộ.</div>
+                        <div class="res-badges">
+                            <span class="res-badge"><i class="fa-solid fa-user-check"></i> Xác thực danh tính</span>
+                            <span class="res-badge"><i class="fa-solid fa-house-circle-check"></i> Kiểm tra cư trú</span>
+                            <span class="res-badge"><i class="fa-solid fa-file-lines"></i> Thủ tục hành chính</span>
+                            <span class="res-badge"><i class="fa-solid fa-shield-halved"></i> Quản lý nội bộ</span>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="content-card">
-                <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <h2 class="card-title">Lịch sử đăng ký</h2>
-                </div>
+        <!-- SECTION 4: AMENITIES -->
+        <div class="rs-sec au5">
+            <div class="am-head"><span class="am-head-title" data-i18n="rs.amenities">Tiện ích ký túc xá</span></div>
+            <div class="am-scroll" id="amenGrid"></div>
+        </div>
 
-                <div class="filter-tabs" id="applicationTabs">
-                    <div class="filter-tab active" onclick="applyApplicationFilter('all', this)">
-                        <i class="fas fa-list"></i> Tất cả
-                    </div>
-                    <div class="filter-tab" onclick="applyApplicationFilter('pending', this)">
-                        <i class="fas fa-hourglass-half"></i> Chờ duyệt
-                    </div>
-                    <div class="filter-tab" onclick="applyApplicationFilter('approved', this)">
-                        <i class="fas fa-check-circle"></i> Đã duyệt
-                    </div>
-                    <div class="filter-tab" onclick="applyApplicationFilter('rejected', this)">
-                        <i class="fas fa-times-circle"></i> Bị từ chối
-                    </div>
-                </div>
+    </div><!-- /viewAllocated -->
 
-                <div id="applicationsList">
-                    <div class="rs-empty">
-                        <i class="fas fa-spinner fa-spin"></i>
-                        <h3>Đang tải lịch sử...</h3>
-                    </div>
+    <!-- ═══════ WAITLIST ═══════ -->
+    <div id="viewWaitlist" style="display:none" class="au2">
+        <div class="state-wrap">
+            <div class="state-card">
+                <div class="state-inner">
+                    <div class="wl-ring" id="wlRing"><i class="fa-solid fa-list-ol"></i></div>
+                    <div class="state-title" id="wlTitle" data-i18n="rs.wlTitle">Danh sách chờ</div>
+                    <div class="state-sub" data-i18n="rs.wlSub">Đơn đăng ký của bạn đang trong hàng đợi.<br>Hệ thống thông báo ngay khi có phòng trống.</div>
+                    <div class="wl-stats" id="wlStats"></div>
+                    <div id="wlMsg" style="font-size:.8rem;color:var(--t2);margin-bottom:1rem"></div>
+                    <div><span class="live-dot"></span><span style="font-size:.77rem;color:var(--t3);font-weight:600" data-i18n="rs.wlLive">Cập nhật theo thời gian thực</span></div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
-    <section class="student-accent-grid">
-        <article class="student-accent-card">
-            <i class="fas fa-magnifying-glass-chart"></i>
-            <h3>Nhìn nhanh trạng thái</h3>
-            <p>Các khối thông tin trọng tâm được đặt lên đầu để bạn nắm tình trạng hồ sơ ngay khi mở trang.</p>
-        </article>
-        <article class="student-accent-card">
-            <i class="fas fa-filter-circle-dollar"></i>
-            <h3>Lọc lịch sử gọn hơn</h3>
-            <p>Danh sách đơn đăng ký có bộ lọc rõ ràng hơn thay vì phải cuộn qua toàn bộ lịch sử.</p>
-        </article>
-        <article class="student-accent-card">
-            <i class="fas fa-link"></i>
-            <h3>Liên thông thao tác</h3>
-            <p>Từ đây bạn có thể quay lại đăng ký phòng ngay nếu chưa được phân chỗ ở.</p>
-        </article>
-    </section>
-
-    <script>
-        const currentRoomContent = document.getElementById('currentRoomContent');
-        const applicationsList = document.getElementById('applicationsList');
-        const defaultDormImage = 'https://i.pinimg.com/1200x/8e/4f/23/8e4f23adeab230a479d9dca65fc4bad8.jpg';
-
-        function escapeHtml(value) {
-            const str = String(value ?? '');
-            return str
-                .replaceAll('&', '&amp;')
-                .replaceAll('<', '&lt;')
-                .replaceAll('>', '&gt;')
-                .replaceAll('"', '&quot;')
-                .replaceAll("'", '&#039;');
-        }
-
-        function formatDateVN(dateInput) {
-            const date = dateInput ? new Date(dateInput) : new Date();
-            if (Number.isNaN(date.getTime())) return '';
-            const dd = String(date.getDate()).padStart(2, '0');
-            const mm = String(date.getMonth() + 1).padStart(2, '0');
-            const yyyy = date.getFullYear();
-            return `${dd}/${mm}/${yyyy}`;
-        }
-
-        function formatDateTimeVN(dateInput) {
-            const date = new Date(dateInput);
-            if (Number.isNaN(date.getTime())) return '';
-            const hh = String(date.getHours()).padStart(2, '0');
-            const mi = String(date.getMinutes()).padStart(2, '0');
-            return `${hh}:${mi} ${formatDateVN(date)}`;
-        }
-
-        function formatCurrencyVND(amount) {
-            const number = Number(amount);
-            if (!Number.isFinite(number) || number <= 0) return '—';
-            return number.toLocaleString('vi-VN') + ' đ/tháng';
-        }
-
-        function statusLabel(status) {
-            switch (status) {
-                case 'pending':
-                case 'pending_review': return 'Chờ duyệt';
-                case 'approved':
-                case 'approved_waiting_payment': return 'Đã duyệt';
-                case 'rejected': return 'Bị từ chối';
-                case 'waitlist': return 'Danh sách chờ';
-                case 'expired': return 'Hết hạn';
-                case 'checked_out': return 'Đã trả phòng';
-                default: return 'Không rõ';
-            }
-        }
-
-        function statusIcon(status) {
-            switch (status) {
-                case 'pending':
-                case 'pending_review': return '<i class="fas fa-hourglass-half"></i>';
-                case 'approved':
-                case 'approved_waiting_payment': return '<i class="fas fa-check-circle"></i>';
-                case 'rejected': return '<i class="fas fa-times-circle"></i>';
-                case 'waitlist': return '<i class="fas fa-list"></i>';
-                case 'expired': return '<i class="fas fa-calendar-times"></i>';
-                case 'checked_out': return '<i class="fas fa-sign-out-alt"></i>';
-                default: return '<i class="fas fa-info-circle"></i>';
-            }
-        }
-
-        function renderCurrentRoom(data) {
-            const statRoomStatus = document.getElementById('statRoomStatus');
-
-            if (data?.success && data?.room) {
-                const room = data.room;
-                if (statRoomStatus) statRoomStatus.textContent = 'Đã có phòng';
-
-                const occupancyText = `${room.currentOccupants ?? 0}/${room.maxCapacity ?? 0}`;
-                const checkInText = room.checkInDate ? formatDateVN(room.checkInDate) : '—';
-                const roomType = room.roomType || '—';
-                const dormImage = room?.dormitoryImage || defaultDormImage;
-
-                const infoHtml = `
-                    <div style="margin-bottom: 1.25rem;">
-                        <img src="${escapeHtml(dormImage)}" alt="${escapeHtml(room.dormitoryName || 'Ký túc xá')}" class="app-image" onerror="this.src='${escapeHtml(defaultDormImage)}'">
-                    </div>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <div class="info-label"><i class="fas fa-building"></i> Ký túc xá</div>
-                            <div class="info-value">${escapeHtml(room.dormitoryName || '—')}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label"><i class="fas fa-door-open"></i> Phòng</div>
-                            <div class="info-value">${escapeHtml(room.roomNumber || '—')}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label"><i class="fas fa-users"></i> Sức chứa</div>
-                            <div class="info-value">${escapeHtml(occupancyText)}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label"><i class="fas fa-calendar-check"></i> Ngày vào ở</div>
-                            <div class="info-value">${escapeHtml(checkInText)}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label"><i class="fas fa-bed"></i> Loại phòng</div>
-                            <div class="info-value">${escapeHtml(roomType)}</div>
-                        </div>
-                        <div class="info-item">
-                            <div class="info-label"><i class="fas fa-money-bill-wave"></i> Giá</div>
-                            <div class="info-value">${escapeHtml(formatCurrencyVND(room.pricePerMonth))}</div>
-                        </div>
-                    </div>
-                `;
-
-                const roommates = Array.isArray(room.roommates) ? room.roommates : [];
-                const roommatesTitle = `<div class="rs-section-title"><i class="fas fa-users"></i> Bạn cùng phòng <span style="color: var(--primary-color);">(${roommates.length})</span></div>`;
-
-                const roommatesHtml = roommates.length
-                    ? `<div class="rs-roommates">${roommates.map(r => {
-                        const name = r?.name || 'Không rõ';
-                        const avatar = String(name).trim().charAt(0).toUpperCase() || 'U';
-                        const studentId = r?.studentId ? `MSSV: ${r.studentId}` : '';
-                        const email = r?.email ? r.email : '';
-                        const sub = [studentId, email].filter(Boolean).join(' • ');
-                        return `
-                            <div class="rs-roommate-card">
-                                <div class="rs-roommate-avatar">${escapeHtml(avatar)}</div>
-                                <div>
-                                    <div class="rs-roommate-name">${escapeHtml(name)}</div>
-                                    <div class="rs-roommate-sub">${escapeHtml(sub || '—')}</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}</div>`
-                    : `
-                        <div class="rs-empty">
-                            <i class="fas fa-user-friends"></i>
-                            <h3>Chưa có bạn cùng phòng</h3>
-                            <p>${room.isPending ? 'Sẽ hiển thị sau khi nhập ở' : 'Bạn đang là người đầu tiên trong phòng này'}</p>
-                        </div>
-                    `;
-
-                currentRoomContent.innerHTML = infoHtml + roommatesTitle + roommatesHtml;
-                return;
-            }
-
-            if (statRoomStatus) statRoomStatus.textContent = 'Chưa có phòng';
-
-            if (data?.success && data?.latestApprovedApplication) {
-                const app = data.latestApprovedApplication;
-                currentRoomContent.innerHTML = `
-                    <div class="rs-empty">
-                        <i class="fas fa-info-circle"></i>
-                        <h3>Chưa ghi nhận phòng đang ở</h3>
-                        <p>Đơn đã duyệt gần nhất: ${escapeHtml(app.dormitoryName || '—')} • Phòng ${escapeHtml(app.roomNumber || '—')}</p>
-                        ${app.comments ? `<p style="margin-top: 0.75rem; color: #666;">${escapeHtml(app.comments)}</p>` : ''}
-                        <div style="margin-top: 1.5rem;">
-                            <a class="btn btn-primary" href="/register">
-                                <i class="fas fa-pen"></i> Tới trang đăng ký
-                            </a>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
-
-            currentRoomContent.innerHTML = `
-                <div class="rs-empty">
-                    <i class="fas fa-home"></i>
-                    <h3>Bạn chưa có phòng</h3>
-                    <p>Hãy tạo đơn đăng ký để được xét duyệt phòng ở.</p>
-                    <div style="margin-top: 1.5rem;">
-                        <a class="btn btn-primary" href="/register">
-                            <i class="fas fa-plus-circle"></i> Đăng ký phòng ngay
-                        </a>
-                    </div>
+    <!-- ═══════ PENDING ═══════ -->
+    <div id="viewPending" style="display:none" class="au2">
+        <div class="state-wrap">
+            <div class="state-card">
+                <div class="state-inner">
+                    <div class="state-ico" style="background:var(--amber-l);color:var(--amber)"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div class="state-title" data-i18n="rs.pendingTitle">Đơn đang xét duyệt</div>
+                    <div class="state-sub" data-i18n="rs.pendingSub">Bộ phận quản lý đang xem xét đơn của bạn.<br>Kết quả sẽ được thông báo sớm.</div>
+                    <div class="pending-chips" id="pendingChips"></div>
                 </div>
-            `;
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ NONE ═══════ -->
+    <div id="viewNone" style="display:none" class="au2">
+        <div class="empty-card">
+            <div class="empty-ico"><i class="fa-solid fa-house-chimney-crack"></i></div>
+            <h2 data-i18n="rs.noneTitle">Chưa có đăng ký ký túc xá</h2>
+            <p data-i18n="rs.noneSub">Bạn chưa có đơn đăng ký nào. Hãy tạo đơn trong đợt đăng ký đang mở.</p>
+            <div id="noneBtn"></div>
+        </div>
+    </div>
+
+    <!-- ═══════ ERROR ═══════ -->
+    <div id="viewError" style="display:none" class="au2">
+        <div class="empty-card">
+            <div class="empty-ico"><i class="fa-solid fa-triangle-exclamation"></i></div>
+            <h2 data-i18n="rs.errorTitle">Không tải được dữ liệu</h2>
+            <p data-i18n="rs.errorSub">Đã xảy ra lỗi khi tải thông tin. Vui lòng thử lại.</p>
+            <button class="btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i> <span data-i18n="rs.retryBtn">Thử lại</span></button>
+        </div>
+    </div>
+
+</div><!-- /rs-page -->
+
+<%- include('../shared/footer') %>
+
+<!-- ═══════ QR MODAL ═══════ -->
+<div class="modal-ov" id="qrModal">
+    <div class="modal-box">
+        <button class="modal-close" id="qrModalClose"><i class="fa-solid fa-xmark"></i></button>
+        <div class="modal-qr-wrap"><div id="modalQrEl"></div></div>
+        <div class="modal-name" id="modalName"></div>
+        <div class="modal-tags" id="modalTags"></div>
+    </div>
+</div>
+
+<!-- ═══════ ROOM DRAWER ═══════ -->
+<div class="drawer-ov" id="roomOv">
+    <div class="drawer" id="roomDw">
+        <div class="drawer-hd">
+            <span class="drawer-hd-title" data-i18n="rs.drawerRoom">Phòng của bạn</span>
+            <button class="drawer-close" data-close="roomOv"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-body" id="roomBody"></div>
+    </div>
+</div>
+
+<!-- ═══════ ROOMMATES DRAWER ═══════ -->
+<div class="drawer-ov" id="rmOv">
+    <div class="drawer" id="rmDw">
+        <div class="drawer-hd">
+            <span class="drawer-hd-title" data-i18n="rs.drawerRoommates">Bạn cùng phòng</span>
+            <button class="drawer-close" data-close="rmOv"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-body" id="rmBody"></div>
+    </div>
+</div>
+
+<!-- ═══════ MAP DRAWER ═══════ -->
+<div class="drawer-ov" id="mapOv">
+    <div class="drawer drawer-w" id="mapDw">
+        <div class="drawer-hd">
+            <span class="drawer-hd-title">Vị trí KTX</span>
+            <button class="drawer-close" data-close="mapOv"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="drawer-body" id="mapBody"></div>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// ═══════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════
+const esc  = t => t==null?'':String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const dateFmt = ts => { if(!ts) return '—'; const d=new Date(ts); return isNaN(d)?'—':`${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`; };
+const relTime = ts => { if(!ts) return ''; const s=Math.floor((Date.now()-new Date(ts))/1000); if(s<60) return 'Vừa xong'; if(s<3600) return Math.floor(s/60)+'p trước'; if(s<86400) return Math.floor(s/3600)+'h trước'; return dateFmt(ts); };
+const toAscii = s => (s||'').replace(/[^\x20-\x7E]/g,'').trim();
+const PALETTE = ['#4F46E5','#0891B2','#059669','#D97706','#7C3AED','#DC2626','#2563EB','#0D9488'];
+const colorOf = str => PALETTE[str.split('').reduce((a,c)=>a+c.charCodeAt(0),0)%PALETTE.length];
+function validityDate(yr) {
+    if (!yr) return '—';
+    const m = String(yr).match(/\d{4}-(\d{4})/);
+    if (m) return '31/08/'+m[1];
+    const m2 = String(yr).match(/(\d{4})/);
+    return m2 ? '31/08/'+m2[1] : '—';
+}
+
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+const RS = { data:null, qrPayload:'', leaflet:null, mapInited:false, roommates:[] };
+
+// ═══════════════════════════════════════════════════
+// VIEW SWITCH
+// ═══════════════════════════════════════════════════
+function showView(name) {
+    ['Loading','Allocated','Waitlist','Pending','None','Error'].forEach(v => {
+        const el = document.getElementById('view'+v);
+        if (el) el.style.display = v.toLowerCase()===name ? '' : 'none';
+    });
+}
+
+// ═══════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', loadStatus);
+
+async function loadStatus() {
+    showView('loading');
+    try {
+        const [rr, wr] = await Promise.all([
+            fetch('/api/student/allocation-result', { credentials:'include' }),
+            fetch('/api/dormitories/registration',  { credentials:'include' }).catch(()=>null)
+        ]);
+        const rd = await rr.json();
+        let wd = null;
+        if (wr?.ok) wd = await wr.json().catch(()=>null);
+        renderRegBtn(wd===null ? null : wd.openForRegistration===true);
+
+        if (!rd.success || !rd.data?.registration) { setChip('NONE'); showView('none'); return; }
+        const data = rd.data;
+        RS.data = data;
+        const { flow, registration:reg, roomAllocation:ra, room, dormitory:dorm } = data;
+
+        if (flow === 'allocation') {
+            setChipAlloc(reg, dorm, room, ra);
+            if (reg.status==='ALLOCATED')  { showView('allocated'); renderAllocated(data); }
+            else if (reg.status==='WAITLIST') { showView('waitlist'); renderWaitlist(reg,data); loadWLPos(); initSocket(reg); }
+            else if (reg.status==='PENDING')  { showView('pending'); renderPending(reg); }
+            else { setChip('NONE'); showView('none'); }
+        } else {
+            setChipLegacy(reg);
+            const ms = reg.status;
+            if (['approved','assigned_room','approved_waiting_payment'].includes(ms)) { showView('allocated'); renderAllocatedLegacy(data); }
+            else if (['pending','pending_review','waitlist'].includes(ms)) { showView('pending'); renderPending(reg); }
+            else { setChip('NONE'); showView('none'); }
         }
+    } catch(e) {
+        console.error(e); showView('error');
+    }
+}
 
-        function renderApplications(data) {
-            const apps = data?.success && Array.isArray(data.applications) ? data.applications : [];
+// ═══════════════════════════════════════════════════
+// CHIPS
+// ═══════════════════════════════════════════════════
+function setChip(s) {
+    const m = { NONE:{c:'spill-gray',i:'fa-house-chimney',l:'Chưa đăng ký'} };
+    const x = m[s]||{c:'spill-gray',i:'fa-circle',l:s};
+    document.getElementById('rsChipWrap').innerHTML = `<span class="spill ${x.c}"><i class="fa-solid ${x.i}"></i> ${x.l}</span>`;
+}
+function setChipAlloc(reg,dorm,room,ra) {
+    const m = {
+        ALLOCATED:{c:'spill-green',i:'fa-circle-check',  l:'Đã được phân phòng'},
+        WAITLIST: {c:'spill-blue', i:'fa-list-ol',       l:'Danh sách chờ'},
+        PENDING:  {c:'spill-amber',i:'fa-hourglass-half',l:'Đang xét duyệt'},
+        REJECTED: {c:'spill-red',  i:'fa-circle-xmark',  l:'Không được duyệt'},
+    };
+    const x = m[reg.status]||{c:'spill-gray',i:'fa-circle',l:reg.status};
+    const rn = room?.roomNumber||ra?.roomNumber||'';
+    const dn = dorm?.name||'';
+    document.getElementById('rsChipWrap').innerHTML =
+        `<span class="spill ${x.c}"><i class="fa-solid ${x.i}"></i> ${x.l}</span>`+
+        (rn?`<span class="room-tag"><i class="fa-solid fa-location-dot" style="color:var(--red);font-size:.65rem"></i> ${esc(dn)} · Phòng <strong>${esc(rn)}</strong></span>`:'');
+}
+function setChipLegacy(reg) {
+    const m = {
+        pending:{c:'spill-amber',i:'fa-hourglass-half',l:'Chờ duyệt'},
+        pending_review:{c:'spill-amber',i:'fa-hourglass-half',l:'Đang xét duyệt'},
+        approved:{c:'spill-green',i:'fa-circle-check',l:'Đã phân phòng'},
+        assigned_room:{c:'spill-green',i:'fa-circle-check',l:'Đã phân phòng'},
+        approved_waiting_payment:{c:'spill-green',i:'fa-circle-check',l:'Đã phân phòng'},
+        rejected:{c:'spill-red',i:'fa-circle-xmark',l:'Không được duyệt'},
+    };
+    const x = m[reg.status]||{c:'spill-gray',i:'fa-circle',l:reg.status};
+    document.getElementById('rsChipWrap').innerHTML = `<span class="spill ${x.c}"><i class="fa-solid ${x.i}"></i> ${x.l}</span>`;
+}
 
-            if (apps.length === 0) {
-                applicationsList.innerHTML = `
-                    <div class="rs-empty">
-                        <i class="fas fa-folder-open"></i>
-                        <h3>Chưa có đơn đăng ký</h3>
-                        <p>Khi bạn tạo đơn, lịch sử sẽ hiển thị tại đây.</p>
-                        <div style="margin-top: 1.5rem;">
-                            <a class="btn btn-primary" href="/register">
-                                <i class="fas fa-plus-circle"></i> Tạo đơn mới
-                            </a>
-                        </div>
-                    </div>
-                `;
-                return;
-            }
+// ═══════════════════════════════════════════════════
+// REGISTER BUTTON
+// ═══════════════════════════════════════════════════
+function renderRegBtn(isOpen) {
+    ['rsBtnWrap','noneBtn'].map(id=>document.getElementById(id)).filter(Boolean).forEach(el => {
+        if (isOpen===true)  el.innerHTML = `<a href="/register" class="reg-btn"><i class="fa-solid fa-pen-to-square"></i> Đăng ký ngay</a>`;
+        else if (isOpen===false) el.innerHTML = `<span class="reg-btn-off"><i class="fa-solid fa-lock"></i> Chưa mở đợt đăng ký</span>`;
+    });
+}
 
-            const listHtml = apps.map(app => {
-                const id = app?._id || '';
-                const status = app?.status || 'pending';
-                const dormitoryName = app?.dormitoryName || 'Không xác định';
-                const roomNumber = app?.roomNumber || '—';
-                const faculty = app?.faculty || '—';
-                const academicYear = app?.academicYear || '—';
-                const createdAt = app?.createdAt ? formatDateTimeVN(app.createdAt) : '—';
-                const comments = app?.comments ? String(app.comments).trim() : '';
+// ═══════════════════════════════════════════════════
+// ALLOCATED (allocation engine)
+// ═══════════════════════════════════════════════════
+async function renderAllocated(data) {
+    const { registration:reg, roomAllocation:ra, room, dormitory:dormRaw } = data;
+    const sid   = '<%= student && student.studentId ? student.studentId : "" %>';
+    const sname = '<%= student && student.name ? student.name : (user && user.name ? user.name : "") %>';
+    const rn = room?.roomNumber || ra?.roomNumber  || '—';
+    const yr = reg?.academicYear || '—';
+    RS.roommates  = data.roommates || [];
 
-                return `
-                    <div class="application-item" data-status="${escapeHtml(status)}">
-                        <div class="rs-application-header">
-                            <div class="rs-application-id">
-                                <i class="fas fa-hashtag"></i> ${escapeHtml(id.substring(0, 8))}
-                            </div>
-                            <span class="rs-status ${escapeHtml(status)}">${statusIcon(status)} ${escapeHtml(statusLabel(status))}</span>
-                        </div>
-                        <div class="rs-application-grid">
-                            <div class="info-item">
-                                <div class="info-label"><i class="fas fa-building"></i> Ký túc xá</div>
-                                <div class="info-value">${escapeHtml(dormitoryName)}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label"><i class="fas fa-door-open"></i> Phòng</div>
-                                <div class="info-value">${escapeHtml(roomNumber)}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label"><i class="fas fa-graduation-cap"></i> Khoa/Viện</div>
-                                <div class="info-value">${escapeHtml(faculty)}</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label"><i class="fas fa-calendar-alt"></i> Năm học</div>
-                                <div class="info-value">${escapeHtml(academicYear)}</div>
-                            </div>
-                        </div>
-                        <div class="rs-muted" style="margin-top: 0.75rem;">
-                            <i class="fas fa-clock"></i> Đăng ký lúc: ${escapeHtml(createdAt)}
-                        </div>
-                        ${comments ? `
-                            <div class="rs-muted" style="margin-top: 0.6rem;">
-                                <i class="fas fa-comment-dots"></i> Ghi chú: ${escapeHtml(comments)}
-                            </div>
-                        ` : ''}
-                    </div>
-                `;
-            }).join('');
+    // Fallback: nếu populate dorm thất bại, tự fetch
+    let dorm = dormRaw;
+    if (!dorm) dorm = await resolveDorm(ra?.buildingCode, ra?.dormitoryId || null);
 
-            applicationsList.innerHTML = listHtml;
-            applyApplicationFilter('all', document.querySelector('.filter-tab.active'));
+    const dn = dorm?.name || '—';
+    RS.qrPayload  = 'HUST-KTX|'+sid+'|'+toAscii(rn)+'|'+toAscii(dn)+'|'+toAscii(yr);
+
+    setHeroImage(dorm);
+    setHeroText(dorm, rn);
+    renderQRCard(sname, sid);
+    setRoomNum(rn);
+    loadNotifications();
+    renderResidentCard(dn, rn, yr);
+    renderAmenities(room, dorm);
+    buildDrawers(data, RS.roommates);
+}
+
+// ═══════════════════════════════════════════════════
+// ALLOCATED (legacy manual)
+// ═══════════════════════════════════════════════════
+async function renderAllocatedLegacy(data) {
+    const { registration:reg, room, dormitory:dormRaw } = data;
+    const sid   = '<%= student && student.studentId ? student.studentId : "" %>';
+    const sname = '<%= student && student.name ? student.name : (user && user.name ? user.name : "") %>';
+    const rn = room?.roomNumber || reg?.roomNumber  || '—';
+    const yr = reg?.academicYear || '—';
+    RS.roommates = data.roommates || (Array.isArray(room?.occupants) ? room.occupants : []);
+
+    let dorm = dormRaw;
+    if (!dorm) dorm = await resolveDorm(null, reg?.dormitoryId || null);
+
+    const dn = dorm?.name || reg?.dormitoryName || '—';
+    RS.qrPayload = 'HUST-KTX|'+sid+'|'+toAscii(rn)+'|'+toAscii(dn)+'|'+toAscii(yr);
+
+    setHeroImage(dorm);
+    setHeroText(dorm, rn);
+    renderQRCard(sname, sid);
+    setRoomNum(rn);
+    loadNotifications();
+    renderResidentCard(dn, rn, yr);
+    renderAmenities(room, dorm);
+    buildDrawersLegacy(data, RS.roommates);
+}
+
+// ═══════════════════════════════════════════════════
+// QR CARD
+// ═══════════════════════════════════════════════════
+function renderQRCard(name, sid) {
+    document.getElementById('qrName').textContent = name || '—';
+    document.getElementById('qrSub').textContent  = (sid||'') + (sid ? ' · ' : '') + 'Sinh viên';
+    setTimeout(() => {
+        const el = document.getElementById('qrCodeEl');
+        el.innerHTML = '';
+        if (typeof QRCode !== 'undefined' && RS.qrPayload) {
+            try { new QRCode(el, { text:RS.qrPayload, width:160, height:160, colorDark:'#111827', colorLight:'#FFFFFF', correctLevel:QRCode.CorrectLevel.M }); }
+            catch(e) { console.error('QR:', e); }
         }
+        document.getElementById('qrSkeleton').style.display = 'none';
+        document.getElementById('qrCodeEl').style.display = '';
+    }, 200);
+}
+function setRoomNum(rn) {
+    const el = document.getElementById('qaRoomNum');
+    if (el) el.textContent = (rn && rn !== '—') ? rn : '?';
+}
 
-        function applyApplicationFilter(status, clickedTab) {
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.classList.remove('active');
+// ═══════════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════════
+const NOTIF_ICON = {
+    allocation:'fa-house-chimney',room_assigned:'fa-door-open',
+    application:'fa-file-lines',announcement:'fa-bullhorn',
+    maintenance:'fa-screwdriver-wrench',violation:'fa-triangle-exclamation',
+    alert:'fa-bell',system:'fa-circle-info','2fa':'fa-shield-halved',
+};
+const NOTIF_CLS = {
+    allocation:'ni-home2',room_assigned:'ni-home2',
+    application:'ni-info',announcement:'ni-info',
+    maintenance:'ni-fix',violation:'ni-warn',
+    alert:'ni-fix',system:'ni-info','2fa':'ni-info',
+};
+
+async function loadNotifications() {
+    const row = document.getElementById('notifRow');
+    try {
+        const r = await fetch('/api/notifications?limit=3', { credentials:'include' });
+        if (!r.ok) throw new Error('HTTP '+r.status);
+        const d = await r.json();
+        const notifs = (d.notifications||[]).slice(0,3);
+        if (!notifs.length) {
+            row.innerHTML = `<div class="notif-empty-band"><i class="fa-regular fa-bell-slash"></i> Chưa có thông báo mới</div>`;
+            return;
+        }
+        row.innerHTML = notifs.map(n => {
+            const ic  = NOTIF_ICON[n.type]  || 'fa-circle-info';
+            const cls = NOTIF_CLS[n.type]   || 'ni-info';
+            const ts  = relTime(n.createdAt);
+            return `<div class="ni" data-id="${esc(n._id)}">
+                <div class="ni-ico ${cls}"><i class="fa-solid ${ic}"></i></div>
+                <div style="flex:1;min-width:0">
+                    <div class="ni-title">${esc(n.title||'Thông báo')}</div>
+                    ${ts?`<div class="ni-sub">${esc(ts)}</div>`:''}
+                </div>
+            </div>`;
+        }).join('');
+        row.querySelectorAll('.ni').forEach(el => {
+            el.addEventListener('click', () => {
+                const id = el.dataset.id;
+                if (id) fetch('/api/notifications/'+id+'/read',{method:'POST',credentials:'include'}).catch(()=>{});
+                window.location = '/notifications';
             });
-            if (clickedTab && clickedTab.classList) {
-                clickedTab.classList.add('active');
-            }
-
-            const items = applicationsList.querySelectorAll('.application-item');
-            if (items.length === 0) return;
-
-            let visible = 0;
-            items.forEach(item => {
-                const itemStatus = item.getAttribute('data-status');
-                const show = status === 'all' || itemStatus === status || (status === 'pending' && itemStatus === 'pending_review') || (status === 'approved' && itemStatus === 'approved_waiting_payment');
-                item.style.display = show ? '' : 'none';
-                if (show) visible++;
-            });
-
-            const oldEmpty = document.getElementById('rsNoFilteredApps');
-            if (oldEmpty) oldEmpty.remove();
-
-            if (visible === 0) {
-                applicationsList.insertAdjacentHTML('beforeend', `
-                    <div class="rs-empty" id="rsNoFilteredApps">
-                        <i class="fas fa-filter"></i>
-                        <h3>Không có đơn phù hợp</h3>
-                        <p>Thử chọn tab khác để xem thêm.</p>
-                    </div>
-                `);
-            }
-        }
-
-        async function loadCurrentRoom() {
-            try {
-                const res = await fetch('/api/student/current-room');
-                const data = await res.json();
-                renderCurrentRoom(data);
-            } catch (e) {
-                console.error('Error loading room:', e);
-                const statRoomStatus = document.getElementById('statRoomStatus');
-                if (statRoomStatus) statRoomStatus.textContent = 'Lỗi tải';
-                currentRoomContent.innerHTML = `
-                    <div class="rs-empty">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Không tải được thông tin phòng</h3>
-                        <p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
-                        <div style="margin-top: 1.5rem;">
-                            <button class="btn btn-primary" onclick="loadCurrentRoom()">
-                                <i class="fas fa-rotate-right"></i> Thử lại
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        async function loadApplications() {
-            try {
-                const res = await fetch('/api/student/applications');
-                const data = await res.json();
-                renderApplications(data);
-            } catch (e) {
-                console.error('Error loading applications:', e);
-                applicationsList.innerHTML = `
-                    <div class="rs-empty">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Không tải được lịch sử đăng ký</h3>
-                        <p>Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại sau.</p>
-                        <div style="margin-top: 1.5rem;">
-                            <button class="btn btn-primary" onclick="loadApplications()">
-                                <i class="fas fa-rotate-right"></i> Thử lại
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            loadCurrentRoom();
-            loadApplications();
         });
-    </script>
+    } catch(e) {
+        row.innerHTML = `<div class="notif-empty-band" style="color:var(--t3)"><i class="fa-regular fa-bell-slash"></i> Không tải được thông báo</div>`;
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// RESIDENT CARD
+// ═══════════════════════════════════════════════════
+function renderResidentCard(dn, rn, yr) {
+    // Render QR into resident card
+    setTimeout(() => {
+        const el = document.getElementById('resQrEl');
+        if (!el) return;
+        el.innerHTML = '';
+        if (typeof QRCode !== 'undefined' && RS.qrPayload) {
+            try { new QRCode(el, { text:RS.qrPayload, width:130, height:130, colorDark:'#111827', colorLight:'#FFFFFF', correctLevel:QRCode.CorrectLevel.M }); }
+            catch(e) {}
+        }
+        const skel = document.getElementById('resQrSkel');
+        if (skel) skel.style.display = 'none';
+        el.style.display = '';
+    }, 350);
+}
+
+// ═══════════════════════════════════════════════════
+// RESOLVE DORMITORY (fallback when populate fails)
+// ═══════════════════════════════════════════════════
+let _dormCache = null;
+async function resolveDorm(buildingCode, dormitoryId) {
+    try {
+        if (!_dormCache) {
+            const r = await fetch('/api/dormitories', { credentials:'include' });
+            if (!r.ok) return null;
+            const d = await r.json();
+            _dormCache = d.dormitories || [];
+        }
+        if (buildingCode) {
+            const hit = _dormCache.find(x => x.buildingCode === buildingCode || x.code === buildingCode);
+            if (hit) return hit;
+        }
+        if (dormitoryId) {
+            const sid = String(dormitoryId);
+            const hit = _dormCache.find(x => String(x._id) === sid);
+            if (hit) return hit;
+        }
+        // Last resort: first dormitory
+        return _dormCache[0] || null;
+    } catch(e) { return null; }
+}
+
+// ═══════════════════════════════════════════════════
+// HERO CLIP PATH
+// ═══════════════════════════════════════════════════
+function setHeroImage(dorm) {
+    const img = document.getElementById('heroBgImg');
+    if (!img || !dorm) return;
+    const candidates = [
+        dorm?.imageUrl,
+        dorm?.image,
+        dorm?.details?.exteriorImages?.[0],
+        dorm?.details?.images?.[0],
+        dorm?.details?.coverImage,
+        dorm?.details?.photo,
+        dorm?.images?.[0],
+        dorm?.thumbnail,
+        dorm?.photo,
+        dorm?.coverImage,
+    ].filter(Boolean);
+    if (!candidates.length) return;
+    let idx = 0;
+    function tryNext() {
+        if (idx >= candidates.length) return;
+        img.onerror = () => { idx++; tryNext(); };
+        img.onload  = () => { img.style.opacity = '1'; };
+        img.src = candidates[idx];
+    }
+    tryNext();
+}
+function setHeroText(dorm, rn) {
+    const h1 = document.getElementById('heroTitle');
+    if (h1 && dorm?.name) {
+        // Strip leading "KTX " prefix — eyebrow already says "KÝ TÚC XÁ"
+        h1.textContent = dorm.name.replace(/^KTX\s+/i, '').trim() || dorm.name;
+    }
+}
+
+// ═══════════════════════════════════════════════════
+// AMENITIES GRID
+// ═══════════════════════════════════════════════════
+const AMENITIES_DEF = [
+    {icon:'fa-wifi',       bg:'#EEF2FF',color:'#4F46E5',name:'WiFi tốc độ cao',   desc:'Kết nối toàn khu KTX'},
+    {icon:'fa-motorcycle', bg:'#ECFDF5',color:'#059669',name:'Bãi gửi xe',         desc:'Xe máy, xe đạp an toàn'},
+    {icon:'fa-shield-halved',bg:'#FFF7ED',color:'#EA580C',name:'Bảo vệ 24/7',     desc:'An ninh liên tục'},
+    {icon:'fa-book-open',  bg:'#F5F3FF',color:'#7C3AED',name:'Phòng đọc sách',     desc:'Học tập, yên tĩnh'},
+    {icon:'fa-shirt',      bg:'#ECFEFF',color:'#0891B2',name:'Khu giặt đồ',        desc:'Máy giặt tự động'},
+    {icon:'fa-droplet',    bg:'#EFF6FF',color:'#2563EB',name:'Nước nóng',           desc:'Bình nóng lạnh 24/7'},
+    {icon:'fa-users',      bg:'#FFF1F3',color:'#C8102E',name:'Sinh hoạt chung',     desc:'Khu vui chơi, thư giãn'},
+    {icon:'fa-bolt',       bg:'#FEFCE8',color:'#CA8A04',name:'Điện ổn định',        desc:'Hệ thống UPS dự phòng'},
+];
+const FAC_ICON = {'air conditioning':'fa-snowflake','điều hòa':'fa-snowflake','wifi':'fa-wifi','study desk':'fa-desktop','bàn học':'fa-desktop','wardrobe':'fa-shirt','tủ':'fa-shirt','bathroom':'fa-bath','toilet':'fa-bath','balcony':'fa-archway','ban công':'fa-archway','kitchen':'fa-utensils','bếp':'fa-utensils'};
+const FAC_BG   = ['#EEF2FF','#ECFDF5','#FFF7ED','#F5F3FF','#ECFEFF','#EFF6FF','#FFF1F3','#FEFCE8'];
+const FAC_COL  = ['#4F46E5','#059669','#EA580C','#7C3AED','#0891B2','#2563EB','#C8102E','#CA8A04'];
+
+function renderAmenities(room, dorm) {
+    const grid = document.getElementById('amenGrid');
+    const facs = Array.isArray(room?.facilities) ? room.facilities : [];
+    const dAms = Array.isArray(dorm?.details?.amenities) ? dorm.details.amenities : [];
+    const all  = [...new Set([...facs,...dAms])];
+
+    let items;
+    if (all.length >= 4) {
+        items = all.slice(0,10).map((f,i) => {
+            const k = Object.keys(FAC_ICON).find(k => f.toLowerCase().includes(k));
+            return { icon:k?FAC_ICON[k]:'fa-star', color:FAC_COL[i%FAC_COL.length], name:f, maint:false };
+        });
+        while (items.length < 4) { const d=AMENITIES_DEF[items.length]; items.push({icon:d.icon,color:d.color,name:d.name,maint:false}); }
+    } else {
+        items = AMENITIES_DEF.map(a => ({icon:a.icon,color:a.color,name:a.name,maint:false}));
+    }
+    items.push({icon:'fa-screwdriver-wrench',color:'#92400E',name:'Bảo trì',maint:true,href:'/student/maintenance-requests'});
+
+    grid.innerHTML = items.map(a => {
+        const tag = a.href ? 'a' : 'span';
+        const href = a.href ? ` href="${a.href}"` : '';
+        const cls = 'am-chip-item' + (a.maint?' am-chip-maint':'');
+        const style = a.maint ? '' : `style="color:${a.color}"`;
+        return `<${tag}${href} class="${cls}"><i class="fa-solid ${a.icon} am-chip-ico" ${style}></i>${esc(a.name)}</${tag}>`;
+    }).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// DRAW DRAWERS
+// ═══════════════════════════════════════════════════
+function buildDrawers(data, roommates) {
+    fillRoomDrawer(data.room, data.dormitory, data.roomAllocation, data.registration);
+    fillRmDrawer(roommates);
+    fillMapDrawer(data.dormitory);
+}
+function buildDrawersLegacy(data, roommates) {
+    fillRoomDrawer(data.room, data.dormitory, null, data.registration);
+    fillRmDrawer(roommates);
+    fillMapDrawer(data.dormitory);
+}
+
+function fillRoomDrawer(room, dorm, ra, reg) {
+    const r=room||{}, d=dorm||{};
+    const rn  = r.roomNumber||ra?.roomNumber||reg?.roomNumber||'—';
+    const tmap= {Single:'Phòng đơn',Double:'2 người',Triple:'3 người','8-person':'8 người','4-person-service':'4 người (dịch vụ)','5-person':'5 người','10-person':'10 người'};
+    const rt  = tmap[r.type||r.roomType]||r.type||'—';
+    const cap = r.maxCapacity||r.capacity||ra?.roomCapacity||'—';
+    const fl  = r.floorNumber?'Tầng '+r.floorNumber:(r.floor?'Tầng '+r.floor:'—');
+    const facs= Array.isArray(r.facilities)?r.facilities:[];
+    const dAms= Array.isArray(d.details?.amenities)?d.details.amenities:[];
+    const allF= [...new Set([...facs,...dAms])];
+    const chips= allF.map(f=>{const k=Object.keys(FAC_ICON).find(k=>f.toLowerCase().includes(k));return `<span class="am-chip">${k?`<i class="fa-solid ${FAC_ICON[k]}"></i>`:'<i class="fa-solid fa-check" style="font-size:.6rem"></i>'} ${esc(f)}</span>`;}).join('');
+    const catMap={premium:'Cao cấp',basic:'Tiêu chuẩn',international:'Quốc tế'};
+    const brows=[
+        {i:'fa-building',    l:'Tên tòa',   v:d.name||''},
+        {i:'fa-location-dot',l:'Địa chỉ',   v:d.address||''},
+        {i:'fa-tag',         l:'Phân loại', v:catMap[d.details?.category]||d.details?.category||''},
+        {i:'fa-layer-group', l:'Số tầng',   v:d.details?.totalFloors?d.details.totalFloors+' tầng':''},
+        {i:'fa-phone',       l:'Điện thoại',v:d.contact?.phone||''},
+        {i:'fa-envelope',    l:'Email',      v:d.contact?.email||''},
+    ].filter(x=>x.v);
+    document.getElementById('roomBody').innerHTML = `
+        <div class="dw-s">
+            <div class="dw-hero">
+                <div><div class="dw-rn">${esc(rn)}</div><div class="dw-rt">${esc(rt)}</div></div>
+                <div class="dw-bg">Đang ở</div>
+            </div>
+            <div class="dw-grid">
+                <div class="dw-item"><div class="dw-item-lbl">Tầng</div><div class="dw-item-val">${esc(String(fl))}</div></div>
+                <div class="dw-item"><div class="dw-item-lbl">Sức chứa</div><div class="dw-item-val">${esc(String(cap))} người</div></div>
+            </div>
+        </div>
+        ${allF.length?`<div class="dw-s"><div class="dw-s-title">Tiện ích phòng</div><div class="am-chips">${chips}</div></div>`:''}
+        ${brows.length?`<div class="dw-s"><div class="dw-s-title">Tòa nhà</div>${brows.map(x=>`<div class="dw-info-row"><i class="fa-solid ${x.i} dw-ii"></i><div><div class="dw-il">${x.l}</div><div class="dw-iv">${esc(String(x.v))}</div></div></div>`).join('')}</div>`:''}`;
+}
+
+function fillRmDrawer(roommates) {
+    if (!roommates.length) {
+        document.getElementById('rmBody').innerHTML = `<div class="rm-empty"><i class="fa-solid fa-user-slash" style="font-size:2rem;display:block;margin-bottom:.75rem;opacity:.3"></i>Chưa có bạn cùng phòng</div>`;
+        return;
+    }
+    document.getElementById('rmBody').innerHTML = roommates.map((r,i) => {
+        const name=r.name||r.studentName||'Sinh viên', sid=r.studentId||'', fac=r.faculty||r.major||'';
+        const init=name.trim().split(' ').pop().charAt(0).toUpperCase();
+        return `<div class="rm-item"><div class="rm-av" style="background:${colorOf(name+i)}">${esc(init)}</div><div style="flex:1;min-width:0"><div class="rm-name">${esc(name)}</div><div class="rm-meta">${[sid,fac].filter(Boolean).map(esc).join(' · ')}</div><span class="rm-tag">Đang cư trú</span></div></div>`;
+    }).join('');
+}
+
+function fillMapDrawer(dorm) {
+    const addr = dorm?.address || 'Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội';
+    const name = dorm?.name    || 'KTX HUST';
+    RS.mapAddr = addr; RS.mapDorm = name;
+    document.getElementById('mapBody').innerHTML = `
+        <div class="map-wrap" id="mapLeaflet"></div>
+        <div class="map-addr">
+            <i class="fa-solid fa-location-dot map-addr-icon"></i>
+            <div><div class="map-addr-main">${esc(name)}</div><div class="map-addr-sub">${esc(addr)}</div></div>
+        </div>`;
+}
+
+// ═══════════════════════════════════════════════════
+// WAITLIST
+// ═══════════════════════════════════════════════════
+function renderWaitlist(reg) {
+    const total = calcScore(reg);
+    document.getElementById('wlStats').innerHTML =
+        `<div style="text-align:center"><div class="wl-sn" id="wlPos">—</div><div class="wl-sl">Vị trí chờ</div></div>`+
+        (total!=null?`<div style="text-align:center"><div class="wl-sn">${Math.round(total)}</div><div class="wl-sl">Điểm ưu tiên</div></div>`:'');
+}
+function calcScore(reg) {
+    if (!reg) return null;
+    const s=reg.priorityScore;
+    if (s==null) return null;
+    if (typeof s==='number') return s;
+    const vs=Object.values(s).filter(v=>typeof v==='number');
+    return vs.length?vs.reduce((a,b)=>a+b,0):null;
+}
+async function loadWLPos() {
+    try {
+        const r=await fetch('/api/student/waitlist-position',{credentials:'include'});
+        if(!r.ok) return;
+        const d=await r.json().catch(()=>null);
+        if(!d) return;
+        const pos=d.position||d.data?.position, tot=d.total||d.data?.total;
+        if (pos) {
+            document.getElementById('wlTitle').textContent='Vị trí #'+pos;
+            const ring=document.getElementById('wlRing');
+            if(ring) ring.innerHTML=`<span style="font-size:1.3rem;font-weight:900">#${pos}</span>`;
+            const pe=document.getElementById('wlPos');
+            if(pe) pe.textContent=pos+(tot?'/'+tot:'');
+        }
+        const msg=document.getElementById('wlMsg');
+        if(msg&&tot) msg.textContent='Có '+tot+' sinh viên đang trong hàng chờ';
+    } catch(e) {}
+}
+function initSocket(reg) {
+    if(typeof io==='undefined') return;
+    try {
+        const s=io({transports:['websocket','polling']});
+        s.on('waitlist-update',d=>{
+            if(d.position){document.getElementById('wlTitle').textContent='Vị trí #'+d.position;const rg=document.getElementById('wlRing');if(rg)rg.innerHTML=`<span style="font-size:1.3rem;font-weight:900">#${d.position}</span>`;}
+            const m=document.getElementById('wlMsg');if(m&&d.message)m.textContent=d.message;
+        });
+        s.on('registration-status-change',d=>{if(d.status!=='WAITLIST')location.reload();});
+    } catch(e){}
+}
+
+// ═══════════════════════════════════════════════════
+// PENDING
+// ═══════════════════════════════════════════════════
+function renderPending(reg) {
+    const yr={year1:'Năm 1',year2_3:'Năm 2–3',year4_plus:'Năm 4+'};
+    document.getElementById('pendingChips').innerHTML=[
+        reg?.academicYear?`<span class="p-chip"><i class="fa-solid fa-calendar" style="font-size:.68rem"></i> ${esc(reg.academicYear)}</span>`:'',
+        reg?.createdAt?`<span class="p-chip"><i class="fa-solid fa-clock" style="font-size:.68rem"></i> ${dateFmt(reg.createdAt)}</span>`:'',
+        reg?.yearGroup?`<span class="p-chip">${esc(yr[reg.yearGroup]||reg.yearGroup)}</span>`:'',
+    ].filter(Boolean).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// MODAL / DRAWER CONTROLLERS
+// ═══════════════════════════════════════════════════
+function openOv(id) {
+    const el=document.getElementById(id); if(!el) return;
+    el.classList.add('open'); document.body.style.overflow='hidden';
+    if (id==='mapOv' && !RS.mapInited) setTimeout(initLeaflet,80);
+}
+function closeOv(id) {
+    const el=document.getElementById(id); if(!el) return;
+    el.classList.remove('open'); document.body.style.overflow='';
+}
+function initLeaflet() {
+    if (RS.mapInited) return;
+    const c=document.getElementById('mapLeaflet');
+    if (!c||typeof L==='undefined') return;
+    RS.leaflet=L.map(c,{zoomControl:true}).setView([21.0048,105.8432],16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19
+    }).addTo(RS.leaflet);
+    L.marker([21.0048,105.8432]).addTo(RS.leaflet)
+        .bindPopup(`<b>${RS.mapDorm||'KTX HUST'}</b><br>${RS.mapAddr||''}`).openPopup();
+    RS.mapInited=true;
+    setTimeout(()=>RS.leaflet.invalidateSize(),120);
+}
+
+function openQRModal() {
+    openOv('qrModal');
+    const el=document.getElementById('modalQrEl');
+    el.innerHTML='';
+    if (typeof QRCode!=='undefined'&&RS.qrPayload) {
+        try{new QRCode(el,{text:RS.qrPayload,width:240,height:240,colorDark:'#111827',colorLight:'#FFFFFF',correctLevel:QRCode.CorrectLevel.M});}
+        catch(e){}
+    }
+    document.getElementById('modalName').textContent=document.getElementById('qrName')?.textContent||'';
+    const rn=RS.data?.room?.roomNumber||RS.data?.roomAllocation?.roomNumber||'';
+    const dn=RS.data?.dormitory?.name||'';
+    document.getElementById('modalTags').innerHTML=[
+        rn?`<span class="modal-tag">Phòng <span>${esc(rn)}</span></span>`:'',
+        dn?`<span class="modal-tag"><span>${esc(dn)}</span></span>`:'',
+    ].filter(Boolean).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// EVENT LISTENERS
+// ═══════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    const qrCard=document.getElementById('qrCard');
+    qrCard.addEventListener('click', openQRModal);
+    qrCard.addEventListener('keydown', e=>{if(e.key==='Enter'||e.key===' ')openQRModal();});
+
+    document.getElementById('qrModalClose').addEventListener('click',()=>closeOv('qrModal'));
+    document.getElementById('qrModal').addEventListener('click',e=>{if(e.target.id==='qrModal')closeOv('qrModal');});
+
+    document.getElementById('qaRoom').addEventListener('click',()=>openOv('roomOv'));
+    document.getElementById('qaRoommates').addEventListener('click',()=>openOv('rmOv'));
+    document.getElementById('qaMap').addEventListener('click',()=>openOv('mapOv'));
+    ['qaRoom','qaRoommates','qaMap'].forEach(id=>{
+        document.getElementById(id)?.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')document.getElementById(id).click();});
+    });
+
+    document.querySelectorAll('[data-close]').forEach(btn=>{
+        btn.addEventListener('click',()=>closeOv(btn.dataset.close));
+    });
+    ['roomOv','rmOv','mapOv'].forEach(id=>{
+        const ov=document.getElementById(id); if(!ov) return;
+        ov.addEventListener('click',e=>{
+            const dw=ov.querySelector('.drawer');
+            if(dw&&!dw.contains(e.target))closeOv(id);
+        });
+    });
+    document.addEventListener('keydown',e=>{
+        if(e.key!=='Escape') return;
+        ['qrModal','roomOv','rmOv','mapOv'].forEach(closeOv);
+    });
+});
+</script>
 </body>
 </html>

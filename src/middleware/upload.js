@@ -41,15 +41,29 @@ const avatarStorage = new CloudinaryStorage({
   },
 });
 
-const fileLimits = { fileSize: 5 * 1024 * 1024 }; // 5MB max
+const fileLimits      = { fileSize: 5 * 1024 * 1024 };   // 5MB for images
+const videoFileLimits = { fileSize: 100 * 1024 * 1024 }; // 100MB for video
 
-const uploadDormitory = multer({ storage: dormitoryStorage, limits: fileLimits });
-const uploadRoom      = multer({ storage: roomStorage, limits: fileLimits });
-const uploadAvatar    = multer({ storage: avatarStorage, limits: fileLimits });
+// Dormitory video storage (streams to Cloudinary as video resource)
+const dormitoryVideoStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'ktx-hust/dormitory-videos',
+    resource_type: 'video',
+    allowed_formats: ['mp4', 'webm', 'mov', 'm4v', 'avi'],
+    transformation: [{ quality: 'auto:good' }],
+  },
+});
+
+const uploadDormitory      = multer({ storage: dormitoryStorage,      limits: fileLimits });
+const uploadRoom           = multer({ storage: roomStorage,           limits: fileLimits });
+const uploadAvatar         = multer({ storage: avatarStorage,         limits: fileLimits });
+const uploadDormitoryVideo = multer({ storage: dormitoryVideoStorage, limits: videoFileLimits });
 
 module.exports = {
   cloudinary,
   uploadDormitory,
   uploadRoom,
   uploadAvatar,
+  uploadDormitoryVideo,
 };

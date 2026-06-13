@@ -23,7 +23,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Quicksand', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
 }
 
 body {
@@ -78,6 +78,7 @@ body {
 .header-logo {
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .header-logo img {
@@ -129,13 +130,17 @@ body {
 .nav-container {
     display: flex;
     align-items: center;
-    gap: 2rem;
+    gap: 32px;
+    flex: 1;
+    min-width: 0;
 }
 
 .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 32px;
     align-items: center;
+    flex-wrap: nowrap;
+    flex: 1;
 }
 
 .nav-link {
@@ -201,15 +206,18 @@ body {
     position: relative;
     display: flex;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .avatar-container {
     display: flex;
     align-items: center;
+    gap: 12px;
     text-decoration: none;
-    padding: 5px;
+    padding: 5px 10px;
     border-radius: 30px;
     transition: all 0.3s ease;
+    white-space: nowrap;
 }
 
 .avatar-container:hover {
@@ -219,6 +227,8 @@ body {
 .avatar {
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     background-color: var(--primary-color);
     color: white;
@@ -227,13 +237,18 @@ body {
     justify-content: center;
     font-weight: 700;
     font-size: 1.2rem;
-    margin-right: 10px;
+    flex-shrink: 0;
+    margin-right: 0;
 }
 
 .user-name {
     color: var(--text-color);
     font-weight: 600;
     font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 160px;
 }
 
 .avatar-container:hover .user-name {

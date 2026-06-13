@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Wireframe — Màn hình kết quả phân bổ phòng</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1100px; height: 760px; background: #fff; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; overflow: hidden; }
+  .titlebar { background: #f0f0f0; border-bottom: 1px solid #ccc; padding: 5px 14px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #666; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; display: inline-block; }
+  .url-bar { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 3px; padding: 2px 8px; font-size: 11px; color: #888; }
+  .note-bar { background: #fff9e6; border-bottom: 1px solid #e8d96a; padding: 4px 16px; font-size: 10px; color: #7a6000; font-style: italic; }
+  /* Navbar */
+  .navbar { height: 42px; background: #1a1a1a; display: flex; align-items: center; padding: 0 20px; gap: 4px; }
+  .nav-logo { color: #fff; font-weight: 900; font-size: 14px; margin-right: 16px; }
+  .nav-logo span { color: #e04040; }
+  .nav-link { color: #bbb; font-size: 11px; padding: 4px 10px; border-radius: 3px; }
+  .nav-link.active { background: #333; color: #fff; }
+  .nav-right { margin-left: auto; color: #bbb; font-size: 11px; display: flex; align-items: center; gap: 10px; }
+  /* Content */
+  .content { padding: 16px 22px; display: flex; flex-direction: column; gap: 14px; }
+  /* Stats row */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat-card { border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px 14px; background: #fafafa; position: relative; }
+  .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: 600; }
+  .stat-value { font-size: 20px; font-weight: 900; color: #222; margin: 3px 0 1px; }
+  .stat-desc { font-size: 9px; color: #aaa; }
+  /* Main result area */
+  .result-area { display: flex; gap: 14px; }
+  /* Status card */
+  .status-card { flex: 1.3; border: 2px dashed #bbb; border-radius: 4px; padding: 16px; background: #fafafa; position: relative; }
+  .status-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .status-icon { width: 44px; height: 44px; background: #e0e0e0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .status-title { font-size: 15px; font-weight: 700; color: #222; }
+  .status-badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-yellow { background: #fff3cd; color: #856404; }
+  .badge-gray { background: #e9ecef; color: #495057; }
+  .room-info { border: 1px solid #e0e0e0; border-radius: 4px; padding: 10px 14px; background: #fff; margin-bottom: 10px; }
+  .info-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #f0f0f0; font-size: 11px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: #888; }
+  .info-value { font-weight: 600; color: #333; }
+  .placeholder-box { background: #f0f0f0; border: 1px dashed #ccc; border-radius: 3px; padding: 8px; font-size: 10px; color: #bbb; text-align: center; }
+  /* Timeline */
+  .timeline-card { flex: 1; border: 1.5px dashed #ccc; border-radius: 4px; padding: 14px; background: #fafafa; position: relative; }
+  .tl-item { display: flex; gap: 10px; margin-bottom: 12px; }
+  .tl-dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; margin-top: 3px; flex-shrink: 0; }
+  .tl-dot.done { background: #555; }
+  .tl-dot.active { background: #222; box-shadow: 0 0 0 3px rgba(0,0,0,0.1); }
+  .tl-line { width: 1px; height: 16px; background: #ddd; margin: 2px 0 2px 4.5px; }
+  .tl-text { font-size: 11px; }
+  .tl-title { font-weight: 600; color: #333; }
+  .tl-date { font-size: 9px; color: #aaa; }
+  .btn-row { display: flex; gap: 8px; margin-top: 8px; }
+  .btn-outline { height: 30px; border: 1.5px solid #ccc; border-radius: 3px; padding: 0 12px; background: #fff; font-size: 10px; color: #666; display: flex; align-items: center; cursor: default; }
+  .btn-primary { height: 30px; background: #222; border-radius: 3px; padding: 0 14px; font-size: 10px; color: #fff; display: flex; align-items: center; cursor: default; }
+  .section-label { position: absolute; top: -1px; left: -1px; background: #333; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px 0 2px 0; }
+  /* Legend */
+  .legend { border: 1px solid #ddd; border-radius: 4px; padding: 6px 12px; background: #fafafa; display: flex; flex-wrap: wrap; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 3px; font-size: 9px; color: #555; }
+  .legend-num { width: 14px; height: 14px; border-radius: 50%; background: #555; color: #fff; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  <div class="url-bar">http://localhost:5000/api/admin/room-status</div>
+</div>
+<div class="note-bar">Wireframe — Phương án thiết kế màn hình kết quả phân bổ phòng &nbsp;|&nbsp; ① – ⑧ = vùng chức năng</div>
+
+<!-- Navbar -->
+<div class="navbar" style="position:relative;">
+  <span class="section-label">①</span>
+  <span class="nav-logo">KTX<span>HUST</span></span>
+  <span class="nav-link">Trang chủ</span>
+  <span class="nav-link">Danh sách</span>
+  <span class="nav-link">Đăng ký phòng</span>
+  <span class="nav-link active">Trang thái phòng</span>
+  <span class="nav-link">Báo trì</span>
+  <div class="nav-right">👤 Nguyễn Văn A &nbsp; 🔔 2</div>
+</div>
+
+<div class="content">
+  <!-- Stats row -->
+  <div class="stats-row" style="position:relative;">
+    <span class="section-label">②</span>
+    <div class="stat-card">
+      <div class="stat-label">Tổng đăng ký</div>
+      <div class="stat-value">XXX</div>
+      <div class="stat-desc">Trong chu kỳ hiện tại</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Đã phân phòng</div>
+      <div class="stat-value" style="color:#155724;">XX</div>
+      <div class="stat-desc">Đã được gán phòng</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Đang chờ</div>
+      <div class="stat-value" style="color:#856404;">XX</div>
+      <div class="stat-desc">Danh sách chờ</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Điểm ưu tiên</div>
+      <div class="stat-value">XX</div>
+      <div class="stat-desc">Điểm xét duyệt của bạn</div>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div class="result-area">
+    <!-- Left: Status card -->
+    <div class="status-card">
+      <span class="section-label">③</span>
+      <div class="status-header">
+        <div class="status-icon">🏠</div>
+        <div>
+          <div class="status-title">Kết quả phân bổ phòng</div>
+          <div style="margin-top:4px;">
+            <!-- State A: Allocated -->
+            <span class="status-badge badge-green">✓ Đã được phân phòng</span>
+            &nbsp;&nbsp;
+            <!-- State B (alternative): -->
+            <span class="status-badge badge-yellow" style="opacity:0.45;">⏳ Đang chờ (vị trí #X)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Room info block -->
+      <div style="font-size:10px;font-weight:700;color:#555;margin-bottom:6px;position:relative;">
+        <span class="section-label">④</span>
+        Thông tin phòng được phân bổ:
+      </div>
+      <div class="room-info">
+        <div class="info-row">
+          <span class="info-label">Toà nhà</span>
+          <span class="info-value">KTX A1 — Khu A</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Số phòng</span>
+          <span class="info-value">A1 - 202</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Loại phòng</span>
+          <span class="info-value">Phòng 4 người</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Tầng</span>
+          <span class="info-value">Tầng 2</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Hiệu lực từ</span>
+          <span class="info-value">01/09/20XX</span>
+        </div>
+      </div>
+
+      <!-- Amenities -->
+      <div style="font-size:10px;font-weight:700;color:#555;margin-bottom:5px;position:relative;">
+        <span class="section-label">⑤</span>
+        Tiện ích phòng:
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;">
+        <span style="padding:2px 7px;background:#eee;border-radius:10px;font-size:9px;color:#555;">WiFi</span>
+        <span style="padding:2px 7px;background:#eee;border-radius:10px;font-size:9px;color:#555;">Điều hoà</span>
+        <span style="padding:2px 7px;background:#eee;border-radius:10px;font-size:9px;color:#555;">Tủ cá nhân</span>
+        <span style="padding:2px 7px;background:#eee;border-radius:10px;font-size:9px;color:#555;">Nhà vệ sinh riêng</span>
+      </div>
+
+      <div class="btn-row" style="position:relative;">
+        <span class="section-label">⑥</span>
+        <div class="btn-outline">📄 Xem chi tiết phòng</div>
+        <div class="btn-outline">👥 Xem danh sách bạn cùng phòng</div>
+        <div class="btn-primary">📋 Xem hợp đồng</div>
+      </div>
+    </div>
+
+    <!-- Right: Timeline + waitlist info -->
+    <div class="timeline-card">
+      <span class="section-label">⑦</span>
+      <div style="font-size:11px;font-weight:700;color:#444;margin-bottom:12px;">Lịch sử trạng thái đăng ký</div>
+      <div class="tl-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="tl-dot done"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-title">Đã nộp đăng ký</div>
+          <div class="tl-date">DD/MM/YYYY — HH:MM</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="tl-dot done"></div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-title">Hệ thống xét duyệt</div>
+          <div class="tl-date">DD/MM/YYYY — HH:MM</div>
+        </div>
+      </div>
+      <div class="tl-item">
+        <div style="display:flex;flex-direction:column;align-items:center;">
+          <div class="tl-dot active"></div>
+        </div>
+        <div class="tl-text">
+          <div class="tl-title" style="color:#222;">Phân bổ thành công</div>
+          <div class="tl-date">DD/MM/YYYY — HH:MM</div>
+          <div style="font-size:9px;color:#aaa;margin-top:2px;font-style:italic;">Thông báo đã gửi qua web + mobile</div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #ddd;margin: 10px 0;"></div>
+
+      <!-- Waitlist alternative display -->
+      <div style="font-size:11px;font-weight:700;color:#444;margin-bottom:8px;position:relative;">
+        <span class="section-label">⑧</span>
+        Trạng thái danh sách chờ (khi chưa có phòng):
+      </div>
+      <div class="placeholder-box" style="text-align:left;padding:10px 12px;">
+        <div style="font-size:10px;color:#666;margin-bottom:4px;">Vị trí trong danh sách chờ:</div>
+        <div style="font-size:18px;font-weight:900;color:#856404;">#X / XX</div>
+        <div style="font-size:9px;color:#aaa;margin-top:4px;">Dự kiến có phòng: Học kỳ XX/20XX</div>
+        <div style="font-size:9px;color:#aaa;margin-top:2px;">Điểm xếp hàng: XX/100</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-num">①</div> Thanh điều hướng chính</div>
+    <div class="legend-item"><div class="legend-num">②</div> Lưới thẻ thống kê (4 thẻ)</div>
+    <div class="legend-item"><div class="legend-num">③</div> Card kết quả + badge trạng thái</div>
+    <div class="legend-item"><div class="legend-num">④</div> Thông tin chi tiết phòng được phân bổ</div>
+    <div class="legend-item"><div class="legend-num">⑤</div> Tiện ích phòng</div>
+    <div class="legend-item"><div class="legend-num">⑥</div> Nút hành động nhanh</div>
+    <div class="legend-item"><div class="legend-num">⑦</div> Lịch sử trạng thái đăng ký</div>
+    <div class="legend-item"><div class="legend-num">⑧</div> Hiển thị vị trí danh sách chờ (khi chưa có phòng)</div>
+  </div>
+</div>
+</body>
+</html>

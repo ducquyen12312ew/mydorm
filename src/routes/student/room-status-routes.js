@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { DormitoryCollection, PendingApplicationCollection } = require('../../config/config');
+const { DormitoryCollection, PendingApplicationCollection, StudentCollection } = require('../../config/config');
+const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
+const RoomAllocationModel = require('../../schemas/RoomAllocationSchema');
 
 // Middleware kiểm tra đăng nhập
 const isAuthenticated = (req, res, next) => {
@@ -25,6 +27,12 @@ router.get('/room-status', isAuthenticated, (req, res) => {
         },
         student: null
     });
+});
+
+// Redirect legacy maintenance page to unified service-requests
+router.get('/student/maintenance-requests', isAuthenticated, (req, res) => {
+    if (req.session.role === 'admin') return res.redirect('/admin/dormitories');
+    res.redirect('/student/service-requests?tab=maintenance');
 });
 
 // API để lấy thông tin phòng hiện tại của sinh viên
@@ -80,7 +88,7 @@ router.get('/api/student/current-room', isAuthenticated, async (req, res) => {
         }
 
         if (applications && applications.length > 0) {
-            latestApprovedApplication = applications.find(app => ['approved', 'approved_waiting_payment'].includes(app.status));
+            latestApprovedApplication = applications.find(app => app.status === 'approved');
         }
 
         if (latestApprovedApplication) {
@@ -214,6 +222,155 @@ router.get('/api/student/applications/:id', isAuthenticated, async (req, res) =>
         res.json({ success: true, application: applicationData });
     } catch (error) {
         console.error('Error getting application details:', error);
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
+});
+
+// Comprehensive allocation result — joins allocationRegistrations + roomAllocations + rooms + dormitories
+router.get('/api/student/allocation-result', isAuthenticated, async (req, res) => {
+    try {
+        const studentObjectId = req.session.userId;
+        const studentId = req.session.studentId;
+
+        // 1. Allocation engine flow (allocationregistrations)
+        const reg = await AllocationRegistration.findOne({ studentId: studentObjectId })
+            .sort({ createdAt: -1 })
+            .populate('allocationCycleId')
+            .lean();
+
+        if (reg) {
+            let roomAllocation = null;
+            let room = null;
+            let dormitory = null;
+
+            let roommates = [];
+
+            if (reg.status === 'ALLOCATED') {
+                roomAllocation = await RoomAllocationModel.findOne({
+                    studentId: studentObjectId,
+                    status: 'ACTIVE'
+                })
+                    .populate({ path: 'roomId', model: 'Room' })
+                    .populate({ path: 'dormitoryId', model: 'dormitories' })
+                    .sort({ allocationTimestamp: -1 })
+                    .lean();
+
+                if (roomAllocation) {
+                    room = roomAllocation.roomId || null;
+                    dormitory = roomAllocation.dormitoryId || null;
+
+                    // Fetch roommates: other ACTIVE allocations in same room
+                    const otherAllocs = await RoomAllocationModel.find({
+                        roomId: roomAllocation.roomId?._id || roomAllocation.roomId,
+                        status: 'ACTIVE',
+                        studentId: { $ne: studentObjectId }
+                    }).lean();
+
+                    if (otherAllocs.length) {
+                        const otherIds = otherAllocs.map(a => a.studentId);
+                        const roommateStudents = await StudentCollection.find(
+                            { _id: { $in: otherIds } },
+                            'name studentId faculty academicYear gender'
+                        ).lean();
+                        roommates = roommateStudents.map(s => ({
+                            name: s.name || '—',
+                            studentId: s.studentId || '—',
+                            faculty: s.faculty || '—',
+                            academicYear: s.academicYear || '—',
+                            gender: s.gender || '—'
+                        }));
+                    }
+                }
+            }
+
+            return res.json({
+                success: true,
+                data: {
+                    flow: 'allocation',
+                    registration: reg,
+                    roomAllocation: roomAllocation ? {
+                        _id: roomAllocation._id,
+                        roomNumber: roomAllocation.roomNumber,
+                        buildingCode: roomAllocation.buildingCode,
+                        allocationType: roomAllocation.allocationType,
+                        allocationTimestamp: roomAllocation.allocationTimestamp,
+                        allocationReason: roomAllocation.allocationReason,
+                        roomCapacity: roomAllocation.roomCapacity
+                    } : null,
+                    room,
+                    dormitory,
+                    cycle: reg.allocationCycleId || null,
+                    roommates
+                }
+            });
+        }
+
+        // 2. Manual admin flow (pendingapplications)
+        const app = await PendingApplicationCollection.findOne({
+            $or: [{ studentId: studentId }, { studentId: studentObjectId?.toString() }]
+        }).sort({ createdAt: -1 }).lean();
+
+        if (app) {
+            let dormitory = null;
+            let room = null;
+            let roommates = [];
+
+            if (['approved', 'assigned_room', 'waitlist', 'pending', 'pending_review'].includes(app.status)) {
+                if (app.dormitoryId) {
+                    dormitory = await DormitoryCollection.findById(app.dormitoryId).lean();
+                    if (dormitory && app.roomNumber) {
+                        for (const floor of dormitory.floors || []) {
+                            const found = (floor.rooms || []).find(r => r.roomNumber === app.roomNumber);
+                            if (found) {
+                                room = { ...found, floorNumber: floor.floorNumber };
+
+                                // Fetch roommates from occupants (excluding self), enrich with Student data
+                                const otherOccupants = (found.occupants || []).filter(
+                                    o => o.active && o.studentId !== studentId && o.studentId !== studentObjectId?.toString()
+                                );
+                                if (otherOccupants.length) {
+                                    const occIds = otherOccupants.map(o => o.studentId);
+                                    const roommateStudents = await StudentCollection.find(
+                                        { studentId: { $in: occIds } },
+                                        'name studentId faculty academicYear gender'
+                                    ).lean();
+                                    // Merge with occupant check-in date
+                                    roommates = roommateStudents.map(s => {
+                                        const occ = otherOccupants.find(o => o.studentId === s.studentId) || {};
+                                        return {
+                                            name: s.name || occ.name || '—',
+                                            studentId: s.studentId || '—',
+                                            faculty: s.faculty || '—',
+                                            academicYear: s.academicYear || '—',
+                                            gender: s.gender || '—',
+                                            checkInDate: occ.checkInDate || null
+                                        };
+                                    });
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return res.json({
+                success: true,
+                data: {
+                    flow: 'manual',
+                    registration: app,
+                    roomAllocation: null,
+                    room,
+                    dormitory,
+                    cycle: null,
+                    roommates
+                }
+            });
+        }
+
+        return res.json({ success: true, data: { flow: null, registration: null, roomAllocation: null, room: null, dormitory: null, cycle: null } });
+    } catch (error) {
+        console.error('allocation-result error:', error);
         res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
     }
 });

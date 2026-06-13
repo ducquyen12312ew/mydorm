@@ -86,7 +86,19 @@ const AllocationPolicySchema = new mongoose.Schema({
   notes: String,
 
   effectiveFrom: { type: Date },
-  effectiveTo:   { type: Date }
+  effectiveTo:   { type: Date },
+
+  sourceQuotaId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'QuotaConfig'
+  },
+  publishedAt: {
+    type: Date
+  },
+  publishedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'students'
+  }
 });
 
 // Updated validation: only one active policy per academic year

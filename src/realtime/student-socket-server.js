@@ -43,7 +43,19 @@ function setupStudentSocketServer(httpServer, sessionMiddleware) {
   });
 
   io.on('connection', async (socket) => {
-    const userId = String(socket.data.userId || socket.request.session.userId);
+    const req = socket.request;
+    const userId = String(socket.data.userId || req.session?.userId || '');
+    const role = req.session?.role || '';
+
+    // Admin connections join the shared admin room for realtime dashboard
+    if (role === 'admin') {
+      socket.join('admin');
+      socket.on('admin:dashboard:subscribe', () => {
+        socket.join('admin');
+      });
+      return; // Admins don't need student dashboard push
+    }
+
     socket.join(`student:${userId}`);
 
     const pushDashboard = async () => {
@@ -66,13 +78,17 @@ function setupStudentSocketServer(httpServer, sessionMiddleware) {
 }
 
 function emitStudentEvent(io, studentId, eventName, payload) {
-  if (!io) {
-    return;
-  }
+  if (!io) return;
   io.to(`student:${String(studentId)}`).emit(eventName, payload);
+}
+
+function emitAdminEvent(io, eventName, payload) {
+  if (!io) return;
+  io.to('admin').emit(eventName, payload);
 }
 
 module.exports = {
   setupStudentSocketServer,
-  emitStudentEvent
+  emitStudentEvent,
+  emitAdminEvent
 };

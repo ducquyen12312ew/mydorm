@@ -23,7 +23,13 @@ const AllocationCycleSchema = new mongoose.Schema({
   policyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'AllocationPolicy',
-    required: true
+    required: false,
+    default: null
+  },
+
+  allowedAcademicYears: {
+    type: [String],
+    default: ['1', '2', '3', '4', '5', '6']
   },
   
   // Timeline

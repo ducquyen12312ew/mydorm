@@ -58,7 +58,24 @@ const StudentSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false
+    },
+    oauthProvider: {
+        type: String,
+        enum: ['google', 'microsoft', null],
+        default: null
+    },
+    oauthId: {
+        type: String,
+        sparse: true
+    },
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    onboardingComplete: {
+        type: Boolean,
+        default: false
     },
     faculty: {
         type: String,
@@ -94,6 +111,20 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         enum: ['user', 'admin'],
         default: 'user'
+    },
+    isSuperAdmin: {
+        type: Boolean,
+        default: false
+    },
+    isProtected: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
+    language: {
+        type: String,
+        enum: ['vi', 'en', 'zh', 'ko', 'ru', 'th', 'lo', 'km'],
+        default: 'vi'
     },
     dormitoryId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -279,6 +310,37 @@ const DormitorySchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    coverImage: {
+        type: String,
+        default: ''
+    },
+    images: {
+        type: [String],
+        default: []
+    },
+    videos: {
+        type: [String],
+        default: []
+    },
+    media: {
+        type: [{
+            type: { type: String, enum: ['image', 'video', 'youtube', 'vr360', 'tour360', 'model3d'], default: 'image' },
+            url: String,
+            publicId: String,
+            thumbnail: String,
+            duration: Number,
+            title: String
+        }],
+        default: []
+    },
+    virtualTour: {
+        type: String,
+        default: ''
+    },
+    description: {
+        type: String,
+        default: ''
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -392,7 +454,6 @@ const PendingApplicationSchema = new mongoose.Schema({
         enum: [
             'pending',
             'pending_review',
-            'approved_waiting_payment',
             'approved',
             'rejected',
             'waitlist',
@@ -488,6 +549,10 @@ const NotificationSchema = new mongoose.Schema({
     expiresAt: {
         type: Date
     },
+    deletedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -570,7 +635,7 @@ const AcademicWindowSchema = new mongoose.Schema({
     }
 });
 
-StudentSchema.index({ studentId: 1 }, { sparse: true });
+StudentSchema.index({ studentId: 1 }, { unique: true, sparse: true });
 StudentSchema.index({ email: 1 }, { sparse: true });
 StudentSchema.index({ role: 1 });
 PendingApplicationSchema.index({ studentId: 1, status: 1 });

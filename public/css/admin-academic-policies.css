@@ -1,16 +1,16 @@
 :root {
-    --primary-color: #e61a1a;
-    --primary-hover: #c01515;
-    --text-dark: #2c3e50;
-    --text-light: #7f8c8d;
-    --bg-light: #f8f9fa;
-    --border-color: #e9ecef;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-    --success-color: #28a745;
-    --warning-color: #ffc107;
-    --danger-color: #dc3545;
+    --primary-color: #C8102E;
+    --primary-hover: #A20D25;
+    --text-dark: #111827;
+    --text-light: #6B7280;
+    --bg-light: #F7F7F7;
+    --border-color: #E5E7EB;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
+    --success-color: #166534;
+    --warning-color: #D97706;
+    --danger-color: #DC2626;
 }
 
 * {
@@ -20,8 +20,8 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #f5f7fa;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #F7F7F7;
     color: var(--text-dark);
 }
 
@@ -164,13 +164,15 @@ body {
 }
 
 .status-badge.active {
-    background: #d4edda;
-    color: #155724;
+    background: #DCFCE7;
+    color: #166534;
+    border: 1px solid #86EFAC;
 }
 
 .status-badge.inactive {
-    background: #f8d7da;
-    color: #721c24;
+    background: #FFF0F2;
+    color: #991B1B;
+    border: 1px solid #FECDD3;
 }
 
 .policy-card-body {
@@ -240,25 +242,24 @@ body {
 }
 
 .btn-edit {
-    background: #17a2b8;
-    color: white;
+    background: #F3F4F6;
+    color: #374151;
+    border: 1px solid #E5E7EB;
 }
 
 .btn-edit:hover {
-    background: #138496;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
+    background: #E5E7EB;
+    color: #111827;
 }
 
 .btn-toggle {
-    background: var(--warning-color);
-    color: var(--text-dark);
+    background: #FFFBEB;
+    color: #92400E;
+    border: 1px solid #FDE68A;
 }
 
 .btn-toggle:hover {
-    background: #e0a800;
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-sm);
+    background: #FEF3C7;
 }
 
 .btn-delete {

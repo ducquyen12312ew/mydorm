@@ -76,8 +76,17 @@ const mobileStudentRoutes = require('./src/routes/student/mobile-student-routes'
 const adminOpsRoutes = require('./src/routes/admin/admin-ops-routes');
 const adminAcademicWindowRoutes = require('./src/routes/admin/admin-academic-window-routes');
 const adminPageRoutes = require('./src/routes/admin/admin-page-routes');
+const adminRoomTransferRoutes = require('./src/routes/admin/admin-room-transfer-routes');
+const studentRoomTransferRoutes = require('./src/routes/student/student-room-transfer-routes');
+const serviceRequestRoutes = require('./src/routes/student/service-request-routes');
+const adminRequestsRoutes = require('./src/routes/admin/admin-requests-routes');
+const adminEnrollmentPlanningRoutes = require('./src/routes/admin/admin-enrollment-planning-routes');
+const adminDemandForecastRoutes = require('./src/routes/admin/admin-demand-forecast-routes');
+const simulationWorkspaceRoutes = require('./src/routes/admin/simulation-workspace-routes');
+const simulationEngineRoutes    = require('./src/routes/admin/simulation-engine-routes');
 const authRoutes = require('./src/routes/auth-routes');
 const publicRoutes = require('./src/routes/public-routes');
+const passport = require('./src/config/passport');
 const webNotificationRoutes = require('./src/routes/web-notification-routes');
 const { isAuthenticated, isAdmin } = require('./src/middleware/auth');
 
@@ -96,6 +105,7 @@ const sessionMiddleware = session({
 });
 
 app.use(sessionMiddleware);
+app.use(passport.initialize());
 
 // ============================================
 // CORS — allow Expo web dev server (screenshots/demo)
@@ -136,8 +146,27 @@ app.use((req, res, next) => {
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(requestLogger);
+
+// Expose session username to all views (used by navbar for simulation menu)
+app.use((req, res, next) => {
+    res.locals.sessionUsername = req.session && req.session.username;
+    next();
+});
+// Service worker must be served with no-cache so browsers detect updates immediately
+app.get('/sw.js', (req, res) => {
+    res.set('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.set('Service-Worker-Allowed', '/');
+    res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+// Manifest — short cache (1 hour) so icon/name changes propagate quickly
+app.get('/manifest.webmanifest', (req, res) => {
+    res.set('Cache-Control', 'public, max-age=3600');
+    res.set('Content-Type', 'application/manifest+json');
+    res.sendFile(path.join(__dirname, 'public', 'manifest.webmanifest'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
+app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 
 app.use(dashboardRoutes);
@@ -156,13 +185,22 @@ app.use('/admin/api/claims', adminPriorityClaimRoutes);  // Admin priority claim
 app.use(cohortShiftRoutes);  // Cohort Shift Timeline (/admin/cohort-shift + /api/cohort-shift)
 app.use(adminQuotaRoutes);  // Admin quota planning routes
 app.use('/api/allocation/simulation', simulationPredictionRoutes);  // Simulation & prediction endpoints
-app.use('/api/allocation', enhancedApplicationRoutes);  // Enhanced application with ranking criteria
+app.use(enhancedApplicationRoutes);  // Enhanced application with ranking criteria — routes declare full paths
 app.use(roomViewerRoutes);  // 360-degree room viewer (/api/rooms + /rooms)
 app.use('/api/student-app', mobileStudentRoutes);  // Student mobile/web app API facade
 app.use(adminOpsRoutes);
 app.use(adminAcademicWindowRoutes);
+app.use(adminRoomTransferRoutes);         // Room transfer — admin side (detail pages preserved)
+app.use(studentRoomTransferRoutes);       // Room transfer — student side (POST + cancel; GET redirects)
+app.use(serviceRequestRoutes);            // Unified student service-requests page
+app.use(adminRequestsRoutes);             // Unified admin requests page
+app.use(adminEnrollmentPlanningRoutes);   // Enrollment planning
+app.use(adminDemandForecastRoutes);       // Demand forecasting
+app.use(simulationWorkspaceRoutes);       // Simulation Workspace (admintest only)
+app.use(simulationEngineRoutes);          // Simulation Engine (admintest only)
 app.use(adminPageRoutes);
 app.use(authRoutes);
+app.use('/api', registrationRoutes);  // Must be before publicRoutes — /api/dormitories/:id wildcard would shadow /api/dormitories/registration
 app.use(publicRoutes);
 app.use(webNotificationRoutes);
 
@@ -239,22 +277,38 @@ app.set('views', path.join(__dirname, 'views'));
 app.engine('ejs', require('ejs').__express);
 
 // API routes
-app.use('/api', registrationRoutes);
 app.use('/api', dormitoryRoutes);
-app.use('/api/admin', adminApplicationRoutes);
-app.use('/api/admin', roomStatusRoutes);
+app.use(adminApplicationRoutes);  // Must be at root — routes use full paths like /admin/applications/list
+app.use(roomStatusRoutes);  // mounts /room-status at root, /api/student/current-room, /api/student/applications
 
 // User info middleware
 app.use((req, res, next) => {
     res.locals.user = {
         name: req.session.name || null,
         role: req.session.role || null,
-        id: req.session.userId || null
+        id: req.session.userId || null,
+        isSuperAdmin: req.session.isSuperAdmin || false
     };
     next();
 });
 
 // isAuthenticated and isAdmin are imported from src/middleware/auth.js
+
+// ============================================
+// I18N — Language preference API
+// ============================================
+app.post('/api/user/language', async (req, res) => {
+    const { language } = req.body;
+    const SUPPORTED = ['vi', 'en', 'zh', 'ko', 'ru', 'th', 'lo', 'km'];
+    if (!SUPPORTED.includes(language)) return res.status(400).json({ success: false });
+    if (req.session && req.session.userId) {
+        try {
+            const { StudentCollection } = require('./src/config/config');
+            await StudentCollection.findByIdAndUpdate(req.session.userId, { language });
+        } catch (e) { /* non-fatal */ }
+    }
+    res.json({ success: true });
+});
 
 // ============================================
 // PUBLIC ROUTES
@@ -338,6 +392,30 @@ async function autoMigrateViolations() {
 
 // Run migration on startup
 autoMigrateViolations();
+
+// ============================================
+// AUTO MIGRATION: approved_waiting_payment → approved
+// ============================================
+async function autoMigratePaymentStatus() {
+    try {
+        const { PendingApplicationCollection } = require('./src/config/config');
+        const count = await PendingApplicationCollection.countDocuments({ status: 'approved_waiting_payment' });
+        if (count > 0) {
+            await PendingApplicationCollection.updateMany(
+                { status: 'approved_waiting_payment' },
+                { $set: { status: 'approved', updatedAt: new Date() } }
+            );
+            await StudentCollection.updateMany(
+                { registrationStatus: 'approved_waiting_payment' },
+                { $set: { registrationStatus: 'approved' } }
+            );
+            logger.info(`Auto-migrated ${count} applications from 'approved_waiting_payment' to 'approved'`);
+        }
+    } catch (error) {
+        logger.error('Payment status migration failed:', { error: error.message });
+    }
+}
+autoMigratePaymentStatus();
 
 
 // ============================================

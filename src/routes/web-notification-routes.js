@@ -32,7 +32,8 @@ router.get('/api/notifications', requireSession, async (req, res) => {
                         { expiresAt: null },
                         { expiresAt: { $gt: now } }
                     ]
-                }
+                },
+                { deletedBy: { $ne: userId } }
             ]
         })
         .sort({ createdAt: -1 })
@@ -160,6 +161,22 @@ router.post('/admin/send-announcement', isAdmin, async (req, res) => {
     } catch (error) {
         logger.error('Error sending announcement', { error: error.message });
         res.status(500).json({ error: 'Không thể gửi thông báo' });
+    }
+});
+
+// DELETE /api/notifications/:id/delete — soft-delete (hide) a notification for this user
+router.delete('/api/notifications/:id/delete', requireSession, async (req, res) => {
+    try {
+        const userId = req.session.userId;
+        const notifId = req.params.id;
+        // Mark as deleted by pushing userId to deletedBy array (soft delete)
+        await NotificationCollection.findByIdAndUpdate(notifId, {
+            $addToSet: { deletedBy: userId }
+        });
+        res.json({ success: true });
+    } catch (error) {
+        logger.error('Error deleting notification', { error: error.message });
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 

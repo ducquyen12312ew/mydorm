@@ -8,7 +8,7 @@
         :root {
             --primary-color: #d63031;
             --primary-hover: #b71c1c;
-            --success-color: #28a745;
+            --success-color: #166534;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
             --text-dark: #2c3e50;
@@ -117,8 +117,9 @@
         }
 
         .status-active {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #86EFAC;
         }
 
         .status-upcoming {
@@ -266,8 +267,8 @@
         }
 
         .alert-success {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
         }
 
         .alert-warning {
@@ -319,8 +320,18 @@
                 <form id="windowForm">
                     <div class="form-group">
                         <label class="form-label">Năm học <span style="color: red;">*</span></label>
-                        <input type="text" class="form-control" id="academicYear" 
+                        <input type="text" class="form-control" id="academicYear"
                                placeholder="VD: 2025-2026" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Chính sách phân bổ</label>
+                        <div id="activePolicyInfo" style="padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;font-size:.9rem;color:#0369a1;">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải chính sách hiện hành...
+                        </div>
+                        <small style="color:#6b7280;display:block;margin-top:6px;">
+                            <i class="fas fa-info-circle"></i> Chính sách phân bổ được tự động lấy từ Quota đang ban hành. Để thay đổi, hãy ban hành Quota mới tại <a href="/admin/quotas">Quản lý Quota</a>.
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -336,15 +347,16 @@
                     <div class="form-group">
                         <label class="form-label">Trạng thái</label>
                         <select class="form-control" id="status">
-                            <option value="upcoming">Sắp tới</option>
-                            <option value="active">Đang mở</option>
-                            <option value="closed">Đã đóng</option>
+                            <option value="PENDING">Sắp diễn ra</option>
+                            <option value="RUNNING">Đang mở</option>
+                            <option value="COMPLETED">Đã đóng</option>
+                            <option value="CANCELLED">Đã hủy</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Mô tả</label>
-                        <textarea class="form-control" id="description" rows="3" 
+                        <textarea class="form-control" id="description" rows="3"
                                   placeholder="Mô tả về đợt đăng ký..."></textarea>
                     </div>
 
@@ -368,6 +380,7 @@
         // Load windows on page load
         document.addEventListener('DOMContentLoaded', function() {
             loadWindows();
+            loadPublishedPolicy();
 
             // Handle form submission
             document.getElementById('windowForm').addEventListener('submit', async function(e) {
@@ -375,6 +388,37 @@
                 await saveWindow();
             });
         });
+
+        // Load current published quota / active policy info
+        async function loadPublishedPolicy() {
+            try {
+                const res = await fetch('/api/admin/published-quota');
+                const data = await res.json();
+                const el = document.getElementById('activePolicyInfo');
+                if (!el) return;
+                if (data.policy) {
+                    el.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a"></i>
+                        <strong>Chính sách hiện hành:</strong> Năm học ${data.policy.academicYear}
+                        ${data.quota ? `(từ Quota <strong>${data.quota.academicYear}</strong> v${data.quota.version || ''})` : ''}
+                        — <span style="color:#16a34a">Đang áp dụng</span>`;
+                    el.style.background = '#f0fdf4';
+                    el.style.borderColor = '#86efac';
+                    el.style.color = '#15803d';
+                } else {
+                    el.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#d97706"></i>
+                        <strong>Chưa có chính sách nào!</strong> Vui lòng <a href="/admin/quotas">ban hành Quota</a> trước khi tạo đợt đăng ký.`;
+                    el.style.background = '#fffbeb';
+                    el.style.borderColor = '#fcd34d';
+                    el.style.color = '#92400e';
+                }
+            } catch (e) {
+                const el = document.getElementById('activePolicyInfo');
+                if (el) {
+                    el.innerHTML = `<i class="fas fa-times-circle" style="color:#dc2626"></i> Không tải được chính sách`;
+                    el.style.color = '#dc2626';
+                }
+            }
+        }
 
         // Load academic windows
         async function loadWindows() {
@@ -431,20 +475,19 @@
 
                 const html = windows.map((window, idx) => {
                     try {
-                        const startDate = new Date(window.startDate);
-                        const endDate = new Date(window.endDate);
+                        const startDate = new Date(window.registrationStart);
+                        const endDate = new Date(window.registrationEnd);
                         const now = new Date();
-                        
-                        
+
                         let statusClass = 'status-upcoming';
-                        let statusText = 'Sắp tới';
-                        
-                        if (window.status === 'active') {
+                        let statusText = 'Sắp diễn ra';
+
+                        if (window.status === 'RUNNING') {
                             statusClass = 'status-active';
                             statusText = 'Đang mở';
-                        } else if (window.status === 'closed' || endDate < now) {
+                        } else if (window.status === 'COMPLETED' || window.status === 'CANCELLED' || endDate < now) {
                             statusClass = 'status-closed';
-                            statusText = 'Đã đóng';
+                            statusText = window.status === 'CANCELLED' ? 'Đã hủy' : 'Đã đóng';
                         }
 
                         // Priority statistics
@@ -477,6 +520,14 @@
                                         <div class="info-label">Diện ưu tiên:</div>
                                         <div class="info-value">${priorityHtml}</div>
                                     </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Chính sách áp dụng:</div>
+                                        <div class="info-value">${
+                                            window.currentPolicy
+                                                ? `<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Năm học ${window.currentPolicy.academicYear}</span>`
+                                                : '<span style="color:#d97706"><i class="fas fa-exclamation-triangle"></i> Chưa có chính sách</span>'
+                                        }</div>
+                                    </div>
                                     ${window.description ? `
                                         <div class="info-row">
                                             <div class="info-label">Mô tả:</div>
@@ -485,7 +536,7 @@
                                     ` : ''}
                                 </div>
                                 <div class="window-actions">
-                                    ${window.status !== 'active' ? `
+                                    ${window.status !== 'RUNNING' ? `
                                         <button class="btn btn-sm btn-success" onclick="activateWindow('${window._id}')">
                                             <i class="fas fa-check-circle"></i> Kích hoạt
                                         </button>
@@ -560,7 +611,7 @@
             
             document.getElementById('startDate').value = formatDateTimeLocal(now);
             document.getElementById('endDate').value = formatDateTimeLocal(later);
-            document.getElementById('status').value = 'active';
+            document.getElementById('status').value = 'PENDING';
             
             document.getElementById('windowModal').classList.add('show');
         }
@@ -572,10 +623,10 @@
 
             editingWindowId = id;
             document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Đợt Đăng Ký';
-            
+
             document.getElementById('academicYear').value = window.academicYear;
-            document.getElementById('startDate').value = formatDateTimeLocal(new Date(window.startDate));
-            document.getElementById('endDate').value = formatDateTimeLocal(new Date(window.endDate));
+            document.getElementById('startDate').value = formatDateTimeLocal(new Date(window.registrationStart));
+            document.getElementById('endDate').value = formatDateTimeLocal(new Date(window.registrationEnd));
             document.getElementById('status').value = window.status;
             document.getElementById('description').value = window.description || '';
             
@@ -590,15 +641,9 @@
 
         // Save window
         async function saveWindow() {
-            const policyId = document.getElementById('policyId').value;
-            if (!policyId) {
-                alert('Vui lòng chọn chính sách phân bổ');
-                return;
-            }
-
+            // policyId is auto-assigned on the backend from the active AllocationPolicy
             const data = {
                 academicYear: document.getElementById('academicYear').value,
-                policyId: policyId,
                 startDate: document.getElementById('startDate').value,
                 endDate: document.getElementById('endDate').value,
                 status: document.getElementById('status').value,

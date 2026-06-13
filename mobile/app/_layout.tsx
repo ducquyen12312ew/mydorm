@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { AppState, AppStateStatus } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AppState, AppStateStatus, View } from 'react-native';
 import { Stack } from 'expo-router';
 import * as Sentry from '@sentry/react-native';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
@@ -8,8 +8,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { StyleSheet } from 'react-native';
 import { useAuthStore } from '../src/store/authStore';
 import { connectSocket, disconnectSocket, ensureConnected } from '../src/realtime/socket';
-import { registerSessionExpiredCallback } from '../src/api/client';
+import { registerSessionExpiredCallback, refreshApiBaseUrl } from '../src/api/client';
 import { initSentry } from '../src/config/sentry';
+import { initApiConfig } from '../src/config';
 
 // Initialize Sentry before anything else renders
 initSentry();
@@ -77,6 +78,17 @@ function AppLifecycle() {
 }
 
 function RootLayout() {
+  const [configReady, setConfigReady] = useState(false);
+
+  useEffect(() => {
+    initApiConfig().then(() => {
+      refreshApiBaseUrl();
+      setConfigReady(true);
+    });
+  }, []);
+
+  if (!configReady) return <View style={styles.root} />;
+
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>

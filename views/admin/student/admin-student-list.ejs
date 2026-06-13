@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Sinh viên — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'students', user: user }) %>
+
+<style>
+  .pg { max-width: 1300px; margin: 0 auto; padding: 24px 24px 48px; }
+
+  .pg-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 20px; gap: 12px; flex-wrap: wrap;
+  }
+  .pg-head h2 { font-size: 18px; font-weight: 700; color: #111827; margin: 0; }
+  .pg-sub { font-size: 13px; color: #6B7280; margin: 3px 0 0; }
+
+  /* Filter bar */
+  .filter-bar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    background: #fff; border: 1px solid #E5E7EB; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 16px;
+  }
+  .filter-bar input, .filter-bar select {
+    border: 1px solid #E5E7EB; border-radius: 7px; padding: 7px 12px;
+    font-size: 13px; color: #111827; background: #F9FAFB;
+    font-family: inherit; outline: none; transition: border-color .15s;
+  }
+  .filter-bar input { flex: 1; min-width: 180px; }
+  .filter-bar input:focus, .filter-bar select:focus { border-color: #C8102E; background: #fff; }
+  .filter-bar select { min-width: 140px; }
+
+  /* Table */
+  .tbl-wrap {
+    background: #fff; border: 1px solid #E5E7EB; border-radius: 10px;
+    overflow: hidden;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    padding: 10px 14px; font-size: 11px; font-weight: 700; color: #6B7280;
+    text-transform: uppercase; letter-spacing: .05em;
+    background: #F9FAFB; border-bottom: 1px solid #E5E7EB; text-align: left;
+    white-space: nowrap;
+  }
+  tbody tr { border-bottom: 1px solid #F3F4F6; transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #FAFAFA; }
+  tbody td { padding: 10px 14px; font-size: 13px; color: #374151; vertical-align: middle; }
+
+  .stu-name { font-weight: 600; color: #111827; }
+  .stu-id   { font-size: 11px; color: #9CA3AF; font-family: monospace; margin-top: 1px; }
+
+  .tag-faculty {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+    background: #FFF0F2; color: #C8102E; border: 1px solid #FECDD3;
+  }
+  .tag-gender {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 11px; font-weight: 500;
+    background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB;
+  }
+
+  .room-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 12px; color: #374151;
+  }
+  .room-badge i { color: #9CA3AF; font-size: 11px; }
+
+  .btn-view {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: 500;
+    background: #F9FAFB; color: #374151; border: 1px solid #E5E7EB;
+    text-decoration: none; transition: background .12s, border-color .12s;
+  }
+  .btn-view:hover { background: #FFF0F2; color: #C8102E; border-color: #FECDD3; }
+
+  .empty-state {
+    text-align: center; padding: 48px; color: #9CA3AF;
+  }
+
+  /* Pagination */
+  .pager {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-top: 1px solid #E5E7EB;
+    font-size: 13px; color: #6B7280;
+  }
+  .pager-btns { display: flex; gap: 6px; }
+  .pager-btn {
+    padding: 5px 10px; border-radius: 6px; font-size: 13px; border: 1px solid #E5E7EB;
+    background: #fff; color: #374151; cursor: pointer; transition: background .12s;
+  }
+  .pager-btn:hover { background: #F9FAFB; }
+  .pager-btn.active { background: #C8102E; color: #fff; border-color: #C8102E; }
+  .pager-btn:disabled { opacity: .4; cursor: not-allowed; }
+</style>
+
+<div class="pg">
+  <div class="pg-head">
+    <div>
+      <h2>Sinh viên</h2>
+      <p class="pg-sub">Tổng cộng <span id="totalCount"><%= students.length %></span> sinh viên đang hiển thị</p>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input type="text" id="searchInput" placeholder="Tìm theo tên, MSSV, email..." />
+    <select id="filterFaculty">
+      <option value="">Tất cả khoa</option>
+      <option>Công nghệ Thông tin</option>
+      <option>Khoa học Máy tính</option>
+      <option>Kỹ thuật Máy tính</option>
+      <option>Điện tử Viễn thông</option>
+      <option>Cơ điện tử</option>
+      <option>Cơ khí</option>
+      <option>Toán Tin</option>
+      <option>Kinh tế</option>
+    </select>
+    <select id="filterGender">
+      <option value="">Giới tính</option>
+      <option value="male">Nam</option>
+      <option value="female">Nữ</option>
+    </select>
+    <select id="filterDorm">
+      <option value="">Tất cả KTX</option>
+      <option>KTX A1 - Bách Khoa</option>
+      <option>KTX B2 - Bách Khoa</option>
+      <option>KTX C3 - Bách Khoa</option>
+      <option>KTX D4 - Bách Khoa</option>
+      <option>KTX E5 - Bách Khoa</option>
+      <option>KTX F6 - Bách Khoa</option>
+      <option>KTX G7 - Bách Khoa</option>
+    </select>
+  </div>
+
+  <div class="tbl-wrap">
+    <table id="stuTable">
+      <thead>
+        <tr>
+          <th>Họ tên</th>
+          <th>Khoa / Viện</th>
+          <th>Giới tính</th>
+          <th>Email</th>
+          <th>SĐT</th>
+          <th>Phòng</th>
+          <th>Điểm UT</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="stuBody">
+        <% students.forEach(function(s){ %>
+        <tr class="stu-row"
+            data-name="<%= (s.name||'').toLowerCase() %>"
+            data-id="<%= (s.studentId||'').toLowerCase() %>"
+            data-email="<%= (s.email||'').toLowerCase() %>"
+            data-faculty="<%= s.faculty||'' %>"
+            data-gender="<%= s.gender||'' %>"
+            data-dorm="">
+          <td>
+            <div class="stu-name"><%= s.name || '—' %></div>
+            <div class="stu-id"><%= s.studentId || '' %></div>
+          </td>
+          <td>
+            <% if(s.faculty){ %><span class="tag-faculty"><%= s.faculty %></span><% } else { %>—<% } %>
+          </td>
+          <td>
+            <% if(s.gender==='male'){ %><span class="tag-gender">Nam</span>
+            <% } else if(s.gender==='female'){ %><span class="tag-gender">Nữ</span>
+            <% } else { %>—<% } %>
+          </td>
+          <td style="font-size:12px;color:#6B7280;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+            <%= s.email || '—' %>
+          </td>
+          <td style="font-size:12px;color:#6B7280;white-space:nowrap;"><%= s.phone || '—' %></td>
+          <td>
+            <% if(s.roomNumber){ %>
+            <span class="room-badge"><i class="fas fa-door-open"></i><%= s.roomNumber %></span>
+            <% } else { %><span style="color:#9CA3AF;font-size:12px;">Chưa phân</span><% } %>
+          </td>
+          <td style="font-weight:600;color:<%= (s.priorityScore||0)>=70?'#C8102E':(s.priorityScore||0)>=40?'#111827':'#9CA3AF' %>">
+            <%= s.priorityScore || 0 %>
+          </td>
+          <td>
+            <a href="/admin/students/<%= s._id %>" class="btn-view">
+              <i class="fas fa-eye"></i> Hồ sơ
+            </a>
+          </td>
+        </tr>
+        <% }); %>
+        <% if(!students || students.length===0){ %>
+        <tr><td colspan="8"><div class="empty-state"><i class="fas fa-users" style="font-size:32px;display:block;margin-bottom:10px;"></i>Không có sinh viên</div></td></tr>
+        <% } %>
+      </tbody>
+    </table>
+    <div class="pager">
+      <span id="pagerInfo"></span>
+      <div class="pager-btns" id="pagerBtns"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var rows = Array.from(document.querySelectorAll('.stu-row'));
+  var PAGE_SIZE = 50;
+  var currentPage = 1;
+  var filtered = rows;
+
+  function applyFilters(){
+    var q = document.getElementById('searchInput').value.toLowerCase().trim();
+    var fac = document.getElementById('filterFaculty').value;
+    var gen = document.getElementById('filterGender').value;
+    filtered = rows.filter(function(r){
+      if(q && !r.dataset.name.includes(q) && !r.dataset.id.includes(q) && !r.dataset.email.includes(q)) return false;
+      if(fac && r.dataset.faculty !== fac) return false;
+      if(gen && r.dataset.gender !== gen) return false;
+      return true;
+    });
+    currentPage = 1;
+    render();
+  }
+
+  function render(){
+    rows.forEach(function(r){ r.style.display='none'; });
+    var start = (currentPage-1)*PAGE_SIZE;
+    var pageRows = filtered.slice(start, start+PAGE_SIZE);
+    pageRows.forEach(function(r){ r.style.display=''; });
+
+    document.getElementById('totalCount').textContent = filtered.length;
+    document.getElementById('pagerInfo').textContent =
+      'Hiển thị ' + (start+1) + '–' + Math.min(start+PAGE_SIZE, filtered.length) + ' / ' + filtered.length;
+
+    var totalPages = Math.ceil(filtered.length/PAGE_SIZE);
+    var btns = document.getElementById('pagerBtns');
+    btns.innerHTML = '';
+    for(var i=1;i<=totalPages;i++){
+      (function(p){
+        var btn = document.createElement('button');
+        btn.className = 'pager-btn' + (p===currentPage?' active':'');
+        btn.textContent = p;
+        btn.onclick = function(){ currentPage=p; render(); };
+        btns.appendChild(btn);
+      })(i);
+    }
+  }
+
+  document.getElementById('searchInput').addEventListener('input', applyFilters);
+  document.getElementById('filterFaculty').addEventListener('change', applyFilters);
+  document.getElementById('filterGender').addEventListener('change', applyFilters);
+  document.getElementById('filterDorm').addEventListener('change', applyFilters);
+  render();
+})();
+</script>
+
+</body>
+</html>

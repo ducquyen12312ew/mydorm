@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Quicksand', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
         }
         
         body {
@@ -488,7 +488,7 @@
             visibility: hidden;
             transition: all 0.3s ease;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-            font-family: 'Quicksand', sans-serif;
+            font-family: 'Inter', system-ui, sans-serif;
             font-weight: 500;
             pointer-events: none;
         }
@@ -875,4 +875,43 @@
                 width: 280px;
                 right: -30px;
             }
+        }
+
+        /* ── Mobile-first: small phones ── */
+        @media (max-width: 480px) {
+            .hero-section {
+                height: 52vh;
+                min-height: 280px;
+                align-items: flex-end;
+                padding-bottom: 2.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.6rem;
+                line-height: 1.2;
+            }
+
+            .hero-subtitle {
+                font-size: 0.9rem;
+                line-height: 1.4;
+            }
+        }
+
+        @media (max-width: 390px) {
+            .hero-section {
+                height: 48vh;
+                min-height: 260px;
+            }
+
+            .hero-title { font-size: 1.4rem; }
+            .hero-subtitle { font-size: 0.82rem; }
+        }
+
+        @media (max-width: 320px) {
+            .hero-section {
+                height: 44vh;
+                min-height: 230px;
+            }
+
+            .hero-title { font-size: 1.25rem; }
         }

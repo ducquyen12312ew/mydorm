@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= dormitory.name %> — KTX HUST Admin</title>
+  <title><%= dormitory.name %> — Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
@@ -20,8 +20,8 @@
       --text:      #111827;
       --text-2:    #6B7280;
       --text-3:    #9CA3AF;
-      --success:   #15803D;
-      --success-bg:#F0FDF4;
+      --success:   #166534;
+      --success-bg:#DCFCE7;
       --warning:   #D97706;
       --warning-bg:#FFFBEB;
       --danger:    #DC2626;
@@ -194,13 +194,13 @@
       font-weight: 500;
       border: 1px solid transparent;
     }
-    .tag-school   { background: #EFF6FF; color: #1D4ED8; border-color: #BFDBFE; }
+    .tag-school   { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
     .tag-private  { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
-    .tag-basic    { background: #F0FDF4; color: #15803D; border-color: #BBF7D0; }
-    .tag-premium  { background: #FAF5FF; color: #7C3AED; border-color: #DDD6FE; }
-    .tag-international { background: #FFF7ED; color: #C2410C; border-color: #FDBA74; }
-    .tag-female   { background: #FDF2F8; color: #9D174D; border-color: #FBCFE8; }
-    .tag-male     { background: #EFF6FF; color: #1E40AF; border-color: #BFDBFE; }
+    .tag-basic    { background: #FFF0F2; color: var(--primary); border-color: #FECDD3; }
+    .tag-premium  { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
+    .tag-international { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
+    .tag-female   { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
+    .tag-male     { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
     .tag-amenity  { background: #F3F4F6; color: var(--text-2); border-color: var(--border); }
 
     /* ── Floors section ── */
@@ -292,10 +292,10 @@
       border-radius: 99px;
     }
 
-    .occ-full    { background: var(--danger-bg); color: var(--danger); }
-    .occ-most    { background: var(--warning-bg); color: var(--warning); }
-    .occ-part    { background: var(--success-bg); color: var(--success); }
-    .occ-empty   { background: #F3F4F6; color: var(--text-3); }
+    .occ-full    { background: #FFF0F2; color: var(--primary); }
+    .occ-most    { background: #FFFBEB; color: #D97706; }
+    .occ-part    { background: #F3F4F6; color: #6B7280; }
+    .occ-empty   { background: #F9FAFB; color: var(--text-3); }
 
     .room-card-body { padding: 10px 14px 12px; }
 
@@ -320,9 +320,9 @@
       border-radius: 99px;
     }
 
-    .room-prog-fill.occ-high   { background: var(--danger); }
-    .room-prog-fill.occ-mid    { background: var(--warning); }
-    .room-prog-fill.occ-low    { background: var(--success); }
+    .room-prog-fill.occ-high   { background: var(--primary); }
+    .room-prog-fill.occ-mid    { background: #D97706; }
+    .room-prog-fill.occ-low    { background: #9CA3AF; }
 
     .room-prog-label { font-size: 11px; color: var(--text-3); white-space: nowrap; }
 

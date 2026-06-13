@@ -284,7 +284,14 @@ function getDormDefinitions() {
         amenities: ['WiFi', 'Bãi xe', 'Bảo vệ 24/7', 'Giặt ủi'],
         priceRange: { min: 400000, max: 720000 }, available: true, gender: 'mixed',
       },
-      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773142008/5deb042e-de1a-4ca0-8f2d-c28eae9f995f_oioewe.png',
+      imageUrl:   'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175726/01-front_unhrum.png',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175726/01-front_unhrum.png',
+      images: [
+        'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175726/01-front_unhrum.png',
+        'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175793/07-corner_uj6gfa.png',
+        'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175796/06-door_f8hxgg.png',
+      ],
+      videos: ['https://res.cloudinary.com/dysgt8t4d/video/upload/v1780934048/ktx-hust/dormitory-videos/gvssl6arhxtdt4s6vv2v.mp4'],
       floors: [
         { floorNumber: 1, rooms: buildRooms(1, [
           { type: '8-person', cap: 8, price: 420000, amenities: ['Quạt', 'Tủ cá nhân', 'Bàn học'] },
@@ -313,7 +320,14 @@ function getDormDefinitions() {
         amenities: ['WiFi tốc độ cao', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng sinh hoạt chung', 'Nhà bếp chung'],
         priceRange: { min: 560000, max: 800000 }, available: true, gender: 'mixed',
       },
-      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/main_autvkg.png',
+      imageUrl:   'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/e22ca35b-a539-47d5-9d2d-bb51945ba345_m4tu8o.png',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/e22ca35b-a539-47d5-9d2d-bb51945ba345_m4tu8o.png',
+      images: [
+        'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/e22ca35b-a539-47d5-9d2d-bb51945ba345_m4tu8o.png',
+        'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/951abc95-b43e-4ff6-a6f3-7b07786e7bc4_yhvim3.png',
+        'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781176046/4a928e90-4fb8-4b4c-be9b-b91d454d2467_yibfor.jpg',
+      ],
+      videos: ['https://res.cloudinary.com/dysgt8t4d/video/upload/v1781051760/Ultra_realistic_university_dor_d7emty.mp4'],
       floors: [
         { floorNumber: 1, rooms: buildRooms(1, [
           { type: '5-person', cap: 5, price: 620000, amenities: ['Điều hòa', 'Tủ cá nhân', 'Bàn học'] },
@@ -336,7 +350,9 @@ function getDormDefinitions() {
         amenities: ['WiFi', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng đọc sách', 'Phòng sinh hoạt nữ'],
         priceRange: { min: 350000, max: 720000 }, available: true, gender: 'female',
       },
-      imageUrl: '',
+      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1780930501/anhj_qhplyx.jpg',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1780930501/anhj_qhplyx.jpg',
+      images: ['https://res.cloudinary.com/dysgt8t4d/image/upload/v1780930501/anhj_qhplyx.jpg'],
       floors: makeFloors(5, TEMPLATE_BASIC_8),
     },
     {
@@ -349,7 +365,9 @@ function getDormDefinitions() {
         amenities: ['WiFi', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng thể thao', 'Sân bóng đá nhỏ'],
         priceRange: { min: 350000, max: 720000 }, available: true, gender: 'male',
       },
-      imageUrl: '',
+      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/right_kglglh.png',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/right_kglglh.png',
+      images: ['https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/right_kglglh.png'],
       floors: makeFloors(6, TEMPLATE_BASIC_8),
     },
     {
@@ -362,7 +380,9 @@ function getDormDefinitions() {
         amenities: ['WiFi tốc độ cao', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng sinh hoạt chung', 'Nhà bếp chung', 'Máy giặt tự động', 'Phòng gym'],
         priceRange: { min: 350000, max: 720000 }, available: true, gender: 'mixed',
       },
-      imageUrl: '',
+      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773142008/5deb042e-de1a-4ca0-8f2d-c28eae9f995f_oioewe.png',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773142008/5deb042e-de1a-4ca0-8f2d-c28eae9f995f_oioewe.png',
+      images: ['https://res.cloudinary.com/dysgt8t4d/image/upload/v1773142008/5deb042e-de1a-4ca0-8f2d-c28eae9f995f_oioewe.png'],
       floors: makeFloors(8, TEMPLATE_E5_9),
     },
     {
@@ -375,7 +395,9 @@ function getDormDefinitions() {
         amenities: ['WiFi tốc độ cao', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng sinh hoạt nữ', 'Nhà bếp chung', 'Máy giặt', 'Phòng học nhóm'],
         priceRange: { min: 380000, max: 800000 }, available: true, gender: 'female',
       },
-      imageUrl: '',
+      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1780930501/anhj_qhplyx.jpg',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1780930501/anhj_qhplyx.jpg',
+      images: ['https://res.cloudinary.com/dysgt8t4d/image/upload/v1780930501/anhj_qhplyx.jpg'],
       floors: makeFloors(7, TEMPLATE_PREMIUM_8),
     },
     {
@@ -388,7 +410,9 @@ function getDormDefinitions() {
         amenities: ['WiFi', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng sinh hoạt nam', 'Sân bóng bàn'],
         priceRange: { min: 350000, max: 720000 }, available: true, gender: 'male',
       },
-      imageUrl: '',
+      imageUrl: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/right_kglglh.png',
+      coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/right_kglglh.png',
+      images: ['https://res.cloudinary.com/dysgt8t4d/image/upload/v1773732655/right_kglglh.png'],
       floors: makeFloors(5, TEMPLATE_G7_7),
     },
   ];

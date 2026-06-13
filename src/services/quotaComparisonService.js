@@ -87,24 +87,14 @@ async function aggregateStudentsByYearGroup(referenceAcademicYear, extraMatch = 
   const academicYearStart = parseAcademicYearStart(referenceAcademicYear);
   const excludeInternationalStudents = extraMatch.excludeInternationalStudents !== false;
 
+  const VN_VALUES = [null, '', 'VN', 'Viet Nam', 'Vietnam', 'viet nam', 'vietnam',
+                     'Việt Nam', 'việt nam', 'VIỆT NAM', 'Viet nam'];
   const internationalClause = {
     $or: [
       { isInternational: true },
-      {
-        nationality: {
-          $nin: [null, '', 'VN', 'Viet Nam', 'Vietnam', 'viet nam', 'vietnam']
-        }
-      },
-      {
-        citizenship: {
-          $nin: [null, '', 'VN', 'Viet Nam', 'Vietnam', 'viet nam', 'vietnam']
-        }
-      },
-      {
-        country: {
-          $nin: [null, '', 'VN', 'Viet Nam', 'Vietnam', 'viet nam', 'vietnam']
-        }
-      }
+      { nationality:  { $nin: VN_VALUES } },
+      { citizenship:  { $nin: VN_VALUES } },
+      { country:      { $nin: VN_VALUES } }
     ]
   };
 

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#c0392b" />
+    <title>Mất kết nối – eDorm</title>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --red:     #c0392b;
+            --red-dk:  #922b21;
+            --bg:      #f5f2ee;
+            --text:    #201a17;
+            --muted:   #736660;
+            --border:  #e8e1d9;
+            --white:   #ffffff;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100dvh;
+            padding: 24px;
+            text-align: center;
+        }
+
+        /* ── Brand strip ── */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 40px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--red), var(--red-dk));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            font-weight: 800;
+        }
+
+        .brand-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -0.01em;
+        }
+
+        /* ── Illustration ── */
+        .illustration {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #fee2e2, #fecaca);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            margin-bottom: 28px;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.06); opacity: 0.85; }
+        }
+
+        /* ── Text ── */
+        h1 {
+            font-size: clamp(1.4rem, 5vw, 1.9rem);
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 10px;
+            line-height: 1.25;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 340px;
+            margin: 0 auto 32px;
+        }
+
+        /* ── Retry button ── */
+        .btn-retry {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, var(--red), var(--red-dk));
+            color: white;
+            padding: 13px 28px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.96rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+            box-shadow: 0 4px 14px rgba(192, 57, 43, 0.35);
+            text-decoration: none;
+        }
+
+        .btn-retry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(192, 57, 43, 0.4);
+        }
+
+        .btn-retry:active { transform: translateY(0); opacity: 0.9; }
+
+        .btn-retry.loading { opacity: 0.7; pointer-events: none; }
+
+        .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-retry.loading .spinner { display: block; }
+        .btn-retry.loading .btn-text::after { content: '...'; }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Status card ── */
+        .status-card {
+            margin-top: 32px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            width: 100%;
+            max-width: 340px;
+            font-size: 0.85rem;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ef4444;
+            flex-shrink: 0;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        /* ── Online detection ── */
+        body.is-online .illustration { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+        body.is-online .status-dot { background: #10b981; animation: none; }
+    </style>
+</head>
+<body>
+    <div class="brand">
+        <div class="brand-icon">e</div>
+        <span class="brand-name">eDorm</span>
+    </div>
+
+    <div class="illustration" role="img" aria-label="No internet">📡</div>
+
+    <h1>Mất kết nối mạng</h1>
+    <p class="subtitle">
+        Không thể kết nối đến máy chủ.<br />
+        Kiểm tra WiFi hoặc dữ liệu di động rồi thử lại.
+    </p>
+
+    <button class="btn-retry" id="retryBtn" onclick="handleRetry()">
+        <div class="spinner"></div>
+        <span class="btn-text">Thử kết nối lại</span>
+    </button>
+
+    <div class="status-card">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Đang mất kết nối internet</span>
+    </div>
+
+    <script>
+        const btn        = document.getElementById('retryBtn');
+        const statusDot  = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+
+        function updateOnlineStatus() {
+            if (navigator.onLine) {
+                document.body.classList.add('is-online');
+                statusText.textContent = 'Đã có kết nối! Đang chuyển hướng…';
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                document.body.classList.remove('is-online');
+                statusText.textContent = 'Đang mất kết nối internet';
+            }
+        }
+
+        function handleRetry() {
+            btn.classList.add('loading');
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    window.location.reload();
+                } else {
+                    btn.classList.remove('loading');
+                }
+            }, 1500);
+        }
+
+        window.addEventListener('online',  updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+
+        // Check on load
+        updateOnlineStatus();
+    </script>
+</body>
+</html>

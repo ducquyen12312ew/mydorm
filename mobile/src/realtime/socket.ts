@@ -1,5 +1,5 @@
 import { io, Socket } from 'socket.io-client';
-import { SOCKET_URL } from '../config';
+import { apiConfig } from '../config';
 import { TokenStore } from '../api/client';
 
 let socket: Socket | null = null;
@@ -14,7 +14,7 @@ export async function connectSocket(): Promise<Socket> {
     socket = null;
   }
 
-  socket = io(SOCKET_URL, {
+  socket = io(apiConfig.baseUrl, {
     path: '/socket.io',
     // auth as a function — called fresh on every connection attempt including reconnects
     auth: (cb: (data: Record<string, string>) => void) => {

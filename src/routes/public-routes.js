@@ -8,23 +8,6 @@ const { isAuthenticated } = require('../middleware/auth');
 // PUBLIC PAGE RENDERS
 // ============================================
 
-router.get('/map', async (req, res) => {
-    if (req.session && req.session.userId && req.session.role !== 'admin') {
-        return res.render('student/list', {
-            user: { name: req.session.name, role: req.session.role, id: req.session.userId }
-        });
-    }
-    try {
-        const dormitories = await DormitoryCollection.find({
-            $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }]
-        });
-        res.render('public/map', { dormitories: JSON.stringify(dormitories) });
-    } catch (error) {
-        logger.error('Error fetching dormitories for map', { error: error.message });
-        res.render('public/map', { dormitories: '[]' });
-    }
-});
-
 router.get('/room/:dormId/:roomId', (req, res) => {
     res.render('public/room-detail', { user: req.session.user });
 });
@@ -40,20 +23,36 @@ router.get('/dormitory/:id', async (req, res) => {
     }
 });
 
-router.get('/student/maintenance-requests', isAuthenticated, async (req, res) => {
+router.get('/vr-tour', (req, res) => {
+    res.render('student/vr-tour');
+});
+
+router.get('/vr-tour2', (req, res) => {
+    res.render('student/vr-tour2');
+});
+
+router.get('/vr-tour/b2-explore', (req, res) => {
+    res.render('student/b2-explore');
+});
+
+router.get('/notifications', isAuthenticated, async (req, res) => {
     try {
         const student = await StudentCollection.findById(req.session.userId).lean();
-        res.render('student/maintenance-requests', {
+        res.render('student/notifications', {
             student,
             user: { name: req.session.name, role: req.session.role, id: req.session.userId }
         });
     } catch (error) {
-        logger.error('Error loading student maintenance page', { error: error.message });
-        res.render('student/maintenance-requests', {
+        logger.error('Error loading notifications page', { error: error.message });
+        res.render('student/notifications', {
             student: null,
             user: { name: req.session.name, role: req.session.role, id: req.session.userId }
         });
     }
+});
+
+router.get('/student/maintenance-requests', isAuthenticated, (req, res) => {
+    res.redirect('/student/service-requests?tab=maintenance');
 });
 
 // ============================================

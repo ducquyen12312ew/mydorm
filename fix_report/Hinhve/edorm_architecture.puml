@@ -1,0 +1,215 @@
+@startuml eDorm_Architecture_Final
+
+title eDorm — HUST Dormitory Management System\nMulti-tier Client-Server Architecture
+
+top to bottom direction
+
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam defaultTextAlignment center
+skinparam defaultFontName Arial
+skinparam defaultFontSize 11
+skinparam ArrowThickness 1.5
+skinparam ArrowColor #444444
+skinparam NoteBackgroundColor #FFFFEE
+skinparam NoteBorderColor #AAAAAA
+
+skinparam package {
+    BorderColor #444444
+    FontStyle bold
+    FontSize 13
+}
+skinparam rectangle {
+    BorderColor #666666
+    BorderThickness 1.5
+    FontSize 10
+}
+skinparam database {
+    BorderColor #666666
+    BorderThickness 1.5
+    FontSize 10
+}
+
+'================================================
+' TIER 1 — PRESENTATION
+'================================================
+package "TIER 1  ·  PRESENTATION" #DAE8FC {
+    rectangle "Student Portal\n──────────────\nEJS Template Engine\nHTML / CSS / JavaScript" as STUDENT_WEB
+    rectangle "Admin Portal\n──────────────\nEJS Template Engine\nHTML / CSS / JavaScript" as ADMIN_WEB
+    rectangle "Mobile Application\n──────────────\nReact Native (Expo SDK 52)\nExpo Router · TypeScript" as MOBILE
+}
+
+'================================================
+' TIER 2 — APPLICATION (Security & Routing)
+'================================================
+package "TIER 2  ·  APPLICATION" #E1D5E7 {
+
+    rectangle "Authentication & Authorization\n──────────────────────────────────────────────\nWeb: express-session (cookie)  |  Mobile: JWT (access 15m · refresh 30d)\nOAuth 2.0 via Passport.js  ·  2FA: TOTP / Email OTP\nbcrypt · express-validator · MobileRefreshToken risk scoring" as AUTH
+
+    rectangle "Routing & Middleware Chain\n──────────────────────────────────────────────\nWeb Routes · Admin Routes · Mobile API Routes (/api/student-app/*)\nRBAC: requireAuth · requireAdmin · requireQuotaAdmin\nHelmet · express-rate-limit · express-mongo-sanitize" as ROUTER
+
+    AUTH -down-> ROUTER : validated identity / decoded token
+}
+
+'================================================
+' TIER 3 — BUSINESS LOGIC
+'================================================
+package "TIER 3  ·  BUSINESS LOGIC" #D5E8D4 {
+
+    rectangle "ALLOCATION ENGINE\n══════════════════════════════\nQuota Config (year1 · year2_3 · year4_plus)\nPolicy Evaluation\nPriority Scoring:\n  35% Geographic Distance\n  35% Financial Hardship\n  30% Priority Level\nAutomatic Room Assignment\nFairness Check (max ±10% deviation)\nCycle Management & Audit Log" as ALLOC #AADDAA
+
+    together {
+        rectangle "Registration\nManagement\n──────────────\nApplications\nAcademic Windows\nPriority Claims\nReview History" as REG
+
+        rectangle "Student\nManagement\n──────────────\nProfile & Avatar\nPriority Scoring\nQR Resident Card\nRoommate Info" as STUDENT
+
+        rectangle "Dormitory\nManagement\n──────────────\nBuildings & Rooms\n360° / VR Viewer\nMedia Upload" as DORM
+    }
+
+    together {
+        rectangle "Service\nRequests\n──────────────\nMaintenance Req.\nRoom Transfer\nRequest Tracking" as REQUEST
+
+        rectangle "Violation\nManagement\n──────────────\nViolation Records\nDisciplinary Actions\nAppeals & History" as VIOLATION
+
+        rectangle "Analytics &\nReporting\n──────────────\nOccupancy Dashboard\nAllocation Statistics\nDemand Forecasting\nEnrollment Planning\nExcel Export" as ANALYTICS
+    }
+
+    rectangle "Notification Center\n──────────────────────────────────\nIn-app · Email · Push Notifications  ·  Activity Log\nTriggered by: Allocation Result · Application Update · System Events" as NOTIFY
+
+}
+
+'================================================
+' REALTIME — embedded inside Express process
+'================================================
+package "REALTIME  (embedded in Express)" #FFE6CC {
+    rectangle "Socket.IO Server\n──────────────────────────\nEvent Namespace: /student\nJWT handshake auth\nEvents: allocation:result · notification:new\n         student:assigned · application:updated" as SOCKET
+}
+
+'================================================
+' TIER 4 — DATA
+'================================================
+package "TIER 4  ·  DATA" #F5F5F5 {
+
+    database "MongoDB Atlas\n──────────────────────────────\nStudents  ·  Applications\nDormitories  ·  Rooms\nAllocations  ·  AllocationCycles\nQuotaConfig  ·  AllocationPolicies\nViolations  ·  Notifications\nMaintenanceRequests  ·  RoomTransfers\nEnrollmentPlans  ·  DemandForecasts\nTwoFactor  ·  MobileRefreshTokens" as MONGO
+
+    database "Redis\n──────────────────────\nSession Store\n(express-session)\n─────────────────────\nSocket.IO\nCluster Adapter\n(@socket.io/redis-adapter)" as REDIS
+
+}
+
+'================================================
+' EXTERNAL SERVICES
+'================================================
+package "EXTERNAL SERVICES" #FFF2CC {
+    rectangle "Cloudinary\n────────────\nRoom Images\n360° Media\nStudent Avatars" as CLOUDINARY
+    rectangle "Google OAuth 2.0\n────────────\nSingle Sign-On\npassport-google-oauth20" as GOOGLE
+    rectangle "SMTP / Nodemailer\n────────────\nOTP · Notifications\nPassword Reset" as EMAIL
+    rectangle "Sentry\n────────────\nError Tracking\nPerf. Monitoring" as SENTRY
+}
+
+'================================================
+' T1 → T2 : Client requests
+'================================================
+STUDENT_WEB -[#2266CC]-> AUTH : HTTPS · session cookie
+ADMIN_WEB   -[#2266CC]-> AUTH : HTTPS · session cookie
+MOBILE      -[#2266CC]-> AUTH : HTTPS · JWT Bearer
+
+'================================================
+' T2 → T3 : Routing (representative — all 8 modules)
+'================================================
+ROUTER -[#555555]-> ALLOC    : route request
+ROUTER -[#555555]-> REG
+ROUTER -[#555555]-> STUDENT
+ROUTER -[#555555]-> DORM
+ROUTER -[#555555]-> NOTIFY
+ROUTER -[#555555]-> REQUEST
+ROUTER -[#555555]-> VIOLATION
+ROUTER -[#555555]-> ANALYTICS
+
+'================================================
+' T3 → T4 : Data access
+' (note: all modules read/write MongoDB)
+'================================================
+ALLOC     -[#338833]-> MONGO
+REG       -[#338833]-> MONGO
+STUDENT   -[#338833]-> MONGO
+DORM      -[#338833]-> MONGO
+NOTIFY    -[#338833]-> MONGO
+REQUEST   -[#338833]-> MONGO
+VIOLATION -[#338833]-> MONGO
+ANALYTICS -[#338833]-> MONGO : read only
+
+AUTH -[#338833]-> REDIS : session R/W
+
+note on link #F5F5F5
+  All business modules
+  perform read/write
+  on MongoDB
+end note
+
+'================================================
+' REALTIME PIPELINE
+'   Allocation / Registration
+'   → Notification Center
+'   → Socket.IO
+'   → WebSocket → Client
+'================================================
+ALLOC  -[#FF8C00]-> NOTIFY : allocation result event
+REG    -[#FF8C00]-> NOTIFY : application status event
+NOTIFY -[#FF8C00]-> SOCKET : emit realtime event
+
+SOCKET -[#338833]-> REDIS  : pub/sub cluster sync
+
+SOCKET -[#FF8C00,dashed]-> STUDENT_WEB : WebSocket push
+SOCKET -[#FF8C00,dashed]-> MOBILE      : WebSocket push
+
+'================================================
+' T3 → External Services
+'================================================
+DORM    -[#888888]-> CLOUDINARY : upload images
+STUDENT -[#888888]-> CLOUDINARY : upload avatar
+AUTH    -[#888888]-> GOOGLE     : OAuth 2.0 flow
+NOTIFY  -[#888888]-> EMAIL      : send email
+AUTH    -[#888888]-> SENTRY     : error report
+ALLOC   -[#888888]-> SENTRY     : error report
+
+'================================================
+' LAYOUT HINTS
+'================================================
+STUDENT_WEB -[hidden]right- ADMIN_WEB
+ADMIN_WEB   -[hidden]right- MOBILE
+
+AUTH    -[hidden]right- ROUTER
+
+ALLOC   -[hidden]right- REG
+REG     -[hidden]right- STUDENT
+STUDENT -[hidden]right- DORM
+
+NOTIFY  -[hidden]right- SOCKET
+
+REQUEST   -[hidden]right- VIOLATION
+VIOLATION -[hidden]right- ANALYTICS
+
+ALLOC  -[hidden]down- REQUEST
+NOTIFY -[hidden]down- MONGO
+
+MONGO  -[hidden]right- REDIS
+
+CLOUDINARY -[hidden]down- GOOGLE
+GOOGLE     -[hidden]down- EMAIL
+EMAIL      -[hidden]down- SENTRY
+
+'================================================
+' LEGEND
+'================================================
+legend right
+  |= Arrow |= Meaning |
+  | <color:#2266CC>——></color> | HTTPS Request |
+  | <color:#338833>——></color> | Database Read / Write |
+  | <color:#FF8C00>——></color> | Domain Event (Realtime) |
+  | <color:#FF8C00,dashed>- - ></color> | WebSocket Push |
+  | <color:#888888>——></color> | External Service Call |
+  | ——> | Routing / Control Flow |
+endlegend
+
+@enduml

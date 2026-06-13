@@ -8,6 +8,8 @@ import {
   Alert,
   RefreshControl,
   Linking,
+  TextInput,
+  Modal,
 } from 'react-native';
 import * as Clipboard from 'expo-clipboard';
 import { useQuery } from '@tanstack/react-query';
@@ -25,6 +27,8 @@ import { Colors } from '../../src/constants/colors';
 import { Spacing, Radius, Shadow } from '../../src/constants/spacing';
 import { FontSize, FontWeight } from '../../src/constants/typography';
 import { haptic } from '../../src/utils/haptics';
+import { apiConfig, setDevServerUrl, clearDevServerUrl } from '../../src/config';
+import { refreshApiBaseUrl } from '../../src/api/client';
 
 type IoniconsName = React.ComponentProps<typeof Ionicons>['name'];
 
@@ -67,10 +71,84 @@ function MenuItem({
   );
 }
 
+function DevServerModal({
+  visible,
+  onClose,
+}: {
+  visible: boolean;
+  onClose: () => void;
+}) {
+  const [url, setUrl] = useState(apiConfig.baseUrl);
+  const [saving, setSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!url.startsWith('http')) {
+      Alert.alert('URL không hợp lệ', 'Phải bắt đầu bằng http:// hoặc https://');
+      return;
+    }
+    setSaving(true);
+    await setDevServerUrl(url);
+    refreshApiBaseUrl();
+    setSaving(false);
+    Alert.alert('Đã lưu', `Server URL: ${url}\n\nKhởi động lại app để kết nối socket mới.`, [
+      { text: 'OK', onPress: onClose },
+    ]);
+  };
+
+  const handleReset = async () => {
+    await clearDevServerUrl();
+    refreshApiBaseUrl();
+    setUrl(apiConfig.baseUrl);
+    Alert.alert('Đã reset', `URL về mặc định: ${apiConfig.baseUrl}`, [
+      { text: 'OK', onPress: onClose },
+    ]);
+  };
+
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <View style={dev.overlay}>
+        <View style={dev.sheet}>
+          <View style={dev.sheetHeader}>
+            <Text style={dev.sheetTitle}>⚙️ Dev: Server URL</Text>
+            <TouchableOpacity onPress={onClose} hitSlop={12}>
+              <Ionicons name="close" size={22} color={Colors.text} />
+            </TouchableOpacity>
+          </View>
+          <Text style={dev.label}>Nhập ngrok URL hoặc địa chỉ backend:</Text>
+          <TextInput
+            style={dev.input}
+            value={url}
+            onChangeText={setUrl}
+            placeholder="https://abc123.ngrok-free.app"
+            placeholderTextColor={Colors.textMuted}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="url"
+          />
+          <Text style={dev.hint}>Ví dụ: https://abc123.ngrok-free.app</Text>
+          <View style={dev.btnRow}>
+            <TouchableOpacity style={[dev.btn, dev.btnReset]} onPress={handleReset}>
+              <Text style={dev.btnResetText}>Reset</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[dev.btn, dev.btnSave, saving && { opacity: 0.6 }]}
+              onPress={handleSave}
+              disabled={saving}
+            >
+              <Text style={dev.btnSaveText}>{saving ? 'Đang lưu...' : 'Lưu & áp dụng'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
+}
+
 export default function ProfileScreen() {
   const router = useRouter();
   const { user, logout } = useAuthStore();
   const [applyLoading, setApplyLoading] = useState(false);
+  const [devModalVisible, setDevModalVisible] = useState(false);
 
   const { data: profile, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['profile'],
@@ -155,6 +233,12 @@ export default function ProfileScreen() {
 
   return (
     <SafeLayout edges={['top']}>
+      {__DEV__ && (
+        <DevServerModal
+          visible={devModalVisible}
+          onClose={() => setDevModalVisible(false)}
+        />
+      )}
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -341,6 +425,7 @@ export default function ProfileScreen() {
             onPress={() => { haptic.light(); router.push('/violations'); }}
           />
           <View style={styles.menuDivider} />
+          <View style={styles.menuDivider} />
           <MenuItem
             icon="log-out-outline"
             label="Đăng xuất"
@@ -348,6 +433,30 @@ export default function ProfileScreen() {
             onPress={handleLogout}
           />
         </Card>
+
+        {/* Dev settings — only in development builds */}
+        {__DEV__ && (
+          <Card style={styles.section} padding={false}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="code-slash-outline" size={16} color={Colors.textMuted} />
+              <Text style={[styles.sectionTitle, { color: Colors.textMuted }]}>Dev Tools</Text>
+            </View>
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={() => setDevModalVisible(true)}
+              activeOpacity={0.75}
+            >
+              <View style={[styles.menuIconBox, { backgroundColor: '#FFF3E0' }]}>
+                <Ionicons name="server-outline" size={18} color="#E65100" />
+              </View>
+              <View style={styles.menuText}>
+                <Text style={styles.menuLabel}>Server URL</Text>
+                <Text style={styles.menuDesc} numberOfLines={1}>{apiConfig.baseUrl}</Text>
+              </View>
+              <Ionicons name="chevron-forward" size={16} color={Colors.textMuted} />
+            </TouchableOpacity>
+          </Card>
+        )}
       </ScrollView>
     </SafeLayout>
   );
@@ -470,4 +579,51 @@ const styles = StyleSheet.create({
   menuLabelDanger: { color: Colors.error },
   menuDesc: { fontSize: FontSize.xs, color: Colors.textMuted, marginTop: 1 },
   menuDivider: { height: 1, backgroundColor: Colors.border, marginHorizontal: Spacing.md },
+});
+
+const dev = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  sheet: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: Radius.lg,
+    borderTopRightRadius: Radius.lg,
+    padding: Spacing.lg,
+    gap: Spacing.sm,
+    paddingBottom: 40,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.sm,
+  },
+  sheetTitle: { fontSize: FontSize.lg, fontWeight: FontWeight.bold, color: Colors.text },
+  label: { fontSize: FontSize.sm, color: Colors.textSecondary, fontWeight: FontWeight.medium },
+  input: {
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    fontSize: FontSize.sm,
+    color: Colors.text,
+    backgroundColor: Colors.surface,
+  },
+  hint: { fontSize: FontSize.xs, color: Colors.textMuted },
+  btnRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
+  btn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: Radius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  btnReset: { backgroundColor: Colors.surfaceAlt, borderWidth: 1, borderColor: Colors.border },
+  btnResetText: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.textSecondary },
+  btnSave: { backgroundColor: Colors.primary },
+  btnSaveText: { fontSize: FontSize.sm, fontWeight: FontWeight.semibold, color: Colors.textInverse },
 });

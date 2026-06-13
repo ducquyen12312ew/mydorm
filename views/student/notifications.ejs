@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông báo - KTX HUST</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/student-premium-shell.css">
+    <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+        --red:     #C8102E;
+        --red-l:   #FFF1F3;
+        --green:   #059669;
+        --green-l: #ECFDF5;
+        --blue:    #4F46E5;
+        --blue-l:  #EEF2FF;
+        --amber:   #D97706;
+        --amber-l: #FFFBEB;
+        --bg:      #F4F6FB;
+        --surface: #FFFFFF;
+        --border:  #EEF0F5;
+        --t1:      #111827;
+        --t2:      #6B7280;
+        --t3:      #9CA3AF;
+        --r16:     16px;
+        --r10:     10px;
+        --sh1:     0 2px 12px rgba(0,0,0,.06);
+        --sh2:     0 6px 28px rgba(0,0,0,.09);
+    }
+
+    body { font-family:'Inter','Segoe UI',sans-serif; background:var(--bg); color:var(--t1); }
+
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin   { to{transform:rotate(360deg)} }
+    @keyframes shimmer { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
+
+    .au1{animation:fadeUp .45s cubic-bezier(.22,1,.36,1) both}
+    .au2{animation:fadeUp .45s .07s cubic-bezier(.22,1,.36,1) both}
+
+    /* PAGE */
+    .notif-page { max-width:760px; margin:0 auto; padding:1.75rem 1.25rem 5rem; }
+
+    /* HEADER */
+    .notif-pg-hd { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; margin-bottom:1.5rem; }
+    .notif-pg-title { font-size:1.25rem; font-weight:900; color:var(--t1); letter-spacing:-.02em; display:flex; align-items:center; gap:.6rem; }
+    .notif-pg-title .badge-count { font-size:.72rem; font-weight:700; padding:.22rem .6rem; border-radius:999px; background:var(--red); color:#fff; }
+    .mark-all-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.42rem 1rem; border-radius:8px; background:var(--surface); border:1.5px solid var(--border); color:var(--t2); font-size:.78rem; font-weight:700; cursor:pointer; transition:background .15s, border-color .15s, color .15s; }
+    .mark-all-btn:hover { background:var(--green-l); border-color:var(--green); color:var(--green); }
+
+    /* FILTER TABS */
+    .filter-tabs { display:flex; gap:.5rem; margin-bottom:1.25rem; flex-wrap:wrap; }
+    .ftab { padding:.38rem .9rem; border-radius:999px; font-size:.76rem; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--surface); color:var(--t2); transition:background .15s, border-color .15s, color .15s; user-select:none; }
+    .ftab.active { background:var(--t1); border-color:var(--t1); color:#fff; }
+    .ftab:hover:not(.active) { border-color:var(--t2); color:var(--t1); }
+
+    /* NOTIFICATION LIST */
+    .notif-list { display:flex; flex-direction:column; gap:.65rem; }
+
+    /* NOTIFICATION ITEM */
+    .notif-item {
+        background:var(--surface); border-radius:var(--r16);
+        border:1.5px solid var(--border); padding:1.1rem 1.25rem;
+        display:flex; align-items:flex-start; gap:1rem;
+        cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.04);
+        transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s;
+        position:relative;
+    }
+    .notif-item:hover { transform:translateY(-2px); box-shadow:var(--sh2); border-color:transparent; }
+    .notif-item.unread { border-left:3px solid var(--red); background:#FEFCFD; }
+    .notif-item.unread .notif-item-title { color:var(--t1); }
+    .notif-unread-dot {
+        position:absolute; top:1.1rem; right:1.25rem;
+        width:7px; height:7px; border-radius:50%; background:var(--red);
+    }
+    .ni-icon {
+        width:40px; height:40px; border-radius:12px; flex-shrink:0;
+        display:flex; align-items:center; justify-content:center; font-size:.9rem;
+    }
+    .ic-green  { background:var(--green-l); color:var(--green); }
+    .ic-blue   { background:var(--blue-l);  color:var(--blue);  }
+    .ic-amber  { background:var(--amber-l); color:var(--amber); }
+    .ic-red    { background:var(--red-l);   color:var(--red);   }
+    .ic-gray   { background:#F3F4F6; color:#6B7280; }
+    .notif-item-title { font-size:.88rem; font-weight:700; color:var(--t1); margin-bottom:.3rem; }
+    .notif-item-msg   { font-size:.78rem; color:var(--t2); line-height:1.55; margin-bottom:.4rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .notif-item-time  { font-size:.7rem; color:var(--t3); font-weight:500; }
+    .notif-item-type  { display:inline-flex; align-items:center; gap:.25rem; font-size:.65rem; font-weight:700; padding:.15rem .5rem; border-radius:6px; background:var(--bg); color:var(--t3); margin-left:.5rem; }
+
+    /* EMPTY STATE */
+    .notif-empty { text-align:center; padding:4rem 2rem; }
+    .notif-empty-icon { width:72px; height:72px; border-radius:50%; background:var(--surface); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:1.8rem; color:var(--t3); }
+    .notif-empty-title { font-size:1.1rem; font-weight:800; margin-bottom:.5rem; }
+    .notif-empty-sub   { font-size:.84rem; color:var(--t2); }
+
+    /* SKELETON */
+    .skel-item { background:var(--surface); border-radius:var(--r16); border:1.5px solid var(--border); padding:1.1rem 1.25rem; display:flex; gap:1rem; }
+    .skel-ico  { width:40px; height:40px; border-radius:12px; flex-shrink:0; background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%); background-size:400% 100%; animation:shimmer 1.6s infinite; }
+    .skel-body { flex:1; }
+    .skel-line { height:12px; border-radius:6px; background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%); background-size:400% 100%; animation:shimmer 1.6s infinite; margin-bottom:.6rem; }
+    .skel-line.short { width:40%; }
+    .skel-line.medium { width:65%; }
+
+    @media(max-width:600px) {
+        .notif-page { padding:1.1rem .9rem 4rem; }
+        .notif-pg-title { font-size:1.1rem; }
+    }
+    </style>
+</head>
+<body class="student-shell-page">
+<%- include('navbar', { currentPage: 'notifications', user: user, student: student }) %>
+
+<div class="notif-page">
+
+    <!-- PAGE HEADER -->
+    <div class="notif-pg-hd au1">
+        <div class="notif-pg-title">
+            <i class="fa-regular fa-bell" style="color:var(--red);font-size:1.1rem"></i>
+            <span data-i18n="notif.title">Thông báo</span>
+            <span class="badge-count" id="unreadBadge" style="display:none">0</span>
+        </div>
+        <button class="mark-all-btn" id="markAllBtn">
+            <i class="fa-solid fa-check-double"></i> <span data-i18n="notif.markAllRead">Đánh dấu đã đọc tất cả</span>
+        </button>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs au1" id="filterTabs">
+        <span class="ftab active" data-filter="all" data-i18n="notif.filterAll">Tất cả</span>
+        <span class="ftab" data-filter="unread" data-i18n="notif.filterUnread">Chưa đọc</span>
+        <span class="ftab" data-filter="allocation" data-i18n="notif.filterAllocation">Phân phòng</span>
+        <span class="ftab" data-filter="maintenance" data-i18n="notif.filterMaintenance">Bảo trì</span>
+        <span class="ftab" data-filter="announcement" data-i18n="notif.filterAnnouncement">Thông báo</span>
+    </div>
+
+    <!-- NOTIFICATION LIST -->
+    <div class="notif-list au2" id="notifList">
+        <!-- Loading skeleton -->
+        <div class="skel-item">
+            <div class="skel-ico"></div>
+            <div class="skel-body">
+                <div class="skel-line medium"></div>
+                <div class="skel-line"></div>
+                <div class="skel-line short"></div>
+            </div>
+        </div>
+        <div class="skel-item">
+            <div class="skel-ico"></div>
+            <div class="skel-body">
+                <div class="skel-line medium"></div>
+                <div class="skel-line short"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const esc = t => t==null?'':String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const dateFmt = ts => { if(!ts) return ''; const d=new Date(ts); return isNaN(d)?'':d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); };
+const relTime = ts => { if(!ts) return ''; const s=Math.floor((Date.now()-new Date(ts))/1000); if(s<60) return 'Vừa xong'; if(s<3600) return Math.floor(s/60)+' phút trước'; if(s<86400) return Math.floor(s/3600)+' giờ trước'; return dateFmt(ts); };
+
+const TYPE_ICON = {
+    allocation:'fa-house-chimney',room_assigned:'fa-door-open',
+    application:'fa-file-lines',announcement:'fa-bullhorn',
+    maintenance:'fa-screwdriver-wrench',violation:'fa-triangle-exclamation',
+    alert:'fa-bell',system:'fa-circle-info','2fa':'fa-shield-halved',
+    info:'fa-circle-info',
+};
+const TYPE_CLS = {
+    allocation:'ic-green',room_assigned:'ic-green',
+    application:'ic-blue',announcement:'ic-blue',
+    maintenance:'ic-amber',violation:'ic-red',
+    alert:'ic-amber',system:'ic-gray','2fa':'ic-blue',
+    info:'ic-blue',
+};
+const TYPE_LBL = {
+    allocation:'Phân phòng',room_assigned:'Phân phòng',application:'Đơn đăng ký',
+    announcement:'Thông báo',maintenance:'Bảo trì',violation:'Vi phạm',
+    alert:'Cảnh báo',system:'Hệ thống','2fa':'Bảo mật',info:'Thông tin',
+};
+
+let allNotifs = [];
+let currentFilter = 'all';
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadNotifications();
+
+    document.getElementById('markAllBtn').addEventListener('click', markAllRead);
+
+    document.getElementById('filterTabs').addEventListener('click', e => {
+        const tab = e.target.closest('.ftab');
+        if (!tab) return;
+        document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.dataset.filter;
+        renderList();
+    });
+});
+
+async function loadNotifications() {
+    try {
+        const r = await fetch('/api/notifications?limit=50', { credentials:'include' });
+        if (!r.ok) throw new Error('HTTP '+r.status);
+        const d = await r.json();
+        allNotifs = d.notifications || [];
+        updateUnreadBadge(d.unreadCount || allNotifs.filter(n => !n.read).length);
+        renderList();
+    } catch(e) {
+        document.getElementById('notifList').innerHTML = `
+            <div class="notif-empty">
+                <div class="notif-empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                <div class="notif-empty-title">Không tải được thông báo</div>
+                <div class="notif-empty-sub">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.</div>
+            </div>`;
+    }
+}
+
+function filterNotifs() {
+    if (currentFilter === 'all') return allNotifs;
+    if (currentFilter === 'unread') return allNotifs.filter(n => !n.read);
+    return allNotifs.filter(n => n.type === currentFilter || (n.type||'').includes(currentFilter));
+}
+
+function renderList() {
+    const list = document.getElementById('notifList');
+    const filtered = filterNotifs();
+    if (!filtered.length) {
+        list.innerHTML = `
+            <div class="notif-empty">
+                <div class="notif-empty-icon"><i class="fa-regular fa-bell-slash"></i></div>
+                <div class="notif-empty-title">${currentFilter==='unread'?'Không có thông báo chưa đọc':'Không có thông báo'}</div>
+                <div class="notif-empty-sub">Bạn đã cập nhật hết rồi!</div>
+            </div>`;
+        return;
+    }
+    list.innerHTML = filtered.map(n => {
+        const ic  = TYPE_ICON[n.type] || 'fa-circle-info';
+        const cls = TYPE_CLS[n.type]  || 'ic-gray';
+        const lbl = TYPE_LBL[n.type]  || 'Thông báo';
+        const isUnread = !n.read;
+        return `<div class="notif-item${isUnread?' unread':''}" data-id="${esc(n._id)}" data-read="${n.read?'1':'0'}">
+            ${isUnread?'<div class="notif-unread-dot"></div>':''}
+            <div class="ni-icon ${cls}"><i class="fa-solid ${ic}"></i></div>
+            <div style="flex:1;min-width:0">
+                <div class="notif-item-title">${esc(n.title||'Thông báo')}</div>
+                ${n.message?`<div class="notif-item-msg">${esc(n.message)}</div>`:''}
+                <div>
+                    <span class="notif-item-time">${relTime(n.createdAt)}</span>
+                    <span class="notif-item-type">${esc(lbl)}</span>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.notif-item').forEach(el => {
+        el.addEventListener('click', () => markRead(el));
+    });
+}
+
+async function markRead(el) {
+    const id = el.dataset.id;
+    if (el.dataset.read === '1') return;
+    el.dataset.read = '1';
+    el.classList.remove('unread');
+    const dot = el.querySelector('.notif-unread-dot');
+    if (dot) dot.remove();
+    const n = allNotifs.find(x => x._id === id || String(x._id) === id);
+    if (n) n.read = true;
+    updateUnreadBadge(allNotifs.filter(x => !x.read).length);
+    try {
+        await fetch('/api/notifications/'+id+'/read', { method:'POST', credentials:'include' });
+    } catch(e) {}
+}
+
+async function markAllRead() {
+    const btn = document.getElementById('markAllBtn');
+    btn.disabled = true;
+    try {
+        await fetch('/api/notifications/mark-all-read', { method:'POST', credentials:'include' });
+        allNotifs.forEach(n => n.read = true);
+        updateUnreadBadge(0);
+        renderList();
+    } catch(e) {}
+    btn.disabled = false;
+}
+
+function updateUnreadBadge(count) {
+    const el = document.getElementById('unreadBadge');
+    if (count > 0) { el.textContent = count > 99 ? '99+' : count; el.style.display = ''; }
+    else { el.style.display = 'none'; }
+}
+</script>
+</body>
+</html>

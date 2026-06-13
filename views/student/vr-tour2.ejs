@@ -1,0 +1,1637 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>VR Tour B2 – Ký túc xá HUST</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --brand:       #e63946;
+            --brand-glow:  rgba(230,57,70,.35);
+            --glass-bg:    rgba(10,12,18,.72);
+            --glass-bd:    rgba(255,255,255,.12);
+            --surface:     rgba(15,17,25,.90);
+            --text:        #f0f2f7;
+            --muted:       rgba(240,242,247,.6);
+            --accent:      #4fc3f7;
+            --radius:      14px;
+        }
+
+        body { font-family:'Inter',sans-serif; background:#0a0c12; color:var(--text); overflow:hidden; width:100vw; height:100vh; }
+
+        /* ── Loading ──────────────────────────────────────── */
+        #loading-screen {
+            position:fixed; inset:0; z-index:2000; background:#0a0c12;
+            display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+        }
+        .ld-logo   { font-size:2rem; font-weight:800; color:var(--brand); letter-spacing:-1px; }
+        .ld-logo span { color:var(--text); }
+        .ld-bar-wrap { width:280px; height:4px; background:rgba(255,255,255,.1); border-radius:2px; overflow:hidden; }
+        .ld-bar  { height:100%; width:0; background:var(--brand); border-radius:2px; transition:width .15s; }
+        .ld-msg  { font-size:.8rem; color:var(--muted); }
+
+        /* ── Mode Toggle (bottom-left) ──────────────────── */
+        #mode-toggle {
+            position:fixed; bottom:20px; left:20px; z-index:500;
+            background:rgba(20,20,20,.78);
+            border:1px solid rgba(255,255,255,.08);
+            backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+            border-radius:18px; padding:10px;
+            display:flex; flex-direction:column; gap:4px;
+            box-shadow:0 10px 40px rgba(0,0,0,.38);
+        }
+        .mode-opt {
+            display:flex; align-items:center; gap:11px;
+            padding:11px 16px; border-radius:11px;
+            background:none; border:1px solid transparent; cursor:pointer;
+            color:rgba(255,255,255,.55); font-size:.83rem; font-weight:600;
+            font-family:'Inter',sans-serif; transition:all .2s ease;
+            white-space:nowrap; text-align:left;
+        }
+        .mode-opt:hover {
+            color:rgba(255,255,255,.85);
+            background:rgba(255,255,255,.06);
+            border-color:rgba(255,255,255,.1);
+        }
+        .mode-opt.active {
+            color:#fff;
+            background:rgba(255,255,255,.1);
+            border-color:rgba(255,255,255,.18);
+        }
+        .mode-icon {
+            width:30px; height:30px; border-radius:8px; flex-shrink:0;
+            background:rgba(255,255,255,.07); display:flex;
+            align-items:center; justify-content:center;
+            font-size:.95rem; transition:background .2s;
+        }
+        .mode-opt.active .mode-icon { background:rgba(255,255,255,.14); }
+        .mode-opt-text { display:flex; flex-direction:column; gap:1px; }
+        .mode-opt-name { font-size:.83rem; font-weight:700; line-height:1.1; }
+        .mode-opt-desc { font-size:.66rem; font-weight:400; opacity:.55; line-height:1.2; }
+
+        /* ── Back Button ─────────────────────────────────── */
+        #back-btn {
+            position:fixed; top:20px; left:20px; z-index:500;
+            background:var(--glass-bg); border:1px solid var(--glass-bd);
+            backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+            color:var(--text); padding:10px 18px; border-radius:var(--radius);
+            cursor:pointer; font-size:.82rem; font-weight:600;
+            display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif;
+            transition:background .2s, border-color .2s;
+        }
+        #back-btn:hover { background:rgba(230,57,70,.15); border-color:var(--brand); }
+
+        /* ══════════════════════════════════════════════════
+           MATTERPORT PANEL
+           ══════════════════════════════════════════════════ */
+        #mp-panel { position:fixed; inset:0; z-index:10; }
+
+        #mp-bg {
+            position:absolute; inset:-10%;
+            background-size:cover; background-position:center; background-repeat:no-repeat;
+            will-change:transform;
+        }
+
+        #mp-vignette {
+            position:absolute; inset:0; pointer-events:none;
+            background: radial-gradient(ellipse 90% 80% at 50% 50%, transparent 55%, rgba(0,0,0,.55) 100%);
+        }
+
+        #mp-fade {
+            position:absolute; inset:0; background:#000; opacity:0;
+            pointer-events:none; transition:opacity .28s ease;
+        }
+
+        #mp-hotspots { position:absolute; inset:0; pointer-events:none; }
+
+        .mp-hs {
+            position:absolute; transform:translate(-50%,-50%);
+            width:40px; height:40px; cursor:pointer; pointer-events:all;
+        }
+        .mp-hs-ring {
+            position:absolute; inset:0; border-radius:50%;
+            background:rgba(255,255,255,.18);
+            border:2px solid rgba(255,255,255,.82);
+            box-shadow:0 0 14px rgba(255,255,255,.35), 0 3px 10px rgba(0,0,0,.45);
+            transition:transform .2s cubic-bezier(.34,1.56,.64,1), box-shadow .2s;
+            animation:mpPulse 2.8s ease-in-out infinite;
+        }
+        .mp-hs:hover .mp-hs-ring {
+            transform:scale(1.32);
+            box-shadow:0 0 24px rgba(255,255,255,.65), 0 3px 14px rgba(0,0,0,.55);
+        }
+        .mp-hs-glow {
+            position:absolute; inset:-6px; border-radius:50%;
+            border:1px solid rgba(255,255,255,.22);
+            animation:mpPulse 2.8s ease-in-out infinite .4s;
+            pointer-events:none;
+        }
+        @keyframes mpPulse {
+            0%,100% { box-shadow:0 0 12px rgba(255,255,255,.28); }
+            50%      { box-shadow:0 0 22px rgba(255,255,255,.60); }
+        }
+
+        /* ── Hotspot Debug Overlay ───────────────────────── */
+        #mp-hs-dbg {
+            position:fixed; bottom:80px; left:20px; z-index:600;
+            background:rgba(0,0,0,.85); border:1px solid rgba(0,255,100,.4);
+            border-radius:10px; padding:12px 16px;
+            font-family:'Courier New',monospace; font-size:.73rem;
+            color:#0f0; line-height:1.9; min-width:230px;
+            pointer-events:none; display:none;
+        }
+        #mp-hs-dbg.show { display:block; }
+        #mp-hs-dbg .dbh-title  { color:#fff; font-weight:700; margin-bottom:4px; }
+        #mp-hs-dbg .dbh-hint   { color:rgba(255,255,255,.5); font-size:.65rem; }
+        #mp-hs-dbg .dbh-sep    { border-top:1px solid rgba(0,255,100,.2); margin:5px 0; }
+        /* Crosshair lines */
+        #mp-hs-cx { position:fixed; top:0; bottom:0; width:1px; background:rgba(255,60,60,.6); pointer-events:none; z-index:601; display:none; }
+        #mp-hs-cy { position:fixed; left:0; right:0; height:1px; background:rgba(255,60,60,.6); pointer-events:none; z-index:601; display:none; }
+
+        #mp-node-strip {
+            position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+            z-index:500; display:flex; gap:8px; align-items:center;
+        }
+        .mp-node-dot {
+            width:8px; height:8px; border-radius:50%;
+            background:rgba(255,255,255,.35); border:1px solid rgba(255,255,255,.5);
+            cursor:pointer; transition:all .2s;
+        }
+        .mp-node-dot.active { background:#fff; width:10px; height:10px; }
+
+        /* ══════════════════════════════════════════════════
+           EXPLORE PANEL (Three.js)
+           ══════════════════════════════════════════════════ */
+        #ex-panel { position:fixed; inset:0; z-index:10; display:none; }
+
+        #three-canvas {
+            position:absolute; inset:0;
+            display:block; width:100%!important; height:100%!important;
+            cursor:none;
+        }
+
+        /* Crosshair */
+        #crosshair {
+            position:fixed; top:50%; left:50%;
+            transform:translate(-50%,-50%);
+            width:20px; height:20px; pointer-events:none; z-index:200; display:none;
+        }
+        #crosshair::before, #crosshair::after {
+            content:''; position:absolute; background:rgba(255,255,255,.85);
+        }
+        #crosshair::before { left:50%; top:4px; bottom:4px; width:1.5px; transform:translateX(-50%); }
+        #crosshair::after  { top:50%; left:4px; right:4px; height:1.5px; transform:translateY(-50%); }
+
+        /* Pointer Lock Prompt */
+        #lock-prompt {
+            position:fixed; inset:0; z-index:400; display:none;
+            flex-direction:column; align-items:center; justify-content:center; gap:16px;
+            background:rgba(10,12,18,.88); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+        }
+        #lock-prompt.show { display:flex; }
+        .lp-icon {
+            width:60px; height:60px;
+            background:rgba(230,57,70,.12); border:2px solid var(--brand); border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:1.6rem; color:var(--brand);
+            animation:lpPulse 2s ease-in-out infinite;
+        }
+        @keyframes lpPulse {
+            0%,100% { box-shadow:0 0 0 0 var(--brand-glow); }
+            50%      { box-shadow:0 0 0 14px transparent; }
+        }
+        .lp-title { font-size:1.2rem; font-weight:800; }
+        .lp-sub   { font-size:.84rem; color:var(--muted); max-width:300px; text-align:center; }
+        .lp-cta {
+            background:var(--brand); color:#fff; border:none;
+            border-radius:var(--radius); padding:12px 32px;
+            font-size:.92rem; font-weight:700; cursor:pointer;
+            box-shadow:0 4px 20px var(--brand-glow); font-family:'Inter',sans-serif;
+            transition:transform .15s, box-shadow .15s;
+        }
+        .lp-cta:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(--brand-glow); }
+
+        /* ── Shared HUD (explore) ────────────────────────── */
+        #ex-hud {
+            position:fixed; top:20px; right:170px; z-index:300;
+            display:none; flex-direction:column; gap:8px;
+        }
+        .hud-btn {
+            background:var(--glass-bg); border:1px solid var(--glass-bd);
+            backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+            color:var(--text); padding:9px 16px; border-radius:var(--radius);
+            cursor:pointer; font-size:.78rem; font-weight:600;
+            display:flex; align-items:center; gap:8px; font-family:'Inter',sans-serif;
+            transition:background .2s, border-color .2s; white-space:nowrap;
+        }
+        .hud-btn:hover { background:rgba(79,195,247,.12); border-color:var(--accent); }
+
+        /* ── Minimap ─────────────────────────────────────── */
+        #minimap-wrap {
+            position:fixed; bottom:20px; right:20px; z-index:300; display:none;
+        }
+        #minimap {
+            width:110px; height:110px; border-radius:50%;
+            border:2px solid var(--glass-bd); background:rgba(10,12,18,.85);
+            overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.5);
+        }
+        #mm-canvas { width:100%; height:100%; }
+        .mm-label { text-align:center; font-size:.62rem; color:var(--muted); margin-top:4px; letter-spacing:.5px; }
+
+        /* ── Controls Hint (explore) ────────────────────── */
+        #ex-hint {
+            position:fixed; bottom:20px; left:20px; z-index:300; display:none;
+            background:var(--glass-bg); border:1px solid var(--glass-bd);
+            backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+            border-radius:var(--radius); padding:10px 14px;
+            font-size:.72rem; color:var(--muted); line-height:1.9;
+        }
+        #ex-hint .k {
+            display:inline-block; background:rgba(255,255,255,.1);
+            border:1px solid rgba(255,255,255,.2); border-radius:4px;
+            padding:0 6px; font-size:.68rem; color:var(--text); margin:0 1px;
+        }
+        @media (max-width:640px) { #ex-hint { display:none!important; } }
+
+        /* ── Debug Coordinate Panel ──────────────────────── */
+        #debug-panel {
+            position:fixed; top:70px; left:20px; z-index:500; display:none;
+            background:rgba(0,0,0,.78); border:1px solid rgba(255,255,255,.15);
+            backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+            border-radius:10px; padding:12px 16px;
+            font-family:'Courier New',monospace; font-size:.76rem; color:#a0f0b0;
+            min-width:195px; line-height:1.85;
+        }
+        .dbg-title { font-weight:700; color:#fff; margin-bottom:3px; font-size:.8rem; letter-spacing:.5px; }
+        .dbg-row   { display:flex; justify-content:space-between; gap:14px; }
+        .dbg-k     { color:rgba(255,255,255,.5); }
+        .dbg-sep   { border-top:1px solid rgba(255,255,255,.1); margin:5px 0; }
+        #dbg-copy {
+            margin-top:8px; width:100%;
+            background:rgba(79,195,247,.12); border:1px solid rgba(79,195,247,.28);
+            color:#4fc3f7; padding:6px 10px; border-radius:6px;
+            cursor:pointer; font-size:.74rem; font-family:'Inter',sans-serif;
+            font-weight:600; transition:background .2s;
+        }
+        #dbg-copy:hover { background:rgba(79,195,247,.28); }
+
+        /* ── Mobile Joystick ─────────────────────────────── */
+        #mobile-ctrl { display:none; }
+        @media (max-width:768px) {
+            #mobile-ctrl {
+                position:fixed; bottom:28px; left:28px; z-index:400;
+            }
+            #mobile-ctrl.show { display:block; }
+            #jz-zone {
+                width:110px; height:110px; border-radius:50%;
+                background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.15);
+                position:relative;
+            }
+            #jz-thumb {
+                width:38px; height:38px; border-radius:50%;
+                background:rgba(255,255,255,.25); border:2px solid rgba(255,255,255,.5);
+                position:absolute; top:50%; left:50%;
+                transform:translate(-50%,-50%); pointer-events:none; transition:transform .05s;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Loading Screen -->
+<div id="loading-screen">
+    <div class="ld-logo">HUST<span>KTX</span></div>
+    <div style="font-size:1rem;font-weight:700">Đang tải VR Tour — Phòng B2</div>
+    <div class="ld-bar-wrap"><div class="ld-bar" id="ld-bar"></div></div>
+    <div class="ld-msg" id="ld-msg">Khởi tạo...</div>
+</div>
+
+<!-- Back Button -->
+<button id="back-btn" onclick="history.back()"><i class="fas fa-arrow-left"></i> Quay lại</button>
+
+<!-- Hotspot Debug Overlay (toggle with ` key in Matterport mode) -->
+<div id="mp-hs-dbg">
+    <div class="dbh-title">[ HS DEBUG ] <span style="color:rgba(255,255,255,.4);font-size:.65rem">nhấn ` để tắt</span></div>
+    <div class="dbh-sep"></div>
+    <div>VP: x=<span id="dbh-vx">–</span> y=<span id="dbh-vy">–</span></div>
+    <div>IMG: ix=<span id="dbh-ix">–</span> iy=<span id="dbh-iy">–</span></div>
+    <div class="dbh-sep"></div>
+    <div class="dbh-hint">Click → log coords để paste vào NODE_HOTSPOTS</div>
+    <div class="dbh-hint">imgW=<span id="dbh-iw">?</span> imgH=<span id="dbh-ih">?</span></div>
+</div>
+<div id="mp-hs-cx"></div>
+<div id="mp-hs-cy"></div>
+
+<!-- Mode Toggle -->
+<div id="mode-toggle">
+    <button class="mode-opt active" data-mode="matterport"
+            title="Di chuyển bằng các điểm đánh dấu giống tour khách sạn.">
+        <span class="mode-icon"><i class="fas fa-map-pin"></i></span>
+        <span class="mode-opt-text">
+            <span class="mode-opt-name">Tham quan nhanh</span>
+            <span class="mode-opt-desc">Điểm đánh dấu tương tác</span>
+        </span>
+    </button>
+    <button class="mode-opt" data-mode="explore"
+            title="Tự do di chuyển trong không gian 3D bằng chuột và bàn phím.">
+        <span class="mode-icon"><i class="fas fa-person-walking"></i></span>
+        <span class="mode-opt-text">
+            <span class="mode-opt-name">Khám phá tự do</span>
+            <span class="mode-opt-desc">WASD · chuột · va chạm</span>
+        </span>
+    </button>
+</div>
+
+<!-- ╔══════════════════════════════════════╗
+     ║       MATTERPORT PANEL               ║
+     ╚══════════════════════════════════════╝ -->
+<div id="mp-panel">
+    <div id="mp-bg"></div>
+    <div id="mp-vignette"></div>
+    <div id="mp-fade"></div>
+    <div id="mp-hotspots"></div>
+</div>
+<div id="mp-node-strip"></div>
+
+<!-- ╔══════════════════════════════════════╗
+     ║       EXPLORE PANEL (Three.js)        ║
+     ╚══════════════════════════════════════╝ -->
+<div id="ex-panel">
+    <canvas id="three-canvas"></canvas>
+</div>
+
+<!-- Crosshair (explore) -->
+<div id="crosshair"></div>
+
+<!-- Pointer Lock Prompt (explore) -->
+<div id="lock-prompt">
+    <div class="lp-icon"><i class="fas fa-person-walking"></i></div>
+    <div class="lp-title">Chế độ Khám Phá Tự Do</div>
+    <div class="lp-sub">Nhấp để khoá chuột và di chuyển bằng WASD</div>
+    <button class="lp-cta" id="enter-btn"><i class="fas fa-lock" style="margin-right:7px"></i>Bắt đầu khám phá</button>
+</div>
+
+<!-- Debug Coordinate Panel (Free Explore) -->
+<div id="debug-panel">
+    <div class="dbg-title">[ DEBUG ]</div>
+    <div class="dbg-row"><span class="dbg-k">X:</span> <span id="dbg-x">0.000</span></div>
+    <div class="dbg-row"><span class="dbg-k">Y:</span> <span id="dbg-y">0.000</span></div>
+    <div class="dbg-row"><span class="dbg-k">Z:</span> <span id="dbg-z">0.000</span></div>
+    <div class="dbg-sep"></div>
+    <div class="dbg-row"><span class="dbg-k">RotX:</span> <span id="dbg-rx">0.000</span></div>
+    <div class="dbg-row"><span class="dbg-k">RotY:</span> <span id="dbg-ry">0.000</span></div>
+    <div class="dbg-row"><span class="dbg-k">RotZ:</span> <span id="dbg-rz">0.000</span></div>
+    <div class="dbg-sep"></div>
+    <div class="dbg-row"><span class="dbg-k">Mode:</span> <span id="dbg-mode">Free Explore</span></div>
+    <button id="dbg-copy">📋 Copy Position</button>
+</div>
+
+<!-- HUD buttons (explore) -->
+<div id="ex-hud">
+    <button class="hud-btn" id="overview-btn"><i class="fas fa-eye"></i> Toàn cảnh</button>
+    <button class="hud-btn" id="reset-btn"><i class="fas fa-undo"></i> Đặt lại</button>
+</div>
+
+<!-- Minimap (explore) -->
+<div id="minimap-wrap">
+    <div id="minimap"><canvas id="mm-canvas" width="110" height="110"></canvas></div>
+    <div class="mm-label">BẢN ĐỒ MINI</div>
+</div>
+
+<!-- Controls hint (explore) -->
+<div id="ex-hint">
+    <span class="k">W</span><span class="k">A</span><span class="k">S</span><span class="k">D</span> Di chuyển<br>
+    <span class="k">Chuột</span> Nhìn xung quanh<br>
+    <span class="k">P</span> Log tọa độ camera<br>
+    <span class="k">Esc</span> Giải phóng chuột
+</div>
+
+<!-- Mobile joystick (explore) -->
+<div id="mobile-ctrl">
+    <div id="jz-zone"><div id="jz-thumb"></div></div>
+</div>
+
+<!-- Three.js r128 — same CDN as vr-tour.ejs -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/PointerLockControls.js"></script>
+<!-- Post-processing (r128) -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+
+<script>
+'use strict';
+
+/* ═══════════════════════════════════════════════════════════════
+   B2 — chỉ thay MODEL_URL so với vr-tour.ejs (room.glb → roomm.glb)
+   ═══════════════════════════════════════════════════════════════ */
+const MODEL_URL = '/models/roomm.glb';
+
+/* ═══════════════════════════════════════════════════════════════
+   CONSTANTS  (giữ nguyên)
+   ═══════════════════════════════════════════════════════════════ */
+
+const GROUND_Y      = -0.28;
+const PLAYER_SPEED  = 4.5;
+const PLAYER_RADIUS = 0.25;
+const FLY_DUR       = 1.0;
+const OVR_DUR       = 1.8;
+
+const MP_MAX_YAW   = 20;
+const MP_MAX_PITCH = 10;
+
+const EX_MIN_PITCH = -20 * Math.PI / 180;
+const EX_MAX_PITCH =  15 * Math.PI / 180;
+
+/* ─── MATTERPORT NODES (B2) ─────────────────────────────────── */
+const NODES = [
+    {
+        id: 'front',
+        image: '/assets/matterport/a1/front.png',
+        pos: { x:  3.608, y: GROUND_Y, z:  1.164 },
+        rot: { x: -0.22,  y:  1.284,   z:  0     }
+    },
+    {
+        id: 'toilet',
+        image: '/assets/matterport/a1/toilet.png',
+        pos: { x: -5.946, y: GROUND_Y, z:  0.284 },
+        rot: { x: -0.132, y:  1.228,   z:  0     }
+    }
+];
+
+/* ─── SPAWN POSITION (Free Explore) ─────────────────────────── */
+const SPAWN_POS = { x: 3.608, y: GROUND_Y, z: 1.164, rotX: -0.22, rotY: 1.284, rotZ: 0 };
+
+/* ─── WAYPOINTS (Free Explore hotspots) ─────────────────────── */
+const EX_WAYPOINTS = [
+    {
+        id: 'wp-bathroom',
+        hotspotPos: { x: -4.405, y: GROUND_Y, z: -0.038 },
+        flyPos:     { x: -5.946, y: GROUND_Y, z:  0.284 },
+        flyRot:     { x: -0.132, y:  1.228,   z:  0     }
+    },
+    {
+        id: 'wp-back',
+        hotspotPos: { x: -5.946, y: GROUND_Y, z:  0.284 },
+        flyPos:     { x: -4.405, y: GROUND_Y, z: -0.038 },
+        flyRot:     { x:  0.146, y:  1.708,   z:  0     }
+    }
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL STATE
+   ═══════════════════════════════════════════════════════════════ */
+
+let currentMode    = 'matterport';
+let currentNodeId  = 'front';
+let mpTransitioning = false;
+let glbReady       = false;
+let imagesReady    = false;
+
+function maybeHideLd() {
+    if (glbReady && imagesReady) {
+        setLd(100, 'Sẵn sàng!');
+        setTimeout(hideLd, 300);
+    }
+}
+
+let mpYaw = 0, mpPitch = 0, mpYawT = 0, mpPitchT = 0;
+let mpDrag = { active: false, moved: false, x: 0, y: 0 };
+
+let exFlyActive   = false;
+let exFlyElapsed  = 0;
+let exFlyDur      = FLY_DUR;
+let exFlyStartPos  = new THREE.Vector3();
+let exFlyTargetPos = new THREE.Vector3();
+let exFlyStartQ    = new THREE.Quaternion();
+let exFlyTargetQ   = new THREE.Quaternion();
+let exFlyOnDone    = null;
+let exExitToGuided = false;
+
+let exYaw = 0, exPitch = 0;
+
+const exMove    = { forward: false, backward: false, left: false, right: false };
+let   exRoomBounds = { minX: -5, maxX: 5, minZ: -6, maxZ: 5 };
+
+const exRaycaster  = new THREE.Raycaster();
+exRaycaster.far    = 6;
+let   exHoveredHs  = null;
+let   exHoveredWp  = null;
+const exInteract   = [];
+
+const mpMouseNDC = new THREE.Vector2();
+const exHotspots = [];
+const exWaypoints = [];      /* EX_WAYPOINTS 3D markers */
+let   collisionMeshes = [];  /* GLB meshes for wall raycasting */
+
+const _fwd = new THREE.Vector3();
+const _rgt = new THREE.Vector3();
+const _up  = new THREE.Vector3(0, 1, 0);
+const _sp  = new THREE.Vector3();
+
+const clock = new THREE.Clock();
+let   composer = null;   /* EffectComposer — set up after renderer */
+
+/* ═══════════════════════════════════════════════════════════════
+   DOM REFS
+   ═══════════════════════════════════════════════════════════════ */
+
+const mpPanel    = document.getElementById('mp-panel');
+const mpBg       = document.getElementById('mp-bg');
+const mpFade     = document.getElementById('mp-fade');
+const mpHsLayer  = document.getElementById('mp-hotspots');
+const mpStrip    = document.getElementById('mp-node-strip');
+const exPanel    = document.getElementById('ex-panel');
+const crosshair  = document.getElementById('crosshair');
+const lockPrompt = document.getElementById('lock-prompt');
+const exHud      = document.getElementById('ex-hud');
+const minimapWrap = document.getElementById('minimap-wrap');
+const exHint     = document.getElementById('ex-hint');
+const mobileCtr  = document.getElementById('mobile-ctrl');
+const debugPanel = document.getElementById('debug-panel');
+const mpHsDbg    = document.getElementById('mp-hs-dbg');
+const mpHsCx     = document.getElementById('mp-hs-cx');
+const mpHsCy     = document.getElementById('mp-hs-cy');
+const dbhVx = document.getElementById('dbh-vx'); const dbhVy = document.getElementById('dbh-vy');
+const dbhIx = document.getElementById('dbh-ix'); const dbhIy = document.getElementById('dbh-iy');
+const dbhIw = document.getElementById('dbh-iw'); const dbhIh = document.getElementById('dbh-ih');
+let _mpHsDebug = false;
+
+/* ═══════════════════════════════════════════════════════════════
+   LOADING HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+
+function setLd(pct, msg) {
+    document.getElementById('ld-bar').style.width = pct + '%';
+    document.getElementById('ld-msg').textContent  = msg;
+}
+
+function hideLd() {
+    const el = document.getElementById('loading-screen');
+    el.style.transition = 'opacity .6s';
+    el.style.opacity    = '0';
+    setTimeout(() => { el.style.display = 'none'; }, 650);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   THREE.JS SCENE
+   ═══════════════════════════════════════════════════════════════ */
+
+const canvas3  = document.getElementById('three-canvas');
+const renderer = new THREE.WebGLRenderer({ canvas: canvas3, antialias: true, powerPreference: 'high-performance' });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputEncoding          = THREE.sRGBEncoding;
+renderer.shadowMap.enabled       = true;
+renderer.shadowMap.type          = THREE.PCFSoftShadowMap;
+renderer.toneMapping             = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure     = 0.9;
+renderer.physicallyCorrectLights = true;
+console.log('[B2] Renderer upgraded');
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0c14);
+scene.fog = new THREE.Fog(0x0a0c14, 18, 38);
+
+const camera = new THREE.PerspectiveCamera(72, window.innerWidth / window.innerHeight, 0.05, 80);
+camera.rotation.order = 'XYZ';
+
+/* ── LIGHTING: phòng ở nội thất — trung tính, gần Blender viewport ── */
+const ambientIntensity     = 0.25;
+const hemiIntensity        = 0.45;
+const directionalIntensity = 0.80;
+const fillIntensity        = 0.30;
+
+const ambientLight = new THREE.AmbientLight(0xffffff, ambientIntensity);
+scene.add(ambientLight);
+
+const hemi = new THREE.HemisphereLight(0xfff8e1, 0x445566, hemiIntensity);
+hemi.position.set(0, 20, 0);
+scene.add(hemi);
+
+const sun = new THREE.DirectionalLight(0xfffaf0, directionalIntensity);
+sun.position.set(3, 8, 4);
+sun.castShadow              = true;
+sun.shadow.mapSize.width    = 2048;
+sun.shadow.mapSize.height   = 2048;
+sun.shadow.normalBias       = 0.05;
+sun.shadow.bias             = -0.0005;
+sun.shadow.camera.near      = 0.1;
+sun.shadow.camera.far       = 30;
+sun.shadow.camera.left      = -8;
+sun.shadow.camera.right     = 8;
+sun.shadow.camera.top       = 8;
+sun.shadow.camera.bottom    = -8;
+scene.add(sun);
+
+const fillLight = new THREE.DirectionalLight(0xe8f0ff, fillIntensity);
+fillLight.position.set(-5, 4, -4);
+scene.add(fillLight);
+
+console.log('[B2] Shadow enabled');
+console.log('[B2] Lighting', {
+    exposure: renderer.toneMappingExposure,
+    ambientIntensity,
+    hemiIntensity,
+    directionalIntensity,
+    fillIntensity
+});
+
+const controls = new THREE.PointerLockControls(camera, document.body);
+const ctrlObj  = controls.getObject ? controls.getObject() : camera;
+if (ctrlObj !== camera) scene.add(ctrlObj); else scene.add(camera);
+
+/* ── ENVIRONMENT MAP (indoor studio, không cần file HDR ngoài) ── */
+function setupEnvironment() {
+    try {
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        pmrem.compileEquirectangularShader();
+
+        // Tạo equirectangular gradient giả lập ánh sáng phòng ở
+        const ec = document.createElement('canvas');
+        ec.width = 512; ec.height = 256;
+        const ectx = ec.getContext('2d');
+
+        // Trần/bầu trời — trắng ấm dịu
+        const top = ectx.createLinearGradient(0, 0, 0, 128);
+        top.addColorStop(0,   '#cde0f5');
+        top.addColorStop(0.5, '#e6e0d6');
+        top.addColorStop(1,   '#f0ece5');
+        ectx.fillStyle = top;
+        ectx.fillRect(0, 0, 512, 128);
+
+        // Sàn/tường dưới — nâu ấm
+        const bot = ectx.createLinearGradient(0, 128, 0, 256);
+        bot.addColorStop(0,   '#d8ccb8');
+        bot.addColorStop(0.6, '#b79f82');
+        bot.addColorStop(1,   '#8a7860');
+        ectx.fillStyle = bot;
+        ectx.fillRect(0, 128, 512, 128);
+
+        // Highlight cửa sổ nhỏ
+        ectx.fillStyle = 'rgba(255,248,220,0.25)';
+        ectx.fillRect(40, 50, 120, 80);
+
+        const envTex = new THREE.CanvasTexture(ec);
+        envTex.mapping  = THREE.EquirectangularReflectionMapping;
+        envTex.encoding = THREE.sRGBEncoding;
+
+        const rt = pmrem.fromEquirectangular(envTex);
+        scene.environment = rt.texture;
+
+        envTex.dispose();
+        pmrem.dispose();
+        console.log('[B2] HDR loaded (procedural indoor studio)');
+        console.log('[B2] Environment map enabled');
+    } catch (e) {
+        console.warn('[B2] Environment setup failed:', e.message);
+    }
+}
+setupEnvironment();
+
+/* ── POST-PROCESSING: Bloom tạm thời disabled — đang gây over-exposure ── */
+function setupComposer() {
+    /* Bloom disabled: scene đang bị cháy sáng, cần tắt để so sánh với Blender */
+    composer = null;
+    console.log('[B2] Bloom disabled (over-exposure fix)');
+}
+setupComposer();
+
+/* ═══════════════════════════════════════════════════════════════
+   GLB LOADING — roomm.glb  ← SỰ THAY ĐỔI DUY NHẤT SO VỚI vr-tour.ejs
+   ═══════════════════════════════════════════════════════════════ */
+
+setLd(5, 'Đang tải mô hình 3D (roomm.glb)...');
+
+const dracoLoader = new THREE.DRACOLoader();
+dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+
+const gltfLoader = new THREE.GLTFLoader();
+gltfLoader.setDRACOLoader(dracoLoader);
+
+gltfLoader.load(
+    MODEL_URL,
+    onGLBLoaded,
+    (xhr) => {
+        if (xhr.total > 0) {
+            const pct = 5 + xhr.loaded / xhr.total * 70;
+            setLd(pct, 'Đang tải mô hình 3D... ' + Math.round(pct - 5) + '%');
+        }
+    },
+    (err) => { console.error('[B2] GLB load error:', err); }
+);
+
+function onGLBLoaded(gltf) {
+    setLd(85, 'Đang xử lý mô hình...');
+    console.log('[B2] roomm.glb loaded OK');
+
+    const model = gltf.scene;
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
+
+    model.traverse(child => {
+        if (!child.isMesh) return;
+        child.castShadow    = true;
+        child.receiveShadow = true;
+
+        if (!child.material) return;
+
+        const mats = Array.isArray(child.material) ? child.material : [child.material];
+        mats.forEach(mat => {
+            /* Chuyển BasicMaterial → StandardMaterial để nhận ánh sáng */
+            if (mat.isMeshBasicMaterial) {
+                // Phát hiện vật liệu màu trắng/sáng — tăng roughness để giữ chi tiết
+                const c = mat.color;
+                const isBright = c && (c.r + c.g + c.b) > 2.2;
+                const upgraded = new THREE.MeshStandardMaterial({
+                    map:         mat.map         || null,
+                    color:       mat.color,
+                    side:        mat.side,
+                    transparent: mat.transparent,
+                    opacity:     mat.opacity,
+                    roughness:   isBright ? 0.92 : 0.82,
+                    metalness:   0.0,
+                });
+                if (mat.map) mat.map.encoding = THREE.sRGBEncoding;
+                mat.dispose();
+                child.material = upgraded;
+                return;
+            }
+
+            /* StandardMaterial / PhysicalMaterial — nâng cấp chất lượng */
+            if (mat.isMeshStandardMaterial || mat.isMeshPhysicalMaterial) {
+                mat.envMapIntensity = 0.35;
+
+                // Vật liệu màu trắng/sáng: tăng roughness để không bị clamp
+                const c = mat.color;
+                if (c && (c.r + c.g + c.b) > 2.2) {
+                    if (mat.roughness < 0.85) mat.roughness = 0.90;
+                    mat.metalness = Math.min(mat.metalness, 0.02);
+                }
+
+                /* Anisotropy cho tất cả texture — sắc nét khi nhìn chéo */
+                const texSlots = [
+                    'map', 'normalMap', 'roughnessMap',
+                    'metalnessMap', 'aoMap', 'emissiveMap', 'bumpMap'
+                ];
+                texSlots.forEach(slot => {
+                    if (mat[slot]) {
+                        mat[slot].anisotropy = maxAniso;
+                        if (slot === 'map' || slot === 'emissiveMap') {
+                            mat[slot].encoding = THREE.sRGBEncoding;
+                        }
+                        mat[slot].needsUpdate = true;
+                    }
+                });
+                mat.needsUpdate = true;
+            }
+        });
+    });
+    scene.add(model);
+
+    const bbox = new THREE.Box3().setFromObject(model);
+    const m = 0.4;
+    exRoomBounds = { minX: bbox.min.x + m, maxX: bbox.max.x - m, minZ: bbox.min.z + m, maxZ: bbox.max.z - m };
+    console.log('[B2] Room bounds:', exRoomBounds);
+
+    /* Thu thập collision meshes để raycast va chạm tường */
+    model.traverse(child => { if (child.isMesh) collisionMeshes.push(child); });
+    console.log('[B2] Collision meshes:', collisionMeshes.length);
+
+    createExWaypoints();
+    exSpawnAtDefault();
+    glbReady = true;
+    maybeHideLd();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — WAYPOINT MARKERS (2 hotspot điều hướng)
+   ═══════════════════════════════════════════════════════════════ */
+
+function createExWaypoints() {
+    EX_WAYPOINTS.forEach((wp, idx) => {
+        const grp = new THREE.Group();
+
+        /* Vòng tròn fill mờ */
+        grp.add(new THREE.Mesh(
+            new THREE.CircleGeometry(0.22, 40),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false })
+        ));
+        /* Ring chính */
+        grp.add(new THREE.Mesh(
+            new THREE.RingGeometry(0.22, 0.30, 40),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false })
+        ));
+        /* Glow ring ngoài */
+        grp.add(new THREE.Mesh(
+            new THREE.RingGeometry(0.32, 0.42, 40),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, side: THREE.DoubleSide, depthWrite: false })
+        ));
+        /* Hit area vô hình */
+        grp.add(new THREE.Mesh(
+            new THREE.CircleGeometry(0.55, 16),
+            new THREE.MeshBasicMaterial({ visible: false, side: THREE.DoubleSide })
+        ));
+
+        grp.position.set(wp.hotspotPos.x, GROUND_Y + 0.02, wp.hotspotPos.z);
+        grp.renderOrder = 2;
+        scene.add(grp);
+
+        exWaypoints.push({ grp, wp, phase: idx * Math.PI, hovered: false });
+    });
+    console.log('[B2] Waypoints created:', exWaypoints.length);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — SPAWN / RESET
+   ═══════════════════════════════════════════════════════════════ */
+
+function exSpawnAtDefault() {
+    camera.position.set(SPAWN_POS.x, SPAWN_POS.y, SPAWN_POS.z);
+    camera.quaternion.setFromEuler(new THREE.Euler(SPAWN_POS.rotX, SPAWN_POS.rotY, SPAWN_POS.rotZ, 'YXZ'));
+    syncExAngles();
+    console.log('=== SPAWN POSITION ===', JSON.stringify(SPAWN_POS, null, 2));
+}
+
+function syncExAngles() {
+    const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+    exYaw   = e.y;
+    exPitch = Math.max(EX_MIN_PITCH, Math.min(EX_MAX_PITCH, e.x));
+}
+
+function applyExRotation() {
+    camera.quaternion.setFromEuler(new THREE.Euler(exPitch, exYaw, 0, 'YXZ'));
+}
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+    exFlyActive = false;
+    exSpawnAtDefault();
+});
+
+document.getElementById('overview-btn').addEventListener('click', () => {
+    const cx   = (exRoomBounds.minX + exRoomBounds.maxX) * .5;
+    const cz   = (exRoomBounds.minZ + exRoomBounds.maxZ) * .5;
+    const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0, 'XYZ'));
+    exFlyTo(new THREE.Vector3(cx, 5.5, cz), quat, OVR_DUR, null);
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — POINTER LOCK
+   ═══════════════════════════════════════════════════════════════ */
+
+controls.addEventListener('lock', () => {
+    lockPrompt.classList.remove('show');
+    crosshair.style.display = 'block';
+
+    // DEBUG
+    console.log('[B2] Pointer Lock: LOCKED');
+    console.log('[B2] Current mode:', currentMode);
+    console.log('[B2] WASD enabled:', controls.isLocked);
+});
+
+controls.addEventListener('unlock', () => {
+    // DEBUG
+    console.log('[B2] Pointer Lock: UNLOCKED');
+    console.log('[B2] exExitToGuided:', exExitToGuided);
+
+    if (exExitToGuided) { exExitToGuided = false; return; }
+    if (currentMode === 'explore') {
+        lockPrompt.classList.add('show');
+        crosshair.style.display = 'none';
+    }
+    exMove.forward = exMove.backward = exMove.left = exMove.right = false;
+});
+
+document.getElementById('enter-btn').addEventListener('click', () => {
+    console.log('[B2] enter-btn clicked → requesting pointer lock');
+    controls.lock();
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — KEYBOARD
+   ═══════════════════════════════════════════════════════════════ */
+
+document.addEventListener('keydown', e => {
+    /* backtick — toggle hotspot debug overlay in Matterport mode */
+    if (e.code === 'Backquote' && currentMode === 'matterport') {
+        _mpHsDebug = !_mpHsDebug;
+        mpHsDbg.classList.toggle('show', _mpHsDebug);
+        mpHsCx.style.display = _mpHsDebug ? 'block' : 'none';
+        mpHsCy.style.display = _mpHsDebug ? 'block' : 'none';
+        return;
+    }
+    // P — log camera position regardless of lock state
+    if (e.code === 'KeyP' && currentMode === 'explore') {
+        const p = camera.position;
+        const eu = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+        console.log(JSON.stringify({
+            x: parseFloat(p.x.toFixed(4)),
+            y: parseFloat(p.y.toFixed(4)),
+            z: parseFloat(p.z.toFixed(4)),
+            rotX: parseFloat(eu.x.toFixed(4)),
+            rotY: parseFloat(eu.y.toFixed(4)),
+            rotZ: parseFloat(eu.z.toFixed(4))
+        }, null, 2));
+        return;
+    }
+    if (!controls.isLocked) return;
+    switch (e.code) {
+        case 'KeyW': case 'ArrowUp':    exMove.forward  = true; break;
+        case 'KeyS': case 'ArrowDown':  exMove.backward = true; break;
+        case 'KeyA': case 'ArrowLeft':  exMove.left     = true; break;
+        case 'KeyD': case 'ArrowRight': exMove.right    = true; break;
+    }
+});
+
+document.addEventListener('keyup', e => {
+    switch (e.code) {
+        case 'KeyW': case 'ArrowUp':    exMove.forward  = false; break;
+        case 'KeyS': case 'ArrowDown':  exMove.backward = false; break;
+        case 'KeyA': case 'ArrowLeft':  exMove.left     = false; break;
+        case 'KeyD': case 'ArrowRight': exMove.right    = false; break;
+    }
+});
+
+document.addEventListener('click', () => {
+    if (currentMode !== 'explore' || !controls.isLocked || exFlyActive) return;
+    if (exHoveredWp) {
+        const { flyPos, flyRot } = exHoveredWp.wp;
+        const pos  = new THREE.Vector3(flyPos.x, flyPos.y, flyPos.z);
+        const quat = new THREE.Quaternion().setFromEuler(
+            new THREE.Euler(flyRot.x, flyRot.y, flyRot.z, 'YXZ')
+        );
+        exFlyTo(pos, quat, FLY_DUR, () => { syncExAngles(); });
+    }
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — MOVEMENT
+   ═══════════════════════════════════════════════════════════════ */
+
+const _wallRc = new THREE.Raycaster();
+const WALL_CHECK_DIST = 0.30; /* khoảng tối thiểu tới tường (m) */
+
+function canMove(originX, originZ, dirX, dirZ) {
+    if (collisionMeshes.length === 0) return true;
+    const origin = new THREE.Vector3(originX, GROUND_Y + 0.85, originZ);
+    const dir    = new THREE.Vector3(dirX, 0, dirZ).normalize();
+    _wallRc.set(origin, dir);
+    _wallRc.far = WALL_CHECK_DIST;
+    return _wallRc.intersectObjects(collisionMeshes, false).length === 0;
+}
+
+function tickExMovement(dt) {
+    if (!controls.isLocked || exFlyActive) return;
+
+    const spd = PLAYER_SPEED * dt;
+    camera.getWorldDirection(_fwd);
+    _fwd.y = 0; _fwd.normalize();
+    _rgt.crossVectors(_fwd, _up).normalize();
+
+    let dx = 0, dz = 0;
+    if (exMove.forward)  { dx += _fwd.x * spd; dz += _fwd.z * spd; }
+    if (exMove.backward) { dx -= _fwd.x * spd; dz -= _fwd.z * spd; }
+    if (exMove.right)    { dx += _rgt.x * spd; dz += _rgt.z * spd; }
+    if (exMove.left)     { dx -= _rgt.x * spd; dz -= _rgt.z * spd; }
+
+    if (dx || dz) {
+        const cx = camera.position.x, cz = camera.position.z;
+        const bnd = exRoomBounds;
+        const clampX = v => Math.max(bnd.minX + PLAYER_RADIUS, Math.min(bnd.maxX - PLAYER_RADIUS, v));
+        const clampZ = v => Math.max(bnd.minZ + PLAYER_RADIUS, Math.min(bnd.maxZ - PLAYER_RADIUS, v));
+
+        /* X axis */
+        if (dx !== 0 && canMove(cx, cz, Math.sign(dx), 0)) {
+            camera.position.x = clampX(cx + dx);
+        }
+        /* Z axis */
+        if (dz !== 0 && canMove(camera.position.x, cz, 0, Math.sign(dz))) {
+            camera.position.z = clampZ(cz + dz);
+        }
+    }
+    camera.position.y = GROUND_Y;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — FLY-TO
+   ═══════════════════════════════════════════════════════════════ */
+
+function exFlyTo(targetPos, targetQ, dur, onDone) {
+    exFlyActive  = true;
+    exFlyElapsed = 0;
+    exFlyDur     = dur || FLY_DUR;
+    exFlyOnDone  = onDone || null;
+    exFlyStartPos.copy(camera.position);
+    exFlyTargetPos.copy(targetPos);
+    exFlyStartQ.copy(camera.quaternion);
+    exFlyTargetQ.copy(targetQ);
+}
+
+function exFlyToNode(nodeId) {
+    const node = NODES.find(n => n.id === nodeId);
+    if (!node) return;
+    const pos  = new THREE.Vector3(node.pos.x, node.pos.y, node.pos.z);
+    const quat = new THREE.Quaternion().setFromEuler(new THREE.Euler(node.rot.x, node.rot.y, node.rot.z, 'XYZ'));
+    exFlyTo(pos, quat, FLY_DUR, () => { currentNodeId = nodeId; syncExAngles(); });
+}
+
+function tickExFly(dt) {
+    if (!exFlyActive) return;
+    exFlyElapsed += dt;
+    const t    = Math.min(exFlyElapsed / exFlyDur, 1);
+    const ease = t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2;
+
+    camera.position.lerpVectors(exFlyStartPos, exFlyTargetPos, ease);
+    camera.quaternion.slerpQuaternions(exFlyStartQ, exFlyTargetQ, ease);
+
+    if (t >= 1) {
+        exFlyActive = false;
+        camera.position.copy(exFlyTargetPos);
+        camera.quaternion.copy(exFlyTargetQ);
+        syncExAngles();
+        if (exFlyOnDone) { exFlyOnDone(); exFlyOnDone = null; }
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPLORE — 3D HOTSPOT TICK
+   ═══════════════════════════════════════════════════════════════ */
+
+function tickExHotspots() {
+    /* Tick 2 waypoints navigation markers */
+    const t = performance.now() * .001;
+    const rc = new THREE.Raycaster();
+    rc.setFromCamera({ x: 0, y: 0 }, camera);
+
+    exWaypoints.forEach(entry => {
+        const { grp, wp, phase } = entry;
+        grp.visible = true;
+        grp.lookAt(camera.position);
+
+        const pulse = 1 + Math.sin(t * 2.6 + phase) * 0.07;
+        const hits  = (controls.isLocked && !exFlyActive)
+            ? rc.intersectObject(grp, true) : [];
+        entry.hovered = hits.length > 0;
+        grp.scale.setScalar(pulse * (entry.hovered ? 1.32 : 1.0));
+
+        const baseO = [0.12, 0.85, 0.18];
+        grp.children.forEach((mesh, i) => {
+            if (i >= 3) return;
+            mesh.material.opacity = entry.hovered ? Math.min(1, baseO[i] * 1.6) : baseO[i];
+        });
+    });
+
+    exHoveredWp = exWaypoints.find(e => e.hovered) || null;
+    exHoveredHs = null;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MATTERPORT — NODE NAVIGATION
+   ═══════════════════════════════════════════════════════════════ */
+
+function mpGoToNode(nodeId) {
+    if (mpTransitioning || nodeId === currentNodeId) return;
+    mpTransitioning = true;
+
+    mpFade.style.opacity = '1';
+
+    setTimeout(() => {
+        currentNodeId = nodeId;
+        const node = NODES.find(n => n.id === nodeId);
+        mpBg.style.backgroundImage = `url('${node.image}')`;
+
+        mpYaw = 0; mpPitch = 0; mpYawT = 0; mpPitchT = 0;
+
+        renderMPHotspots();
+        updateMPStrip();
+        mpFade.style.opacity = '0';
+        setTimeout(() => { mpTransitioning = false; }, 280);
+    }, 280);
+}
+
+const _projV = new THREE.Vector3();
+
+function projectNodePos(fromNode, toNode) {
+    const camPos = new THREE.Vector3(fromNode.pos.x, fromNode.pos.y, fromNode.pos.z);
+    const target = new THREE.Vector3(toNode.pos.x, GROUND_Y - 0.08, toNode.pos.z);
+
+    const camQ = new THREE.Quaternion().setFromEuler(
+        new THREE.Euler(fromNode.rot.x, fromNode.rot.y, fromNode.rot.z, 'XYZ')
+    );
+
+    const worldDir = target.clone().sub(camPos);
+    const localDir = worldDir.clone().applyQuaternion(camQ.clone().invert());
+
+    if (localDir.z >= 0) return null;
+
+    const fovY = 72 * Math.PI / 180;
+    const tanH = Math.tan(fovY / 2);
+    const asp  = window.innerWidth / window.innerHeight;
+    const tanW = tanH * asp;
+
+    const ndcX =  localDir.x / (-localDir.z) / tanW;
+    const ndcY = -localDir.y / (-localDir.z) / tanH;
+
+    const sx = (ndcX *  .5 + .5) * 100;
+    const sy = (ndcY *  .5 + .5) * 100;
+
+    if (sx < 4 || sx > 96 || sy < 48 || sy > 93) return null;
+
+    return { x: sx, y: sy };
+}
+
+let NODE_HOTSPOTS = {};
+
+function buildDefaultHotspots() {
+    const result = {};
+    NODES.forEach(fromNode => {
+        result[fromNode.id] = [];
+        NODES.forEach(toNode => {
+            if (toNode.id === fromNode.id) return;
+            const pos = projectNodePos(fromNode, toNode);
+            if (!pos) return;
+            result[fromNode.id].push({
+                x: parseFloat((pos.x / 100).toFixed(4)),
+                y: parseFloat((pos.y / 100).toFixed(4)),
+                target: toNode.id
+            });
+        });
+    });
+    return result;
+}
+
+/* ─── COORDINATE CONVERSION ─────────────────────────────────
+   Hotspot coords (ix, iy) are IMAGE-NATIVE fractions (0–1 of the
+   actual image file).  We must convert to viewport fractions for
+   the hotspot layer (inset:0 = 100% viewport).
+
+   #mp-bg has inset:-10%, so it is 120%×120% of the viewport,
+   starting at (-10vw, -10vh).  CSS background-size:cover fills
+   that element; background-position:center may crop the image.
+   ─────────────────────────────────────────────────────────── */
+
+const BG_INSET = 0.10; /* matches inset:-10% on #mp-bg */
+
+function imgToVP(ix, iy, nodeId) {
+    const node = NODES.find(n => n.id === nodeId);
+    if (!node || !node._imgW || !node._imgH) return { vx: ix, vy: iy };
+
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const bgW = vw * (1 + 2 * BG_INSET);   /* 1.2 * vw */
+    const bgH = vh * (1 + 2 * BG_INSET);   /* 1.2 * vh */
+    const imgAR = node._imgW / node._imgH;
+    const bgAR  = bgW / bgH;               /* = vw/vh */
+
+    /* background-size:cover: scale so both dimensions ≥ bgW/bgH */
+    let dispW, dispH;
+    if (imgAR > bgAR) { dispH = bgH; dispW = dispH * imgAR; }   /* scale by height */
+    else              { dispW = bgW; dispH = dispW / imgAR; }   /* scale by width  */
+
+    /* background-position:center: center the scaled image in bgW×bgH */
+    const cropX = (dispW - bgW) / 2;
+    const cropY = (dispH - bgH) / 2;
+
+    /* Position of image point (ix,iy) in viewport coordinates */
+    const vpx = (-vw * BG_INSET + ix * dispW - cropX) / vw;
+    const vpy = (-vh * BG_INSET + iy * dispH - cropY) / vh;
+    return { vx: vpx, vy: vpy };
+}
+
+/* Inverse: viewport fraction → image fraction (for debug) */
+function vpToImg(vx, vy, nodeId) {
+    const node = NODES.find(n => n.id === nodeId);
+    if (!node || !node._imgW || !node._imgH) return { ix: vx, iy: vy };
+
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const bgW = vw * (1 + 2 * BG_INSET);
+    const bgH = vh * (1 + 2 * BG_INSET);
+    const imgAR = node._imgW / node._imgH;
+    const bgAR  = bgW / bgH;
+
+    let dispW, dispH;
+    if (imgAR > bgAR) { dispH = bgH; dispW = dispH * imgAR; }
+    else              { dispW = bgW; dispH = dispW / imgAR; }
+
+    const cropX = (dispW - bgW) / 2;
+    const cropY = (dispH - bgH) / 2;
+
+    return {
+        ix: (vx * vw + vw * BG_INSET + cropX) / dispW,
+        iy: (vy * vh + vh * BG_INSET + cropY) / dispH
+    };
+}
+
+function renderMPHotspots() {
+    mpHsLayer.innerHTML = '';
+    const spots = NODE_HOTSPOTS[currentNodeId];
+    if (!spots || spots.length === 0) return;
+
+    spots.forEach(hs => {
+        const { vx, vy } = imgToVP(hs.x, hs.y, currentNodeId);
+        const el = document.createElement('div');
+        el.className = 'mp-hs';
+        el.style.left = (vx * 100) + '%';
+        el.style.top  = (vy * 100) + '%';
+        el.dataset.ix = hs.x;
+        el.dataset.iy = hs.y;
+        el.innerHTML = '<div class="mp-hs-ring"></div><div class="mp-hs-glow"></div>';
+        el.setAttribute('data-target', hs.target);
+        el.addEventListener('click', (e) => { e.stopPropagation(); mpGoToNode(hs.target); });
+        mpHsLayer.appendChild(el);
+    });
+}
+
+function updateMPStrip() {
+    mpStrip.innerHTML = '';
+    NODES.forEach(node => {
+        const dot = document.createElement('div');
+        dot.className = 'mp-node-dot' + (node.id === currentNodeId ? ' active' : '');
+        dot.title = node.id;
+        dot.addEventListener('click', () => mpGoToNode(node.id));
+        mpStrip.appendChild(dot);
+    });
+}
+
+/* ─── Matterport drag-to-look (parallax) ─── */
+
+document.getElementById('mp-panel').addEventListener('mousedown', e => {
+    if (currentMode !== 'matterport') return;
+    mpDrag.active = true; mpDrag.moved = false;
+    mpDrag.x = e.clientX; mpDrag.y = e.clientY;
+    mpBg.style.cursor = 'grabbing';
+});
+
+document.addEventListener('mousemove', e => {
+    if (currentMode !== 'matterport') return;
+
+    /* ── Debug overlay update ── */
+    if (_mpHsDebug) {
+        const vx = e.clientX / window.innerWidth;
+        const vy = e.clientY / window.innerHeight;
+        const { ix, iy } = vpToImg(vx, vy, currentNodeId);
+        dbhVx.textContent = vx.toFixed(4); dbhVy.textContent = vy.toFixed(4);
+        dbhIx.textContent = ix.toFixed(4); dbhIy.textContent = iy.toFixed(4);
+        const node = NODES.find(n => n.id === currentNodeId);
+        if (node) { dbhIw.textContent = node._imgW || '?'; dbhIh.textContent = node._imgH || '?'; }
+        mpHsCx.style.left = e.clientX + 'px';
+        mpHsCy.style.top  = e.clientY + 'px';
+    }
+
+    if (!mpDrag.active) return;
+    const dx = e.clientX - mpDrag.x;
+    const dy = e.clientY - mpDrag.y;
+    if (Math.hypot(dx, dy) > 4) mpDrag.moved = true;
+    if (mpDrag.moved) {
+        mpYawT   -= dx * 0.07;
+        mpPitchT -= dy * 0.07;
+        mpYawT   = Math.max(-MP_MAX_YAW,   Math.min(MP_MAX_YAW,   mpYawT));
+        mpPitchT = Math.max(-MP_MAX_PITCH, Math.min(MP_MAX_PITCH, mpPitchT));
+        mpDrag.x = e.clientX;
+        mpDrag.y = e.clientY;
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    mpDrag.active = false; mpDrag.moved = false;
+    if (currentMode === 'matterport') mpBg.style.cursor = '';
+});
+
+/* ── Debug click: log image coordinates ── */
+document.getElementById('mp-panel').addEventListener('click', e => {
+    if (currentMode !== 'matterport' || !_mpHsDebug) return;
+    const vx = e.clientX / window.innerWidth;
+    const vy = e.clientY / window.innerHeight;
+    const { ix, iy } = vpToImg(vx, vy, currentNodeId);
+    const out = `{ nodeId:'${currentNodeId}', x:${ix.toFixed(4)}, y:${iy.toFixed(4)}, target:'' }`;
+    console.log('[HS DEBUG] Click coords →', out);
+    navigator.clipboard?.writeText(out).catch(()=>{});
+}, true);
+
+function tickMPParallax() {
+    if (currentMode !== 'matterport') return;
+
+    const lerpF = 0.10;
+    mpYaw   += (mpYawT   - mpYaw)   * lerpF;
+    mpPitch += (mpPitchT - mpPitch) * lerpF;
+
+    const maxSX = window.innerWidth  * 0.10;
+    const maxSY = window.innerHeight * 0.10;
+    const sx = -(mpYaw   / MP_MAX_YAW)   * maxSX;
+    const sy = -(mpPitch / MP_MAX_PITCH) * maxSY;
+    mpBg.style.transform      = `translate(${sx}px,${sy}px)`;
+    /* Hotspot layer tracks bg so hotspots move with the image during parallax */
+    mpHsLayer.style.transform = `translate(${sx}px,${sy}px)`;
+}
+
+let mpTouch = { active: false, x: 0, y: 0 };
+document.getElementById('mp-panel').addEventListener('touchstart', e => {
+    if (e.touches.length === 1) {
+        mpTouch.active = true; mpTouch.x = e.touches[0].clientX; mpTouch.y = e.touches[0].clientY;
+    }
+});
+document.getElementById('mp-panel').addEventListener('touchmove', e => {
+    if (!mpTouch.active || e.touches.length !== 1) return;
+    e.preventDefault();
+    const dx = e.touches[0].clientX - mpTouch.x;
+    const dy = e.touches[0].clientY - mpTouch.y;
+    mpTouch.x = e.touches[0].clientX;
+    mpTouch.y = e.touches[0].clientY;
+    mpYawT   -= dx * 0.07;
+    mpPitchT -= dy * 0.07;
+    mpYawT   = Math.max(-MP_MAX_YAW,   Math.min(MP_MAX_YAW,   mpYawT));
+    mpPitchT = Math.max(-MP_MAX_PITCH, Math.min(MP_MAX_PITCH, mpPitchT));
+}, { passive: false });
+document.getElementById('mp-panel').addEventListener('touchend', () => { mpTouch.active = false; });
+
+/* ═══════════════════════════════════════════════════════════════
+   MODE SWITCHING
+   ═══════════════════════════════════════════════════════════════ */
+
+function setMode(m) {
+    currentMode = m;
+
+    // DEBUG
+    console.log('[B2] setMode →', m);
+    console.log('[B2] Pointer Lock:', document.pointerLockElement);
+    console.log('[B2] WASD enabled (controls.isLocked):', controls.isLocked);
+
+    if (m === 'matterport') {
+        mpPanel.style.display    = '';
+        mpStrip.style.display    = '';
+        exPanel.style.display    = 'none';
+        lockPrompt.classList.remove('show');
+        crosshair.style.display  = 'none';
+        exHud.style.display      = 'none';
+        minimapWrap.style.display = 'none';
+        exHint.style.display     = 'none';
+        mobileCtr.classList.remove('show');
+        debugPanel.style.display = 'none';
+
+        if (controls.isLocked) { exExitToGuided = true; controls.unlock(); }
+
+        const nearNode = closestNode(camera.position);
+        currentNodeId = nearNode.id;
+        mpBg.style.backgroundImage = `url('${nearNode.image}')`;
+        mpYaw = 0; mpPitch = 0; mpYawT = 0; mpPitchT = 0;
+        renderMPHotspots();
+        updateMPStrip();
+
+        mpFade.style.transition = 'none';
+        mpFade.style.opacity    = '0';
+        setTimeout(() => { mpFade.style.transition = 'opacity .28s ease'; }, 50);
+
+    } else {
+        /* ── Explore ── */
+        mpPanel.style.display    = 'none';
+        mpStrip.style.display    = 'none';
+        exPanel.style.display    = 'block';
+        lockPrompt.classList.add('show');
+        exHud.style.display      = 'flex';
+        minimapWrap.style.display = 'block';
+        exHint.style.display     = 'block';
+        mobileCtr.classList.add('show');
+        debugPanel.style.display = 'block';
+
+        camera.position.set(SPAWN_POS.x, SPAWN_POS.y, SPAWN_POS.z);
+        camera.quaternion.setFromEuler(new THREE.Euler(SPAWN_POS.rotX, SPAWN_POS.rotY, SPAWN_POS.rotZ, 'YXZ'));
+        syncExAngles();
+        console.log('[B2] Explore mode — spawned at SPAWN_POS');
+    }
+
+    document.querySelectorAll('.mode-opt').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === m);
+    });
+}
+
+function closestNode(pos) {
+    let best = NODES[0], bestDist = Infinity;
+    NODES.forEach(n => {
+        const d = Math.hypot(n.pos.x - pos.x, n.pos.z - pos.z);
+        if (d < bestDist) { bestDist = d; best = n; }
+    });
+    return best;
+}
+
+document.querySelectorAll('.mode-opt').forEach(btn => {
+    btn.addEventListener('click', () => setMode(btn.dataset.mode));
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   MINIMAP
+   ═══════════════════════════════════════════════════════════════ */
+
+const mmCanvas = document.getElementById('mm-canvas');
+const mmCtx    = mmCanvas.getContext('2d');
+const MM_S     = 110;
+
+function drawMinimap() {
+    const rb = exRoomBounds;
+    const sc = Math.min((MM_S * .78) / (rb.maxX - rb.minX), (MM_S * .78) / (rb.maxZ - rb.minZ));
+    const cx = (rb.minX + rb.maxX) / 2, cz = (rb.minZ + rb.maxZ) / 2;
+    const toMM = (x, z) => ({ x: MM_S/2 + (x - cx) * sc, y: MM_S/2 + (z - cz) * sc });
+
+    mmCtx.clearRect(0, 0, MM_S, MM_S);
+    const tl = toMM(rb.minX, rb.minZ), br = toMM(rb.maxX, rb.maxZ);
+    mmCtx.strokeStyle = 'rgba(255,255,255,.2)'; mmCtx.lineWidth = 1.5;
+    mmCtx.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+
+    NODES.forEach(n => {
+        const p = toMM(n.pos.x, n.pos.z);
+        mmCtx.fillStyle = n.id === currentNodeId ? 'rgba(79,195,247,.8)' : 'rgba(255,255,255,.4)';
+        mmCtx.beginPath(); mmCtx.arc(p.x, p.y, 3.5, 0, Math.PI * 2); mmCtx.fill();
+    });
+
+    const pp = toMM(camera.position.x, camera.position.z);
+    mmCtx.fillStyle = '#e63946';
+    mmCtx.beginPath(); mmCtx.arc(pp.x, pp.y, 4.5, 0, Math.PI * 2); mmCtx.fill();
+    camera.getWorldDirection(_fwd);
+    const ang = Math.atan2(_fwd.x, _fwd.z);
+    mmCtx.strokeStyle = '#e63946'; mmCtx.lineWidth = 2;
+    mmCtx.beginPath();
+    mmCtx.moveTo(pp.x, pp.y);
+    mmCtx.lineTo(pp.x + Math.sin(ang) * 11, pp.y + Math.cos(ang) * 11);
+    mmCtx.stroke();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   DEBUG PANEL — realtime coordinate display
+   ═══════════════════════════════════════════════════════════════ */
+
+function updateDebugPanel() {
+    if (currentMode !== 'explore') return;
+    const p  = camera.position;
+    const eu = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+    document.getElementById('dbg-x').textContent  = p.x.toFixed(3);
+    document.getElementById('dbg-y').textContent  = p.y.toFixed(3);
+    document.getElementById('dbg-z').textContent  = p.z.toFixed(3);
+    document.getElementById('dbg-rx').textContent = eu.x.toFixed(3);
+    document.getElementById('dbg-ry').textContent = eu.y.toFixed(3);
+    document.getElementById('dbg-rz').textContent = eu.z.toFixed(3);
+}
+
+document.getElementById('dbg-copy').addEventListener('click', () => {
+    const p  = camera.position;
+    const eu = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+    const data = JSON.stringify({
+        x:    parseFloat(p.x.toFixed(3)),
+        y:    parseFloat(p.y.toFixed(3)),
+        z:    parseFloat(p.z.toFixed(3)),
+        rotX: parseFloat(eu.x.toFixed(3)),
+        rotY: parseFloat(eu.y.toFixed(3)),
+        rotZ: parseFloat(eu.z.toFixed(3))
+    }, null, 2);
+    navigator.clipboard.writeText(data).then(() => {
+        const btn = document.getElementById('dbg-copy');
+        const orig = btn.textContent;
+        btn.textContent = '✓ Đã copy!';
+        setTimeout(() => { btn.textContent = orig; }, 2000);
+    }).catch(() => {
+        console.log('[B2] Clipboard (fallback):', data);
+    });
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE — Joystick + touch look
+   ═══════════════════════════════════════════════════════════════ */
+
+(function initMobile() {
+    const zone  = document.getElementById('jz-zone');
+    const thumb = document.getElementById('jz-thumb');
+    if (!zone) return;
+
+    let active = false, ox = 0, oy = 0;
+    const maxR = 38;
+    zone.addEventListener('touchstart', e => {
+        e.preventDefault(); active = true;
+        const r = zone.getBoundingClientRect();
+        ox = r.left + r.width/2; oy = r.top + r.height/2;
+    }, { passive: false });
+    zone.addEventListener('touchmove', e => {
+        e.preventDefault(); if (!active) return;
+        let dx = e.touches[0].clientX - ox, dy = e.touches[0].clientY - oy;
+        const len = Math.hypot(dx, dy);
+        if (len > maxR) { dx = dx/len*maxR; dy = dy/len*maxR; }
+        thumb.style.transform = `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+        exMove.forward  = dy/maxR < -.3; exMove.backward = dy/maxR > .3;
+        exMove.left     = dx/maxR < -.3; exMove.right    = dx/maxR > .3;
+    }, { passive: false });
+    zone.addEventListener('touchend', () => {
+        active = false;
+        thumb.style.transform = 'translate(-50%,-50%)';
+        exMove.forward = exMove.backward = exMove.left = exMove.right = false;
+    });
+
+    let lookActive = false, lx = 0, ly = 0;
+    canvas3.addEventListener('touchstart', e => {
+        if (e.touches.length === 1) { lookActive = true; lx = e.touches[0].clientX; ly = e.touches[0].clientY; }
+    });
+    canvas3.addEventListener('touchmove', e => {
+        if (!lookActive || e.touches.length !== 1) return;
+        e.preventDefault();
+        const dx = (e.touches[0].clientX - lx) * .003;
+        const dy = (e.touches[0].clientY - ly) * .003;
+        lx = e.touches[0].clientX; ly = e.touches[0].clientY;
+        camera.rotation.y -= dx;
+        camera.rotation.x  = Math.max(-Math.PI/2 + .1, Math.min(Math.PI/2 - .1, camera.rotation.x - dy));
+    }, { passive: false });
+    canvas3.addEventListener('touchend', () => { lookActive = false; });
+})();
+
+/* ═══════════════════════════════════════════════════════════════
+   RESIZE
+   ═══════════════════════════════════════════════════════════════ */
+
+window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    if (composer) composer.setSize(window.innerWidth, window.innerHeight);
+    if (currentMode === 'matterport') renderMPHotspots();
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATION LOOP
+   ═══════════════════════════════════════════════════════════════ */
+
+let mmTick = 0;
+
+function animate() {
+    requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+
+    tickMPParallax();
+
+    if (currentMode === 'explore') {
+        tickExFly(dt);
+        tickExMovement(dt);
+        if (glbReady) tickExHotspots();
+
+        updateDebugPanel();
+
+        mmTick += dt;
+        if (mmTick > 0.05) { drawMinimap(); mmTick = 0; }
+
+        /* Dùng composer nếu có (post-processing), fallback renderer */
+        if (composer) composer.render();
+        else renderer.render(scene, camera);
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   INIT
+   ═══════════════════════════════════════════════════════════════ */
+
+(function init() {
+    const firstNode = NODES[0];
+    mpBg.style.backgroundImage = `url('${firstNode.image}')`;
+    mpFade.style.transition = 'opacity .28s ease';
+
+    exPanel.style.display      = 'none';
+    mpStrip.style.display      = '';
+    exHud.style.display        = 'none';
+    minimapWrap.style.display  = 'none';
+    exHint.style.display       = 'none';
+    lockPrompt.classList.remove('show');
+
+    /* B2 Matterport — 1 hotspot duy nhất: front → toilet (vị trí cánh cửa) */
+    NODE_HOTSPOTS = {
+        'front':  [{ x: 0.38, y: 0.70, target: 'toilet' }],
+        'toilet': []
+    };
+
+    renderMPHotspots();
+    updateMPStrip();
+
+    setLd(15, 'Đang tải ảnh chất lượng cao...');
+
+    let loaded = 0;
+    NODES.forEach(n => {
+        const img = new Image();
+        img.onload = () => {
+            n._imgW = img.naturalWidth;
+            n._imgH = img.naturalHeight;
+            loaded++;
+            if (loaded === NODES.length) {
+                imagesReady = true;
+                maybeHideLd();
+                /* re-render hotspots with correct dimensions */
+                if (currentMode === 'matterport') renderMPHotspots();
+            }
+        };
+        img.onerror = () => { loaded++; if (loaded === NODES.length) { imagesReady = true; maybeHideLd(); } };
+        img.src = n.image;
+    });
+
+    animate();
+})();
+</script>
+</body>
+</html>

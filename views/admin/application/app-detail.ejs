@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi Tiết Đơn Đăng Ký - KTX HUST</title>
+    <title>Chi Tiết Đơn Đăng Ký — Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * {
@@ -15,7 +15,7 @@
         :root {
             --primary: #d63031;
             --primary-dark: #b71c1c;
-            --success: #059669;
+            --success: #374151;
             --warning: #d97706;
             --danger: #dc2626;
             --text-dark: #1a2332;
@@ -234,7 +234,7 @@
         }
 
         .badge-pending  { background: #fffbeb; color: #92400e; border-color: #fde68a; }
-        .badge-approved { background: #ecfdf5; color: #065f46; border-color: #a7f3d0; }
+        .badge-approved { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
         .badge-rejected { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
 
         .priority-box {
@@ -503,10 +503,10 @@
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-info-circle"></i> Trạng Thái</div>
                         <div class="info-value">
-                            <% 
+                            <%
                             let badgeClass = 'badge-pending';
                             let statusText = 'Chờ Duyệt';
-                            if (application.status === 'approved_waiting_payment' || application.status === 'approved') {
+                            if (application.status === 'approved' || application.status === 'assigned_room') {
                                 badgeClass = 'badge-approved';
                                 statusText = 'Đã Duyệt';
                             } else if (application.status === 'rejected') {
@@ -524,17 +524,6 @@
                         <div class="info-label"><i class="fas fa-clock"></i> Ngày Nộp</div>
                         <div class="info-value"><%= new Date(application.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></div>
                     </div>
-                    <% if (application.payment && application.payment.paid) { %>
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-credit-card"></i> Thanh Toán</div>
-                        <div class="info-value">
-                            <span class="badge badge-approved">
-                                <i class="fas fa-check-circle"></i>
-                                Đã Thanh Toán
-                            </span>
-                        </div>
-                    </div>
-                    <% } %>
                 </div>
             </div>
         </div>

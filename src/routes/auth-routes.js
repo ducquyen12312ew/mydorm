@@ -1,21 +1,234 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 const { StudentCollection, DormitoryCollection, PendingApplicationCollection } = require('../config/config');
 const { sendNotificationOnEvent } = require('../utils/notificationHelper');
 const { logger, logSecurityEvent } = require('../config/logger');
 const { authLimiter, loginLimiter } = require('../middleware/security');
 const { isAuthenticated } = require('../middleware/auth');
+const passport = require('../config/passport');
+const { sendVerificationEmail, sendWelcomeEmail } = require('../services/emailService');
+
+const ALLOWED_DOMAIN = 'sis.hust.edu.vn';
+const ALLOWED_EMAIL_SUFFIX = '@' + ALLOWED_DOMAIN;
 
 // ============================================
 // AUTH PAGE RENDERS
 // ============================================
 
-router.get('/login', (req, res) => res.render('auth/login'));
+router.get('/login', (req, res) => {
+    const oauthError = req.session.oauthError || null;
+    const success = req.session.oauthSuccess || null;
+    delete req.session.oauthError;
+    delete req.session.oauthSuccess;
+    res.render('auth/login', { oauthError, success });
+});
+
+// Signup now redirects to onboarding or shows info page
 router.get('/signup', (req, res) => res.render('auth/signup'));
+
+// ============================================
+// GOOGLE OAUTH
+// ============================================
+
+router.get('/auth/google',
+    passport.authenticate('google', { scope: ['profile', 'email'], hostedDomain: ALLOWED_DOMAIN })
+);
+
+router.get('/auth/google/callback',
+    (req, res, next) => {
+        passport.authenticate('google', { session: false }, (err, result, info) => {
+            if (err) {
+                logger.error('Google OAuth callback error', { error: err.message });
+                req.session.oauthError = 'Đăng nhập Google thất bại. Vui lòng thử lại.';
+                return res.redirect('/login');
+            }
+            if (!result) {
+                req.session.oauthError = (info && info.message) || `Chỉ chấp nhận email @${ALLOWED_DOMAIN}.`;
+                return res.redirect('/login');
+            }
+            if (result.isNew) {
+                req.session.oauthPending = result;
+                return res.redirect('/auth/onboarding');
+            }
+            const { student } = result;
+            req.session.userId = student._id;
+            req.session.name = student.name;
+            req.session.role = student.role;
+            req.session.isSuperAdmin = student.isSuperAdmin === true;
+            req.session.studentId = student.studentId;
+            logSecurityEvent(student._id, 'LOGIN_GOOGLE', { ip: req.ip });
+            req.session.save(() => res.redirect(student.role === 'admin' ? '/admin/dormitories' : '/'));
+        })(req, res, next);
+    }
+);
+
+// ============================================
+// MICROSOFT OAUTH
+// ============================================
+
+router.get('/auth/microsoft', (req, res, next) => {
+    const hint = req.query.hint || '';
+    if (hint && !hint.toLowerCase().endsWith(ALLOWED_EMAIL_SUFFIX)) {
+        req.session.oauthError = `Chỉ chấp nhận email @${ALLOWED_DOMAIN}. Vui lòng dùng email trường của bạn.`;
+        return res.redirect('/login');
+    }
+    const options = { session: false };
+    if (hint) options.login_hint = hint;
+    passport.authenticate('microsoft', options)(req, res, next);
+});
+
+router.get('/auth/microsoft/callback',
+    (req, res, next) => {
+        passport.authenticate('microsoft', { session: false }, (err, result, info) => {
+            if (err) {
+                logger.error('Microsoft OAuth callback error', { error: err.message });
+                req.session.oauthError = 'Đăng nhập Microsoft thất bại. Vui lòng thử lại.';
+                return res.redirect('/login');
+            }
+            if (!result) {
+                req.session.oauthError = (info && info.message) || `Chỉ chấp nhận email @${ALLOWED_DOMAIN}.`;
+                return res.redirect('/login');
+            }
+            if (result.isNew) {
+                req.session.oauthPending = result;
+                return res.redirect('/auth/onboarding');
+            }
+            const { student } = result;
+            req.session.userId = student._id;
+            req.session.name = student.name;
+            req.session.role = student.role;
+            req.session.isSuperAdmin = student.isSuperAdmin === true;
+            req.session.studentId = student.studentId;
+            logSecurityEvent(student._id, 'LOGIN_MICROSOFT', { ip: req.ip });
+            req.session.save(() => res.redirect(student.role === 'admin' ? '/admin/dormitories' : '/'));
+        })(req, res, next);
+    }
+);
+
+// ============================================
+// ONBOARDING (after first OAuth login)
+// ============================================
+
+router.get('/auth/onboarding', (req, res) => {
+    if (!req.session.oauthPending) return res.redirect('/login');
+    const { email, name, oauthProvider } = req.session.oauthPending;
+    res.render('auth/onboarding', { email, name, oauthProvider, error: null });
+});
+
+router.post('/auth/onboarding', authLimiter, async (req, res) => {
+    if (!req.session.oauthPending) return res.redirect('/login');
+
+    const pending = req.session.oauthPending;
+    const { studentId, name, phone, gender, faculty, academicYear } = req.body;
+
+    if (!studentId || !name) {
+        return res.render('auth/onboarding', {
+            email: pending.email,
+            name: pending.name,
+            oauthProvider: pending.oauthProvider,
+            error: 'Vui lòng điền đầy đủ MSSV và họ tên.'
+        });
+    }
+
+    // Validate @sis.hust.edu.vn
+    if (!pending.email.endsWith(ALLOWED_EMAIL_SUFFIX)) {
+        delete req.session.oauthPending;
+        req.session.oauthError = `Chỉ chấp nhận email @${ALLOWED_DOMAIN}.`;
+        return res.redirect('/login');
+    }
+
+    try {
+        const existing = await StudentCollection.findOne({
+            $or: [{ studentId }, { email: pending.email }]
+        });
+        if (existing) {
+            return res.render('auth/onboarding', {
+                email: pending.email,
+                name,
+                oauthProvider: pending.oauthProvider,
+                error: existing.studentId === studentId
+                    ? 'MSSV này đã được đăng ký. Liên hệ quản trị viên nếu có vấn đề.'
+                    : 'Email này đã được đăng ký. Hãy đăng nhập bình thường.'
+            });
+        }
+
+        const verifyToken = crypto.randomBytes(32).toString('hex');
+        const randomPass = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+
+        const student = await StudentCollection.create({
+            username: pending.email,
+            password: randomPass,
+            name,
+            email: pending.email,
+            phone,
+            studentId,
+            gender,
+            faculty,
+            academicYear,
+            oauthProvider: pending.oauthProvider,
+            oauthId: pending.oauthId,
+            emailVerified: true,   // OAuth provider already verified the email
+            onboardingComplete: true,
+            role: 'user'
+        });
+
+        delete req.session.oauthPending;
+
+        // Send welcome email (non-blocking, best-effort)
+        sendWelcomeEmail(student.email, student.name).catch(e =>
+            logger.warn('Welcome email send failed (non-fatal)', { error: e.message })
+        );
+
+        req.session.userId = student._id;
+        req.session.name = student.name;
+        req.session.role = student.role;
+        req.session.studentId = student.studentId;
+
+        // Non-blocking welcome notification
+        sendNotificationOnEvent('welcome', student._id, { name: student.name }).catch(e =>
+            logger.warn('Welcome notification failed (non-fatal)', { error: e.message })
+        );
+        logSecurityEvent(student._id, 'REGISTER_OAUTH', { provider: pending.oauthProvider, ip: req.ip });
+
+        req.session.save(() => res.redirect('/'));
+    } catch (err) {
+        logger.error('Onboarding error', { error: err.message });
+        res.render('auth/onboarding', {
+            email: pending.email,
+            name,
+            oauthProvider: pending.oauthProvider,
+            error: 'Có lỗi xảy ra. Vui lòng thử lại.'
+        });
+    }
+});
+
+// ============================================
+// EMAIL VERIFICATION
+// ============================================
+
+router.get('/auth/verify-email', async (req, res) => {
+    // Token-based verification is simplified: mark as verified
+    // In production, store token in DB and validate here
+    res.render('auth/verify-email', { verified: true });
+});
 router.get('/forgot-password', (req, res) => res.render('auth/forgot-password'));
 
-router.get('/logout', (req, res) => {
+router.get('/logout', async (req, res) => {
+    const userId = req.session?.userId;
+    const username = req.session?.username;
+
+    // Archive simulation workspace for admintest on logout
+    if (username === 'admintest' && userId) {
+        try {
+            const SimulationWorkspaceService = require('../services/simulationWorkspaceService');
+            await SimulationWorkspaceService.archiveExistingWorkspaces(userId);
+        } catch (err) {
+            logger.warn('Failed to archive simulation workspace on logout', { error: err.message });
+        }
+    }
+
     req.session.destroy();
     res.redirect('/login');
 });
@@ -28,33 +241,52 @@ router.post('/signup', authLimiter, async (req, res) => {
     try {
         const { username, password, name, email, phone, studentId, gender, faculty, academicYear } = req.body;
 
-        const existingUser = await StudentCollection.findOne({ username });
+        // ── MSSV validation (backend, required) ──
+        if (!studentId || !studentId.trim()) {
+            return res.render('auth/signup', { error: 'Vui lòng nhập mã số sinh viên.' });
+        }
+        if (!/^\d{8}$/.test(studentId.trim())) {
+            return res.render('auth/signup', { error: 'Mã số sinh viên không hợp lệ. Vui lòng nhập đúng 8 chữ số.' });
+        }
+        if (!name || !name.trim()) {
+            return res.render('auth/signup', { error: 'Vui lòng nhập họ tên.' });
+        }
+        if (!password || password.length < 8) {
+            return res.render('auth/signup', { error: 'Mật khẩu phải có ít nhất 8 ký tự.' });
+        }
+
+        // ── Duplicate MSSV check ──
+        const existingStudentId = await StudentCollection.findOne({ studentId: studentId.trim() });
+        if (existingStudentId) {
+            return res.render('auth/signup', { error: 'Mã số sinh viên đã được sử dụng.' });
+        }
+
+        // For manual signup: username = studentId
+        const resolvedUsername = username || studentId.trim();
+        const existingUser = await StudentCollection.findOne({ username: resolvedUsername });
         if (existingUser) {
-            return res.render('auth/signup', {
-                error: 'Tên đăng nhập đã tồn tại. Vui lòng chọn tên đăng nhập khác.'
-            });
+            return res.render('auth/signup', { error: 'Tên đăng nhập đã tồn tại. Vui lòng chọn tên đăng nhập khác.' });
         }
 
         if (email) {
             const existingEmail = await StudentCollection.findOne({ email });
             if (existingEmail) {
-                return res.render('auth/signup', {
-                    error: 'Email đã được sử dụng. Vui lòng sử dụng email khác.'
-                });
+                return res.render('auth/signup', { error: 'Email đã được sử dụng. Vui lòng sử dụng email khác.' });
             }
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
         const newStudent = await StudentCollection.create({
-            username, password: hashedPassword, name, email, phone,
-            studentId, gender, faculty, academicYear, role: 'user'
+            username: resolvedUsername, password: hashedPassword, name: name.trim(), email, phone,
+            studentId: studentId.trim(), gender, faculty, academicYear, role: 'user'
         });
 
         req.session.userId = newStudent._id;
         req.session.name = newStudent.name;
         req.session.role = newStudent.role;
+        req.session.studentId = newStudent.studentId;
 
-        await sendNotificationOnEvent('welcome', newStudent._id, { name: newStudent.name });
+        await sendNotificationOnEvent('welcome', newStudent._id, { name: newStudent.name }).catch(() => {});
         res.redirect('/');
     } catch (error) {
         logger.error('Error during signup', { error: error.message });
@@ -92,7 +324,9 @@ router.post('/login', loginLimiter, async (req, res) => {
             req.session.tempUserId = student._id;
             req.session.tempName = student.name;
             req.session.tempRole = student.role;
+            req.session.tempIsSuperAdmin = student.isSuperAdmin === true;
             req.session.tempStudentId = student.studentId;
+            req.session.tempUsername = student.username;
             req.session.tempRemember = remember;
             logSecurityEvent(student._id, 'LOGIN_2FA_REQUIRED', { ip: req.ip });
             return res.render('auth/2fa-login', {
@@ -103,7 +337,9 @@ router.post('/login', loginLimiter, async (req, res) => {
         req.session.userId = student._id;
         req.session.name = student.name;
         req.session.role = student.role;
+        req.session.isSuperAdmin = student.isSuperAdmin === true;
         req.session.studentId = student.studentId;
+        req.session.username = student.username;
         if (remember) {
             req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30;
         }
@@ -191,13 +427,16 @@ router.post('/api/auth/verify-2fa', async (req, res) => {
         req.session.userId = req.session.tempUserId;
         req.session.name = req.session.tempName;
         req.session.role = req.session.tempRole;
+        req.session.isSuperAdmin = req.session.tempIsSuperAdmin === true;
         req.session.studentId = req.session.tempStudentId;
+        req.session.username = req.session.tempUsername;
 
         const tempRemember = req.session.tempRemember;
         delete req.session.tempUserId;
         delete req.session.tempName;
         delete req.session.tempRole;
         delete req.session.tempStudentId;
+        delete req.session.tempUsername;
         delete req.session.tempRemember;
 
         if (tempRemember) {

@@ -1,101 +1,413 @@
-<!-- Navbar chung cho tất cả trang Student -->
+<!-- Navbar chung cho tất cả trang Student — cấu trúc giống startup home -->
 <header class="header">
-    <div class="header-content">
-        <div class="header-logo">
-            <img src="/image/logo.png" alt="HUST Logo" class="logo">
-        </div>
-        <div class="menu-toggle" id="menuToggle">
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-        <div class="nav-container" id="navContainer">
-            <nav class="nav-links">
-                <a href="/" class="nav-link <%= currentPage === 'home' ? 'active-link' : '' %>">TRANG CHỦ</a>
-                <a href="/map" class="nav-link <%= currentPage === 'map' || currentPage === 'list' ? 'active-link' : '' %>">DANH SÁCH</a>
-                <a href="/register" class="nav-link <%= currentPage === 'register' ? 'active-link' : '' %>">ĐĂNG KÝ PHÒNG</a>
-                <a href="/room-status" class="nav-link <%= currentPage === 'room-status' ? 'active-link' : '' %>">TRẠNG THÁI PHÒNG</a>
-                <a href="/student/maintenance-requests" class="nav-link <%= currentPage === 'maintenance' ? 'active-link' : '' %>">BẢO TRÌ</a>
-            </nav>
-            
-            <!-- User profile dropdown -->
+    <div class="header-logo">
+        <a href="/" style="display:flex;align-items:center;text-decoration:none;">
+            <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png"
+                 alt="eDorm Logo"
+                 style="max-height:38px;width:auto;object-fit:contain;image-rendering:-webkit-optimize-contrast;" />
+        </a>
+    </div>
+    <div class="menu-toggle" id="menuToggle">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="nav-container" id="navContainer">
+        <nav class="nav-links">
+            <a href="/" class="nav-link <%= currentPage === 'home' ? 'active-link' : '' %>" data-i18n="nav.home">TRANG CHỦ</a>
+            <a href="/register" class="nav-link <%= currentPage === 'register' ? 'active-link' : '' %>" data-i18n="nav.register">ĐĂNG KÝ PHÒNG</a>
+            <a href="/room-status" class="nav-link <%= currentPage === 'room-status' ? 'active-link' : '' %>" data-i18n="nav.roomStatus">TRẠNG THÁI PHÒNG</a>
+            <a href="/student/service-requests" class="nav-link <%= (currentPage === 'service-requests' || currentPage === 'maintenance' || currentPage === 'room-transfer') ? 'active-link' : '' %>">GỬI YÊU CẦU</a>
+        </nav>
+
+        <!-- User area: Bell + Avatar grouped together on the right -->
+        <div class="nav-user-area">
+            <!-- Notification Bell -->
+            <div class="nav-notif-wrap" id="navNotifWrap">
+                <button class="nav-notif-btn" id="navNotifBtn" aria-label="Thông báo" title="Thông báo">
+                    <i class="fa-regular fa-bell"></i>
+                    <span class="nav-notif-badge" id="navNotifBadge" hidden>0</span>
+                </button>
+                <!-- Panel uses fixed positioning (set by JS) to escape overflow:hidden on parents -->
+                <div class="nav-notif-panel" id="navNotifPanel" style="display:none">
+                    <div class="nav-notif-head">
+                        <span class="nav-notif-title"><i class="fa-solid fa-bell" style="color:#C8102E;margin-right:.35rem"></i>Thông báo</span>
+                        <button class="nav-notif-readall" id="navNotifReadAll">Đọc tất cả</button>
+                    </div>
+                    <div class="nav-notif-list" id="navNotifList">
+                        <div class="nav-notif-empty"><i class="fa-regular fa-bell-slash" style="font-size:1.4rem;display:block;margin-bottom:.4rem"></i>Đang tải...</div>
+                    </div>
+                    <a href="/notifications" class="nav-notif-viewall">Xem tất cả thông báo →</a>
+                </div>
+            </div>
+
             <div class="user-profile">
-                <a href="/profile" class="avatar-container" title="Xem hồ sơ">
+                <div class="avatar-container" id="navAvatarBtn">
                     <div class="avatar"><%= (user && user.name) ? user.name.trim().charAt(0).toUpperCase() : (student && student.name) ? student.name.trim().charAt(0).toUpperCase() : 'U' %></div>
                     <span class="user-name"><%= (user && user.name) ? user.name : (student && student.name) ? student.name : 'Người dùng' %></span>
-                </a>
-                <div class="dropdown-menu">
+                    <i class="fas fa-chevron-down" style="font-size:.7rem;opacity:.55;margin-left:2px"></i>
+                </div>
+                <div class="dropdown-menu" id="navDropdown">
                     <a href="/profile" class="dropdown-item">
-                        <i class="fas fa-user-circle"></i> Hồ sơ
+                        <i class="fas fa-user-circle"></i> <span data-i18n="nav.profile">Hồ sơ</span>
                     </a>
-                    <a href="/logout" class="dropdown-item">
-                        <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    <a href="/notifications" class="dropdown-item">
+                        <i class="fas fa-bell"></i> <span data-i18n="nav.notifications">Thông báo</span>
+                    </a>
+                    <div class="dropdown-item dropdown-item--lang" id="navLangToggle">
+                        <i class="fas fa-globe"></i>
+                        <span data-i18n="nav.language">Ngôn ngữ</span>
+                        <i class="fas fa-chevron-right" style="margin-left:auto;font-size:.65rem;opacity:.55"></i>
+                        <div class="lang-submenu" id="navLangSubmenu">
+                            <button class="lang-opt" data-lang-opt="vi">🇻🇳 Tiếng Việt</button>
+                            <button class="lang-opt" data-lang-opt="en">🇺🇸 English</button>
+                            <button class="lang-opt" data-lang-opt="zh">🇨🇳 中文</button>
+                            <button class="lang-opt" data-lang-opt="ko">🇰🇷 한국어</button>
+                            <button class="lang-opt" data-lang-opt="ru">🇷🇺 Русский</button>
+                            <button class="lang-opt" data-lang-opt="th">🇹🇭 ไทย</button>
+                            <button class="lang-opt" data-lang-opt="lo">🇱🇦 ລາວ</button>
+                            <button class="lang-opt" data-lang-opt="km">🇰🇭 ខ្មែរ</button>
+                        </div>
+                    </div>
+                    <a href="/logout" class="dropdown-item" style="color:#c0392b">
+                        <i class="fas fa-sign-out-alt"></i> <span data-i18n="nav.logout">Đăng xuất</span>
                     </a>
                 </div>
             </div>
         </div>
+
+        <style>
+        /* Language switcher */
+        .dropdown-item--lang {
+            position:relative; cursor:pointer; user-select:none;
+        }
+        .lang-submenu {
+            display:none; position:absolute; right:calc(100% + 6px); top:-4px;
+            background:#fff; border:1px solid #E2E8F0; border-radius:12px;
+            box-shadow:0 8px 32px rgba(0,0,0,.14); min-width:160px;
+            padding:6px 0; z-index:100002;
+        }
+        /* Transparent bridge: fills the 6px gap between submenu and trigger so
+           hover is not lost while the mouse crosses the gap */
+        .lang-submenu::after {
+            content:''; position:absolute;
+            top:0; bottom:0; right:-8px; width:8px;
+        }
+        .dropdown-item--lang:hover .lang-submenu,
+        .dropdown-item--lang.open .lang-submenu { display:block; }
+        .lang-opt {
+            display:block; width:100%; padding:.52rem 1rem; background:none; border:none;
+            text-align:left; font-size:.84rem; font-family:inherit; cursor:pointer;
+            color:#374151; transition:background .12s; white-space:nowrap;
+        }
+        .lang-opt:hover { background:#F7FAFC; }
+        .lang-opt.i18n-active { color:#C8102E; font-weight:700; background:#FFF5F5; }
+        @media(max-width:640px){
+            .lang-submenu { right:auto; left:calc(100% + 6px); }
+        }
+        /* User area: groups bell + avatar on the right */
+        .nav-user-area {
+            display:flex; align-items:center; gap:.15rem; margin-left:auto; flex-shrink:0;
+        }
+        /* Notification bell wrapper */
+        .nav-notif-wrap { position:relative; display:flex; align-items:center; }
+        .nav-notif-btn {
+            background:none; border:none; cursor:pointer; padding:.45rem .55rem;
+            border-radius:50%; position:relative; color:var(--text-muted,#718096);
+            font-size:1.15rem; transition:background .15s,color .15s; line-height:1;
+        }
+        .nav-notif-btn:hover { background:rgba(200,16,46,.08); color:#C8102E; }
+        .nav-notif-badge {
+            position:absolute; top:1px; right:1px; min-width:17px; height:17px;
+            border-radius:9px; background:#C8102E; color:#fff; font-size:.62rem;
+            font-weight:800; display:flex; align-items:center; justify-content:center;
+            padding:0 3px; border:2px solid #fff; line-height:1; pointer-events:none;
+        }
+        .nav-notif-badge[hidden] { display:none !important; }
+        /* Panel uses position:fixed set by JS to escape parent overflow:hidden */
+        .nav-notif-panel {
+            position:fixed; width:360px; max-height:460px; background:#fff;
+            border-radius:16px; box-shadow:0 16px 48px rgba(0,0,0,.18);
+            border:1px solid #E2E8F0; overflow:hidden; display:flex;
+            flex-direction:column; z-index:99999;
+        }
+        .nav-notif-head {
+            padding:.9rem 1.1rem .65rem; display:flex; justify-content:space-between;
+            align-items:center; border-bottom:1px solid #E2E8F0; flex-shrink:0;
+            background:#FAFBFC;
+        }
+        .nav-notif-title { font-weight:800; font-size:.95rem; color:#1A202C; }
+        .nav-notif-readall {
+            background:none; border:none; font-size:.75rem; color:#C8102E;
+            cursor:pointer; font-weight:600; padding:.15rem .45rem; border-radius:6px;
+        }
+        .nav-notif-readall:hover { background:#FFF5F5; }
+        .nav-notif-list { flex:1; overflow-y:auto; max-height:340px; }
+        .nav-notif-item {
+            padding:.72rem 1.1rem; border-bottom:1px solid #F0F2F8; cursor:pointer;
+            transition:background .12s; display:flex; gap:.65rem; align-items:flex-start;
+        }
+        .nav-notif-item:hover { background:#F7FAFC; }
+        .nav-notif-item.unread { background:#FFFBFB; border-left:3px solid #C8102E; padding-left:.85rem; }
+        .nav-notif-icon {
+            width:32px; height:32px; border-radius:50%; display:flex;
+            align-items:center; justify-content:center; flex-shrink:0; font-size:.82rem; margin-top:.05rem;
+        }
+        .nni-success{background:#F0FFF4;color:#38A169} .nni-error{background:#FFF5F5;color:#C8102E}
+        .nni-info{background:#EBF8FF;color:#3182CE} .nni-warning{background:#FFFFF0;color:#D69E2E}
+        .nav-notif-body { flex:1; min-width:0; }
+        .nav-notif-item-title { font-size:.82rem; font-weight:700; color:#1A202C; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .nav-notif-item-msg  { font-size:.74rem; color:#718096; margin-top:.08rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+        .nav-notif-item-time { font-size:.67rem; color:#A0AEC0; margin-top:.18rem; }
+        .nav-notif-empty { text-align:center; padding:2.5rem 1rem; color:#A0AEC0; font-size:.83rem; line-height:1.7; }
+        .nav-notif-viewall {
+            display:block; text-align:center; padding:.7rem; font-size:.8rem;
+            color:#C8102E; text-decoration:none; font-weight:600;
+            border-top:1px solid #E2E8F0; flex-shrink:0; transition:background .12s;
+        }
+        .nav-notif-viewall:hover { background:#FFF5F5; }
+        @media(max-width:640px){
+            .nav-notif-panel { width:calc(100vw - 1rem); }
+        }
+        </style>
     </div>
 </header>
 
 <div class="overlay" id="overlay"></div>
 
 <script>
-// Mobile menu toggle
-document.addEventListener('DOMContentLoaded', function() {
-    const menuToggle = document.getElementById('menuToggle');
-    const navContainer = document.getElementById('navContainer');
-    const overlay = document.getElementById('overlay');
-    
-    if (menuToggle && navContainer && overlay) {
-        if (navContainer.dataset.navReady === 'true') {
-            return;
-        }
-
-        navContainer.dataset.navReady = 'true';
-        menuToggle.addEventListener('click', function() {
-            menuToggle.classList.toggle('active');
-            navContainer.classList.toggle('active');
-            overlay.classList.toggle('active');
-        });
-
-        navContainer.querySelectorAll('.nav-link').forEach(function(link) {
-            link.addEventListener('click', function() {
-                menuToggle.classList.remove('active');
-                navContainer.classList.remove('active');
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mobile hamburger
+        const toggle   = document.getElementById('menuToggle');
+        const nav      = document.getElementById('navContainer');
+        const overlay  = document.getElementById('overlay');
+        if (toggle && nav) {
+            toggle.addEventListener('click', function() {
+                toggle.classList.toggle('active');
+                nav.classList.toggle('active');
+                if (overlay) overlay.classList.toggle('active');
+            });
+            nav.querySelectorAll('.nav-link').forEach(function(l) {
+                l.addEventListener('click', function() {
+                    toggle.classList.remove('active');
+                    nav.classList.remove('active');
+                    if (overlay) overlay.classList.remove('active');
+                });
+            });
+            if (overlay) overlay.addEventListener('click', function() {
+                toggle.classList.remove('active');
+                nav.classList.remove('active');
                 overlay.classList.remove('active');
             });
-        });
-        
-        overlay.addEventListener('click', function() {
-            menuToggle.classList.remove('active');
-            navContainer.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-    }
-    
-    // User profile dropdown
-    const userProfile = document.querySelector('.user-profile');
-    const dropdownMenu = document.querySelector('.dropdown-menu');
-    
-    if (userProfile && dropdownMenu) {
-        if (userProfile.dataset.dropdownReady === 'true') {
-            return;
         }
 
-        userProfile.dataset.dropdownReady = 'true';
-        userProfile.addEventListener('click', function(e) {
-            if (e.target.closest('.avatar-container')) {
-                e.preventDefault();
-                dropdownMenu.classList.toggle('show');
+        // Avatar dropdown
+        const avatarBtn  = document.getElementById('navAvatarBtn');
+        const dropdown   = document.getElementById('navDropdown');
+        if (avatarBtn && dropdown) {
+            avatarBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('show');
+            });
+            document.addEventListener('click', function(e) {
+                if (!avatarBtn.contains(e.target)) dropdown.classList.remove('show');
+            });
+        }
+
+        // Notification bell
+        (function initNotifBell() {
+            const bellBtn    = document.getElementById('navNotifBtn');
+            const panel      = document.getElementById('navNotifPanel');
+            const badge      = document.getElementById('navNotifBadge');
+            const listEl     = document.getElementById('navNotifList');
+            const readAllBtn = document.getElementById('navNotifReadAll');
+            const wrapEl     = document.getElementById('navNotifWrap');
+            if (!bellBtn || !panel) return;
+
+            let notifications = [];
+            let panelOpen = false;
+
+            function esc(t) {
+                return String(t||'').replace(/[&<>"']/g, function(c) {
+                    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c];
+                });
             }
-        });
-        
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!userProfile.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
+            function timeAgo(ts) {
+                var d = Date.now() - new Date(ts).getTime();
+                if (d < 60000) return 'Vừa xong';
+                if (d < 3600000) return Math.floor(d/60000) + ' phút trước';
+                if (d < 86400000) return Math.floor(d/3600000) + ' giờ trước';
+                return Math.floor(d/86400000) + ' ngày trước';
             }
-        });
-    }
-});
+            var typeIconMap = {
+                allocation:'fa-house-chimney-medical', room_assigned:'fa-door-open',
+                application:'fa-file-lines', announcement:'fa-bullhorn',
+                maintenance:'fa-screwdriver-wrench', violation:'fa-triangle-exclamation',
+                alert:'fa-bell', system:'fa-circle-info', '2fa':'fa-shield-halved',
+                payment:'fa-money-bill', reminder:'fa-clock', info:'fa-circle-info'
+            };
+            var typeColorMap = {
+                allocation:'nni-success', room_assigned:'nni-success',
+                application:'nni-info', announcement:'nni-info',
+                maintenance:'nni-warning', violation:'nni-error',
+                alert:'nni-warning', system:'nni-info', '2fa':'nni-info',
+                payment:'nni-success', reminder:'nni-warning', info:'nni-info'
+            };
+
+            function renderList() {
+                if (!notifications.length) {
+                    listEl.innerHTML = '<div class="nav-notif-empty"><i class="fa-regular fa-bell-slash" style="font-size:1.8rem;display:block;margin-bottom:.5rem;color:#CBD5E0"></i>Chưa có thông báo nào</div>';
+                    return;
+                }
+                listEl.innerHTML = notifications.slice(0,15).map(function(n) {
+                    var isRead = n.read || n.isRead;
+                    var ic  = typeIconMap[n.type]  || 'fa-circle-info';
+                    var cls = typeColorMap[n.type] || 'nni-info';
+                    return '<div class="nav-notif-item'+(isRead?'':' unread')+'" data-id="'+n._id+'" style="position:relative">'+
+                        '<div class="nav-notif-icon '+cls+'"><i class="fa-solid '+ic+'"></i></div>'+
+                        '<div class="nav-notif-body">'+
+                        '<div class="nav-notif-item-title">'+esc(n.title||'Thông báo')+'</div>'+
+                        '<div class="nav-notif-item-msg">'+esc(n.message||n.content||'')+'</div>'+
+                        '<div class="nav-notif-item-time">'+timeAgo(n.createdAt)+'</div>'+
+                        '</div>'+
+                        '<button class="nni-del-btn" data-del="'+n._id+'" title="Xóa" style="background:none;border:none;cursor:pointer;color:#CBD5E0;font-size:.7rem;padding:.15rem .3rem;border-radius:4px;flex-shrink:0;margin-left:.25rem;opacity:0;transition:opacity .15s">×</button>'+
+                        '</div>';
+                }).join('');
+                listEl.querySelectorAll('.nav-notif-item').forEach(function(el) {
+                    el.addEventListener('mouseenter', function() {
+                        var d = el.querySelector('.nni-del-btn'); if(d) d.style.opacity='1';
+                    });
+                    el.addEventListener('mouseleave', function() {
+                        var d = el.querySelector('.nni-del-btn'); if(d) d.style.opacity='0';
+                    });
+                    el.addEventListener('click', function(e) {
+                        if (e.target.dataset.del) return; // handled by del button
+                        var id = el.dataset.id;
+                        el.classList.remove('unread');
+                        fetch('/api/notifications/'+id+'/read', { method:'POST', credentials:'include' })
+                            .then(function() { fetchNotifications(); });
+                    });
+                });
+                listEl.querySelectorAll('.nni-del-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        var id = btn.dataset.del;
+                        fetch('/api/notifications/'+id+'/delete', { method:'DELETE', credentials:'include' })
+                            .then(function() {
+                                notifications = notifications.filter(function(n){ return n._id !== id; });
+                                renderList();
+                                updateBadge();
+                            });
+                    });
+                });
+            }
+
+            function updateBadge() {
+                var unread = notifications.filter(function(n){ return !n.read && !n.isRead; }).length;
+                badge.textContent = unread > 99 ? '99+' : String(unread);
+                badge.hidden = unread === 0;
+            }
+
+            function fetchNotifications() {
+                fetch('/api/notifications', { credentials:'include' })
+                    .then(function(r){ return r.ok ? r.json() : null; })
+                    .then(function(data) {
+                        if (!data) return;
+                        notifications = data.notifications || [];
+                        var unread = data.unreadCount || (data.pagination && data.pagination.unreadCount) || 0;
+                        badge.textContent = unread > 99 ? '99+' : String(unread);
+                        badge.hidden = unread === 0;
+                        if (panelOpen) renderList();
+                    })
+                    .catch(function(){});
+            }
+
+            function positionPanel() {
+                // Use fixed positioning calculated from bell button rect
+                var rect = bellBtn.getBoundingClientRect();
+                var panelW = Math.min(360, window.innerWidth - 8);
+                var left = Math.max(4, rect.right - panelW);
+                panel.style.top  = (rect.bottom + 6) + 'px';
+                panel.style.left = left + 'px';
+                panel.style.right = 'auto';
+                panel.style.width = panelW + 'px';
+            }
+
+            function openPanel() {
+                panelOpen = true;
+                positionPanel();
+                panel.style.display = 'flex';
+                if (dropdown) dropdown.classList.remove('show');
+                renderList();
+                fetchNotifications();
+            }
+            function closePanel() {
+                panelOpen = false;
+                panel.style.display = 'none';
+            }
+
+            bellBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (panelOpen) { closePanel(); } else { openPanel(); }
+            });
+
+            window.addEventListener('resize', function() {
+                if (panelOpen) positionPanel();
+            });
+
+            if (readAllBtn) {
+                readAllBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    fetch('/api/notifications/mark-all-read', { method:'POST', credentials:'include' });
+                    notifications.forEach(function(n){ n.read = true; n.isRead = true; });
+                    badge.textContent = '0';
+                    badge.hidden = true;
+                    renderList();
+                });
+            }
+
+            document.addEventListener('click', function(e) {
+                if (panelOpen && !wrapEl.contains(e.target) && !panel.contains(e.target)) {
+                    closePanel();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && panelOpen) { closePanel(); }
+            });
+
+            fetchNotifications();
+            setInterval(fetchNotifications, 60000);
+        })();
+
+        /* Language submenu — hover group: keep open while cursor is on trigger OR submenu */
+        (function() {
+            var langToggle = document.getElementById('navLangToggle');
+            var langSub    = document.getElementById('navLangSubmenu');
+            if (!langToggle) return;
+
+            function open()  { langToggle.classList.add('open'); }
+            function close() { langToggle.classList.remove('open'); }
+
+            // Open when entering the trigger row
+            langToggle.addEventListener('mouseenter', open);
+
+            // Close only when leaving trigger AND the cursor is NOT entering the submenu
+            langToggle.addEventListener('mouseleave', function(e) {
+                if (langSub && (langSub === e.relatedTarget || langSub.contains(e.relatedTarget))) return;
+                close();
+            });
+
+            // Close when leaving submenu AND cursor is NOT going back to trigger
+            if (langSub) {
+                langSub.addEventListener('mouseleave', function(e) {
+                    if (langToggle === e.relatedTarget || langToggle.contains(e.relatedTarget)) return;
+                    close();
+                });
+            }
+        })();
+    });
+})();
 </script>
+<script src="/js/i18n.js"></script>

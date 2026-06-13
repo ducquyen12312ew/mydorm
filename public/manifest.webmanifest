@@ -1,0 +1,57 @@
+{
+  "name": "eDorm – Ký túc xá Bách Khoa",
+  "short_name": "eDorm",
+  "description": "Hệ thống quản lý ký túc xá Đại học Bách Khoa Hà Nội – Đăng ký phòng, theo dõi trạng thái, nhận thông báo realtime.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#c0392b",
+  "background_color": "#f5f2ee",
+  "lang": "vi",
+  "scope": "/",
+  "id": "/",
+  "categories": ["education", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Đăng ký phòng",
+      "short_name": "Đăng ký",
+      "description": "Đăng ký phòng ký túc xá",
+      "url": "/register",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Trạng thái phòng",
+      "short_name": "Trạng thái",
+      "description": "Xem trạng thái phòng hiện tại",
+      "url": "/room-status",
+      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": []
+}

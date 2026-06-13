@@ -4,24 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KTX HUST - Trang chủ sinh viên</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="/css/premium-home.css" />
     <link rel="stylesheet" href="/css/student-premium-shell.css" />
+    <%- include('../shared/pwa-head') %>
 </head>
-<body>
+<body class="student-shell-page">
     <%- include('navbar', { currentPage: 'home', user: user }) %>
 
     <section class="hero" id="hero">
         <div class="hero-content">
-            <h1 class="hero-title">Ký túc xá Đại học Bách Khoa</h1>
-            <p class="hero-subtitle">Không gian sống hiện đại dành cho sinh viên</p>
+            <h1 class="hero-title" data-i18n="home.heroTitle">Ký túc xá Đại học Bách Khoa</h1>
+            <p class="hero-subtitle" data-i18n="home.heroSubtitle">Không gian sống hiện đại dành cho sinh viên</p>
         </div>
         <div class="hero-interactive-zone" aria-label="Open 3D room viewer">
-            <button class="hero-3d-btn" id="open3DViewer" type="button">Xem phòng 3D</button>
+            <button class="hero-3d-btn" id="open3DViewer" type="button" data-i18n="home.view3D">Xem phòng 3D</button>
         </div>
         <div class="hero-viewer-panel" id="heroViewerPanel">
             <div class="viewer-toolbar">
@@ -45,8 +46,8 @@
 
     <section class="rooms-section">
         <div class="container">
-            <h2 class="section-title">Danh mục ký túc xá</h2>
-            <p class="section-subtitle">Xem nhanh toàn bộ khu ký túc xá và chọn nơi ở phù hợp.</p>
+            <h2 class="section-title" data-i18n="home.dormCatalog">Danh mục ký túc xá</h2>
+            <p class="section-subtitle" data-i18n="home.dormCatalogSub">Xem nhanh toàn bộ khu ký túc xá và chọn nơi ở phù hợp.</p>
             <div class="dorm-slider-container">
                 <div class="dorm-slider-track" id="roomGrid">
                     <div class="rooms-loading">
@@ -72,12 +73,12 @@
                 <h2 class="benefits-title">Vì sao nên chọn ký túc xá?</h2>
                 <p class="benefits-desc">Không gian sống cân bằng giữa học tập và sinh hoạt, tối ưu di chuyển trong khuôn viên và tạo trải nghiệm an toàn cho sinh viên.</p>
                 <div class="benefits-grid">
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text">Wifi tốc độ cao</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text">An ninh 24/7</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text">Phòng tự học</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text">Khu giặt sấy</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text">Gần trường</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text">Không gian xanh</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text" data-i18n="home.wifiSpeed">Wifi tốc độ cao</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text" data-i18n="home.security247">An ninh 24/7</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text" data-i18n="home.studyRoom">Phòng tự học</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text" data-i18n="home.laundry">Khu giặt sấy</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text" data-i18n="home.nearSchool">Gần trường</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text" data-i18n="home.greenSpace">Không gian xanh</span></article>
                 </div>
             </div>
             <div class="benefits-image-wrap">
@@ -86,36 +87,112 @@
         </div>
     </section>
 
-    <section class="map-section">
+    <section class="map-section" id="map-section">
         <div class="container">
-            <h2 class="section-title">Bản đồ ký túc xá</h2>
-            <p class="section-subtitle">Tra cứu vị trí nhanh với popup chi tiết, cụm marker thông minh và danh sách tòa nhà liên kết trực tiếp với bản đồ.</p>
+            <div class="map-title-row">
+                <div>
+                    <h2 class="section-title map-title-left">Bản đồ ký túc xá</h2>
+                    <p class="section-subtitle map-sub-left">Click vào marker để xem chi tiết ký túc xá.</p>
+                </div>
+                <button class="btn-explore-3d" id="open3DExplore" type="button">
+                    <i class="fas fa-globe-asia"></i> Khám phá 3D
+                </button>
+            </div>
 
-            <div class="map-shell">
-                <div class="map-top">
-                    <p>Nhấp vào marker để xem hình ảnh, địa chỉ, thông tin phòng và nút hành động. Bản đồ tự căn khung theo dữ liệu hiện có.</p>
+            <div class="map-frame">
+                <div class="map-searchbar">
+                    <i class="fas fa-search map-search-icon"></i>
+                    <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Tìm ký túc xá theo tên..." autocomplete="off" />
+                    <div class="map-search-results" id="mapSearchResults"></div>
                 </div>
-                <div class="map-wrapper">
-                    <aside class="map-sidebar" id="mapSidebar"></aside>
-                    <div id="dormitory-map"></div>
+                <div class="map-controls-panel">
+                    <button class="mc-btn" id="mapLocateMe" title="Vị trí của tôi"><i class="fas fa-location-arrow"></i></button>
+                    <div class="mc-divider"></div>
+                    <button class="mc-btn" id="mapZoomIn" title="Phóng to"><i class="fas fa-plus"></i></button>
+                    <button class="mc-btn" id="mapZoomOut" title="Thu nhỏ"><i class="fas fa-minus"></i></button>
+                    <div class="mc-divider"></div>
+                    <button class="mc-btn" id="mapResetView" title="Về toàn cảnh"><i class="fas fa-compress-arrows-alt"></i></button>
+                    <button class="mc-btn" id="mapSatellite" title="Chuyển chế độ bản đồ"><i class="fas fa-layer-group"></i></button>
                 </div>
+                <div id="dormitory-map"></div>
             </div>
         </div>
+
+        <!-- Dorm detail side panel -->
+        <aside class="dorm-panel" id="dormPanel">
+            <button class="dp-close-btn" id="dormPanelClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <div class="dp-cover">
+                <img class="dp-cover-img" id="dpCoverImg" src="" alt="" />
+                <div class="dp-cover-gradient"></div>
+                <div class="dp-cover-text">
+                    <h3 class="dp-cover-name" id="dpName">Đang tải...</h3>
+                    <p class="dp-cover-sub" id="dpSubtitle"></p>
+                    <div class="dp-cover-badges" id="dpCoverBadges"></div>
+                </div>
+            </div>
+            <div class="dp-scroll">
+                <div class="dp-contact" id="dpContact" style="display:none">
+                    <span class="dp-contact-val" id="dpPhone">—</span>
+                </div>
+                <div class="dp-section">
+                    <h4 class="dp-sec-title">Tiện ích</h4>
+                    <div class="dp-amenity-list" id="dpAmenities"></div>
+                </div>
+                <div class="dp-section">
+                    <h4 class="dp-sec-title">Đánh giá từ sinh viên</h4>
+                    <div id="dpReviews"><p class="dp-no-review">Chưa có đánh giá</p></div>
+                </div>
+            </div>
+            <div class="dp-actions">
+                <a class="dp-btn dp-btn-primary" id="dpBtnRegister" href="/register">
+                    <i class="fas fa-edit"></i> Đăng ký phòng
+                </a>
+                <a class="dp-btn dp-btn-sec" id="dpBtnView" href="#">
+                    <i class="fas fa-door-open"></i> Xem phòng
+                </a>
+            </div>
+        </aside>
+        <div class="dorm-panel-backdrop" id="dormPanelBackdrop"></div>
     </section>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div><h4 class="footer-title">Giới thiệu</h4><p>Ký túc xá Đại học Bách Khoa mang đến không gian sống an toàn, hiện đại và tiện nghi cho sinh viên.</p></div>
-                <div><h4 class="footer-title">Đặt chỗ</h4><p><a href="/register">Đăng ký phòng trực tuyến</a></p><p><a href="/room-status">Theo dõi trạng thái hồ sơ</a></p></div>
-                <div><h4 class="footer-title">Giờ mở cửa</h4><p>Thứ 2 - Thứ 6: 08:00 - 20:00</p><p>Thứ 7 - Chủ nhật: 08:00 - 17:00</p></div>
-                <div><h4 class="footer-title">Địa chỉ</h4><p>Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p><p>Email: ktx@hust.edu.vn</p><p>Hotline: 1900 6868</p></div>
+    <!-- Cesium 3D Overlay -->
+    <div class="cesium-overlay" id="cesiumOverlay" aria-hidden="true" role="dialog" aria-label="Bản đồ 3D KTX">
+        <div class="cesium-toolbar">
+            <span class="cesium-title">
+                <i class="fas fa-globe-asia"></i> Khám phá KTX 3D
+            </span>
+            <div class="cesium-toolbar-right">
+                <span class="cesium-hint">Click vào marker để xem chi tiết</span>
+                <button class="cesium-close-btn" id="cesiumClose" aria-label="Đóng bản đồ 3D">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         </div>
-    </footer>
+        <div id="cesiumContainer"></div>
+        <div class="cesium-loading" id="cesiumLoading">
+            <div class="cesium-loading-inner">
+                <div class="cesium-spinner"></div>
+                <p>Đang tải bản đồ 3D…</p>
+            </div>
+        </div>
+        <div class="cesium-info-card" id="cesiumInfoCard" style="display:none">
+            <button class="cesium-info-close" id="cesiumInfoClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <img class="cesium-info-img" id="cesiumInfoImg" src="" alt="" onerror="this.style.display='none'" />
+            <div class="cesium-info-body">
+                <h3 class="cesium-info-name" id="cesiumInfoName">KTX</h3>
+                <p class="cesium-info-meta" id="cesiumInfoMeta"></p>
+                <div class="cesium-info-actions">
+                    <a class="cesium-info-btn" id="cesiumInfoBtnDetail" href="#">Xem chi tiết</a>
+                    <a class="cesium-info-btn-sec" id="cesiumInfoBtnRegister" href="/register">Đăng ký</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+    <%- include('../shared/footer') %>
+
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="/js/premium-home.js"></script>
+    <%- include('../shared/pwa-scripts') %>
 </body>
 </html>

@@ -75,6 +75,15 @@
                 <strong>Lưu ý:</strong> Mỗi ký túc xá chỉ được tạo một lần duy nhất. Vui lòng kiểm tra thông tin cẩn thận trước khi tạo.
             </div>
         <% } %>
+        <style>
+        .media-tab-btn{padding:6px 18px;border:1.5px solid #dee2e6;background:#fff;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85rem;}
+        .media-tab-btn.active{background:#0d6efd;color:#fff;border-color:#0d6efd;}
+        .media-tab-panel{display:none;}.media-tab-panel.active{display:block;}
+        .img-thumb{width:90px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #dee2e6;}
+        .img-item{display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px;position:relative;}
+        .img-item .cover-badge{font-size:.65rem;background:#198754;color:#fff;padding:1px 6px;border-radius:4px;}
+        .img-remove-btn{position:absolute;top:-6px;right:-6px;background:#dc3545;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
+        </style>
         
         <form id="dormitoryForm">
             <div class="form-section">
@@ -285,6 +294,192 @@
                 </div>
             </div>
             
+            <!-- ============================================================ -->
+            <!-- MEDIA & HÌNH ẢNH SECTION -->
+            <!-- ============================================================ -->
+            <div class="form-section">
+                <h4 class="form-section-title"><i class="fas fa-images me-2"></i>Media & Hình ảnh</h4>
+
+                <!-- Tab nav -->
+                <div class="d-flex gap-2 mb-3">
+                    <button type="button" class="media-tab-btn active" onclick="switchMediaTab('images')">
+                        <i class="fas fa-image me-1"></i> Ảnh
+                    </button>
+                    <button type="button" class="media-tab-btn" onclick="switchMediaTab('video')">
+                        <i class="fab fa-youtube me-1"></i> Video
+                    </button>
+                    <button type="button" class="media-tab-btn" onclick="switchMediaTab('tour')">
+                        <i class="fas fa-vr-cardboard me-1"></i> Virtual Tour
+                    </button>
+                </div>
+
+                <!-- Images tab -->
+                <div class="media-tab-panel active" id="mediaTab-images">
+                    <div id="imageGallery" style="display:flex;flex-wrap:wrap;gap:4px;min-height:80px;background:#f8f9fa;border:1px dashed #dee2e6;border-radius:6px;padding:10px;margin-bottom:12px;">
+                        <%
+                        const existingImages = (dormitory && dormitory.images && dormitory.images.length)
+                            ? dormitory.images
+                            : (dormitory && dormitory.imageUrl ? [dormitory.imageUrl] : []);
+                        const existingCover = (dormitory && dormitory.coverImage) || (existingImages[0] || '');
+                        %>
+                        <% existingImages.forEach((img, i) => { %>
+                        <div class="img-item" id="imgItem_<%= i %>">
+                            <% if (img === existingCover || i === 0) { %>
+                                <span class="cover-badge">Bìa</span>
+                            <% } %>
+                            <img src="<%= img %>" class="img-thumb" alt="img">
+                            <button type="button" class="img-remove-btn" onclick="removeImage('<%= img %>')" title="Xóa">×</button>
+                        </div>
+                        <% }); %>
+                    </div>
+
+                    <div class="input-group mb-2" style="max-width:550px;">
+                        <input type="text" class="form-control form-control-sm" id="newImageUrl" placeholder="Nhập URL hình ảnh và nhấn Thêm">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addImageUrl()">
+                            <i class="fas fa-plus"></i> Thêm
+                        </button>
+                    </div>
+                    <small class="text-muted">Ảnh đầu tiên sẽ được dùng làm ảnh bìa. Bạn có thể xóa từng ảnh bằng nút ×.</small>
+                    <!-- Hidden inputs for images array -->
+                    <div id="imageHiddenInputs">
+                        <% existingImages.forEach((img) => { %>
+                            <input type="hidden" name="images[]" value="<%= img %>">
+                        <% }); %>
+                    </div>
+                </div>
+
+                <!-- Video tab -->
+                <div class="media-tab-panel" id="mediaTab-video">
+                    <div class="row g-3">
+                        <!-- Left: YouTube URL -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"><i class="fab fa-youtube text-danger me-1"></i>Link YouTube</label>
+                            <input type="text" class="form-control" id="videoUrl" name="videoUrl"
+                                placeholder="https://www.youtube.com/watch?v=..."
+                                value="<%= (dormitory && dormitory.videos && dormitory.videos[0] && !dormitory.videos[0].startsWith('http') === false && dormitory.videos[0].includes('you')) ? dormitory.videos[0] : '' %>">
+                            <small class="text-muted">Nhập URL YouTube để nhúng video giới thiệu KTX.</small>
+                            <div id="videoPreview" style="margin-top:10px;"></div>
+                        </div>
+                        <!-- Right: File upload -->
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold"><i class="fas fa-upload me-1"></i>Upload video trực tiếp</label>
+                            <% if (action === 'edit' && dormitory) { %>
+                            <input type="file" class="form-control" id="videoFileInput" accept="video/mp4,video/webm,video/quicktime,video/x-m4v">
+                            <small class="text-muted">Hỗ trợ: MP4, WebM, MOV, M4V. Tối đa 100MB.</small>
+                            <div id="videoUploadProgress" style="display:none;margin-top:8px;">
+                                <div class="progress" style="height:8px;">
+                                    <div class="progress-bar bg-danger" id="videoProgressBar" style="width:0%"></div>
+                                </div>
+                                <small class="text-muted" id="videoUploadStatus">Đang tải lên...</small>
+                            </div>
+                            <div id="uploadedVideos" style="margin-top:10px;">
+                                <% if (dormitory && dormitory.media) { dormitory.media.filter(m => m.type === 'video').forEach(m => { %>
+                                <div class="d-flex align-items-center gap-2 mb-2 p-2 border rounded" style="background:#f8f9fa;">
+                                    <% if (m.thumbnail) { %><img src="<%= m.thumbnail %>" style="width:80px;height:45px;object-fit:cover;border-radius:4px;" alt="thumb"><% } %>
+                                    <div style="flex:1;min-width:0;">
+                                        <div style="font-size:.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><%= m.url %></div>
+                                        <% if (m.duration) { %><small class="text-muted"><%= Math.floor(m.duration/60) %>:<%= String(Math.round(m.duration%60)).padStart(2,'0') %></small><% } %>
+                                    </div>
+                                    <video controls style="width:160px;height:90px;border-radius:4px;" src="<%= m.url %>"></video>
+                                </div>
+                                <% }) } %>
+                            </div>
+                            <% } else { %>
+                            <div class="alert alert-info py-2"><small>Lưu KTX trước để có thể upload video.</small></div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <script>
+                    (function() {
+                        // YouTube preview
+                        var ytInput = document.getElementById('videoUrl');
+                        if (ytInput) {
+                            function updateYtPreview() {
+                                var url = ytInput.value.trim();
+                                var preview = document.getElementById('videoPreview');
+                                if (!url) { preview.innerHTML = ''; return; }
+                                var match = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+                                if (match) {
+                                    preview.innerHTML = '<iframe width="100%" height="195" src="https://www.youtube.com/embed/'+match[1]+'" frameborder="0" allowfullscreen style="border-radius:8px;max-width:420px;"></iframe>';
+                                } else {
+                                    preview.innerHTML = '<small class="text-danger">URL YouTube không hợp lệ</small>';
+                                }
+                            }
+                            ytInput.addEventListener('input', updateYtPreview);
+                            updateYtPreview();
+                        }
+
+                        // Video file upload
+                        var videoInput = document.getElementById('videoFileInput');
+                        if (videoInput) {
+                            videoInput.addEventListener('change', async function() {
+                                var file = this.files[0];
+                                if (!file) return;
+                                var dormId = '<%= dormitory ? dormitory._id : "" %>';
+                                if (!dormId) { alert('Chưa có ID ký túc xá'); return; }
+                                var progressWrap = document.getElementById('videoUploadProgress');
+                                var progressBar  = document.getElementById('videoProgressBar');
+                                var statusEl     = document.getElementById('videoUploadStatus');
+                                progressWrap.style.display = 'block';
+                                statusEl.textContent = 'Đang chuẩn bị tải lên...';
+
+                                var formData = new FormData();
+                                formData.append('video', file);
+
+                                var xhr = new XMLHttpRequest();
+                                xhr.open('POST', '/api/dormitories/' + dormId + '/upload-video');
+                                xhr.withCredentials = true;
+
+                                xhr.upload.onprogress = function(e) {
+                                    if (e.lengthComputable) {
+                                        var pct = Math.round(e.loaded / e.total * 100);
+                                        progressBar.style.width = pct + '%';
+                                        statusEl.textContent = 'Đang tải lên: ' + pct + '%';
+                                    }
+                                };
+                                xhr.onload = function() {
+                                    if (xhr.status === 200) {
+                                        var data = JSON.parse(xhr.responseText);
+                                        if (data.success) {
+                                            statusEl.textContent = 'Tải lên thành công!';
+                                            progressBar.style.width = '100%';
+                                            // Add preview
+                                            var container = document.getElementById('uploadedVideos');
+                                            var div = document.createElement('div');
+                                            div.className = 'd-flex align-items-center gap-2 mb-2 p-2 border rounded';
+                                            div.style.background = '#f0fff4';
+                                            div.innerHTML = (data.thumbnail ? '<img src="'+data.thumbnail+'" style="width:80px;height:45px;object-fit:cover;border-radius:4px;" alt="thumb">' : '') +
+                                                '<div style="flex:1"><small style="color:#38A169;font-weight:700">✓ Đã tải lên</small><br><small>'+data.url.split('/').pop()+'</small></div>' +
+                                                '<video controls style="width:160px;height:90px;border-radius:4px;" src="'+data.url+'"></video>';
+                                            container.appendChild(div);
+                                        } else {
+                                            statusEl.textContent = 'Lỗi: ' + (data.error || 'Upload thất bại');
+                                            progressBar.classList.add('bg-danger');
+                                        }
+                                    } else {
+                                        statusEl.textContent = 'Lỗi server: ' + xhr.status;
+                                    }
+                                };
+                                xhr.onerror = function() { statusEl.textContent = 'Lỗi kết nối'; };
+                                xhr.send(formData);
+                            });
+                        }
+                    })();
+                    </script>
+                </div>
+
+                <!-- Virtual Tour tab -->
+                <div class="media-tab-panel" id="mediaTab-tour">
+                    <div class="mb-3" style="max-width:600px;">
+                        <label class="form-label">URL Virtual Tour (Matterport / 360°)</label>
+                        <input type="text" class="form-control" id="virtualTourUrl" name="virtualTourUrl"
+                            placeholder="VD: https://my.matterport.com/show/?m=..."
+                            value="<%= (dormitory && dormitory.virtualTour) ? dormitory.virtualTour : '' %>">
+                        <small class="text-muted">Nhập URL iFrame từ Matterport hoặc dịch vụ tour 360° khác.</small>
+                    </div>
+                </div>
+            </div>
+
             <div class="d-flex justify-content-end mt-4">
                 <a href="/admin/dormitories" class="btn btn-secondary me-2">
                     <i class="fas fa-times me-1"></i> Hủy
@@ -430,6 +625,68 @@
             return floorRoomConfigs;
         }
         
+        // ---- Media tabs ----
+        function switchMediaTab(tab) {
+            document.querySelectorAll('.media-tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.media-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('mediaTab-' + tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // ---- Image management ----
+        let mediaImages = <%- JSON.stringify(
+            (dormitory && dormitory.images && dormitory.images.length)
+                ? dormitory.images
+                : (dormitory && dormitory.imageUrl ? [dormitory.imageUrl] : [])
+        ) %>;
+
+        function syncImageInputs() {
+            const container = document.getElementById('imageHiddenInputs');
+            container.innerHTML = '';
+            mediaImages.forEach(url => {
+                const inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = 'images[]'; inp.value = url;
+                container.appendChild(inp);
+            });
+        }
+
+        function renderGallery() {
+            const gallery = document.getElementById('imageGallery');
+            gallery.innerHTML = '';
+            mediaImages.forEach((img, i) => {
+                const div = document.createElement('div');
+                div.className = 'img-item';
+                div.innerHTML = `
+                    ${i === 0 ? '<span class="cover-badge">Bìa</span>' : ''}
+                    <img src="${img}" class="img-thumb" onerror="this.src='/images/placeholder.png'">
+                    <button type="button" class="img-remove-btn" onclick="removeImageByIndex(${i})" title="Xóa">×</button>`;
+                gallery.appendChild(div);
+            });
+        }
+
+        function addImageUrl() {
+            const inp = document.getElementById('newImageUrl');
+            const url = inp.value.trim();
+            if (!url) return;
+            if (mediaImages.includes(url)) { alert('URL này đã có trong danh sách.'); return; }
+            mediaImages.push(url);
+            inp.value = '';
+            renderGallery();
+            syncImageInputs();
+        }
+
+        function removeImage(url) {
+            mediaImages = mediaImages.filter(u => u !== url);
+            renderGallery();
+            syncImageInputs();
+        }
+
+        function removeImageByIndex(idx) {
+            mediaImages.splice(idx, 1);
+            renderGallery();
+            syncImageInputs();
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const longitude = parseFloat(document.getElementById('longitude').value) || 105.843220;
             const latitude = parseFloat(document.getElementById('latitude').value) || 21.007119;
@@ -540,6 +797,13 @@
                 if ('<%= action %>' === 'add') {
                     jsonData.floorRoomConfigs = collectRoomConfigurations();
                 }
+
+                // Media fields
+                jsonData.images = mediaImages;
+                const videoUrlVal = document.getElementById('videoUrl') ? document.getElementById('videoUrl').value.trim() : '';
+                if (videoUrlVal) jsonData.videos = [videoUrlVal];
+                const tourUrlVal = document.getElementById('virtualTourUrl') ? document.getElementById('virtualTourUrl').value.trim() : '';
+                if (tourUrlVal) jsonData.virtualTour = tourUrlVal;
 
                 if (jsonData.location && jsonData.location.coordinates) {
                     const lng = parseFloat(document.getElementById('longitude').value);

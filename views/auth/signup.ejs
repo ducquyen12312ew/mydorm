@@ -3,24 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký tài khoản | KTX HUST</title>
+    <title>Đăng ký | KTX HUST</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="/css/auth-forms.css">
+    <script src="/js/i18n.js"></script>
+    <%- include('../shared/pwa-head') %>
 </head>
 <body class="auth-page">
     <main class="auth-shell">
-        <section class="auth-layout" aria-label="Trang đăng ký tài khoản">
+        <section class="auth-layout" aria-label="Trang đăng ký">
             <aside class="auth-brand">
                 <div class="brand-visual fade-up" aria-hidden="true">
                     <div class="brand-media-card">
                         <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg" alt="Interior preview">
                         <div class="brand-media-overlay"></div>
                         <div class="brand-media-copy">
-                            <h3>Discovering the Best Space for Your Home</h3>
-                            <p>Elegant visuals with a softer layout.</p>
+                            <h3 data-i18n="auth.brandTitle">Trải Nghiệm Ký Túc Xá Đại Học Bách Khoa</h3>
+                            <p data-i18n="auth.brandSubtitle">Môi trường sống hiện đại, tiện nghi và an toàn dành cho sinh viên.</p>
                         </div>
                     </div>
                     <span class="brand-orbit orbit-1"></span>
@@ -40,87 +42,259 @@
                     </button>
                 </div>
 
-                <h1 class="auth-title">Tạo tài khoản</h1>
-                <p class="auth-subtitle">Điền một vài thông tin cơ bản để bắt đầu sử dụng hệ thống KTX HUST.</p>
+                <h1 class="auth-title" data-i18n="auth.registerTitle">Tạo tài khoản</h1>
+                <p class="auth-subtitle" data-i18n="auth.registerSubtitle">Đăng ký bằng email trường hoặc mã số sinh viên.</p>
 
-                <% if (typeof error !== 'undefined') { %>
+                <% if (typeof error !== 'undefined' && error) { %>
                     <div class="auth-alert error" role="alert">
                         <i class="fa-solid fa-circle-exclamation"></i>
                         <span><%= error %></span>
                     </div>
                 <% } %>
 
-                <form action="/signup" method="post" class="auth-form" data-signup-form novalidate>
-                    <input type="hidden" id="username" name="username">
-                    <input type="hidden" id="email" name="email">
-                    <input type="hidden" id="studentId" name="studentId">
+                <!-- ── OAuth ── -->
+                <div class="signup-oauth-list">
+                    <a href="/auth/google" class="signup-oauth-btn">
+                        <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                        <div class="signup-oauth-info">
+                            <strong data-i18n="auth.continueGoogle">Tiếp tục với Google</strong>
+                            <span>@sis.hust.edu.vn</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right signup-oauth-arrow"></i>
+                    </a>
 
+                    <button type="button" class="signup-oauth-btn" data-ms-login>
+                        <svg width="22" height="22" viewBox="0 0 23 23" aria-hidden="true"><path fill="#f25022" d="M1 1h10v10H1z"/><path fill="#00a4ef" d="M12 1h10v10H12z"/><path fill="#7fba00" d="M1 12h10v10H1z"/><path fill="#ffb900" d="M12 12h10v10H12z"/></svg>
+                        <div class="signup-oauth-info">
+                            <strong data-i18n="auth.continueMs">Tiếp tục với Outlook / Microsoft</strong>
+                            <span>@sis.hust.edu.vn</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right signup-oauth-arrow"></i>
+                    </button>
+                </div>
+
+                <!-- ── Divider ── -->
+                <div class="social-divider fade-up"><span data-i18n="auth.orRegisterManual">hoặc đăng ký thủ công</span></div>
+
+                <!-- ── Manual signup form ── -->
+                <form id="signupForm" action="/signup" method="post" class="auth-form" novalidate>
+                    <!-- MSSV -->
+                    <div class="input-group fade-up">
+                        <div class="field-shell">
+                            <i class="fa-solid fa-id-card field-icon"></i>
+                            <input
+                                type="text"
+                                id="studentId"
+                                name="studentId"
+                                placeholder=" "
+                                required
+                                maxlength="8"
+                                pattern="\d{8}"
+                                inputmode="numeric"
+                                autocomplete="off"
+                                autocapitalize="none"
+                            >
+                            <label for="studentId"><span data-i18n="auth.studentId">Mã số sinh viên</span> <span style="color:#d63030">*</span></label>
+                        </div>
+                        <p class="field-error" id="err-studentId" aria-live="polite"></p>
+                    </div>
+
+                    <!-- Họ tên -->
                     <div class="input-group fade-up">
                         <div class="field-shell">
                             <i class="fa-regular fa-user field-icon"></i>
-                            <input type="text" id="name" name="name" placeholder=" " required autocomplete="name">
-                            <label for="name">Họ tên</label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                placeholder=" "
+                                required
+                                autocomplete="name"
+                            >
+                            <label for="name"><span data-i18n="auth.fullName">Họ và tên</span> <span style="color:#d63030">*</span></label>
                         </div>
-                        <p class="field-error" aria-live="polite"></p>
+                        <p class="field-error" id="err-name" aria-live="polite"></p>
                     </div>
 
-                    <div class="input-group fade-up">
-                        <div class="field-shell">
-                            <i class="fa-regular fa-envelope field-icon"></i>
-                            <input type="text" id="identity" placeholder=" " required autocomplete="email">
-                            <label for="identity">Email hoặc MSSV</label>
-                        </div>
-                        <p class="field-hint">Trường này sẽ tự động liên kết vào tài khoản đăng nhập của bạn.</p>
-                        <p class="field-error" aria-live="polite"></p>
-                    </div>
-
+                    <!-- Mật khẩu -->
                     <div class="input-group fade-up">
                         <div class="field-shell">
                             <i class="fa-solid fa-lock field-icon"></i>
-                            <input type="password" id="password" name="password" placeholder=" " required autocomplete="new-password">
-                            <label for="password">Mật khẩu</label>
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder=" "
+                                required
+                                autocomplete="new-password"
+                                minlength="8"
+                            >
+                            <label for="password"><span data-i18n="auth.password">Mật khẩu</span> <span style="color:#d63030">*</span></label>
                             <button type="button" class="field-action" data-password-toggle="password" aria-label="Hiện hoặc ẩn mật khẩu">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
                         </div>
-                        <div class="password-meter" aria-hidden="true"><span data-password-meter></span></div>
-                        <p class="password-feedback" data-password-feedback>Nhập mật khẩu để kiểm tra độ mạnh</p>
-                        <p class="field-error" aria-live="polite"></p>
+                        <p class="field-error" id="err-password" aria-live="polite"></p>
                     </div>
 
+                    <!-- Xác nhận mật khẩu -->
                     <div class="input-group fade-up">
                         <div class="field-shell">
-                            <i class="fa-solid fa-shield-halved field-icon"></i>
-                            <input type="password" id="confirmPassword" name="confirmPassword" placeholder=" " required autocomplete="new-password">
-                            <label for="confirmPassword">Xác nhận mật khẩu</label>
-                            <button type="button" class="field-action" data-password-toggle="confirmPassword" aria-label="Hiện hoặc ẩn xác nhận mật khẩu">
+                            <i class="fa-solid fa-lock field-icon"></i>
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder=" "
+                                required
+                                autocomplete="new-password"
+                            >
+                            <label for="confirmPassword"><span data-i18n="auth.confirmPassword">Xác nhận mật khẩu</span> <span style="color:#d63030">*</span></label>
+                            <button type="button" class="field-action" data-password-toggle="confirmPassword" aria-label="Hiện hoặc ẩn mật khẩu">
                                 <i class="fa-regular fa-eye"></i>
                             </button>
                         </div>
-                        <p class="field-error" aria-live="polite"></p>
-                    </div>
-
-                    <div class="input-group fade-up">
-                        <label class="checkbox-wrap" for="agreeTerms">
-                            <input type="checkbox" id="agreeTerms" name="agreeTerms" required>
-                            <span>Tôi đồng ý điều khoản</span>
-                        </label>
-                        <p class="field-error" aria-live="polite"></p>
+                        <p class="field-error" id="err-confirm" aria-live="polite"></p>
                     </div>
 
                     <button type="submit" class="primary-btn fade-up">
                         <span class="btn-loader" aria-hidden="true"></span>
-                        <span>Đăng ký</span>
+                        <span data-i18n="auth.createAccountBtn">Tạo tài khoản</span>
                     </button>
                 </form>
 
-                <p class="auth-footnote">
-                    Đã có tài khoản? <a href="/login">Đăng nhập</a>
+                <p class="auth-footnote" style="margin-top:20px">
+                    <span data-i18n="auth.hasAccount">Đã có tài khoản?</span> <a href="/login" data-i18n="auth.loginLink">Đăng nhập</a>
                 </p>
             </section>
         </section>
     </main>
 
+    <!-- Microsoft email picker modal -->
+    <div class="ms-modal-backdrop" id="msModal" hidden aria-modal="true" role="dialog" aria-label="Đăng nhập Microsoft">
+        <div class="ms-modal">
+            <div class="ms-modal-header">
+                <svg width="108" height="24" viewBox="0 0 108 24" fill="none" aria-label="Microsoft">
+                    <path d="M0 0h11.5v11.5H0V0z" fill="#F25022"/><path d="M12.5 0H24v11.5H12.5V0z" fill="#7FBA00"/>
+                    <path d="M0 12.5h11.5V24H0V12.5z" fill="#00A4EF"/><path d="M12.5 12.5H24V24H12.5V12.5z" fill="#FFB900"/>
+                    <text x="30" y="18" font-family="Segoe UI,Arial" font-size="16" font-weight="600" fill="#201a17">Microsoft</text>
+                </svg>
+                <h2 class="ms-modal-title">Đăng nhập</h2>
+            </div>
+            <div id="msError" class="ms-error" hidden></div>
+            <div class="ms-modal-body">
+                <div class="field-shell">
+                    <input type="email" id="msEmailInput" class="ms-input" placeholder="Email trường (@sis.hust.edu.vn)" autocomplete="email" autocapitalize="none" spellcheck="false">
+                </div>
+                <p class="ms-hint">Dùng tài khoản trường của bạn</p>
+            </div>
+            <div class="ms-modal-footer">
+                <button type="button" class="ms-cancel" id="msCancelBtn">Hủy</button>
+                <button type="button" class="ms-next" id="msNextBtn">Tiếp theo</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .signup-oauth-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .signup-oauth-btn {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 18px;
+            border: 1.5px solid var(--auth-border);
+            border-radius: 14px;
+            background: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--auth-text);
+            transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+            font-family: inherit;
+            width: 100%;
+            text-align: left;
+        }
+        .signup-oauth-btn:hover {
+            border-color: rgba(214,45,45,0.4);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            transform: translateY(-1px);
+        }
+        .signup-oauth-info { flex: 1; }
+        .signup-oauth-info strong { display: block; font-size: 0.96rem; }
+        .signup-oauth-info span { font-size: 0.82rem; color: var(--auth-text-muted); }
+        .signup-oauth-arrow { color: var(--auth-text-muted); font-size: 0.8rem; }
+    </style>
+
     <script src="/js/auth-ui.js"></script>
+    <script>
+    (function () {
+        const form = document.getElementById('signupForm');
+        if (!form) return;
+
+        function showErr(id, msg) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = msg;
+        }
+        function clearErr(id) { showErr(id, ''); }
+
+        const studentIdInput = document.getElementById('studentId');
+        const nameInput = document.getElementById('name');
+        const passwordInput = document.getElementById('password');
+        const confirmInput = document.getElementById('confirmPassword');
+
+        studentIdInput.addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 8);
+            clearErr('err-studentId');
+        });
+
+        form.addEventListener('submit', function (e) {
+            let valid = true;
+
+            var _t = (window.t && window.t !== undefined) ? window.t : function(k,f){return f||k;};
+            // MSSV
+            const mssvVal = studentIdInput.value.trim();
+            if (!mssvVal) {
+                showErr('err-studentId', _t('validation.studentId.required','Vui lòng nhập mã số sinh viên.'));
+                valid = false;
+            } else if (!/^\d{8}$/.test(mssvVal)) {
+                showErr('err-studentId', _t('validation.studentId.invalid','Mã số sinh viên không hợp lệ. Vui lòng nhập đúng 8 chữ số.'));
+                valid = false;
+            } else {
+                clearErr('err-studentId');
+            }
+
+            // Họ tên
+            if (!nameInput.value.trim()) {
+                showErr('err-name', _t('validation.name.required','Vui lòng nhập họ và tên.'));
+                valid = false;
+            } else {
+                clearErr('err-name');
+            }
+
+            // Mật khẩu
+            if (passwordInput.value.length < 8) {
+                showErr('err-password', _t('validation.password.min','Mật khẩu phải có ít nhất 8 ký tự.'));
+                valid = false;
+            } else {
+                clearErr('err-password');
+            }
+
+            // Xác nhận mật khẩu
+            if (confirmInput.value !== passwordInput.value) {
+                showErr('err-confirm', _t('validation.password.mismatch','Mật khẩu xác nhận không khớp.'));
+                valid = false;
+            } else {
+                clearErr('err-confirm');
+            }
+
+            if (!valid) e.preventDefault();
+        });
+    })();
+    </script>
+    <%- include('../shared/pwa-scripts') %>
 </body>
 </html>

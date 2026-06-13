@@ -490,7 +490,7 @@
     // Load ranking data
     async function loadRanking() {
       try {
-        const response = await fetch('/api/allocation/student/my-ranking');
+        const response = await fetch('/student/my-ranking');
         const data = await response.json();
 
         if (!response.ok) {
@@ -543,7 +543,7 @@
 
     async function loadComparisonChart() {
       try {
-        const response = await fetch('/api/allocation/student/compare-rankings');
+        const response = await fetch('/student/compare-rankings');
         const data = await response.json();
 
         if (response.ok) {

@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Wireframe — Màn hình quản lý phân bổ phòng</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1100px; height: 780px; background: #fff; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; overflow: hidden; }
+  .titlebar { background: #f0f0f0; border-bottom: 1px solid #ccc; padding: 5px 14px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #666; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; display: inline-block; }
+  .url-bar { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 3px; padding: 2px 8px; font-size: 11px; color: #888; }
+  .note-bar { background: #fff9e6; border-bottom: 1px solid #e8d96a; padding: 4px 16px; font-size: 10px; color: #7a6000; font-style: italic; }
+  /* Topbar */
+  .topbar { height: 44px; background: #1a1a1a; display: flex; align-items: center; padding: 0 18px; gap: 4px; }
+  .tb-logo { color: #fff; font-weight: 900; font-size: 14px; margin-right: 16px; }
+  .tb-logo span { color: #e04040; }
+  .tb-link { color: #bbb; font-size: 11px; padding: 4px 10px; border-radius: 3px; }
+  .tb-link.active { background: #333; color: #fff; }
+  .tb-right { margin-left: auto; display: flex; align-items: center; gap: 12px; color: #bbb; font-size: 11px; }
+  .tb-avatar { width: 26px; height: 26px; border-radius: 50%; background: #555; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 10px; font-weight: 700; }
+  /* Content */
+  .content { padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; height: calc(100% - 68px); overflow: hidden; }
+  /* Page header */
+  .page-header { display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-size: 16px; font-weight: 700; color: #222; }
+  .page-sub { font-size: 10px; color: #888; }
+  /* Year tabs */
+  .year-tabs { display: flex; gap: 6px; }
+  .tab { padding: 4px 14px; border: 1.5px solid #ccc; border-radius: 3px; font-size: 11px; color: #666; cursor: default; }
+  .tab.active { background: #222; color: #fff; border-color: #222; }
+  /* Cycle list */
+  .cycle-list { flex: 1; border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px; overflow: hidden; position: relative; background: #fafafa; }
+  .cycle-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #fff; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 8px; }
+  .cycle-item.active-item { border-color: #bbb; border-left: 3px solid #333; }
+  .cycle-name { font-size: 12px; font-weight: 600; color: #222; flex: 1; }
+  .cycle-meta { font-size: 10px; color: #888; }
+  .badge { padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+  .badge-pending { background: #fff3cd; color: #856404; }
+  .badge-running { background: #d1ecf1; color: #0c5460; }
+  .badge-done { background: #d4edda; color: #155724; }
+  .badge-cancel { background: #f8d7da; color: #721c24; }
+  .cycle-actions { display: flex; gap: 6px; }
+  .btn-sm { height: 26px; padding: 0 10px; border-radius: 3px; font-size: 9px; cursor: default; border: 1px solid #ccc; color: #666; display: flex; align-items: center; background: #fff; }
+  .btn-sm-primary { height: 26px; padding: 0 10px; border-radius: 3px; font-size: 9px; cursor: default; background: #222; color: #fff; display: flex; align-items: center; }
+  .btn-sm-danger { height: 26px; padding: 0 10px; border-radius: 3px; font-size: 9px; cursor: default; background: #c44; color: #fff; display: flex; align-items: center; border: none; }
+  /* Stats panel */
+  .stats-panel { display: flex; gap: 10px; }
+  .stat-mini { flex: 1; border: 1.5px dashed #ccc; border-radius: 4px; padding: 10px; background: #fafafa; text-align: center; position: relative; }
+  .stat-mini-val { font-size: 18px; font-weight: 900; color: #222; }
+  .stat-mini-lbl { font-size: 9px; color: #888; text-transform: uppercase; margin-top: 2px; }
+  /* Right panel: simulation + result */
+  .right-panel { width: 260px; flex-shrink: 0; border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px; background: #fafafa; position: relative; display: flex; flex-direction: column; gap: 8px; }
+  .main-area { display: flex; gap: 12px; flex: 1; overflow: hidden; }
+  .left-area { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow: hidden; }
+  .section-label { position: absolute; top: -1px; left: -1px; background: #333; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px 0 2px 0; }
+  .progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 4px; }
+  .progress-fill { height: 100%; border-radius: 2px; background: #555; }
+  /* Legend */
+  .legend { border: 1px solid #ddd; border-radius: 4px; padding: 6px 12px; background: #fafafa; display: flex; flex-wrap: wrap; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 3px; font-size: 9px; color: #555; }
+  .legend-num { width: 14px; height: 14px; border-radius: 50%; background: #555; color: #fff; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  <div class="url-bar">http://localhost:5000/admin/allocation/policies</div>
+</div>
+<div class="note-bar">Wireframe — Phương án thiết kế màn hình quản lý phân bổ phòng &nbsp;|&nbsp; ① – ⑧ = vùng chức năng</div>
+
+<!-- Topbar -->
+<div class="topbar" style="position:relative;">
+  <span class="section-label">①</span>
+  <span class="tb-logo">KTX<span>HUST</span></span>
+  <span class="tb-link">Ký túc xá</span>
+  <span class="tb-link">Hồ sơ</span>
+  <span class="tb-link">Vi phạm</span>
+  <span class="tb-link">Bảo trì</span>
+  <span class="tb-link active">Phân bổ</span>
+  <span class="tb-link">Nhật ký</span>
+  <div class="tb-right"><span>🔔 3</span><div class="tb-avatar">A</div></div>
+</div>
+
+<div class="content">
+  <!-- Header -->
+  <div class="page-header" style="position:relative;">
+    <span class="section-label">②</span>
+    <div>
+      <div style="font-size:10px;color:#aaa;margin-bottom:2px;">Admin / Phân bổ phòng</div>
+      <div class="page-title">Quản lý Phân bổ Phòng</div>
+      <div class="page-sub">Quản lý chu kỳ đăng ký, xét duyệt và phân bổ phòng theo năm học</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <div style="height:32px;border:1.5px solid #ccc;border-radius:3px;padding:0 12px;display:flex;align-items:center;font-size:11px;color:#666;cursor:default;">+ Tạo chu kỳ mới</div>
+      <div style="height:32px;background:#333;border-radius:3px;padding:0 12px;display:flex;align-items:center;font-size:11px;color:#fff;cursor:default;">+ Tạo chính sách mới</div>
+    </div>
+  </div>
+
+  <!-- Year selector tabs -->
+  <div style="position:relative;">
+    <span class="section-label">③</span>
+    <div class="year-tabs" style="margin-top:4px;">
+      <div class="tab">2023–2024</div>
+      <div class="tab active">2024–2025</div>
+      <div class="tab">2025–2026</div>
+      <div class="tab" style="border-style:dashed;color:#aaa;">+ Năm mới</div>
+    </div>
+  </div>
+
+  <!-- Main area -->
+  <div class="main-area">
+    <!-- Left -->
+    <div class="left-area">
+      <!-- Stats row -->
+      <div class="stats-panel" style="position:relative;">
+        <span class="section-label">④</span>
+        <div class="stat-mini">
+          <div class="stat-mini-val">X</div>
+          <div class="stat-mini-lbl">Chu kỳ</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val">XXX</div>
+          <div class="stat-mini-lbl">Đăng ký</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val">XX</div>
+          <div class="stat-mini-lbl">Đã phân</div>
+        </div>
+        <div class="stat-mini">
+          <div class="stat-mini-val">XX%</div>
+          <div class="stat-mini-lbl">Tỉ lệ thành công</div>
+          <div class="progress-bar"><div class="progress-fill" style="width:70%;"></div></div>
+        </div>
+      </div>
+
+      <!-- Cycle list -->
+      <div class="cycle-list" style="overflow:auto;">
+        <span class="section-label">⑤</span>
+        <div style="font-size:11px;font-weight:700;color:#555;margin-bottom:8px;padding-top:4px;">Danh sách chu kỳ đăng ký</div>
+
+        <!-- Cycle 1: Running -->
+        <div class="cycle-item active-item">
+          <div style="flex:1;">
+            <div class="cycle-name">Main Registration — 2024/2025</div>
+            <div class="cycle-meta">Đăng ký: 01/08 → 31/08/20XX &nbsp;|&nbsp; Phân bổ: 05/09/20XX</div>
+          </div>
+          <span class="badge badge-running">⟳ Đang mở</span>
+          <div class="cycle-actions">
+            <div class="btn-sm">Xem kết quả</div>
+            <div class="btn-sm-primary">▶ Thực thi phân bổ</div>
+          </div>
+        </div>
+
+        <!-- Cycle 2: Completed -->
+        <div class="cycle-item">
+          <div style="flex:1;">
+            <div class="cycle-name">Late Registration — 2024/2025</div>
+            <div class="cycle-meta">Đăng ký: 05/09 → 15/09/20XX &nbsp;|&nbsp; Phân bổ: 20/09/20XX</div>
+          </div>
+          <span class="badge badge-done">✓ Hoàn tất</span>
+          <div class="cycle-actions">
+            <div class="btn-sm">Xem kết quả</div>
+            <div class="btn-sm">Xuất báo cáo</div>
+          </div>
+        </div>
+
+        <!-- Cycle 3: Pending -->
+        <div class="cycle-item">
+          <div style="flex:1;">
+            <div class="cycle-name">Adjustment Period — 2024/2025</div>
+            <div class="cycle-meta">Đăng ký: 01/10 → 10/10/20XX &nbsp;|&nbsp; Chưa lên lịch phân bổ</div>
+          </div>
+          <span class="badge badge-pending">⏸ Chờ mở</span>
+          <div class="cycle-actions">
+            <div class="btn-sm">Chỉnh sửa</div>
+            <div class="btn-sm-danger">Huỷ</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel -->
+    <div class="right-panel">
+      <span class="section-label">⑥</span>
+      <div style="font-size:11px;font-weight:700;color:#444;margin-bottom:4px;">Mô phỏng phân bổ</div>
+      <div style="font-size:10px;color:#888;margin-bottom:8px;">Chạy thử trước khi xác nhận thực thi</div>
+
+      <div style="border:1px solid #ddd;border-radius:3px;padding:8px;background:#fff;font-size:10px;color:#666;margin-bottom:8px;">
+        <div style="margin-bottom:4px;font-weight:600;color:#444;">Cấu hình mô phỏng:</div>
+        <div style="margin-bottom:3px;">Chu kỳ: <b>Main Registration 24/25</b></div>
+        <div style="margin-bottom:3px;">Chính sách: <b>Policy 2024–2025</b></div>
+        <div>Số giường: <b>XX giường khả dụng</b></div>
+      </div>
+
+      <div style="height:32px;background:#333;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;cursor:default;margin-bottom:8px;">
+        ▷ Chạy mô phỏng
+      </div>
+
+      <div style="border-top:1px solid #ddd;padding-top:8px;position:relative;">
+        <span class="section-label">⑦</span>
+        <div style="font-size:10px;font-weight:700;color:#555;margin-bottom:6px;">Kết quả mô phỏng:</div>
+        <div style="background:#f0f0f0;border:1px dashed #ccc;border-radius:3px;padding:8px;font-size:10px;color:#aaa;text-align:center;">
+          [ Chạy mô phỏng để xem kết quả dự kiến ]<br>
+          <small style="font-size:9px;">Số được phân / Số chờ / Tỉ lệ</small>
+        </div>
+        <div style="margin-top:8px;height:28px;background:#e8f5e9;border:1px solid #c8e6c9;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:10px;color:#2e7d32;cursor:default;">
+          ✓ Xác nhận và thực thi
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #ddd;padding-top:8px;position:relative;">
+        <span class="section-label">⑧</span>
+        <div style="font-size:10px;font-weight:700;color:#555;margin-bottom:6px;">Chính sách phân bổ hiện tại:</div>
+        <div style="font-size:10px;color:#666;background:#fff;border:1px solid #ddd;border-radius:3px;padding:7px;">
+          <div style="margin-bottom:3px;">Khoảng cách: <b>35%</b></div>
+          <div style="margin-bottom:3px;">Tài chính: <b>35%</b></div>
+          <div style="margin-bottom:3px;">Học bổng / ưu tiên: <b>30%</b></div>
+          <div style="margin-top:5px;font-size:9px;color:#aaa;text-decoration:underline;cursor:pointer;">Chỉnh sửa chính sách →</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-num">①</div> Thanh điều hướng admin</div>
+    <div class="legend-item"><div class="legend-num">②</div> Tiêu đề + nút tạo chu kỳ / chính sách</div>
+    <div class="legend-item"><div class="legend-num">③</div> Tab chọn năm học</div>
+    <div class="legend-item"><div class="legend-num">④</div> Thống kê tổng hợp theo năm học</div>
+    <div class="legend-item"><div class="legend-num">⑤</div> Danh sách chu kỳ + badge trạng thái + nút thực thi</div>
+    <div class="legend-item"><div class="legend-num">⑥</div> Panel mô phỏng phân bổ (chạy thử)</div>
+    <div class="legend-item"><div class="legend-num">⑦</div> Kết quả mô phỏng + xác nhận thực thi</div>
+    <div class="legend-item"><div class="legend-num">⑧</div> Cấu hình chính sách điểm ưu tiên</div>
+  </div>
+</div>
+</body>
+</html>

@@ -407,6 +407,23 @@ router.post('/register', requireAuth, async (req, res) => {
       yearGroup
     });
 
+    // Realtime: notify admin dashboard of new registration
+    try {
+      const io = req.app.get('io');
+      if (io) {
+        io.to('admin').emit('admin:new-registration', {
+          studentName: student.name,
+          studentEmail: student.email,
+          studentFaculty: student.faculty,
+          yearGroup,
+          cycleId,
+          registrationId: registration._id,
+          at: new Date().toISOString()
+        });
+        io.to('admin').emit('admin:dashboard:refresh', { reason: 'new_registration', at: new Date().toISOString() });
+      }
+    } catch (_) {}
+
     res.status(201).json({
       message: 'Registration successful',
       registration,
@@ -783,6 +800,181 @@ router.get('/rebalance/status/:cycleId', requireAuth, async (req, res) => {
     res.json(status);
   } catch (error) {
     logger.error('Error fetching rebalancing status', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/allocation/current
+ * Active cycle + policy info for the registration wizard form
+ */
+router.get('/current', requireAuth, async (req, res) => {
+  try {
+    const currentYear = new Date().getFullYear();
+    const academicYear = `${currentYear}-${currentYear + 1}`;
+
+    // Find active (open) cycle
+    const cycle = await AllocationCycle.findOne({
+      status: 'PENDING'
+    }).sort({ createdAt: -1 }).lean();
+
+    // Find active policy
+    const policy = await AllocationPolicy.findOne({ active: true })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    if (!cycle) {
+      return res.json({ success: false, message: 'Không có chu kỳ đăng ký nào đang mở', cycle: null, policy });
+    }
+
+    // Check if student already registered
+    const { StudentCollection } = require('../config/config');
+    const studentId = req.session.userId;
+    const existing = await AllocationRegistration.findOne({
+      studentId,
+      allocationCycleId: cycle._id
+    }).lean();
+
+    res.json({
+      success: true,
+      cycle,
+      policy: policy ? {
+        _id: policy._id,
+        academicYear: policy.academicYear,
+        priorityRules: policy.priorityRules
+      } : null,
+      alreadyRegistered: !!existing,
+      existingRegistration: existing
+    });
+  } catch (error) {
+    logger.error('Error fetching current cycle', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * POST /api/allocation/estimate-score
+ * Calculate estimated priority score using the active policy rules
+ */
+router.post('/estimate-score', requireAuth, async (req, res) => {
+  try {
+    const { distanceFromHome, financialHardship, scholarship, familyWealth, enrollmentYear } = req.body;
+
+    // Get active policy
+    const policy = await AllocationPolicy.findOne({ active: true }).sort({ createdAt: -1 });
+    if (!policy) {
+      return res.json({ score: 0, breakdown: [], message: 'Không tìm thấy chính sách phân bổ active' });
+    }
+
+    // Determine year group
+    const currentYear = new Date().getFullYear();
+    const enYear = enrollmentYear || currentYear;
+    const yearsIn = currentYear - parseInt(enYear);
+    let yearGroup = 'year1';
+    if (yearsIn >= 4) yearGroup = 'year4_plus';
+    else if (yearsIn >= 1) yearGroup = 'year2_3';
+
+    const rules = policy.priorityRules || {};
+    let score = 50;
+    const breakdown = [];
+
+    // Year group
+    const ygWeight = (rules.yearGroupWeights || {})[yearGroup] || 0;
+    score += ygWeight;
+    breakdown.push({ label: `Năm học (${yearGroup === 'year1' ? 'Năm 1' : yearGroup === 'year2_3' ? 'Năm 2-3' : 'Năm 4+'})`, points: ygWeight });
+
+    // Financial hardship
+    if (financialHardship) {
+      const fhPoints = (rules.financialHardship || {}).verified || 0;
+      score += fhPoints;
+      breakdown.push({ label: 'Khó khăn tài chính', points: fhPoints });
+    }
+
+    // Distance
+    const dist = parseFloat(distanceFromHome) || 0;
+    let distPoints = 0;
+    if (dist > 500) distPoints = (rules.distanceFromHome || {}).above500km || 0;
+    else if (dist > 200) distPoints = (rules.distanceFromHome || {}).above200km || 0;
+    else if (dist < 50) distPoints = (rules.distanceFromHome || {}).below50km || 0;
+    score += distPoints;
+    breakdown.push({ label: `Khoảng cách (${dist} km)`, points: distPoints });
+
+    // Scholarship
+    if (scholarship) {
+      const schPoints = rules.scholarship || 0;
+      score += schPoints;
+      breakdown.push({ label: 'Học bổng', points: schPoints });
+    }
+
+    // Family wealth
+    if (familyWealth && rules.familyWealth) {
+      const fwPoints = (rules.familyWealth)[familyWealth] || 0;
+      score += fwPoints;
+      breakdown.push({ label: 'Hoàn cảnh gia đình', points: fwPoints });
+    }
+
+    // Violations (assume none for estimate)
+    const violPoints = (rules.violations || {}).none || 0;
+    score += violPoints;
+    breakdown.push({ label: 'Vi phạm (không có)', points: violPoints });
+
+    // Clamp
+    score = Math.max(0, Math.min(100, score));
+
+    res.json({ success: true, score: Math.round(score), breakdown, yearGroup, base: 50 });
+  } catch (error) {
+    logger.error('Error estimating score', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/allocation/waitlist-position
+ * Returns current student's position in WAITLIST for the active cycle
+ */
+router.get('/waitlist-position', requireAuth, async (req, res) => {
+  try {
+    const studentId = req.session.userId;
+    const cycle = await AllocationCycle.findOne({ status: { $in: ['PENDING', 'RUNNING'] } }).sort({ createdAt: -1 });
+    if (!cycle) return res.json({ position: null, total: 0, message: 'No active cycle' });
+
+    const reg = await AllocationRegistration.findOne({
+      studentId,
+      allocationCycleId: cycle._id,
+      status: 'WAITLIST'
+    });
+    if (!reg) return res.json({ position: null, total: 0, message: 'Not on waitlist' });
+
+    // Count waitlisted registrations with higher priority
+    const ahead = await AllocationRegistration.countDocuments({
+      allocationCycleId: cycle._id,
+      status: 'WAITLIST',
+      priority: { $gt: reg.priority }
+    });
+    const total = await AllocationRegistration.countDocuments({ allocationCycleId: cycle._id, status: 'WAITLIST' });
+
+    res.json({ position: ahead + 1, total, priority: reg.priority, cycleId: cycle._id });
+  } catch (error) {
+    logger.error('Error fetching waitlist position', { error: error.message });
+    res.status(500).json({ error: error.message });
+  }
+});
+
+/**
+ * GET /api/allocation/my-registration
+ * Returns student's latest AllocationRegistration (with populated cycle)
+ */
+router.get('/my-registration', requireAuth, async (req, res) => {
+  try {
+    const studentId = req.session.userId;
+    const reg = await AllocationRegistration.findOne({ studentId })
+      .sort({ createdAt: -1 })
+      .populate('allocationCycleId')
+      .lean();
+    if (!reg) return res.json({ success: false, registration: null });
+    res.json({ success: true, registration: reg });
+  } catch (error) {
+    logger.error('Error fetching my-registration', { error: error.message });
     res.status(500).json({ error: error.message });
   }
 });

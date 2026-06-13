@@ -1,0 +1,250 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+Sự phát triển mạnh mẽ của Công nghệ Thông tin (CNTT) trong hai thập kỷ qua đã
+và đang làm thay đổi sâu rộng phương thức vận hành của hầu hết các lĩnh vực
+trong đời sống xã hội, từ kinh tế, y tế, công nghiệp cho đến giáo dục và quản
+lý công. Việc ứng dụng các giải pháp tin học không chỉ dừng lại ở mức tự động
+hoá các tác vụ thủ công lặp lại, mà còn mở ra khả năng phân tích, dự báo và hỗ
+trợ ra quyết định trong các hệ thống phức tạp vốn đòi hỏi sự cân bằng giữa
+nhiều ràng buộc đối lập nhau. Trong bối cảnh đào tạo đại học, xu hướng số hoá
+đang dần chuyển hoá không chỉ hoạt động dạy và học mà còn cả các quy trình hành
+chính và dịch vụ sinh viên, trong đó quản lý ký túc xá là một trong những mảng
+đang đòi hỏi sự cải tiến rõ rệt nhất.
+
+Ký túc xá đại học không đơn thuần là nơi cung cấp chỗ ở; đây là một phần quan
+trọng trong hệ sinh thái hỗ trợ học tập, ảnh hưởng trực tiếp đến chất lượng
+cuộc sống, năng lực tập trung học tập và sự hài lòng của sinh viên trong suốt
+quá trình học tập tại trường. Một hệ thống quản lý ký túc xá hoạt động tốt cần
+đảm bảo tính công bằng trong phân bổ phòng, tính minh bạch trong chính sách ưu
+tiên, tính kịp thời trong thông báo kết quả, và tính linh hoạt khi chính sách
+nhà trường thay đổi. Những yêu cầu này, khi được giải quyết bằng phương pháp
+thủ công truyền thống, thường dẫn đến sai sót, chậm trễ và thiếu nhất quán,
+đặc biệt trong bối cảnh quy mô sinh viên ngày càng tăng và cấu trúc chính sách
+ngày càng phức tạp.
+
+Xuất phát từ thực tiễn trên, đề tài này tập trung nghiên cứu và phát triển một
+hệ thống phần mềm tích hợp phục vụ quản lý và phân bổ ký túc xá, kết hợp giữa
+một Allocation Engine có khả năng cấu hình chính sách linh hoạt với giao diện
+người dùng hiện đại được tối ưu hoá cho thiết bị di động. Hệ thống hướng tới
+việc giải quyết đồng thời ba nhóm vấn đề cốt lõi: tự động hoá và tối ưu hoá
+quy trình phân bổ; đảm bảo tính minh bạch và khả năng kiểm chứng của mọi quyết
+định; và nâng cao trải nghiệm người dùng thông qua giao tiếp thời gian thực và
+trực quan hoá không gian. Chương 1 được tổ chức thành bốn phần: đặt vấn đề
+(1.1), mục tiêu và phạm vi nghiên cứu (1.2), định hướng giải pháp (1.3) và bố
+cục đồ án (1.4).
+
+\section{Đặt vấn đề}
+\label{section:1.1}
+
+Bài toán phân bổ phòng ở ký túc xá mang đặc trưng của một bài toán tối ưu hoá
+có ràng buộc đa chiều, trong đó mỗi quyết định gán phòng phải đồng thời thoả
+mãn nhiều điều kiện: chính sách ưu tiên của nhà trường, các ràng buộc về sức
+chứa và an toàn, tính công bằng giữa các nhóm sinh viên khác nhau, và yêu cầu
+minh bạch để người dùng có thể kiểm tra và khiếu nại khi cần. Độ phức tạp của
+bài toán tăng lên đáng kể khi số lượng ứng viên lớn, khi chính sách có nhiều
+tầng ưu tiên chồng nhau, hoặc khi cần xử lý các trường hợp đặc biệt như sinh
+viên có hoàn cảnh khó khăn, sinh viên trao đổi quốc tế, hay sinh viên có nhu
+cầu đặc thù về sức khoẻ.
+
+Thực trạng hiện nay tại Đại học Bách Khoa Hà Nội cũng như tại nhiều trường đại
+học quy mô lớn trong nước cho thấy quy trình phân bổ phòng ký túc xá vẫn chủ
+yếu dựa vào bảng tính điện tử hoặc xử lý thủ công qua nhiều bước nối tiếp: thu
+thập hồ sơ đăng ký, tổng hợp thông tin ưu tiên, tính điểm theo quy định, xếp
+hạng ứng viên, gán phòng theo thứ tự và kiểm tra lại để đảm bảo không vi phạm
+ràng buộc. Quy trình này không chỉ tiêu tốn nhiều công sức của cán bộ mà còn
+tiềm ẩn nhiều rủi ro: tính toán nhầm do thao tác tay, sơ sót dữ liệu khi hợp
+nhất từ nhiều nguồn, và hiểu sai chính sách khi quy định được diễn giải khác
+nhau bởi những người thực hiện khác nhau. Hậu quả là kết quả phân bổ đôi khi
+không nhất quán, khó truy nguyên, và mất nhiều thời gian để xử lý khi có khiếu
+nại.
+
+Thiếu minh bạch là một trong những hạn chế nghiêm trọng nhất của hệ thống hiện
+tại. Sinh viên không có cách nào kiểm chứng cách điểm ưu tiên của mình được
+tính toán, vì sao một sinh viên khác lại được ưu tiên hơn, hay liệu kết quả phân
+bổ có tuân thủ đúng chính sách đã được công bố hay không. Sự thiếu minh bạch
+này dẫn đến mất lòng tin, gia tăng số lượng khiếu nại và buộc cán bộ phải dành
+đáng kể thời gian để giải thích và xử lý tranh chấp thay vì tập trung vào công
+tác chuyên môn.
+
+Bên cạnh đó, hạ tầng dữ liệu còn nhiều bất cập: thông tin sinh viên và thông
+tin phòng thường lưu trữ ở các hệ thống rời rạc với định dạng không chuẩn hoá,
+khiến việc đồng bộ và đối chiếu tốn công sức. Khi chính sách thay đổi, cán bộ
+phải thực hiện lại toàn bộ quy trình thủ công trên tập dữ liệu mới, không có
+cách nào mô phỏng trước tác động của chính sách mới để so sánh các phương án.
+Việc thiếu nhật ký thao tác (audit log) có cấu trúc cũng làm cho quá trình truy
+nguyên nguyên nhân sai sót trở nên cực kỳ khó khăn.
+
+Cuối cùng, kỳ vọng của sinh viên về trải nghiệm số ngày càng cao. Họ muốn đăng
+ký và theo dõi trạng thái hồ sơ từ điện thoại di động, xem trước ảnh 360° hoặc
+sơ đồ không gian phòng trước khi đưa ra quyết định, nộp minh chứng điện tử và
+nhận thông báo tức thì khi có kết quả. Những nhu cầu này hoàn toàn nằm ngoài
+khả năng đáp ứng của quy trình thủ công hiện tại.
+
+Tóm lại, bài toán cần giải quyết bao gồm sáu nhóm vấn đề có liên quan chặt chẽ
+với nhau: (1)~quy trình phân bổ thủ công, tiêu tốn thời gian và tiềm ẩn sai sót;
+(2)~thiếu minh bạch và khả năng kiểm chứng trong toàn bộ quy trình; (3)~dữ liệu
+phân tán, thiếu chuẩn hoá và khó bảo trì theo thời gian; (4)~không có khả năng
+mô phỏng và đánh giá tác động trước khi áp dụng chính sách; (5)~giao diện chưa
+tối ưu cho thiết bị di động và nhu cầu trải nghiệm số của sinh viên; và
+(6)~thiếu cơ chế phản hồi kịp thời, minh bạch giữa hệ thống và người dùng cuối.
+
+\section{Mục tiêu và phạm vi đề tài}
+\label{section:1.2}
+
+\subsection{Mục tiêu nghiên cứu}
+
+Mục tiêu tổng quát của đề tài là nghiên cứu, thiết kế và triển khai một hệ
+thống phần mềm quản lý ký túc xá tích hợp, trong đó cốt lõi là một Allocation
+Engine có khả năng thực thi chính sách phân bổ linh hoạt, kết hợp với các giao
+diện người dùng hiện đại và cơ chế đảm bảo minh bạch. Hệ thống hướng đến việc
+thay thế hoàn toàn quy trình thủ công hiện tại, đồng thời cung cấp nền tảng kỹ
+thuật có thể mở rộng và bảo trì lâu dài.
+
+Về phía Allocation Engine, hệ thống cần thiết kế một thành phần lõi cho phép
+mô tả chính sách phân bổ dưới dạng dữ liệu có cấu trúc, hỗ trợ hai chế độ
+hoạt động là mô phỏng (preview) và thực thi (commit), đồng thời tự động sinh
+nhật ký giải thích cơ sở quyết định cho từng sinh viên để đảm bảo tính
+auditability. Về phía backend và API, cần xây dựng một tầng dịch vụ an toàn và
+có khả năng mở rộng, cung cấp API theo chuẩn RESTful được bảo vệ bằng xác thực
+và phân quyền, lưu trữ lịch sử phân bổ theo phiên và ghi đầy đủ audit log cho
+các thao tác quan trọng.
+
+Về phía giao diện quản trị, cần phát triển giao diện cho cán bộ quản lý nhằm
+cấu hình chính sách, khởi chạy và giám sát phiên phân bổ, điều chỉnh kết quả
+thủ công khi cần và xuất báo cáo thống kê. Về phía giao diện sinh viên, cần
+thiết kế trải nghiệm mobile-first cho phép sinh viên đăng ký, nộp minh chứng
+điện tử, tra cứu điểm ưu tiên với lời giải thích có thể kiểm chứng, và nhận
+thông báo kết quả kịp thời. Ngoài ra, hệ thống cần tích hợp cơ chế thông báo
+thời gian thực thông qua WebSocket, cùng với bộ kiểm thử bao gồm kiểm thử đơn
+vị, tích hợp và tải nhằm đảm bảo độ chính xác và hiệu năng trong điều kiện vận
+hành thực tế.
+
+\subsection{Phạm vi đề tài}
+
+Phạm vi triển khai bao gồm toàn bộ các thành phần tạo nên một hệ thống hoàn
+chỉnh có thể vận hành độc lập: tầng backend và API được xây dựng trên nền
+Node.js/Express với MongoDB Atlas làm cơ sở dữ liệu và Redis làm tầng hỗ trợ
+realtime; Allocation Engine phía máy chủ với đầy đủ chế độ mô phỏng và thực
+thi; giao diện quản trị và sinh viên render phía máy chủ sử dụng EJS kết hợp
+Bootstrap; ứng dụng di động đa nền tảng với Expo/React Native; hệ thống thông
+báo thời gian thực với Socket.IO; cơ chế xác thực và phân quyền dựa trên JWT
+và RBAC; cùng bộ kiểm thử và tài liệu hướng dẫn triển khai đầy đủ.
+
+Về phạm vi thiết bị và khả năng tiếp cận, hệ thống được xây dựng theo nguyên
+tắc responsive nhằm đảm bảo trải nghiệm nhất quán trên bốn nhóm thiết bị: máy
+tính để bàn, laptop, máy tính bảng và điện thoại thông minh. Giao diện web tự
+động điều chỉnh bố cục theo chiều rộng màn hình thông qua CSS Grid, trong khi
+ứng dụng di động React Native cung cấp trải nghiệm native trên cả iOS và Android.
+Điều này phản ánh xu hướng tất yếu trong thiết kế hệ thống giáo dục hiện đại:
+sinh viên truy cập dịch vụ từ nhiều loại thiết bị khác nhau và kỳ vọng vào một
+trải nghiệm thống nhất, không phụ thuộc vào nền tảng.
+
+Bên cạnh đó, hệ thống được thiết kế có tính đến yêu cầu hỗ trợ đa ngôn ngữ,
+phục vụ không chỉ sinh viên trong nước mà còn nhóm sinh viên quốc tế, sinh viên
+trao đổi và du học sinh. Trong bối cảnh Đại học Bách Khoa Hà Nội và các trường
+đại học kỹ thuật tại Việt Nam đang mở rộng hợp tác quốc tế, đón nhận ngày càng
+nhiều sinh viên từ các quốc gia trong khu vực và trên thế giới, nhu cầu sử dụng
+hệ thống ký túc xá không còn giới hạn trong nhóm sinh viên nói tiếng Việt. Một
+hệ thống quản lý ký túc xá hiện đại cần đảm bảo khả năng tiếp cận rộng hơn,
+trong đó rào cản ngôn ngữ phải được xem xét từ giai đoạn thiết kế ban đầu, thay
+vì bổ sung tùy hứng về sau.
+
+Một số nội dung được xác định là nằm ngoài phạm vi của đề tài này: tích hợp
+sâu với các hệ thống nội bộ của trường như hệ thống quản lý điểm hay tuyển sinh
+(chỉ tích hợp qua API mẫu); phát triển các mô-đun phân tích dữ liệu nâng cao
+hay mô hình dự báo bằng học máy; và triển khai hạ tầng vận hành theo tiêu chí
+sản xuất toàn diện với cân bằng tải đa vùng, sao lưu địa lý và khôi phục thảm
+họa. Những nội dung này có thể được phát triển trong các giai đoạn tiếp theo khi
+hệ thống được đưa vào vận hành thực tế.
+
+\section{Định hướng giải pháp}
+\label{section:1.3}
+
+Giải pháp được thiết kế xung quanh bốn nguyên tắc cốt lõi: phân tách trách
+nhiệm rõ ràng giữa các tầng; khả năng cấu hình chính sách mà không cần thay
+đổi mã nguồn; ưu tiên trải nghiệm người dùng trên thiết bị di động; và đảm bảo
+khả năng mô phỏng, kiểm thử trước khi áp dụng chính sách vào thực tế.
+
+Về kiến trúc hệ thống, hệ thống được tổ chức theo mô hình ba tầng với phân tách
+rõ ràng về trách nhiệm: tầng trình bày xử lý mọi tương tác người dùng; tầng
+dịch vụ chứa logic nghiệp vụ bao gồm Allocation Engine; và tầng dữ liệu quản
+lý lưu trữ và truy vấn. Allocation Engine tiếp nhận đầu vào là danh sách ứng
+viên, danh sách phòng và cấu hình chính sách, sau đó tính toán điểm ưu tiên
+theo các tiêu chí đã thiết lập, xếp hạng và tiến hành gán phòng theo thứ tự ưu
+tiên trong khi tôn trọng các ràng buộc cứng về sức chứa và an toàn. Sự phân
+tách giữa chế độ mô phỏng và chế độ thực thi cho phép cán bộ đánh giá toàn
+diện tác động của mỗi kịch bản chính sách trước khi ra quyết định chính thức.
+
+Về lựa chọn công nghệ, tập hợp công nghệ được lựa chọn nhằm cân bằng giữa tốc
+độ phát triển, hiệu năng vận hành và tính ổn định của hệ sinh thái thư viện.
+Node.js với Express được chọn cho backend bởi khả năng xử lý bất đồng bộ tự
+nhiên và hệ sinh thái npm phong phú. MongoDB Atlas được sử dụng như cơ sở dữ
+liệu đám mây chính nhờ mô hình document linh hoạt, phù hợp với cấu trúc chính
+sách đa dạng và có thể thay đổi. Redis đảm nhiệm tầng hỗ trợ cho Socket.IO
+cluster adapter, cho phép mở rộng ngang trong tương lai. Phía giao diện, cả
+admin portal và student portal đều sử dụng EJS để render phía máy chủ kết hợp
+Bootstrap; ứng dụng di động được phát triển với Expo và React Native để tái sử
+dụng mã nguồn trên cả iOS và Android.
+
+Về bảo mật và phân quyền, hệ thống áp dụng chiến lược bảo mật đa tầng: web
+portal sử dụng session-based authentication với cookie HttpOnly và SameSite;
+mobile API sử dụng JWT access token (TTL 15 phút) kết hợp refresh token (TTL 30
+ngày) với cơ chế phát hiện anomaly. QR thẻ cư trú được ký số bằng HMAC-SHA256.
+Toàn bộ API được bảo vệ bằng kiểm soát truy cập theo vai trò (RBAC). Xác thực
+hai yếu tố TOTP được áp dụng cho tài khoản quản trị. Môi trường vận hành được
+kiểm tra toàn bộ biến cấu hình trước khi khởi động.
+
+Về kiểm thử và đảm bảo chất lượng, chiến lược kiểm thử được thiết kế theo
+nhiều tầng: kiểm thử đơn vị cho Allocation Engine và các service lõi; kiểm thử
+tích hợp cho các API chính; kiểm thử giao diện người dùng; và kiểm thử tải
+đánh giá khả năng đáp ứng trong điều kiện vận hành thực tế.
+
+\section{Bố cục đồ án}
+\label{section:1.4}
+
+Phần còn lại của báo cáo đồ án tốt nghiệp được tổ chức thành năm chương, mỗi
+chương có nhiệm vụ rõ ràng và liên kết logic với nhau, tạo thành một chuỗi lập
+luận nhất quán từ cơ sở lý thuyết đến triển khai và đánh giá.
+
+Chương 2 --- Cơ sở lý thuyết và công trình liên quan khảo sát và phân tích các
+nền tảng lý thuyết liên quan đến bài toán phân bổ tài nguyên, các thuật toán
+xếp hạng và ghép cặp được sử dụng phổ biến trong nghiên cứu, cùng với tổng
+quan các hệ thống quản lý ký túc xá đang tồn tại để xác định khoảng trống mà
+đề tài hướng tới lấp đầy.
+
+Chương 3 --- Công nghệ và kiến trúc hệ thống trình bày đầy đủ các yêu cầu chức
+năng và phi chức năng được rút ra từ khảo sát thực tiễn, phân tích các trường
+hợp sử dụng theo khuôn mẫu học thuật, thiết kế kiến trúc hệ thống tổng thể và
+mô hình dữ liệu, kết thúc bằng thiết kế chi tiết Allocation Engine bao gồm
+thuật toán và cấu trúc dữ liệu.
+
+Chương 4 --- Thiết kế, triển khai và đánh giá hệ thống mô tả các quyết định
+kiến trúc phần mềm, cấu trúc package của dự án, chi tiết triển khai các thành
+phần cốt lõi bao gồm Allocation Engine, hệ thống realtime, bảo mật đa tầng và
+ứng dụng di động, cùng hướng dẫn triển khai môi trường hoàn chỉnh.
+
+Chương 5 --- Kiểm thử và đánh giá trình bày chiến lược kiểm thử toàn diện, mô
+tả các kịch bản kiểm thử chức năng, tích hợp và hiệu năng, phân tích kết quả
+thu được và đánh giá mức độ đáp ứng yêu cầu đề ra ở Chương~3.
+
+Chương 6 --- Kết luận và hướng phát triển tương lai tổng kết các kết quả đạt
+được, nêu rõ đóng góp chính của đồ án, nhận diện các hạn chế còn tồn tại và
+đề xuất hướng phát triển tiếp theo trong các giai đoạn sau khi hệ thống được
+đưa vào vận hành thực tế.
+
+Ngoài sáu chương chính, báo cáo bao gồm phần Tài liệu tham khảo liệt kê các
+bài báo khoa học, sách chuyên khảo, thông số kỹ thuật chính thức và tài liệu
+từ các dự án mã nguồn mở có liên quan. Phần Phụ lục cung cấp các thông tin bổ
+sung kỹ thuật bao gồm tài liệu API đầy đủ, sơ đồ cơ sở dữ liệu, hướng dẫn cài
+đặt và triển khai, script kiểm thử và các kịch bản thử nghiệm, nhằm hỗ trợ các
+nhà phát triển muốn hiểu sâu, tái triển khai hoặc mở rộng hệ thống trong tương
+lai.
+
+Như vậy, chương 1 đã phác thảo bức tranh tổng quan về bài toán quản lý và phân
+bổ ký túc xá, từ thực trạng tồn tại đến mục tiêu cần đạt được và định hướng
+giải pháp. Cơ sở nhận thức được xây dựng trong chương này làm tiền đề để chương
+2 đi sâu vào khảo sát thực tế và nghiên cứu các hệ thống tương tự, từ đó củng
+cố cơ sở lý luận cho thiết kế và triển khai hệ thống ở các chương tiếp theo.
+
+\end{document}

@@ -30,7 +30,7 @@
 body.auth-page {
     margin: 0;
     min-height: 100vh;
-    font-family: 'Manrope', 'Segoe UI', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     color: var(--auth-text);
     background:
         radial-gradient(circle at 15% 10%, rgba(214, 45, 45, 0.1), transparent 35%),
@@ -598,6 +598,23 @@ body.auth-page {
     left: 18px;
 }
 
+.social-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0;
+    color: var(--auth-text-muted);
+    font-size: 0.82rem;
+}
+
+.social-divider::before,
+.social-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--auth-border);
+}
+
 .social-btn {
     height: 44px;
     border-radius: 12px;
@@ -610,6 +627,8 @@ body.auth-page {
     align-items: center;
     justify-content: center;
     gap: 8px;
+    font-size: 0.9rem;
+    text-decoration: none;
     transition: transform var(--auth-fast), box-shadow var(--auth-fast), border-color var(--auth-fast);
 }
 
@@ -617,6 +636,136 @@ body.auth-page {
     transform: translateY(-1px);
     box-shadow: var(--auth-shadow-md);
     border-color: rgba(214, 45, 45, 0.36);
+}
+
+/* Microsoft modal */
+.ms-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.38);
+    z-index: 9000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.ms-modal-backdrop[hidden] {
+    display: none;
+}
+
+.ms-modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 100%;
+    max-width: 400px;
+    padding: 44px 44px 32px;
+    box-shadow: 0 32px 64px rgba(0,0,0,0.2);
+    position: relative;
+    animation: msModalIn 0.2s ease forwards;
+}
+
+@keyframes msModalIn {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ms-modal-header {
+    margin-bottom: 24px;
+}
+
+.ms-modal-title {
+    margin: 20px 0 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #201a17;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.ms-modal-body {
+    margin-bottom: 20px;
+}
+
+.ms-input {
+    width: 100%;
+    height: 48px;
+    border: 1px solid #8a8886;
+    border-radius: 2px;
+    padding: 8px 12px;
+    font-size: 0.95rem;
+    outline: none;
+    color: #201a17;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+
+.ms-input:focus {
+    border-color: #0078d4;
+    border-width: 2px;
+}
+
+.ms-hint {
+    margin: 8px 0 0;
+    font-size: 0.82rem;
+    color: #605e5c;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.ms-error {
+    background: #fde7e9;
+    border: 1px solid #d13438;
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: #a4262c;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+.ms-error[hidden] {
+    display: none;
+}
+
+.ms-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    align-items: center;
+}
+
+.ms-cancel {
+    background: transparent;
+    border: 0;
+    color: #0078d4;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 2px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    transition: background 0.15s;
+}
+
+.ms-cancel:hover {
+    background: #f3f2f1;
+}
+
+.ms-next {
+    background: #0078d4;
+    color: #fff;
+    border: 0;
+    border-radius: 2px;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    transition: background 0.15s;
+}
+
+.ms-next:hover {
+    background: #106ebe;
 }
 
 .auth-footnote {
@@ -702,6 +851,32 @@ body.auth-dark .auth-back,
 body.auth-dark .theme-toggle {
     background: #2d2521;
     border-color: #3f3530;
+}
+
+/* Autofill detection animation */
+@keyframes onAutoFillStart {
+    from { opacity: 1; }
+    to { opacity: 1; }
+}
+@keyframes onAutoFillCancel {
+    from { opacity: 1; }
+    to { opacity: 1; }
+}
+
+.field-shell input:-webkit-autofill {
+    animation-name: onAutoFillStart;
+    -webkit-text-fill-color: var(--auth-text);
+    -webkit-box-shadow: 0 0 0px 1000px #fff inset;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.field-shell input:not(:-webkit-autofill) {
+    animation-name: onAutoFillCancel;
+}
+
+body.auth-dark .field-shell input:-webkit-autofill {
+    -webkit-text-fill-color: #f3ebe6;
+    -webkit-box-shadow: 0 0 0px 1000px #28201d inset;
 }
 
 @keyframes spin {
@@ -802,5 +977,69 @@ body.auth-dark .theme-toggle {
 
     .social-row {
         grid-template-columns: 1fr;
+    }
+}
+
+/* ════════════════════════════════════════════════════════
+   MOBILE-FIRST — form above the fold on small phones
+   Target: iPhone SE (375px), iPhone 13/14/15 (390px),
+           Samsung S-series (360-414px)
+   ════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+    /* Full-screen login experience — remove card chrome */
+    .auth-shell {
+        padding: 0;
+        align-items: stretch;
+        min-height: 100dvh;
+    }
+
+    .auth-layout {
+        border-radius: 0;
+        min-height: 100dvh;
+        box-shadow: none;
+        border: none;
+        background: var(--auth-surface);
+    }
+
+    /* Hide decorative brand panel — form is the entire screen */
+    .auth-brand {
+        display: none;
+    }
+
+    /* Form panel fills viewport */
+    .auth-panel {
+        padding: 24px 20px 32px;
+        overflow-y: auto;
+        min-height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .auth-title {
+        font-size: 1.5rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.88rem;
+    }
+
+    /* Compact field spacing */
+    .fields-stack {
+        gap: 12px;
+    }
+
+    .field-shell {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 360px) {
+    .auth-panel {
+        padding: 20px 16px 28px;
+    }
+
+    .auth-title {
+        font-size: 1.35rem;
     }
 }

@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ sinh viên</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/student-premium-shell.css">
     
     <style>
@@ -714,32 +715,32 @@
     <%- include('navbar', { currentPage: 'profile', user: user, student: student }) %>
 
     <section class="student-page-hero">
-        <div class="student-page-badge"><i class="fas fa-user-circle"></i> Hồ sơ sinh viên</div>
-        <h1 class="student-page-title">Hồ sơ sinh viên</h1>
-        <p class="student-page-subtitle">Trang hồ sơ được đưa về cùng ngôn ngữ thị giác với trang chủ: mở đầu gọn, nhấn các khối thông tin quan trọng và làm rõ những mục cần cập nhật thường xuyên.</p>
+        <div class="student-page-badge"><i class="fas fa-user-circle"></i> <span data-i18n="profile.title">Hồ sơ sinh viên</span></div>
+        <h1 class="student-page-title" data-i18n="profile.title">Hồ sơ sinh viên</h1>
+        <p class="student-page-subtitle" data-i18n="profile.pageSubtitle">Trang hồ sơ được đưa về cùng ngôn ngữ thị giác với trang chủ: mở đầu gọn, nhấn các khối thông tin quan trọng và làm rõ những mục cần cập nhật thường xuyên.</p>
         <div class="student-page-meta">
             <div class="student-page-meta-card">
-                <strong>Thông tin cá nhân</strong>
-                <span>Cập nhật email, số điện thoại và các thông tin học tập đang dùng cho hồ sơ ký túc xá.</span>
+                <strong data-i18n="profile.personalInfo">Thông tin cá nhân</strong>
+                <span data-i18n="profile.personalInfoDesc">Cập nhật email, số điện thoại và các thông tin học tập đang dùng cho hồ sơ ký túc xá.</span>
             </div>
             <div class="student-page-meta-card">
-                <strong>Thông tin cư trú</strong>
-                <span>Theo dõi ký túc xá, phòng ở và các thay đổi liên quan ngay trong cùng một trang.</span>
+                <strong data-i18n="profile.residenceInfo">Thông tin cư trú</strong>
+                <span data-i18n="profile.residenceInfoDesc">Theo dõi ký túc xá, phòng ở và các thay đổi liên quan ngay trong cùng một trang.</span>
             </div>
             <div class="student-page-meta-card">
-                <strong>Lịch sử gần đây</strong>
-                <span>Kiểm tra nhanh các hồ sơ đã nộp và các cập nhật mới nhất.</span>
+                <strong data-i18n="profile.recentHistory">Lịch sử gần đây</strong>
+                <span data-i18n="profile.recentHistoryDesc">Kiểm tra nhanh các hồ sơ đã nộp và các cập nhật mới nhất.</span>
             </div>
         </div>
     </section>
 
     <!-- Main Content -->
     <div class="main-content">
-        <h1 class="page-title">Hồ sơ sinh viên</h1>
+        <h1 class="page-title" data-i18n="profile.title">Hồ sơ sinh viên</h1>
 
         <div id="loading" class="loading">
             <i class="fas fa-spinner"></i>
-            <p>Đang tải thông tin...</p>
+            <p data-i18n="profile.loading">Đang tải thông tin...</p>
         </div>
 
         <div id="content" style="display: none;">
@@ -759,7 +760,7 @@
                             <i class="fas fa-envelope"></i>
                         </div>
                         <div class="info-content">
-                            <h4>Email</h4>
+                            <h4 data-i18n="profile.email">Email</h4>
                             <p id="profileEmail">-</p>
                         </div>
                     </div>
@@ -769,7 +770,7 @@
                             <i class="fas fa-phone"></i>
                         </div>
                         <div class="info-content">
-                            <h4>Số điện thoại</h4>
+                            <h4 data-i18n="profile.phone">Số điện thoại</h4>
                             <p id="profilePhone">-</p>
                         </div>
                     </div>
@@ -779,7 +780,7 @@
                             <i class="fas fa-graduation-cap"></i>
                         </div>
                         <div class="info-content">
-                            <h4>Ngành</h4>
+                            <h4 data-i18n="profile.major">Ngành</h4>
                             <p id="profileMajor">-</p>
                         </div>
                     </div>
@@ -789,7 +790,7 @@
                             <i class="fas fa-calendar"></i>
                         </div>
                         <div class="info-content">
-                            <h4>Khóa</h4>
+                            <h4 data-i18n="profile.cohort">Khóa</h4>
                             <p id="profileCohort">-</p>
                         </div>
                     </div>
@@ -799,7 +800,7 @@
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="info-content">
-                            <h4>Lớp</h4>
+                            <h4 data-i18n="profile.class">Lớp</h4>
                             <p id="profileClass">-</p>
                         </div>
                     </div>
@@ -809,7 +810,7 @@
                             <i class="fas fa-door-open"></i>
                         </div>
                         <div class="info-content">
-                            <h4>Phòng hiện tại</h4>
+                            <h4 data-i18n="profile.currentRoom">Phòng hiện tại</h4>
                             <p id="profileRoom">-</p>
                         </div>
                     </div>
@@ -820,13 +821,13 @@
             <div class="profile-card">
                 <div class="tabs">
                     <button class="tab active" data-tab="info" onclick="switchTab('info')">
-                        <i class="fas fa-info-circle"></i> Thông tin
+                        <i class="fas fa-info-circle"></i> <span data-i18n="profile.tabInfo">Thông tin</span>
                     </button>
                     <button class="tab" data-tab="applications" onclick="switchTab('applications')">
-                        <i class="fas fa-file-alt"></i> Lịch sử đăng ký
+                        <i class="fas fa-file-alt"></i> <span data-i18n="profile.tabApplications">Lịch sử đăng ký</span>
                     </button>
                     <button class="tab" data-tab="settings" onclick="switchTab('settings')">
-                        <i class="fas fa-cog"></i> Cài đặt
+                        <i class="fas fa-cog"></i> <span data-i18n="profile.tabSettings">Cài đặt</span>
                     </button>
                 </div>
 
@@ -835,8 +836,8 @@
                     <div class="alert alert-info">
                         <i class="fas fa-info-circle"></i>
                         <div>
-                            <strong>Thông tin cá nhân</strong>
-                            <p>Vui lòng liên hệ phòng quản lý KTX để cập nhật thông tin cá nhân.</p>
+                            <strong data-i18n="profile.infoTitle">Thông tin cá nhân</strong>
+                            <p data-i18n="profile.infoNote">Vui lòng liên hệ phòng quản lý KTX để cập nhật thông tin cá nhân.</p>
                         </div>
                     </div>
 
@@ -850,59 +851,59 @@
 
                 <!-- Tab: Cài đặt -->
                 <div id="settings-content" class="tab-content">
-                    <h3 style="margin-bottom: 1.5rem;">Đổi mật khẩu</h3>
+                    <h3 style="margin-bottom: 1.5rem;" data-i18n="profile.changePassword">Đổi mật khẩu</h3>
                     <div class="alert alert-warning">
                         <i class="fas fa-exclamation-triangle"></i>
                         <div>
-                            <strong>Lưu ý bảo mật</strong>
-                            <p>Vui lòng đảm bảo mật khẩu mới đủ mạnh và không chia sẻ với người khác.</p>
+                            <strong data-i18n="profile.securityTitle">Lưu ý bảo mật</strong>
+                            <p data-i18n="profile.securityNote">Vui lòng đảm bảo mật khẩu mới đủ mạnh và không chia sẻ với người khác.</p>
                         </div>
                     </div>
 
                     <form id="changePasswordForm" onsubmit="changePassword(event)">
                         <div class="form-group">
-                            <label>Mật khẩu hiện tại</label>
+                            <label data-i18n="profile.currentPassword">Mật khẩu hiện tại</label>
                             <input type="password" class="form-control" id="currentPassword" required>
                         </div>
 
                         <div class="form-group">
-                            <label>Mật khẩu mới</label>
+                            <label data-i18n="profile.newPassword">Mật khẩu mới</label>
                             <input type="password" class="form-control" id="newPassword" required minlength="6">
                         </div>
 
                         <div class="form-group">
-                            <label>Xác nhận mật khẩu mới</label>
+                            <label data-i18n="profile.confirmNewPassword">Xác nhận mật khẩu mới</label>
                             <input type="password" class="form-control" id="confirmPassword" required minlength="6">
                         </div>
 
                         <div class="btn-group">
                             <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-key"></i> Đổi mật khẩu
+                                <i class="fas fa-key"></i> <span data-i18n="profile.changePasswordBtn">Đổi mật khẩu</span>
                             </button>
                         </div>
                     </form>
 
                     <hr style="margin: 3rem 0; border-color: var(--border-color);">
 
-                    <h3 style="margin-bottom: 1.5rem;">Xác thực hai lớp (2FA)</h3>
+                    <h3 style="margin-bottom: 1.5rem;" data-i18n="profile.twoFaTitle">Xác thực hai lớp (2FA)</h3>
                     <div class="alert alert-info">
                         <i class="fas fa-shield-alt"></i>
                         <div>
-                            <strong>Bảo vệ tài khoản của bạn</strong>
-                            <p>Xác thực hai lớp giúp bảo vệ tài khoản khỏi truy cập trái phép.</p>
+                            <strong data-i18n="profile.twoFaProtect">Bảo vệ tài khoản của bạn</strong>
+                            <p data-i18n="profile.twoFaNote">Xác thực hai lớp giúp bảo vệ tài khoản khỏi truy cập trái phép.</p>
                         </div>
                     </div>
 
                     <div style="margin-bottom: 1.5rem;">
                         <label style="display: flex; align-items: center; gap: 1rem; cursor: pointer;">
                             <input type="checkbox" id="twoFactorAuth" style="width: 20px; height: 20px; cursor: pointer;" onchange="toggle2FA(this.checked)">
-                            <span style="font-weight: 600;">Bật xác thực hai lớp</span>
+                            <span style="font-weight: 600;" data-i18n="profile.enable2fa">Bật xác thực hai lớp</span>
                         </label>
                     </div>
 
                     <div id="backupCodesSection" style="display: none;">
                         <button type="button" class="btn btn-secondary" onclick="showBackupCodes()">
-                            <i class="fas fa-key"></i> Xem mã dự phòng
+                            <i class="fas fa-key"></i> <span data-i18n="profile.viewBackupCodes">Xem mã dự phòng</span>
                         </button>
                     </div>
                 </div>

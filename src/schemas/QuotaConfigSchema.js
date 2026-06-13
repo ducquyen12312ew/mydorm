@@ -96,6 +96,18 @@ const QuotaConfigSchema = new mongoose.Schema({
     default: true,
     index: true
   },
+  isPublished: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  publishedAt: {
+    type: Date
+  },
+  publishedBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'students'
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'students'

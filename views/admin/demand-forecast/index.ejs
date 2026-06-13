@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dự báo nhu cầu KTX — Admin HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red:#C8102E; --red-dark:#9E0D25;
+      --bg:#F5F6F8; --card:#FFF; --border:#EAECF0;
+      --text:#2D3748; --muted:#9AA3AD;
+      --success:#6BAF95; --warning:#C8AA60; --info:#6B9FC8; --danger:#E05252;
+      --radius:12px;
+    }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); }
+    .admin-content { min-height:100vh; }
+    .page-wrap { max-width:1400px; margin:0 auto; padding:1.5rem; }
+    .page-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:.75rem; }
+    .page-header h1 { font-size:1.3rem; font-weight:700; }
+    .page-header h1 span { color:var(--red); }
+
+    .btn { display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:8px;font-size:.84rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none; }
+    .btn-red { background:var(--red);color:#fff; } .btn-red:hover { background:var(--red-dark); }
+    .btn-outline { background:transparent;border:1px solid var(--border);color:var(--text); }
+    .btn-outline:hover { border-color:var(--red);color:var(--red); }
+    .btn-sm { padding:.35rem .75rem;font-size:.78rem; }
+
+    /* Scenarios */
+    .scenario-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem; }
+    .sc-card { background:var(--card);border:2px solid var(--border);border-radius:var(--radius);padding:1.25rem;cursor:pointer;transition:all .2s; }
+    .sc-card:hover { border-color:var(--red); box-shadow:0 4px 16px rgba(200,16,46,.1); }
+    .sc-card.recommended { border-color:var(--red); }
+    .sc-tag { font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;display:flex;align-items:center;gap:.3rem; }
+    .sc-A .sc-tag { color:#1E40AF; }
+    .sc-B .sc-tag { color:#6B21A8; }
+    .sc-C .sc-tag { color:#065F46; }
+    .sc-D .sc-tag { color:#92400E; }
+    .sc-title { font-size:.88rem;font-weight:700;margin-bottom:.75rem; }
+    .sc-metric { display:flex;justify-content:space-between;align-items:center;padding:.3rem 0;border-bottom:1px solid var(--border); }
+    .sc-metric:last-child { border-bottom:none; }
+    .sc-metric-label { font-size:.75rem;color:var(--muted); }
+    .sc-metric-value { font-size:.9rem;font-weight:700; }
+    .rec-ribbon { background:var(--red);color:#fff;font-size:.68rem;font-weight:800;padding:.1rem .5rem;border-radius:4px;margin-left:.4rem; }
+
+    /* Historical chart */
+    .main-grid { display:grid;grid-template-columns:2fr 1fr;gap:1.25rem;margin-bottom:1.5rem; }
+    .card { background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem; }
+    .card-title { font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem; }
+
+    /* Historical table */
+    .hist-table { width:100%;border-collapse:collapse; }
+    .hist-table th { background:#F8F9FB;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;padding:.6rem .75rem;text-align:right;border-bottom:1px solid var(--border); }
+    .hist-table th:first-child { text-align:left; }
+    .hist-table td { padding:.6rem .75rem;border-bottom:1px solid var(--border);font-size:.82rem;text-align:right;vertical-align:middle; }
+    .hist-table td:first-child { text-align:left;font-weight:700; }
+    .hist-table tr:last-child td { border-bottom:none; }
+    .hist-table tr:hover td { background:#FAFBFC; }
+
+    /* Generate form */
+    .gen-form { background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;margin-bottom:1.5rem; }
+    .gen-form h3 { font-size:1rem;font-weight:700;margin-bottom:1rem; }
+    .gen-row { display:flex;gap:1rem;align-items:flex-end;flex-wrap:wrap; }
+    .form-group { margin-bottom:0; }
+    .form-label { font-size:.8rem;font-weight:600;display:block;margin-bottom:.35rem; }
+    .form-control { padding:.55rem .9rem;border:1px solid var(--border);border-radius:8px;font-size:.88rem;color:var(--text); }
+    .form-control:focus { outline:none;border-color:var(--red); }
+
+    .empty { text-align:center;padding:3rem;color:var(--muted); }
+    .empty i { font-size:2.5rem;display:block;margin-bottom:.75rem; }
+
+    .confidence-badge { display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:20px;font-size:.72rem;font-weight:700; }
+    .conf-high   { background:#D1FAE5;color:#065F46; }
+    .conf-medium { background:#FEF3C7;color:#92400E; }
+    .conf-low    { background:#FEE2E2;color:#991B1B; }
+
+    .warn-list { margin-top:.5rem; }
+    .warn-item { display:flex;align-items:flex-start;gap:.35rem;font-size:.78rem;color:#92400E;background:#FEF3C7;padding:.4rem .6rem;border-radius:6px;margin-bottom:.3rem; }
+
+    @media(max-width:1100px){ .scenario-grid{grid-template-columns:repeat(2,1fr);} .main-grid{grid-template-columns:1fr;} }
+    @media(max-width:640px){ .scenario-grid{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'demandforecast' }) %>
+<div class="admin-content">
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1>Dự báo <span>Nhu cầu KTX</span></h1>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Mô hình dự báo dựa trên dữ liệu tuyển sinh lịch sử và tỷ lệ ở KTX</p>
+    </div>
+    <a href="/admin/enrollment-planning" class="btn btn-outline">
+      <i class="fas fa-calendar-alt"></i> Kế hoạch tuyển sinh
+    </a>
+  </div>
+
+  <!-- Generate form -->
+  <div class="gen-form">
+    <h3><i class="fas fa-magic" style="color:var(--red);margin-right:.4rem"></i>Tạo dự báo mới</h3>
+    <div class="gen-row">
+      <div class="form-group">
+        <label class="form-label">Năm học dự báo</label>
+        <input type="text" id="genYear" class="form-control" placeholder="2025-2026" style="width:160px">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Chỉ tiêu tuỳ chỉnh (Kịch bản B)</label>
+        <input type="number" id="genQuota" class="form-control" placeholder="Để trống = dùng năm trước" style="width:220px">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ghi chú override</label>
+        <input type="text" id="genNote" class="form-control" placeholder="Lý do điều chỉnh thủ công..." style="width:260px">
+      </div>
+      <button class="btn btn-red" onclick="generateForecast()" id="genBtn">
+        <i class="fas fa-chart-line"></i> Tạo dự báo
+      </button>
+    </div>
+  </div>
+
+  <!-- Latest forecast scenarios -->
+  <% if (latestForecast && latestForecast.scenarios) { %>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;flex-wrap:wrap;gap:.5rem">
+      <h2 style="font-size:1rem;font-weight:700">
+        Dự báo năm học <span style="color:var(--red)"><%= latestForecast.academicYear %></span>
+        <% if (latestForecast.recommendedScenario) { %>
+          · Khuyến nghị: Kịch bản <%= latestForecast.recommendedScenario %>
+        <% } %>
+      </h2>
+      <% if (latestForecast.recommendation) { %>
+        <p style="font-size:.8rem;color:var(--muted);max-width:500px"><%= latestForecast.recommendation %></p>
+      <% } %>
+    </div>
+
+    <div class="scenario-grid">
+      <% ['A','B','C','D'].forEach(key => {
+        const sc = latestForecast.scenarios && latestForecast.scenarios[key];
+        const out = sc && sc.output;
+        const isRec = latestForecast.recommendedScenario === key;
+      %>
+        <div class="sc-card sc-<%= key %> <%= isRec ? 'recommended' : '' %>">
+          <div class="sc-tag">
+            <i class="fas fa-<%= key==='A'?'equals':key==='B'?'sliders':key==='C'?'arrow-up':'arrow-down' %>"></i>
+            Kịch bản <%= key %>
+            <% if (isRec) { %><span class="rec-ribbon">Khuyến nghị</span><% } %>
+          </div>
+          <div class="sc-title"><%= sc && sc.description || '—' %></div>
+          <% if (out) { %>
+            <div class="sc-metric"><span class="sc-metric-label">Chỉ tiêu</span><span class="sc-metric-value"><%= (out.enrollmentQuota||0).toLocaleString('vi-VN') %></span></div>
+            <div class="sc-metric"><span class="sc-metric-label">Đơn ở KTX</span><span class="sc-metric-value"><%= (out.expectedApplications||0).toLocaleString('vi-VN') %></span></div>
+            <div class="sc-metric"><span class="sc-metric-label">SV được duyệt</span><span class="sc-metric-value"><%= (out.expectedAccepted||0).toLocaleString('vi-VN') %></span></div>
+            <div class="sc-metric"><span class="sc-metric-label">Lấp đầy</span>
+              <span class="sc-metric-value" style="color:<%= (out.occupancyRate||0)>95?'var(--danger)':(out.occupancyRate||0)>80?'var(--warning)':'var(--success)' %>">
+                <%= out.occupancyRate||0 %>%
+              </span>
+            </div>
+            <div class="sc-metric"><span class="sc-metric-label">Chênh lệch chỗ</span>
+              <span class="sc-metric-value" style="color:<%= (out.capacityGap||0)>0?'var(--danger)':'var(--success)' %>">
+                <%= (out.capacityGap||0)>0?'+':'' %><%= (out.capacityGap||0).toLocaleString('vi-VN') %>
+              </span>
+            </div>
+            <% if (out.confidenceLevel) { %>
+              <div style="margin-top:.6rem">
+                <span class="confidence-badge conf-<%= out.confidenceLevel %>">
+                  <i class="fas fa-signal"></i> Độ tin cậy: <%= out.confidenceLevel %>
+                  (<%= out.confidenceScore %>%)
+                </span>
+              </div>
+            <% } %>
+            <% if (out.warnings && out.warnings.length > 0) { %>
+              <div class="warn-list">
+                <% out.warnings.forEach(w => { %><div class="warn-item"><i class="fas fa-exclamation-triangle"></i><%= w %></div><% }) %>
+              </div>
+            <% } %>
+          <% } else { %>
+            <p style="color:var(--muted);font-size:.82rem;padding:.5rem 0">Chưa có dữ liệu</p>
+          <% } %>
+        </div>
+      <% }) %>
+    </div>
+  <% } else { %>
+    <div class="empty">
+      <i class="fas fa-chart-bar"></i>
+      <p style="font-size:.95rem;font-weight:600;margin-bottom:.5rem">Chưa có dự báo nào</p>
+      <p style="font-size:.85rem">Nhập năm học và nhấn "Tạo dự báo" để bắt đầu</p>
+    </div>
+  <% } %>
+
+  <!-- Charts + Historical table -->
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-title">Xu hướng lịch sử — Tuyển sinh & KTX</div>
+      <canvas id="trendChart" height="220"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">Tỷ lệ lịch sử</div>
+      <canvas id="rateChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Historical data table -->
+  <div class="card">
+    <div class="card-title">Dữ liệu lịch sử tuyển sinh HUST</div>
+    <% if (!historical || historical.length === 0) { %>
+      <p style="color:var(--muted);font-size:.85rem">Chưa có dữ liệu lịch sử. Chạy script seed để nhập dữ liệu.</p>
+    <% } else { %>
+      <div style="overflow-x:auto">
+        <table class="hist-table">
+          <thead>
+            <tr>
+              <th>Năm học</th>
+              <th>Chỉ tiêu</th>
+              <th>Thực tế</th>
+              <th>Đơn KTX</th>
+              <th>Tỷ lệ đơn</th>
+              <th>Chấp nhận</th>
+              <th>Tỷ lệ CK</th>
+              <th>Cư trú</th>
+              <th>Lấp đầy KTX</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% historical.forEach(h => { %>
+              <tr>
+                <td><%= h.academicYear %></td>
+                <td><%= (h.totalEnrollmentQuota||0).toLocaleString('vi-VN') %></td>
+                <td><%= (h.totalActualEnrollment||0).toLocaleString('vi-VN') %></td>
+                <td><%= (h.dormApplications||0).toLocaleString('vi-VN') %></td>
+                <td><%= h.dormApplicationRate ? Math.round(h.dormApplicationRate*100)+'%' : '—' %></td>
+                <td><%= (h.dormAcceptedStudents||0).toLocaleString('vi-VN') %></td>
+                <td><%= h.dormAcceptanceRate ? Math.round(h.dormAcceptanceRate*100)+'%' : '—' %></td>
+                <td><%= (h.dormResidents||0).toLocaleString('vi-VN') %></td>
+                <td>
+                  <span style="font-weight:700;color:<%= (h.dormOccupancyRate||0)>.9?'var(--danger)':(h.dormOccupancyRate||0)>.75?'var(--warning)':'var(--success)' %>">
+                    <%= h.dormOccupancyRate ? Math.round(h.dormOccupancyRate*100)+'%' : '—' %>
+                  </span>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+
+</div>
+</div>
+
+<script>
+const historical = <%- JSON.stringify(historical||[]) %>;
+const forecasts  = <%- JSON.stringify(forecasts||[]) %>;
+
+// Trend chart
+const years = historical.map(h => h.academicYear);
+new Chart(document.getElementById('trendChart'), {
+  type:'bar',
+  data:{
+    labels: years,
+    datasets:[
+      { label:'Chỉ tiêu tuyển sinh', data: historical.map(h=>h.totalEnrollmentQuota||0), backgroundColor:'rgba(200,16,46,.2)', borderColor:'#C8102E', borderWidth:2, type:'bar' },
+      { label:'Đơn KTX', data: historical.map(h=>h.dormApplications||0), backgroundColor:'rgba(107,159,200,.3)', borderColor:'#6B9FC8', borderWidth:2, type:'bar' },
+      { label:'Cư trú KTX', data: historical.map(h=>h.dormResidents||0), backgroundColor:'rgba(107,175,149,.3)', borderColor:'#6BAF95', borderWidth:2, type:'bar' }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{size:11}}}}, scales:{x:{ticks:{font:{size:11}}},y:{beginAtZero:true,ticks:{font:{size:11}}}} }
+});
+
+// Rate chart
+new Chart(document.getElementById('rateChart'), {
+  type:'line',
+  data:{
+    labels: years,
+    datasets:[
+      { label:'Tỷ lệ đơn KTX', data: historical.map(h=>h.dormApplicationRate?Math.round(h.dormApplicationRate*100):null), borderColor:'#C8102E', backgroundColor:'rgba(200,16,46,.08)', fill:true, tension:.3 },
+      { label:'Tỷ lệ lấp đầy', data: historical.map(h=>h.dormOccupancyRate?Math.round(h.dormOccupancyRate*100):null), borderColor:'#6BAF95', backgroundColor:'rgba(107,175,149,.08)', fill:true, tension:.3 }
+    ]
+  },
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{legend:{labels:{font:{size:11}}}}, scales:{ x:{ticks:{font:{size:11}}}, y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}}} } }
+});
+
+async function generateForecast() {
+  const year = document.getElementById('genYear').value.trim();
+  if (!year.match(/^\d{4}-\d{4}$/)) return alert('Định dạng năm học: YYYY-YYYY');
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tính...';
+  try {
+    const r = await fetch('/admin/demand-forecast/generate', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        academicYear: year,
+        customQuota: document.getElementById('genQuota').value || null,
+        manualNote: document.getElementById('genNote').value || null
+      })
+    });
+    const d = await r.json();
+    if (d.success) location.reload();
+    else alert('Lỗi: ' + d.error);
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-chart-line"></i> Tạo dự báo';
+  }
+}
+</script>
+</body>
+</html>

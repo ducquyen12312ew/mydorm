@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const AllocationCycleModel = require('../../schemas/AllocationCycleSchema');
 const AllocationPolicyModel = require('../../schemas/AllocationPolicySchema');
+const { getPublishedQuotaAndPolicy } = require('../../services/quotaPublishService');
 const { PendingApplicationCollection } = require('../../config/config');
 const { logger } = require('../../config/logger');
 
@@ -34,6 +35,57 @@ router.get('/admin/academic-windows', isAdmin, (req, res) => {
 });
 
 // ============================================
+// PUBLISHED QUOTA / ACTIVE POLICY INFO
+// ============================================
+
+router.get('/api/admin/published-quota', isAdmin, async (req, res) => {
+    try {
+        const { quota, policy } = await getPublishedQuotaAndPolicy();
+        res.json({ success: true, quota, policy });
+    } catch (error) {
+        logger.error('Error fetching published quota', { error: error.message });
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============================================
+// ALLOCATION POLICIES — READ-ONLY VIEW
+// ============================================
+
+router.get('/api/admin/allocation-policies', isAdmin, async (req, res) => {
+    try {
+        const { quota, policy } = await getPublishedQuotaAndPolicy();
+        const policies = policy ? [policy] : [];
+        res.json({ success: true, policies, currentPolicy: policy, sourceQuota: quota });
+    } catch (error) {
+        logger.error('Error fetching allocation policies', { error: error.message });
+        res.status(500).json({ success: false, error: 'Failed to fetch policies' });
+    }
+});
+
+// Blocked — policies are now auto-generated from published quotas
+router.post('/api/admin/allocation-policies', isAdmin, (req, res) => {
+    res.status(403).json({
+        success: false,
+        error: 'Chính sách phân bổ được tạo tự động khi ban hành Quota. Không thể tạo thủ công.'
+    });
+});
+
+router.put('/api/admin/allocation-policies/:id', isAdmin, (req, res) => {
+    res.status(403).json({
+        success: false,
+        error: 'Chính sách phân bổ không thể chỉnh sửa trực tiếp. Hãy ban hành Quota mới tại /admin/quotas.'
+    });
+});
+
+router.delete('/api/admin/allocation-policies/:id', isAdmin, (req, res) => {
+    res.status(403).json({
+        success: false,
+        error: 'Chính sách phân bổ không thể xóa trực tiếp. Hãy ban hành Quota mới để thay thế.'
+    });
+});
+
+// ============================================
 // ACADEMIC WINDOWS (AllocationCycle) CRUD
 // ============================================
 
@@ -42,6 +94,8 @@ router.get('/api/admin/academic-windows', isAdmin, async (req, res) => {
         const windows = await AllocationCycleModel.find({})
             .sort({ academicYear: -1 })
             .lean();
+
+        const { policy } = await getPublishedQuotaAndPolicy();
 
         const windowsWithStats = await Promise.all(windows.map(async (window) => {
             const priorityStats = { dantoc: 0, hongho: 0, khuyettat: 0, mocoi: 0, total: 0 };
@@ -67,7 +121,7 @@ router.get('/api/admin/academic-windows', isAdmin, async (req, res) => {
                 priorityStats.total += stat.count;
             });
 
-            return { ...window, priorityStats };
+            return { ...window, priorityStats, currentPolicy: policy || null };
         }));
 
         res.json(windowsWithStats);
@@ -79,7 +133,15 @@ router.get('/api/admin/academic-windows', isAdmin, async (req, res) => {
 
 router.post('/api/admin/academic-windows', isAdmin, async (req, res) => {
     try {
-        const { academicYear, policyId, startDate, endDate, status, description, allowedAcademicYears } = req.body;
+        const { academicYear, startDate, endDate, status, description, allowedAcademicYears } = req.body;
+
+        // Auto-pick the active AllocationPolicy from published quota
+        const activePolicy = await AllocationPolicyModel.findOne({ active: true }).lean();
+        const policyId = activePolicy ? activePolicy._id : null;
+
+        if (!policyId) {
+            logger.warn('Creating academic window without an active AllocationPolicy — quota may not be published yet');
+        }
 
         const newCycle = await AllocationCycleModel.create({
             academicYear,
@@ -89,19 +151,24 @@ router.post('/api/admin/academic-windows', isAdmin, async (req, res) => {
             registrationEnd: new Date(endDate),
             status: status || 'PENDING',
             description,
-            allowedAcademicYears
+            allowedAcademicYears: allowedAcademicYears || ['1', '2', '3', '4', '5', '6'],
+            createdBy: req.session.userId
         });
 
-        res.json({ success: true, cycle: newCycle });
+        res.json({ success: true, cycle: newCycle, policyAutoAssigned: !!policyId });
     } catch (error) {
         logger.error('Error creating academic window', { error: error.message });
-        res.status(500).json({ success: false, error: 'Failed to create window' });
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 
 router.put('/api/admin/academic-windows/:id', isAdmin, async (req, res) => {
     try {
-        const { academicYear, policyId, startDate, endDate, status, description, allowedAcademicYears } = req.body;
+        const { academicYear, startDate, endDate, status, description, allowedAcademicYears } = req.body;
+
+        // Re-resolve the active policy (may have changed since creation)
+        const activePolicy = await AllocationPolicyModel.findOne({ active: true }).lean();
+        const policyId = activePolicy ? activePolicy._id : null;
 
         const updatedCycle = await AllocationCycleModel.findByIdAndUpdate(
             req.params.id,
@@ -112,7 +179,7 @@ router.put('/api/admin/academic-windows/:id', isAdmin, async (req, res) => {
                 registrationEnd: new Date(endDate),
                 status,
                 description,
-                allowedAcademicYears,
+                allowedAcademicYears: allowedAcademicYears || ['1', '2', '3', '4', '5', '6'],
                 updatedAt: new Date()
             },
             { new: true }
@@ -131,15 +198,28 @@ router.put('/api/admin/academic-windows/:id', isAdmin, async (req, res) => {
 
 router.post('/api/admin/academic-windows/:id/activate', isAdmin, async (req, res) => {
     try {
+        // Re-resolve active policy so the cycle always points to latest
+        const activePolicy = await AllocationPolicyModel.findOne({ active: true }).lean();
+
         const updatedCycle = await AllocationCycleModel.findByIdAndUpdate(
             req.params.id,
-            { status: 'active', updatedAt: new Date() },
-            { new: true }
+            {
+                status: 'RUNNING',
+                policyId: activePolicy ? activePolicy._id : null,
+                updatedAt: new Date()
+            },
+            { new: true, runValidators: false }
         );
 
         if (!updatedCycle) {
             return res.status(404).json({ success: false, error: 'Window not found' });
         }
+
+        logger.info('Academic window activated', {
+            cycleId: updatedCycle._id,
+            academicYear: updatedCycle.academicYear,
+            policyId: updatedCycle.policyId
+        });
 
         res.json({ success: true, cycle: updatedCycle });
     } catch (error) {
@@ -152,8 +232,8 @@ router.post('/api/admin/academic-windows/:id/deactivate', isAdmin, async (req, r
     try {
         const updatedCycle = await AllocationCycleModel.findByIdAndUpdate(
             req.params.id,
-            { status: 'closed', updatedAt: new Date() },
-            { new: true }
+            { status: 'COMPLETED', updatedAt: new Date() },
+            { new: true, runValidators: false }
         );
 
         if (!updatedCycle) {
@@ -179,95 +259,6 @@ router.delete('/api/admin/academic-windows/:id', isAdmin, async (req, res) => {
     } catch (error) {
         logger.error('Error deleting window', { error: error.message });
         res.status(500).json({ success: false, error: 'Failed to delete window' });
-    }
-});
-
-// ============================================
-// ALLOCATION POLICIES CRUD
-// ============================================
-
-router.get('/api/admin/allocation-policies', isAdmin, async (req, res) => {
-    try {
-        const policies = await AllocationPolicyModel.find({})
-            .sort({ academicYear: -1, createdAt: -1 })
-            .lean();
-
-        res.json({ success: true, policies });
-    } catch (error) {
-        logger.error('Error fetching allocation policies', { error: error.message });
-        res.status(500).json({ success: false, error: 'Failed to fetch policies' });
-    }
-});
-
-router.post('/api/admin/allocation-policies', isAdmin, async (req, res) => {
-    try {
-        const { academicYear, name, priorityRules, rebalanceThresholds, status } = req.body;
-
-        const existing = await AllocationPolicyModel.findOne({ academicYear, name });
-        if (existing) {
-            return res.status(400).json({
-                success: false,
-                error: 'Chính sách với năm học và tên này đã tồn tại'
-            });
-        }
-
-        const newPolicy = await AllocationPolicyModel.create({
-            academicYear,
-            name,
-            priorityRules,
-            rebalanceThresholds,
-            status: status || 'ACTIVE',
-            createdBy: req.session.userId
-        });
-
-        res.json({ success: true, policy: newPolicy });
-    } catch (error) {
-        logger.error('Error creating allocation policy', { error: error.message });
-        res.status(500).json({ success: false, error: 'Failed to create policy' });
-    }
-});
-
-router.put('/api/admin/allocation-policies/:id', isAdmin, async (req, res) => {
-    try {
-        const { academicYear, name, priorityRules, rebalanceThresholds, status } = req.body;
-
-        const updatedPolicy = await AllocationPolicyModel.findByIdAndUpdate(
-            req.params.id,
-            { academicYear, name, priorityRules, rebalanceThresholds, status, updatedAt: new Date() },
-            { new: true }
-        );
-
-        if (!updatedPolicy) {
-            return res.status(404).json({ success: false, error: 'Policy not found' });
-        }
-
-        res.json({ success: true, policy: updatedPolicy });
-    } catch (error) {
-        logger.error('Error updating allocation policy', { error: error.message });
-        res.status(500).json({ success: false, error: 'Failed to update policy' });
-    }
-});
-
-router.delete('/api/admin/allocation-policies/:id', isAdmin, async (req, res) => {
-    try {
-        const cyclesUsingPolicy = await AllocationCycleModel.countDocuments({ policyId: req.params.id });
-        if (cyclesUsingPolicy > 0) {
-            return res.status(400).json({
-                success: false,
-                error: 'Không thể xóa chính sách đang được sử dụng bởi chu kỳ phân bổ'
-            });
-        }
-
-        const deletedPolicy = await AllocationPolicyModel.findByIdAndDelete(req.params.id);
-
-        if (!deletedPolicy) {
-            return res.status(404).json({ success: false, error: 'Policy not found' });
-        }
-
-        res.json({ success: true, message: 'Policy deleted successfully' });
-    } catch (error) {
-        logger.error('Error deleting allocation policy', { error: error.message });
-        res.status(500).json({ success: false, error: 'Failed to delete policy' });
     }
 });
 

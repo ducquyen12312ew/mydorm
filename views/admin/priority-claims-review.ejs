@@ -13,8 +13,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #F7F7F7;
             min-height: 100vh;
             padding: 20px;
         }
@@ -44,7 +44,7 @@
         }
 
         .header h1 i {
-            color: #667eea;
+            color: #C8102E;
             1.3rem;
         }
 
@@ -57,13 +57,13 @@
             background: #f8f9fa;
             padding: 15px 25px;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #C8102E;
         }
 
         .stat-value {
             font-size: 24px;
             font-weight: 700;
-            color: #667eea;
+            color: #C8102E;
         }
 
         .stat-label {
@@ -86,7 +86,7 @@
         }
 
         .card-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #C8102E;
             color: white;
             padding: 20px 30px;
             display: flex;
@@ -126,7 +126,7 @@
 
         .claim-item.active {
             background: #f0f0f0;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #C8102E;
             padding-left: 26px;
         }
 
@@ -160,7 +160,7 @@
         }
 
         .type-badge {
-            background: #667eea;
+            background: #C8102E;
             color: white;
             padding: 3px 8px;
             border-radius: 4px;
@@ -168,7 +168,7 @@
         }
 
         .type-badge.minority {
-            background: #17a2b8;
+            background: #6B7280;
         }
 
         .type-badge.scholarship {
@@ -176,7 +176,7 @@
         }
 
         .type-badge.orphan {
-            background: #e83e8c;
+            background: #9CA3AF;
         }
 
         .type-badge.disability {
@@ -196,8 +196,8 @@
         }
 
         .status-approved {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
         }
 
         .status-rejected {
@@ -217,7 +217,7 @@
         }
 
         .detail-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #C8102E;
             color: white;
             padding: 25px 30px;
             display: flex;
@@ -306,7 +306,7 @@
         }
 
         .document-link {
-            color: #667eea;
+            color: #C8102E;
             text-decoration: none;
             display: inline-flex;
             align-items: center;
@@ -319,10 +319,10 @@
         }
 
         .review-section {
-            background: #f0f7ff;
+            background: #F9FAFB;
             padding: 20px;
             border-radius: 8px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #C8102E;
         }
 
         .form-group {
@@ -352,8 +352,8 @@
         .form-group input:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #C8102E;
+            box-shadow: 0 0 0 3px rgba(200, 16, 46, 0.08);
         }
 
         .form-row {
@@ -383,30 +383,31 @@
         }
 
         .btn-approve {
-            background: #28a745;
+            background: #C8102E;
             color: white;
         }
 
         .btn-approve:hover {
-            background: #218838;
+            background: #A20D25;
         }
 
         .btn-reject {
-            background: #dc3545;
+            background: #DC2626;
             color: white;
         }
 
         .btn-reject:hover {
-            background: #c82333;
+            background: #B91C1C;
         }
 
         .btn-cancel {
-            background: #6c757d;
-            color: white;
+            background: #F3F4F6;
+            color: #374151;
+            border: 1px solid #E5E7EB;
         }
 
         .btn-cancel:hover {
-            background: #5a6268;
+            background: #E5E7EB;
         }
 
         .review-history {
@@ -420,7 +421,7 @@
             padding: 15px;
             border-radius: 6px;
             margin-bottom: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #C8102E;
         }
 
         .history-header {
@@ -449,8 +450,8 @@
         }
 
         .history-action.approved {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
         }
 
         .history-action.rejected {
@@ -489,8 +490,8 @@
         }
 
         .message.success {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
             display: block;
         }
 
@@ -759,8 +760,8 @@
                     'disability': 'Khuyết Tật'
                 };
 
-                const statusColor = claim.status === 'PENDING_REVIEW' ? '#ffc107' : 
-                                   claim.status === 'FULLY_APPROVED' ? '#28a745' : '#dc3545';
+                const statusColor = claim.status === 'PENDING_REVIEW' ? '#D97706' :
+                                   claim.status === 'FULLY_APPROVED' ? '#166534' : '#DC2626';
 
                 claimsHtml += `
                     <div class="claim-detail">

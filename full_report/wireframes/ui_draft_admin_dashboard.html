@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Wireframe — Bảng điều khiển quản trị viên</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1100px; height: 780px; background: #fff; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; overflow: hidden; }
+  .titlebar { background: #f0f0f0; border-bottom: 1px solid #ccc; padding: 5px 14px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #666; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; display: inline-block; }
+  .url-bar { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 3px; padding: 2px 8px; font-size: 11px; color: #888; }
+  .note-bar { background: #fff9e6; border-bottom: 1px solid #e8d96a; padding: 4px 16px; font-size: 10px; color: #7a6000; font-style: italic; }
+  /* Top navbar */
+  .topbar { height: 44px; background: #1a1a1a; display: flex; align-items: center; padding: 0 18px; gap: 4px; }
+  .tb-logo { color: #fff; font-weight: 900; font-size: 14px; margin-right: 16px; }
+  .tb-logo span { color: #e04040; }
+  .tb-link { color: #bbb; font-size: 11px; padding: 4px 10px; border-radius: 3px; }
+  .tb-link.active { background: #333; color: #fff; }
+  .tb-right { margin-left: auto; display: flex; align-items: center; gap: 12px; color: #bbb; font-size: 11px; }
+  .tb-avatar { width: 28px; height: 28px; border-radius: 50%; background: #555; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 11px; font-weight: 700; }
+  /* Content area */
+  .content { height: calc(100% - 68px); padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; overflow: hidden; }
+  /* Page header */
+  .page-header { display: flex; align-items: center; justify-content: space-between; }
+  .page-title { font-size: 16px; font-weight: 700; color: #222; }
+  .page-sub { font-size: 11px; color: #888; }
+  .breadcrumb { font-size: 10px; color: #aaa; }
+  /* Stats grid */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .stat-card { border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px; position: relative; background: #fafafa; }
+  .stat-icon { width: 36px; height: 36px; background: #e8e8e8; border-radius: 8px; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; color: #888; }
+  .stat-label { font-size: 9px; color: #888; text-transform: uppercase; font-weight: 600; }
+  .stat-value { font-size: 22px; font-weight: 900; color: #222; margin: 2px 0; }
+  .stat-desc { font-size: 9px; color: #aaa; }
+  .progress-bar { height: 4px; background: #e0e0e0; border-radius: 2px; margin-top: 6px; }
+  .progress-fill { height: 100%; border-radius: 2px; background: #aaa; }
+  /* Middle row */
+  .mid-row { display: flex; gap: 12px; flex: 1; overflow: hidden; }
+  /* Chart */
+  .chart-box { flex: 1; border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px; background: #fafafa; position: relative; display: flex; flex-direction: column; gap: 6px; }
+  .chart-title { font-size: 11px; font-weight: 700; color: #444; }
+  .chart-area { flex: 1; background: #f0f0f0; border: 1px solid #ddd; border-radius: 3px; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 11px; font-style: italic; }
+  /* Table */
+  .table-box { flex: 1.4; border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px; background: #fafafa; position: relative; display: flex; flex-direction: column; gap: 6px; overflow: hidden; }
+  .table-title { font-size: 11px; font-weight: 700; color: #444; display: flex; justify-content: space-between; }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 10px; }
+  .tbl th { background: #e8e8e8; padding: 5px 8px; text-align: left; color: #666; font-weight: 600; border-bottom: 1px solid #ccc; }
+  .tbl td { padding: 5px 8px; border-bottom: 1px solid #ebebeb; color: #555; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .badge { padding: 1px 6px; border-radius: 10px; font-size: 9px; font-weight: 700; }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-yellow { background: #fff3cd; color: #856404; }
+  .badge-red { background: #f8d7da; color: #721c24; }
+  .section-label { position: absolute; top: -1px; left: -1px; background: #333; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px 0 2px 0; }
+  /* Legend */
+  .legend { border: 1px solid #ddd; border-radius: 4px; padding: 6px 12px; background: #fafafa; display: flex; flex-wrap: wrap; gap: 6px; }
+  .legend-item { display: flex; align-items: center; gap: 3px; font-size: 9px; color: #555; }
+  .legend-num { width: 14px; height: 14px; border-radius: 50%; background: #555; color: #fff; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  <div class="url-bar">http://localhost:5000/admin/dashboard</div>
+</div>
+<div class="note-bar">Wireframe — Phương án thiết kế màn hình bảng điều khiển quản trị viên &nbsp;|&nbsp; ① – ⑨ = vùng chức năng</div>
+
+<!-- Top navbar -->
+<div class="topbar" style="position:relative;">
+  <span class="section-label">①</span>
+  <span class="tb-logo">KTX<span>HUST</span></span>
+  <span class="tb-link">Ký túc xá</span>
+  <span class="tb-link">Hồ sơ</span>
+  <span class="tb-link active">Vi phạm</span>
+  <span class="tb-link">Bảo trì</span>
+  <span class="tb-link">Phân bổ</span>
+  <span class="tb-link">Nhật ký</span>
+  <div class="tb-right">
+    <span>🔔 &nbsp;3</span>
+    <div class="tb-avatar">A</div>
+  </div>
+</div>
+
+<div class="content">
+  <!-- Page header -->
+  <div class="page-header" style="position:relative;">
+    <span class="section-label">②</span>
+    <div>
+      <div class="breadcrumb">Admin / Dashboard</div>
+      <div class="page-title">Bảng Điều Khiển</div>
+      <div class="page-sub">Tổng quan về hệ thống quản lý ký túc xá</div>
+    </div>
+    <div style="font-size:10px;color:#aaa;text-align:right;">
+      Cập nhật lần cuối: --/--/----<br>
+      <span style="text-decoration:underline;color:#888;cursor:pointer;">Làm mới dữ liệu</span>
+    </div>
+  </div>
+
+  <!-- Stats cards -->
+  <div class="stats-grid" style="position:relative;">
+    <span class="section-label">③</span>
+    <!-- Card 1 -->
+    <div class="stat-card">
+      <div class="stat-icon">👥</div>
+      <div class="stat-label">Sinh viên đang ở KTX</div>
+      <div class="stat-value">XXX</div>
+      <div class="stat-desc">Trên tổng số XXX sinh viên</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:60%;"></div></div>
+    </div>
+    <!-- Card 2 -->
+    <div class="stat-card">
+      <div class="stat-icon">🏠</div>
+      <div class="stat-label">Phòng trống</div>
+      <div class="stat-value">XX</div>
+      <div class="stat-desc">Trên tổng số XX phòng</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:30%;background:#c44;"></div></div>
+    </div>
+    <!-- Card 3 -->
+    <div class="stat-card">
+      <div class="stat-icon">📋</div>
+      <div class="stat-label">Đơn chờ duyệt</div>
+      <div class="stat-value">X</div>
+      <div class="stat-desc">Cần xử lý</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:20%;background:#e8a030;"></div></div>
+    </div>
+    <!-- Card 4 -->
+    <div class="stat-card">
+      <div class="stat-icon">📊</div>
+      <div class="stat-label">Tỷ lệ sử dụng</div>
+      <div class="stat-value">XX%</div>
+      <div class="stat-desc">X/XX chỗ đã sử dụng</div>
+      <div class="progress-bar"><div class="progress-fill" style="width:45%;"></div></div>
+    </div>
+  </div>
+
+  <!-- Middle: chart + table -->
+  <div class="mid-row">
+    <!-- Chart section -->
+    <div class="chart-box">
+      <span class="section-label">④</span>
+      <div class="chart-title">Phân bố trạng thái phòng theo toà nhà
+        <span style="font-size:9px;font-weight:400;color:#aaa;">[ Doughnut chart — Chart.js ]</span>
+      </div>
+      <div class="chart-area">
+        [ Vùng hiển thị biểu đồ tròn ]<br>
+        <small>Tỉ lệ: Đã sử dụng / Trống / Bảo trì</small>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:4px;">
+        <span style="font-size:9px;color:#666;">■ Đã dùng</span>
+        <span style="font-size:9px;color:#888;">□ Trống</span>
+        <span style="font-size:9px;color:#aaa;">▨ Bảo trì</span>
+      </div>
+    </div>
+
+    <!-- Table section -->
+    <div class="table-box">
+      <span class="section-label">⑤</span>
+      <div class="table-title">
+        <span>Tình trạng đơn đăng ký gần nhất</span>
+        <span style="font-size:9px;font-weight:400;color:#aaa;text-decoration:underline;cursor:pointer;">Xem tất cả →</span>
+      </div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Sinh viên</th>
+            <th>Mã SV</th>
+            <th>Phòng</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Nguyễn Văn A</td>
+            <td><code>2022XXXX</code></td>
+            <td>A-201</td>
+            <td><span class="badge badge-green">Đã duyệt</span></td>
+            <td><span style="color:#555;text-decoration:underline;font-size:9px;">Xem</span></td>
+          </tr>
+          <tr>
+            <td>Trần Thị B</td>
+            <td><code>2023XXXX</code></td>
+            <td>B-105</td>
+            <td><span class="badge badge-yellow">Đang chờ</span></td>
+            <td><span style="color:#555;text-decoration:underline;font-size:9px;">Xem</span></td>
+          </tr>
+          <tr>
+            <td>Lê Văn C</td>
+            <td><code>2021XXXX</code></td>
+            <td>—</td>
+            <td><span class="badge badge-red">Từ chối</span></td>
+            <td><span style="color:#555;text-decoration:underline;font-size:9px;">Xem</span></td>
+          </tr>
+          <tr>
+            <td>Phạm Thị D</td>
+            <td><code>2022XXXX</code></td>
+            <td>A-304</td>
+            <td><span class="badge badge-green">Đã duyệt</span></td>
+            <td><span style="color:#555;text-decoration:underline;font-size:9px;">Xem</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="position:relative;margin-top:4px;">
+        <span class="section-label">⑥</span>
+        <div style="display:flex;gap:8px;margin-top:6px;">
+          <div style="height:26px;background:#e0e0e0;border-radius:3px;padding:0 10px;display:flex;align-items:center;font-size:10px;color:#666;">📥 Xuất Excel</div>
+          <div style="height:26px;background:#333;border-radius:3px;padding:0 10px;display:flex;align-items:center;font-size:10px;color:#fff;">+ Thêm đơn thủ công</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-num">①</div> Thanh điều hướng top + thông báo + avatar</div>
+    <div class="legend-item"><div class="legend-num">②</div> Tiêu đề trang + breadcrumb + thời gian cập nhật</div>
+    <div class="legend-item"><div class="legend-num">③</div> Lưới thẻ thống kê (4 thẻ, progress bar màu theo mức độ)</div>
+    <div class="legend-item"><div class="legend-num">④</div> Biểu đồ phân bố trạng thái phòng (Chart.js doughnut)</div>
+    <div class="legend-item"><div class="legend-num">⑤</div> Bảng đơn đăng ký gần nhất + badge trạng thái</div>
+    <div class="legend-item"><div class="legend-num">⑥</div> Nút hành động: xuất báo cáo, thêm đơn thủ công</div>
+  </div>
+</div>
+</body>
+</html>

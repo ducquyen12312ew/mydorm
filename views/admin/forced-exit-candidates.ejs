@@ -25,11 +25,11 @@
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: #C8102E;
       color: white;
-      padding: 30px;
-      border-radius: 12px;
-      margin-bottom: 30px;
+      padding: 20px 24px;
+      border-radius: 10px;
+      margin-bottom: 24px;
     }
 
     .header h1 {
@@ -90,30 +90,31 @@
     }
 
     .btn-primary {
-      background: #667eea;
+      background: #C8102E;
       color: white;
     }
 
     .btn-primary:hover {
-      background: #5568d3;
+      background: #A20D25;
     }
 
     .btn-danger {
-      background: #f44336;
+      background: #DC2626;
       color: white;
     }
 
     .btn-danger:hover {
-      background: #d32f2f;
+      background: #B91C1C;
     }
 
     .btn-secondary {
-      background: #757575;
-      color: white;
+      background: #F3F4F6;
+      color: #374151;
+      border: 1px solid #E5E7EB;
     }
 
     .btn-secondary:hover {
-      background: #616161;
+      background: #E5E7EB;
     }
 
     .table-container {
@@ -156,9 +157,10 @@
     .rank-badge {
       display: inline-block;
       min-width: 40px;
-      padding: 6px 10px;
-      background: #667eea;
-      color: white;
+      padding: 4px 8px;
+      background: #FFF0F2;
+      color: #C8102E;
+      border: 1px solid #FECDD3;
       border-radius: 4px;
       font-weight: 600;
       text-align: center;
@@ -166,7 +168,7 @@
 
     .score-cell {
       font-weight: 600;
-      color: #667eea;
+      color: #C8102E;
     }
 
     .status-critical {
@@ -180,8 +182,9 @@
     }
 
     .status-safe {
-      background: #e8f5e9;
-      color: #2e7d32;
+      background: #DCFCE7;
+      color: #166534;
+      border: 1px solid #86EFAC;
     }
 
     .score-components {
@@ -200,7 +203,7 @@
 
     .percentile-fill {
       height: 100%;
-      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      background: #C8102E;
     }
 
     .action-buttons {
@@ -218,21 +221,22 @@
     }
 
     .btn-review {
-      background: #2196f3;
-      color: white;
+      background: #F3F4F6;
+      color: #374151;
+      border: 1px solid #E5E7EB;
     }
 
     .btn-review:hover {
-      background: #1976d2;
+      background: #E5E7EB;
     }
 
     .btn-approve {
-      background: #4caf50;
+      background: #C8102E;
       color: white;
     }
 
     .btn-approve:hover {
-      background: #388e3c;
+      background: #A20D25;
     }
 
     .btn-reject {
@@ -262,7 +266,7 @@
     .stat-value {
       font-size: 32px;
       font-weight: 700;
-      color: #667eea;
+      color: #C8102E;
       margin-bottom: 5px;
     }
 
@@ -302,15 +306,15 @@
     }
 
     .pagination button.active {
-      background: #667eea;
+      background: #C8102E;
       color: white;
-      border-color: #667eea;
+      border-color: #C8102E;
     }
 
     .tooltip {
       position: relative;
       cursor: help;
-      border-bottom: 1px dotted #667eea;
+      border-bottom: 1px dotted #9CA3AF;
     }
 
     .tooltip:hover::after {
@@ -432,7 +436,7 @@
       const count = document.getElementById('countFilter').value;
 
       try {
-        const response = await fetch(`/api/allocation/admin/forced-exit-candidates?count=${count}`);
+        const response = await fetch(`/admin/forced-exit-candidates?count=${count}`);
         const data = await response.json();
 
         if (!response.ok) {

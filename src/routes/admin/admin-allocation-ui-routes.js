@@ -229,6 +229,12 @@ router.get('/cycles/:cycleId/results', requireAdmin, async (req, res) => {
 // DASHBOARD
 // ===============================
 
+// GET: Redirect /dashboard → current academic year
+router.get('/dashboard', requireAdmin, (req, res) => {
+    const y = new Date().getFullYear();
+    res.redirect(`/admin/allocation/dashboard/${y}-${y + 1}`);
+});
+
 // GET: Dashboard for a year
 router.get('/dashboard/:academicYear', requireAdmin, async (req, res) => {
     try {

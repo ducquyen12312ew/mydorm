@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { DormitoryCollection, StudentCollection, PendingApplicationCollection } = require('../../config/config');
+const { DormitoryCollection, StudentCollection, PendingApplicationCollection, ActivityLogCollection } = require('../../config/config');
 const { sendNotificationOnEvent, createActivityLog } = require('../../utils/notificationHelper');
 const { logger } = require('../../config/logger');
 const { EVENT_TYPES } = require('../../events/domain-events');
@@ -21,6 +21,105 @@ router.get('/admin/logs', isAdmin, (req, res) => {
     res.render('admin/logs', {
         user: { name: req.session.name, role: req.session.role }
     });
+});
+
+// ============================================================
+// ACTIVITY LOGS API
+// ============================================================
+
+router.get('/api/admin/logs', isAdmin, async (req, res) => {
+    try {
+        const page     = Math.max(1, parseInt(req.query.page)  || 1);
+        const limit    = Math.min(100, parseInt(req.query.limit) || 20);
+        const skip     = (page - 1) * limit;
+        const search   = req.query.search   || '';
+        const action   = req.query.action   || '';
+        const status   = req.query.status   || '';
+        const startDate = req.query.startDate || '';
+        const endDate   = req.query.endDate   || '';
+
+        const query = {};
+
+        if (action) query.action = action;
+
+        if (search) {
+            query.$or = [
+                { description: { $regex: search, $options: 'i' } },
+                { 'details.studentName': { $regex: search, $options: 'i' } },
+                { 'details.studentId':   { $regex: search, $options: 'i' } },
+                { 'details.ip':          { $regex: search, $options: 'i' } },
+            ];
+        }
+
+        if (status) {
+            query['details.status'] = status;
+        }
+
+        if (startDate || endDate) {
+            query.createdAt = {};
+            if (startDate) query.createdAt.$gte = new Date(startDate + 'T00:00:00.000Z');
+            if (endDate)   query.createdAt.$lte = new Date(endDate   + 'T23:59:59.999Z');
+        }
+
+        const [logs, total] = await Promise.all([
+            ActivityLogCollection.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+            ActivityLogCollection.countDocuments(query),
+        ]);
+
+        res.json({
+            success: true,
+            logs,
+            total,
+            page,
+            totalPages: Math.ceil(total / limit),
+        });
+    } catch (error) {
+        logger.error('Error fetching activity logs', { error: error.message });
+        res.status(500).json({ success: false, error: 'Lỗi khi lấy nhật ký' });
+    }
+});
+
+router.get('/api/admin/logs/export', isAdmin, async (req, res) => {
+    try {
+        const logs = await ActivityLogCollection.find().sort({ createdAt: -1 }).limit(5000).lean();
+
+        const header = ['#', 'Thời gian', 'Hành động', 'Người dùng', 'MSSV', 'Module', 'IP', 'Trạng thái', 'Mô tả'].join(',');
+        const rows = logs.map((log, i) => {
+            const ts  = log.createdAt ? new Date(log.createdAt).toLocaleString('vi-VN') : '';
+            const det = log.details || {};
+            const cols = [
+                i + 1,
+                `"${ts}"`,
+                log.action || '',
+                `"${(det.studentName || '').replace(/"/g, '""')}"`,
+                det.studentId || '',
+                det.module || '',
+                det.ip || '',
+                det.status || 'success',
+                `"${(log.description || '').replace(/"/g, '""')}"`,
+            ];
+            return cols.join(',');
+        });
+
+        const csv = '﻿' + [header, ...rows].join('\n');
+        res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+        res.setHeader('Content-Disposition', `attachment; filename="activity-logs-${Date.now()}.csv"`);
+        res.send(csv);
+    } catch (error) {
+        logger.error('Error exporting logs', { error: error.message });
+        res.status(500).json({ success: false, error: 'Lỗi khi xuất CSV' });
+    }
+});
+
+router.get('/api/admin/logs/:id', isAdmin, async (req, res) => {
+    try {
+        const log = await ActivityLogCollection.findById(req.params.id).lean();
+        if (!log) return res.status(404).json({ success: false, error: 'Không tìm thấy bản ghi' });
+        res.json({ success: true, log });
+    } catch (error) {
+        logger.error('Error fetching log detail', { error: error.message });
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
 });
 
 router.get('/admin/dormitories', isAdmin, async (req, res) => {
@@ -45,6 +144,12 @@ router.get('/admin/dormitories', isAdmin, async (req, res) => {
 router.get('/admin/application', isAdmin, (req, res) => {
     res.type('html');
     res.render('admin/application/admin-application', {
+        user: { name: req.session.name, role: req.session.role }
+    });
+});
+
+router.get('/admin/notifications', isAdmin, (req, res) => {
+    res.render('admin/notifications', {
         user: { name: req.session.name, role: req.session.role }
     });
 });
@@ -112,7 +217,6 @@ router.get('/admin/students', isAdmin, async (req, res) => {
     try {
         const students = await StudentCollection.find({ role: 'user' })
             .sort({ name: 1 })
-            .limit(200)
             .lean();
         res.render('admin/student/admin-student-list', {
             students,

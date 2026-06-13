@@ -421,16 +421,16 @@ router.post('/admin/applications/:id/approve', isAdmin, validateObjectId, async 
             return res.status(400).json({ error: 'Invalid state' });
         
         // Cập nhật trạng thái đơn
-        appDoc.status = 'approved_waiting_payment';
+        appDoc.status = 'approved';
         appDoc.approvedBy = req.session.userId;
         appDoc.approvedAt = new Date();
         appDoc.updatedAt = new Date();
         await appDoc.save();
-        
+
         // Cập nhật trạng thái sinh viên
         const student = await StudentCollection.findOne({ studentId: appDoc.studentId });
         if (student) {
-            student.registrationStatus = 'approved_waiting_payment';
+            student.registrationStatus = 'approved';
             await student.save();
         }
         
@@ -468,7 +468,7 @@ router.post('/admin/applications/:id/reject', isAdmin, validateObjectId, async (
         const appDoc = await PendingApplicationCollection.findById(req.params.id);
         if (!appDoc) return res.status(404).json({ error: 'Not found' });
         
-        if (!['pending_review', 'waitlist', 'approved_waiting_payment'].includes(appDoc.status)) 
+        if (!['pending_review', 'waitlist', 'approved', 'pending'].includes(appDoc.status))
             return res.status(400).json({ error: 'Invalid state' });
         
         // Cập nhật trạng thái đơn
@@ -513,40 +513,9 @@ router.post('/admin/applications/:id/reject', isAdmin, validateObjectId, async (
     }
 });
 
-// API xác nhận thanh toán
-router.post('/admin/applications/:id/confirm-payment', isAdmin, validateObjectId, async (req, res) => {
-    try {
-        const appDoc = await PendingApplicationCollection.findById(req.params.id);
-        if (!appDoc) return res.status(404).json({ error: 'Not found' });
-        
-        if (appDoc.status !== 'approved_waiting_payment') 
-            return res.status(400).json({ error: 'Invalid state' });
-        
-        // Cập nhật thông tin thanh toán
-        appDoc.payment = {
-            paid: true,
-            amount: req.body.amount || 0,
-            method: req.body.method || 'admin',
-            transactionId: req.body.transactionId || '',
-            confirmedBy: req.session.userId,
-            confirmedAt: new Date()
-        };
-        
-        await appDoc.save();
-        
-        // Ghi log hoạt động
-        await ActivityLogCollection.create({ 
-            actorId: req.session.userId || null, 
-            actorRole: 'admin', 
-            action: 'payment_confirmed', 
-            meta: { applicationId: appDoc._id, amount: req.body.amount } 
-        });
-        
-        res.json({ ok: true, application: appDoc });
-    } catch (error) {
-        console.error('Error confirming payment:', error);
-        res.status(500).json({ error: 'Lỗi hệ thống' });
-    }
+// Payment flow removed — admin approval = room allocated directly
+router.post('/admin/applications/:id/confirm-payment', isAdmin, (req, res) => {
+    res.status(410).json({ error: 'Payment flow has been removed. Admin approval directly allocates the room.' });
 });
 
 // API gán phòng cho sinh viên
@@ -555,12 +524,8 @@ router.post('/admin/applications/:id/assign', isAdmin, validateObjectId, async (
         const appDoc = await PendingApplicationCollection.findById(req.params.id);
         if (!appDoc) return res.status(404).json({ error: 'Not found' });
         
-        // Kiểm tra đã thanh toán chưa
-        if (!appDoc.payment || !appDoc.payment.paid) 
-            return res.status(400).json({ error: 'Payment not confirmed' });
-        
         // Kiểm tra trạng thái hợp lệ
-        if (!['approved_waiting_payment', 'waitlist'].includes(appDoc.status)) 
+        if (!['approved', 'waitlist'].includes(appDoc.status))
             return res.status(400).json({ error: 'Invalid state' });
         
         // 1. Nếu có chỉ định phòng cụ thể từ Admin
@@ -1100,21 +1065,21 @@ router.post('/admin/applications/expire', isAdmin, async (req, res) => {
         const apps = await PendingApplicationCollection.updateMany(
             { 
                 academicYear: year, 
-                status: { $in: ['pending_review', 'approved_waiting_payment', 'waitlist'] } 
-            }, 
-            { 
-                $set: { 
-                    status: 'expired', 
-                    updatedAt: new Date() 
-                } 
+                status: { $in: ['pending_review', 'waitlist'] }
+            },
+            {
+                $set: {
+                    status: 'expired',
+                    updatedAt: new Date()
+                }
             }
         );
-        
+
         // Cập nhật trạng thái sinh viên
         await StudentCollection.updateMany(
-            { 
-                academicYear: year, 
-                registrationStatus: { $in: ['pending_review', 'approved_waiting_payment', 'waitlist'] } 
+            {
+                academicYear: year,
+                registrationStatus: { $in: ['pending_review', 'waitlist'] }
             }, 
             { 
                 $set: { registrationStatus: 'expired' } 

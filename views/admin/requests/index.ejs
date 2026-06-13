@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yêu cầu — Admin KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #C8102E; --red-dark: #9E0D25;
+      --bg: #F5F6F8; --card: #FFFFFF;
+      --border: #EAECF0; --text: #2D3748; --muted: #9AA3AD;
+      --radius: 12px; --shadow: 0 1px 6px rgba(0,0,0,.04);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .admin-content { min-height: 100vh; }
+    .page-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: .75rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .page-header h1 span { color: var(--red); }
+    .header-actions { display: flex; gap: .5rem; align-items: center; }
+
+    /* Stats */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--card); border-radius: var(--radius); padding: 1rem 1.25rem; border: 1px solid var(--border); }
+    .stat-card .label { font-size: .78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .stat-card .value { font-size: 2rem; font-weight: 800; margin-top: .25rem; color: var(--text); }
+    .stat-card.red  .value { color: var(--red); }
+    .stat-card.warn .value { color: #D97706; }
+    .stat-card.blue .value { color: #2563EB; }
+
+    /* Type toggle */
+    .type-toggle { display: flex; gap: .5rem; margin-bottom: 1rem; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: .35rem; width: fit-content; }
+    .type-btn { padding: .45rem 1.1rem; border-radius: 8px; font-size: .84rem; font-weight: 600; cursor: pointer; border: none; background: none; color: var(--muted); transition: all .18s; text-decoration: none; display: inline-flex; align-items: center; gap: .4rem; }
+    .type-btn.active { background: var(--red); color: #fff; }
+    .type-btn:not(.active):hover { color: var(--text); background: var(--bg); }
+
+    /* Status filter */
+    .filter-bar { display: flex; gap: .4rem; margin-bottom: 1rem; flex-wrap: wrap; align-items: center; }
+    .filter-bar label { font-size: .8rem; font-weight: 600; color: var(--muted); margin-right: .2rem; }
+    .filter-pill { padding: .3rem .8rem; border-radius: 20px; border: 1px solid var(--border); background: var(--card); font-size: .78rem; font-weight: 600; color: var(--muted); cursor: pointer; text-decoration: none; transition: all .18s; }
+    .filter-pill:hover, .filter-pill.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+    /* Table */
+    .table-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #F8F9FB; font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: .7rem 1rem; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+    td { padding: .85rem 1rem; border-bottom: 1px solid var(--border); font-size: .87rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #FAFBFC; }
+
+    /* Badges */
+    .type-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .22rem .65rem; border-radius: 20px; font-size: .72rem; font-weight: 700; white-space: nowrap; }
+    .tb-maintenance { background: #FFF3CD; color: #92400E; }
+    .tb-room_transfer { background: #DBEAFE; color: #1E40AF; }
+
+    .status-badge { display: inline-flex; align-items: center; gap: .28rem; padding: .22rem .65rem; border-radius: 20px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+    .sb-submitted, .sb-pending { background: #FEF3C7; color: #92400E; }
+    .sb-assigned, .sb-approved { background: #DBEAFE; color: #1E40AF; }
+    .sb-in_progress { background: #EDE9FE; color: #5B21B6; }
+    .sb-completed  { background: #D1FAE5; color: #065F46; }
+    .sb-rejected, .sb-cancelled { background: #F3F4F6; color: #6B7280; }
+
+    .priority-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .pd-urgent { background: var(--red); }
+    .pd-high   { background: #F59E0B; }
+    .pd-medium { background: #6B7280; }
+    .pd-low    { background: #D1D5DB; }
+
+    .student-cell .name { font-weight: 600; }
+    .student-cell .mssv { font-size: .76rem; color: var(--muted); }
+
+    .subject-cell { max-width: 260px; }
+    .subject-cell .text { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
+    .subject-cell .meta { font-size: .74rem; color: var(--muted); margin-top: .1rem; }
+
+    .btn-sm { display: inline-flex; align-items: center; gap: .3rem; padding: .32rem .7rem; border-radius: 7px; font-size: .78rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text); text-decoration: none; transition: all .15s; white-space: nowrap; }
+    .btn-sm:hover { border-color: var(--red); color: var(--red); }
+    .btn-sm.primary { background: var(--red); color: #fff; border-color: var(--red); }
+    .btn-sm.primary:hover { background: var(--red-dark); }
+
+    .pagination { display: flex; align-items: center; gap: .4rem; padding: 1rem 1.25rem; justify-content: flex-end; border-top: 1px solid var(--border); }
+    .pg-info { font-size: .8rem; color: var(--muted); margin-right: auto; }
+    .page-link { padding: .3rem .65rem; border: 1px solid var(--border); border-radius: 6px; font-size: .8rem; color: var(--text); text-decoration: none; transition: all .15s; }
+    .page-link:hover { border-color: var(--red); color: var(--red); }
+    .page-link.active { background: var(--red); color: #fff; border-color: var(--red); }
+    .page-link.disabled { opacity: .4; pointer-events: none; }
+
+    .empty { text-align: center; padding: 3.5rem 1rem; color: var(--muted); }
+    .empty i { font-size: 2.2rem; display: block; margin-bottom: .75rem; opacity: .5; }
+    .empty p { font-size: .9rem; }
+
+    @media (max-width: 1024px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 640px) {
+      .stat-row { grid-template-columns: 1fr 1fr; }
+      td.hide-mobile, th.hide-mobile { display: none; }
+    }
+  </style>
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'requests' }) %>
+
+<div class="admin-content">
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1>Quản lý <span>Yêu cầu</span></h1>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Tất cả yêu cầu bảo trì và chuyển phòng từ sinh viên</p>
+    </div>
+    <div class="header-actions">
+      <a href="/admin/maintenance-requests" class="btn-sm"><i class="fas fa-tools"></i> Quản lý bảo trì</a>
+      <a href="/admin/room-transfer" class="btn-sm primary"><i class="fas fa-exchange-alt"></i> Quản lý chuyển phòng</a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-row">
+    <div class="stat-card">
+      <div class="label">Tổng yêu cầu</div>
+      <div class="value"><%= mTotal + rtTotal %></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Bảo trì</div>
+      <div class="value"><%= mTotal %></div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Chuyển phòng</div>
+      <div class="value"><%= rtTotal %></div>
+    </div>
+    <div class="stat-card red">
+      <div class="label">Đang chờ xử lý</div>
+      <div class="value"><%= mPending + rtPending %></div>
+    </div>
+  </div>
+
+  <!-- Type toggle -->
+  <div class="type-toggle">
+    <% const types = [
+      {key:'all', label:'Tất cả', icon:'fa-list'},
+      {key:'maintenance', label:'Bảo trì', icon:'fa-tools'},
+      {key:'room_transfer', label:'Chuyển phòng', icon:'fa-exchange-alt'}
+    ]; %>
+    <% types.forEach(t => { %>
+      <a href="/admin/requests?type=<%= t.key %>&status=<%= statusFilter %>&page=1"
+         class="type-btn <%= typeFilter === t.key ? 'active' : '' %>">
+        <i class="fas <%= t.icon %>"></i> <%= t.label %>
+      </a>
+    <% }) %>
+  </div>
+
+  <!-- Status filter -->
+  <% if (typeFilter === 'maintenance') { %>
+  <div class="filter-bar">
+    <label>Trạng thái:</label>
+    <% [['all','Tất cả'],['submitted','Chờ xử lý'],['assigned','Đã phân công'],['in_progress','Đang xử lý'],['completed','Hoàn thành'],['cancelled','Đã huỷ']].forEach(([k,l]) => { %>
+      <a href="/admin/requests?type=<%= typeFilter %>&status=<%= k %>&page=1"
+         class="filter-pill <%= statusFilter === k ? 'active' : '' %>"><%= l %></a>
+    <% }) %>
+  </div>
+  <% } else if (typeFilter === 'room_transfer') { %>
+  <div class="filter-bar">
+    <label>Trạng thái:</label>
+    <% [['all','Tất cả'],['pending','Chờ duyệt'],['approved','Đã duyệt'],['completed','Hoàn thành'],['rejected','Từ chối'],['cancelled','Đã huỷ']].forEach(([k,l]) => { %>
+      <a href="/admin/requests?type=<%= typeFilter %>&status=<%= k %>&page=1"
+         class="filter-pill <%= statusFilter === k ? 'active' : '' %>"><%= l %></a>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <!-- Table -->
+  <div class="table-card">
+    <% if (items.length === 0) { %>
+    <div class="empty">
+      <i class="fas fa-inbox"></i>
+      <p>Không có yêu cầu nào</p>
+    </div>
+    <% } else { %>
+    <table>
+      <thead>
+        <tr>
+          <th>Loại</th>
+          <th>Sinh viên</th>
+          <th>Nội dung</th>
+          <th class="hide-mobile">Ngày gửi</th>
+          <th>Trạng thái</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% items.forEach(item => { %>
+        <tr>
+          <td>
+            <span class="type-badge tb-<%= item.requestType %>">
+              <i class="fas <%= item.requestType === 'maintenance' ? 'fa-tools' : 'fa-exchange-alt' %>"></i>
+              <%= item.requestType === 'maintenance' ? 'Bảo trì' : 'Chuyển phòng' %>
+            </span>
+            <% if (item.priority) { %>
+              <span class="priority-dot pd-<%= item.priority %>" title="Ưu tiên: <%= item.priority %>" style="margin-left:.35rem"></span>
+            <% } %>
+          </td>
+          <td>
+            <div class="student-cell">
+              <div class="name"><%= item.studentName %></div>
+              <div class="mssv"><%= item.studentMSSV %></div>
+            </div>
+          </td>
+          <td>
+            <div class="subject-cell">
+              <div class="text"><%= item.subject %></div>
+              <% if (item.meta) { %><div class="meta"><%= item.meta %></div><% } %>
+            </div>
+          </td>
+          <td class="hide-mobile" style="white-space:nowrap;color:var(--muted);font-size:.8rem">
+            <%= item.createdAt ? new Date(item.createdAt).toLocaleDateString('vi-VN') : '—' %>
+          </td>
+          <td>
+            <span class="status-badge sb-<%= item.status %>"><%= item.statusLabel %></span>
+          </td>
+          <td>
+            <a href="<%= item.detailUrl %>" class="btn-sm">
+              <i class="fas fa-eye"></i> Xem
+            </a>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <span class="pg-info">Hiển thị <%= (page - 1) * perPage + 1 %>–<%= Math.min(page * perPage, total) %> / <%= total %> yêu cầu</span>
+      <a href="/admin/requests?type=<%= typeFilter %>&status=<%= statusFilter %>&page=<%= page - 1 %>"
+         class="page-link <%= page <= 1 ? 'disabled' : '' %>"><i class="fas fa-chevron-left"></i></a>
+      <% for (let i = Math.max(1, page - 2); i <= Math.min(totalPages, page + 2); i++) { %>
+        <a href="/admin/requests?type=<%= typeFilter %>&status=<%= statusFilter %>&page=<%= i %>"
+           class="page-link <%= i === page ? 'active' : '' %>"><%= i %></a>
+      <% } %>
+      <a href="/admin/requests?type=<%= typeFilter %>&status=<%= statusFilter %>&page=<%= page + 1 %>"
+         class="page-link <%= page >= totalPages ? 'disabled' : '' %>"><i class="fas fa-chevron-right"></i></a>
+    </div>
+    <% } %>
+    <% } %>
+  </div>
+
+</div>
+</div>
+</body>
+</html>

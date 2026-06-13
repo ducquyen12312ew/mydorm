@@ -151,6 +151,15 @@ async function run() {
       amenities: ['WiFi', 'Bãi xe', 'Bảo vệ 24/7', 'Giặt ủi'],
       priceRange: { min: 400000, max: 700000 }, available: true,
     },
+    imageUrl:   'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175726/01-front_unhrum.png',
+    coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175726/01-front_unhrum.png',
+    images: [
+      'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175726/01-front_unhrum.png',
+      'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175793/07-corner_uj6gfa.png',
+      'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175796/06-door_f8hxgg.png',
+    ],
+    videos: ['https://res.cloudinary.com/dysgt8t4d/video/upload/v1780934048/ktx-hust/dormitory-videos/gvssl6arhxtdt4s6vv2v.mp4'],
+    virtualTour: '/vr-tour',
     floors: [
       {
         floorNumber: 1,
@@ -189,6 +198,15 @@ async function run() {
       amenities: ['WiFi tốc độ cao', 'Bãi xe', 'Bảo vệ 24/7', 'Phòng sinh hoạt chung', 'Nhà bếp chung'],
       priceRange: { min: 550000, max: 750000 }, available: true,
     },
+    imageUrl:   'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/e22ca35b-a539-47d5-9d2d-bb51945ba345_m4tu8o.png',
+    coverImage: 'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/e22ca35b-a539-47d5-9d2d-bb51945ba345_m4tu8o.png',
+    images: [
+      'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/e22ca35b-a539-47d5-9d2d-bb51945ba345_m4tu8o.png',
+      'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781103106/951abc95-b43e-4ff6-a6f3-7b07786e7bc4_yhvim3.png',
+      'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781176046/4a928e90-4fb8-4b4c-be9b-b91d454d2467_yibfor.jpg',
+    ],
+    videos: ['https://res.cloudinary.com/dysgt8t4d/video/upload/v1781051760/Ultra_realistic_university_dor_d7emty.mp4'],
+    virtualTour: '/vr-tour2',
     floors: [
       {
         floorNumber: 1,
@@ -220,7 +238,7 @@ async function run() {
   console.log('\n[2] Seeding demo student + roommates...');
   const hash = await bcrypt.hash('Demo@1234', 10);
 
-  await Student.deleteMany({ role: 'user' });
+  await Student.deleteMany({ role: 'user', isProtected: { $ne: true } });
 
   // Demo student (the one used for screenshots)
   const demoStudent = await Student.create({

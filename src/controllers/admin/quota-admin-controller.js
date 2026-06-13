@@ -1,4 +1,5 @@
 const QuotaConfig = require('../../schemas/QuotaConfigSchema');
+const { publishQuotaAndCreatePolicy } = require('../../services/quotaPublishService');
 const QuotaAuditLog = require('../../schemas/QuotaAuditLogSchema');
 const QuotaWorkflowPlan = require('../../schemas/QuotaWorkflowPlanSchema');
 const QuotaNotificationBatch = require('../../schemas/QuotaNotificationBatchSchema');
@@ -221,7 +222,8 @@ async function renderQuotaList(req, res) {
       quotas,
       selectedAcademicYear: academicYear || '',
       message: getMessage(req),
-      canManage: !!req.quotaAccess?.canManage
+      canManage: req.session.isSuperAdmin === true,
+      isSuperAdmin: req.session.isSuperAdmin === true
     });
   } catch (error) {
     res.status(500).send(`Cannot load quota list: ${error.message}`);
@@ -419,39 +421,15 @@ async function publishQuota(req, res) {
       return res.status(400).json({ success: false, error: 'Only draft quota can be published' });
     }
 
-    const existingPublished = await QuotaConfig.findOne({
-      academicYear: source.academicYear,
-      isDraft: false
-    }).select({ _id: 1, version: 1 }).lean();
-
-    if (existingPublished) {
-      return res.status(409).json({
-        success: false,
-        error: `Năm học ${source.academicYear} đã có quota ban hành (phiên bản #${existingPublished.version}).`
-      });
-    }
-
-    const nextVersion = await getNextVersion(source.academicYear);
-
-    const publishedDoc = {
-      academicYear: source.academicYear,
-      totalCapacity: source.totalCapacity,
-      quotas: source.quotas,
-      overcapPolicy: source.overcapPolicy,
-      analyticsOptions: source.analyticsOptions,
-      effectiveFrom: source.effectiveFrom,
-      effectiveTo: source.effectiveTo,
-      isDraft: false,
-      version: nextVersion,
-      createdBy: req.session.userId
-    };
-
-    const validation = validateQuota(publishedDoc);
+    const validation = validateQuota(source);
     if (!validation.isValid) {
       return res.status(400).json({ success: false, error: validation.errors.join('; ') });
     }
 
-    const published = await QuotaConfig.create(publishedDoc);
+    const { quota: published, policy } = await publishQuotaAndCreatePolicy(
+      req.params.id,
+      req.session.userId
+    );
 
     await writeAuditLog({
       quotaId: published._id,
@@ -463,9 +441,11 @@ async function publishQuota(req, res) {
 
     return res.json({
       success: true,
-      message: 'Published quota successfully',
+      message: 'Đã ban hành quota và tự động tạo chính sách phân bổ',
       publishedId: published._id,
-      version: published.version
+      version: published.version,
+      policyId: policy._id,
+      policyAcademicYear: policy.academicYear
     });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });

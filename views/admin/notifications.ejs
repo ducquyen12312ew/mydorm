@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gửi thông báo — KTX HUST Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Inter',system-ui,sans-serif;background:#F7F7F7;color:#111827;}
+    .page-content{max-width:700px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+    .page-header{margin-bottom:1.5rem;}
+    .page-header h1{font-size:1.35rem;font-weight:800;color:#111827;display:flex;align-items:center;gap:.65rem;}
+    .page-header h1 i{color:#C8102E;}
+    .page-header p{font-size:.85rem;color:#6B7280;margin-top:.35rem;}
+
+    .card{background:#fff;border-radius:14px;border:1px solid #E5E7EB;box-shadow:0 1px 8px rgba(0,0,0,.04);overflow:hidden;margin-bottom:1.5rem;}
+    .card-head{padding:1rem 1.5rem;border-bottom:1px solid #F3F4F6;font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:.6rem;}
+    .card-head i{color:#C8102E;}
+    .card-body{padding:1.5rem;}
+
+    .form-group{margin-bottom:1.25rem;}
+    label{display:block;font-size:.8rem;font-weight:700;color:#374151;text-transform:uppercase;letter-spacing:.05em;margin-bottom:.45rem;}
+    input[type=text],textarea,select{
+      width:100%;padding:.65rem .9rem;border:1.5px solid #E5E7EB;border-radius:9px;
+      font-family:inherit;font-size:.9rem;color:#111827;background:#fff;
+      transition:border-color .15s,box-shadow .15s;outline:none;
+    }
+    input[type=text]:focus,textarea:focus,select:focus{border-color:#C8102E;box-shadow:0 0 0 3px rgba(200,16,46,.08);}
+    textarea{resize:vertical;min-height:90px;}
+    select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%236B7280' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;background-size:1rem;padding-right:2.5rem;}
+
+    .type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.6rem;margin-bottom:1.25rem;}
+    .type-option{position:relative;}
+    .type-option input[type=radio]{position:absolute;opacity:0;width:0;height:0;}
+    .type-label{
+      display:flex;align-items:center;gap:.5rem;padding:.55rem .9rem;
+      border:1.5px solid #E5E7EB;border-radius:9px;cursor:pointer;font-size:.82rem;font-weight:600;
+      transition:border-color .15s,background .15s;
+    }
+    .type-option input:checked + .type-label{border-color:#C8102E;background:#FFF5F5;color:#C8102E;}
+    .type-label i{font-size:.85rem;}
+
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.5rem;border-radius:10px;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;border:none;transition:all .18s;}
+    .btn-primary{background:#C8102E;color:#fff;}
+    .btn-primary:hover{background:#A20D25;transform:translateY(-1px);}
+    .btn-primary:disabled{background:#CBD5E0;color:#94A3B8;cursor:not-allowed;transform:none;}
+    .btn-outline{background:#fff;color:#374151;border:1.5px solid #E5E7EB;}
+    .btn-outline:hover{background:#F9FAFB;}
+
+    .preview-badge{display:inline-flex;align-items:center;gap:.4rem;padding:.3rem .85rem;border-radius:999px;font-size:.78rem;font-weight:700;}
+    .badge-announcement{background:#EBF8FF;color:#2C5282;border:1px solid #63B3ED;}
+    .badge-maintenance{background:#FFFFF0;color:#744210;border:1px solid #F6E05E;}
+    .badge-alert{background:#FFF5F5;color:#742A2A;border:1px solid #FC8181;}
+    .badge-system{background:#F7FAFC;color:#4A5568;border:1px solid #A0AEC0;}
+    .badge-allocation{background:#F0FFF4;color:#22543D;border:1px solid #68D391;}
+    .badge-room_assigned{background:#F0FFF4;color:#22543D;border:1px solid #68D391;}
+
+    .toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:.8rem 1.4rem;border-radius:10px;font-size:.85rem;font-weight:600;color:#fff;z-index:9999;opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s;pointer-events:none;}
+    .toast.show{opacity:1;transform:translateY(0);}
+    .toast-success{background:#38A169;}
+    .toast-error{background:#E53E3E;}
+
+    .history-item{padding:.8rem 1rem;background:#F9FAFB;border-radius:9px;border:1px solid #F3F4F6;margin-bottom:.6rem;}
+    .history-item:last-child{margin-bottom:0;}
+    .hi-title{font-weight:700;font-size:.88rem;color:#111827;}
+    .hi-meta{font-size:.75rem;color:#9CA3AF;margin-top:.15rem;}
+  </style>
+</head>
+<body>
+  <%- include('navbar', { activeNav: 'notifications', user: user }) %>
+
+  <div class="page-content">
+    <div class="page-header">
+      <h1><i class="fa-solid fa-bullhorn"></i> Gửi thông báo cho sinh viên</h1>
+      <p>Gửi thông báo đến toàn bộ sinh viên trong hệ thống — bảo trì, thông báo, phân bổ phòng và các sự kiện quan trọng.</p>
+    </div>
+
+    <!-- Broadcast Form -->
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-paper-plane"></i> Soạn thông báo</div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Loại thông báo</label>
+          <div class="type-grid" id="typeGrid">
+            <div class="type-option">
+              <input type="radio" name="notifType" id="t-announcement" value="announcement" checked>
+              <label class="type-label" for="t-announcement"><i class="fa-solid fa-bullhorn"></i> Thông báo chung</label>
+            </div>
+            <div class="type-option">
+              <input type="radio" name="notifType" id="t-maintenance" value="maintenance">
+              <label class="type-label" for="t-maintenance"><i class="fa-solid fa-screwdriver-wrench"></i> Bảo trì</label>
+            </div>
+            <div class="type-option">
+              <input type="radio" name="notifType" id="t-alert" value="alert">
+              <label class="type-label" for="t-alert"><i class="fa-solid fa-triangle-exclamation"></i> Khẩn cấp</label>
+            </div>
+            <div class="type-option">
+              <input type="radio" name="notifType" id="t-allocation" value="allocation">
+              <label class="type-label" for="t-allocation"><i class="fa-solid fa-house-chimney"></i> Phân bổ phòng</label>
+            </div>
+            <div class="type-option">
+              <input type="radio" name="notifType" id="t-system" value="system">
+              <label class="type-label" for="t-system"><i class="fa-solid fa-circle-info"></i> Hệ thống</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Đối tượng nhận <span style="color:#C8102E">*</span></label>
+          <select id="notifTarget" onchange="onTargetChange()">
+            <option value="all">Tất cả sinh viên</option>
+            <option value="year">Theo khóa học</option>
+            <option value="faculty">Theo khoa/viện</option>
+            <option value="individual">Cá nhân (theo MSSV)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="targetDetailGroup" style="display:none;">
+          <label id="targetDetailLabel">Giá trị lọc</label>
+          <input type="text" id="targetDetailValue" placeholder="">
+        </div>
+
+        <div class="form-group" id="targetYearGroup" style="display:none;">
+          <label>Chọn khóa học</label>
+          <select id="targetYearValue">
+            <option value="2025">Khóa 2025 (Năm 1)</option>
+            <option value="2024">Khóa 2024 (Năm 2)</option>
+            <option value="2023">Khóa 2023 (Năm 3)</option>
+            <option value="2022">Khóa 2022 (Năm 4)</option>
+            <option value="2021">Khóa 2021 (Năm 5+)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="targetFacultyGroup" style="display:none;">
+          <label>Chọn khoa/viện</label>
+          <select id="targetFacultyValue">
+            <option value="Viện CNTT &amp; TT">Viện CNTT &amp; TT</option>
+            <option value="Viện Điện">Viện Điện</option>
+            <option value="Viện Điện tử - Viễn thông">Viện Điện tử - Viễn thông</option>
+            <option value="Viện Cơ khí">Viện Cơ khí</option>
+            <option value="Viện Hóa học">Viện Hóa học</option>
+            <option value="Viện Vật lý KT">Viện Vật lý KT</option>
+            <option value="Viện Toán ứng dụng">Viện Toán ứng dụng</option>
+            <option value="Viện Kinh tế &amp; QL">Viện Kinh tế &amp; QL</option>
+            <option value="Khoa Ngoại ngữ">Khoa Ngoại ngữ</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Tiêu đề thông báo <span style="color:#C8102E">*</span></label>
+          <input type="text" id="notifTitle" placeholder="VD: Bảo trì hệ thống điện tầng 1 ngày 15/06" maxlength="120">
+        </div>
+
+        <div class="form-group">
+          <label>Nội dung thông báo <span style="color:#C8102E">*</span></label>
+          <textarea id="notifMessage" placeholder="VD: Hệ thống điện tầng 1 KTX C3 sẽ ngừng hoạt động từ 8:00 đến 12:00 ngày 15/06 để bảo trì định kỳ. Sinh viên vui lòng chú ý." maxlength="500"></textarea>
+          <div style="text-align:right;font-size:.72rem;color:#9CA3AF;margin-top:.2rem;"><span id="msgCount">0</span>/500</div>
+        </div>
+
+        <div class="form-group">
+          <label>Mức độ ưu tiên</label>
+          <select id="notifPriority">
+            <option value="normal">Thông thường</option>
+            <option value="high">Cao</option>
+            <option value="critical">Khẩn cấp</option>
+            <option value="low">Thấp</option>
+          </select>
+        </div>
+
+        <!-- Preview -->
+        <div id="previewBox" style="display:none;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:10px;padding:1rem;margin-bottom:1rem;">
+          <div style="font-size:.75rem;font-weight:700;color:#9CA3AF;text-transform:uppercase;margin-bottom:.5rem;">Xem trước thông báo</div>
+          <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:.35rem;">
+            <span class="preview-badge" id="previewBadge" style="background:#EBF8FF;color:#2C5282;border:1px solid #63B3ED;"></span>
+            <strong id="previewTitle" style="font-size:.95rem;color:#111827;"></strong>
+          </div>
+          <div id="previewMessage" style="font-size:.85rem;color:#374151;"></div>
+          <div id="previewTarget" style="font-size:.75rem;color:#9CA3AF;margin-top:.4rem;"></div>
+        </div>
+
+        <div style="display:flex;gap:.75rem;align-items:center;flex-wrap:wrap;">
+          <button class="btn btn-outline" id="previewBtn" type="button">
+            <i class="fa-solid fa-eye"></i> Xem trước
+          </button>
+          <button class="btn btn-primary" id="sendBtn">
+            <i class="fa-solid fa-paper-plane"></i> Gửi thông báo
+          </button>
+          <button class="btn btn-outline" id="clearBtn">
+            <i class="fa-solid fa-eraser"></i> Xoá
+          </button>
+          <span id="recipientCount" style="font-size:.8rem;color:#9CA3AF"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Broadcasts -->
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-clock-rotate-left"></i> Lịch sử gửi gần đây</div>
+      <div class="card-body" id="historyBody">
+        <div style="text-align:center;padding:1.5rem;color:#9CA3AF;font-size:.85rem">
+          <i class="fa-regular fa-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:.5rem"></i>
+          Chưa có lịch sử gửi.
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Templates -->
+    <div class="card">
+      <div class="card-head"><i class="fa-solid fa-wand-magic-sparkles"></i> Mẫu thông báo nhanh</div>
+      <div class="card-body">
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+          <button class="btn btn-outline" onclick="fillTemplate('maintenance_power')" style="font-size:.8rem;padding:.45rem .9rem">
+            <i class="fa-solid fa-bolt"></i> Cắt điện
+          </button>
+          <button class="btn btn-outline" onclick="fillTemplate('maintenance_water')" style="font-size:.8rem;padding:.45rem .9rem">
+            <i class="fa-solid fa-droplet"></i> Cắt nước
+          </button>
+          <button class="btn btn-outline" onclick="fillTemplate('inspection')" style="font-size:.8rem;padding:.45rem .9rem">
+            <i class="fa-solid fa-clipboard-check"></i> Kiểm tra phòng
+          </button>
+          <button class="btn btn-outline" onclick="fillTemplate('meeting')" style="font-size:.8rem;padding:.45rem .9rem">
+            <i class="fa-solid fa-users"></i> Họp cư dân
+          </button>
+          <button class="btn btn-outline" onclick="fillTemplate('allocation_result')" style="font-size:.8rem;padding:.45rem .9rem">
+            <i class="fa-solid fa-house-chimney"></i> Kết quả phân bổ
+          </button>
+          <button class="btn btn-outline" onclick="fillTemplate('emergency')" style="font-size:.8rem;padding:.45rem .9rem;border-color:#FC8181;color:#C53030">
+            <i class="fa-solid fa-siren-on"></i> Khẩn cấp
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+<script>
+const TEMPLATES = {
+  maintenance_power: {
+    type: 'maintenance',
+    title: 'Thông báo cắt điện tạm thời',
+    message: 'Hệ thống điện sẽ tạm ngừng cung cấp điện để bảo trì định kỳ. Sinh viên vui lòng sắp xếp công việc và chuẩn bị đèn pin dự phòng. Thời gian và tầng/khu vực cụ thể sẽ được thông báo bổ sung.',
+    priority: 'normal'
+  },
+  maintenance_water: {
+    type: 'maintenance',
+    title: 'Thông báo cắt nước tạm thời',
+    message: 'Hệ thống cấp nước sẽ tạm ngừng để bảo dưỡng và vệ sinh đường ống. Sinh viên vui lòng dự trữ nước sử dụng trước thời điểm ngừng cấp nước.',
+    priority: 'normal'
+  },
+  inspection: {
+    type: 'announcement',
+    title: 'Lịch kiểm tra phòng định kỳ',
+    message: 'Ban Quản lý ký túc xá sẽ tiến hành kiểm tra tình trạng phòng định kỳ. Đề nghị sinh viên sắp xếp phòng ngăn nắp, sạch sẽ và có mặt tại phòng theo lịch hẹn. Lịch cụ thể sẽ được dán tại bảng thông báo tầng.',
+    priority: 'normal'
+  },
+  meeting: {
+    type: 'announcement',
+    title: 'Họp cư dân KTX',
+    message: 'Ban Quản lý tổ chức buổi họp cư dân để thông báo nội quy mới và lắng nghe ý kiến sinh viên. Đề nghị toàn bộ sinh viên đang cư trú tham dự đầy đủ. Thời gian và địa điểm sẽ được thông báo sớm.',
+    priority: 'high'
+  },
+  allocation_result: {
+    type: 'allocation',
+    title: 'Kết quả phân bổ phòng đã có',
+    message: 'Kết quả phân bổ phòng đã được công bố. Sinh viên vui lòng đăng nhập vào hệ thống và kiểm tra trang Trạng thái phòng để xem thông tin phòng được phân và hướng dẫn nhận phòng.',
+    priority: 'high'
+  },
+  emergency: {
+    type: 'alert',
+    title: 'THÔNG BÁO KHẨN CẤP',
+    message: 'Có sự cố khẩn cấp tại khu vực ký túc xá. Tất cả sinh viên vui lòng chú ý theo dõi thông báo từ Ban Quản lý và tuân thủ hướng dẫn của nhân viên trực.',
+    priority: 'critical'
+  }
+};
+
+let broadcastHistory = [];
+
+function getType() {
+  return document.querySelector('input[name="notifType"]:checked')?.value || 'announcement';
+}
+function setType(type) {
+  const radio = document.querySelector(`input[name="notifType"][value="${type}"]`);
+  if (radio) radio.checked = true;
+}
+function fillTemplate(key) {
+  const t = TEMPLATES[key];
+  if (!t) return;
+  setType(t.type);
+  document.getElementById('notifTitle').value = t.title;
+  document.getElementById('notifMessage').value = t.message;
+  document.getElementById('notifPriority').value = t.priority || 'normal';
+  updateMsgCount();
+}
+function updateMsgCount() {
+  const v = document.getElementById('notifMessage').value;
+  document.getElementById('msgCount').textContent = v.length;
+}
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + (isError ? 'toast-error' : 'toast-success') + ' show';
+  setTimeout(() => { t.classList.remove('show'); }, 3500);
+}
+function esc(t) { return String(t || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+function timeFmt(ts) {
+  const d = new Date(ts);
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+// Target selector
+function onTargetChange() {
+  const val = document.getElementById('notifTarget').value;
+  document.getElementById('targetDetailGroup').style.display   = (val === 'individual') ? 'block' : 'none';
+  document.getElementById('targetYearGroup').style.display     = (val === 'year')       ? 'block' : 'none';
+  document.getElementById('targetFacultyGroup').style.display  = (val === 'faculty')    ? 'block' : 'none';
+  if (val === 'individual') {
+    document.getElementById('targetDetailLabel').textContent = 'Mã số sinh viên (MSSV)';
+    document.getElementById('targetDetailValue').placeholder = 'VD: 20221234';
+  }
+}
+
+function getTargetInfo() {
+  const val = document.getElementById('notifTarget').value;
+  if (val === 'all')        return { targetRole: 'all', isGlobal: true, targetLabel: 'Tất cả sinh viên' };
+  if (val === 'year')       return { targetRole: 'all', filterYear: document.getElementById('targetYearValue').value, targetLabel: `Khóa ${document.getElementById('targetYearValue').value}` };
+  if (val === 'faculty')    return { targetRole: 'all', filterFaculty: document.getElementById('targetFacultyValue').value, targetLabel: document.getElementById('targetFacultyValue').value };
+  if (val === 'individual') return { targetRole: 'user', targetMSSV: document.getElementById('targetDetailValue').value.trim(), targetLabel: `MSSV: ${document.getElementById('targetDetailValue').value.trim()}` };
+  return { targetRole: 'all', isGlobal: true, targetLabel: 'Tất cả sinh viên' };
+}
+
+function renderHistory() {
+  const body = document.getElementById('historyBody');
+  if (!broadcastHistory.length) {
+    body.innerHTML = '<div style="text-align:center;padding:1.5rem;color:#9CA3AF;font-size:.85rem"><i class="fa-regular fa-bell-slash" style="font-size:1.5rem;display:block;margin-bottom:.5rem"></i>Chưa có lịch sử gửi.</div>';
+    return;
+  }
+  const typeLabels = { announcement:'Thông báo chung', maintenance:'Bảo trì', alert:'Khẩn cấp', allocation:'Phân bổ', system:'Hệ thống', room_assigned:'Phân phòng' };
+  body.innerHTML = broadcastHistory.slice(0, 10).map(h => `
+    <div class="history-item">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.75rem">
+        <div>
+          <div class="hi-title">${esc(h.title)}</div>
+          <div class="hi-meta">${esc(h.message.slice(0, 80))}${h.message.length > 80 ? '...' : ''}</div>
+        </div>
+        <span class="preview-badge badge-${h.type}">${esc(typeLabels[h.type] || h.type)}</span>
+      </div>
+      <div class="hi-meta" style="margin-top:.35rem"><i class="fa-solid fa-paper-plane" style="margin-right:.2rem"></i>Gửi đến <strong>${h.count ?? '—'}</strong> người · ${timeFmt(h.sentAt)} · <em>${esc(h.targetLabel||'tất cả')}</em></div>
+    </div>`).join('');
+}
+
+document.getElementById('notifMessage').addEventListener('input', updateMsgCount);
+
+document.getElementById('clearBtn').addEventListener('click', () => {
+  document.getElementById('notifTitle').value = '';
+  document.getElementById('notifMessage').value = '';
+  document.getElementById('notifPriority').value = 'normal';
+  document.getElementById('previewBox').style.display = 'none';
+  updateMsgCount();
+});
+
+document.getElementById('previewBtn').addEventListener('click', () => {
+  const type    = getType();
+  const title   = document.getElementById('notifTitle').value.trim();
+  const message = document.getElementById('notifMessage').value.trim();
+  const { targetLabel } = getTargetInfo();
+  if (!title && !message) { document.getElementById('previewBox').style.display = 'none'; return; }
+  const typeLabels = { announcement:'Thông báo chung', maintenance:'Bảo trì', alert:'Khẩn cấp', allocation:'Phân bổ', system:'Hệ thống', room_assigned:'Phân phòng' };
+  document.getElementById('previewBadge').textContent = typeLabels[type] || type;
+  document.getElementById('previewTitle').textContent = title || '(chưa có tiêu đề)';
+  document.getElementById('previewMessage').textContent = message || '(chưa có nội dung)';
+  document.getElementById('previewTarget').textContent = 'Gửi đến: ' + targetLabel;
+  document.getElementById('previewBox').style.display = 'block';
+});
+
+document.getElementById('sendBtn').addEventListener('click', async () => {
+  const type     = getType();
+  const title    = document.getElementById('notifTitle').value.trim();
+  const message  = document.getElementById('notifMessage').value.trim();
+  const priority = document.getElementById('notifPriority').value;
+  const targetInfo = getTargetInfo();
+
+  if (!title || !message) {
+    showToast('Vui lòng nhập tiêu đề và nội dung thông báo.', true);
+    return;
+  }
+  if (targetInfo.targetMSSV === '') {
+    showToast('Vui lòng nhập MSSV của sinh viên.', true);
+    return;
+  }
+
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Đang gửi...';
+
+  try {
+    // Build payload based on target type
+    const payload = { type, title, message, priority, ...targetInfo };
+    delete payload.targetLabel;
+
+    // For broadcast to all: use the broadcast endpoint
+    // For targeted: use the admin notifications endpoint
+    let endpoint, body;
+    if (document.getElementById('notifTarget').value === 'all') {
+      endpoint = '/api/notifications/admin/broadcast';
+      body = JSON.stringify({ type, title, message, priority });
+    } else {
+      endpoint = '/api/admin/notifications';
+      body = JSON.stringify(payload);
+    }
+
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body
+    });
+    const data = await res.json();
+    if (res.ok && data.success) {
+      const countLabel = data.count != null ? data.count : 1;
+      showToast(`Đã gửi thành công đến ${countLabel} người nhận.`, false);
+      broadcastHistory.unshift({ type, title, message, priority, count: countLabel, sentAt: new Date().toISOString(), targetLabel: targetInfo.targetLabel });
+      renderHistory();
+      document.getElementById('notifTitle').value = '';
+      document.getElementById('notifMessage').value = '';
+      document.getElementById('previewBox').style.display = 'none';
+      updateMsgCount();
+    } else {
+      showToast(data.error || 'Gửi thông báo thất bại.', true);
+    }
+  } catch(e) {
+    showToast('Lỗi kết nối. Vui lòng thử lại.', true);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Gửi thông báo';
+  }
+});
+</script>
+</body>
+</html>

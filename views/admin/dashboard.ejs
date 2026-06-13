@@ -3,618 +3,676 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bảng Điều Khiển - Admin KTX</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dashboard — Admin KTX HUST</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        .admin-content {
-            padding-top: 0;
-            min-height: 100vh;
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --red: #C8102E; --red-dark: #9E0D25;
+            --bg: #F5F6F8; --card: #FFFFFF;
+            --border: #EAECF0; --text: #2D3748; --muted: #9AA3AD;
+            --success: #6BAF95; --warning: #C8AA60; --info: #6B9FC8;
+            --radius: 12px; --shadow: 0 1px 6px rgba(0,0,0,.04);
         }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+        .admin-content { min-height: 100vh; padding-top: 0; }
+        .dash-container { max-width: 1440px; margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 1.5rem 2rem;
+        /* PAGE HEADER */
+        .dash-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 1.5rem; flex-wrap: wrap; gap: .75rem;
         }
+        .dash-header h1 { font-size: 1.35rem; font-weight: 700; color: var(--text); }
+        .dash-header h1 span { color: var(--red); }
+        .header-right { display: flex; align-items: center; gap: .75rem; }
+        .refresh-btn {
+            display: flex; align-items: center; gap: .4rem; padding: .45rem .9rem;
+            border: 1px solid var(--border); border-radius: 8px; background: var(--card);
+            font-size: .8rem; font-weight: 600; color: var(--muted); cursor: pointer;
+            transition: all .2s;
+        }
+        .refresh-btn:hover { border-color: var(--red); color: var(--red); }
+        .live-badge { display: flex; align-items: center; gap: .35rem; font-size: .75rem; color: var(--success); font-weight: 600; }
+        .live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); animation: blink 1.5s ease infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-        /* Stats grid */
-        .stats-grid {
+        /* KPI CARDS */
+        .kpi-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem; margin-bottom: 1.5rem;
         }
-
-        /* Progress bar */
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--adm-border);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 0.4rem;
+        .kpi-card {
+            background: var(--card); border-radius: var(--radius); padding: 1.25rem;
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+            display: flex; align-items: flex-start; gap: 1rem; position: relative; overflow: hidden;
         }
-
-        .progress-fill {
-            height: 100%;
-            border-radius: 3px;
-            transition: width 0.4s ease;
+        .kpi-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
         }
-
-        .progress-fill.high   { background: #dc2626; }
-        .progress-fill.medium { background: #f59e0b; }
-        .progress-fill.low    { background: #10b981; }
-
-        /* Chart section (inside grid) */
-        .chart-section {
-            background: var(--adm-surface);
-            border-radius: var(--adm-radius);
-            border: 1px solid var(--adm-border);
-            box-shadow: var(--adm-shadow-sm);
-            padding: 1.5rem;
+        .kpi-card.red::before   { background: #E8B4BC; }
+        .kpi-card.green::before { background: #ADCFC3; }
+        .kpi-card.blue::before  { background: #ADCAE8; }
+        .kpi-card.gold::before  { background: #E0D0A0; }
+        .kpi-icon {
+            width: 44px; height: 44px; border-radius: 10px; display: flex;
+            align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0;
         }
+        .kpi-icon.red   { background: #F9ECEE; color: #C8102E; }
+        .kpi-icon.green { background: #EDF5F2; color: #5BA58A; }
+        .kpi-icon.blue  { background: #EBF2F9; color: #5B91C8; }
+        .kpi-icon.gold  { background: #F7F3E8; color: #C9A84C; }
+        .kpi-body { flex: 1; min-width: 0; }
+        .kpi-label { font-size: .75rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; margin-bottom: .2rem; }
+        .kpi-value { font-size: 2rem; font-weight: 900; line-height: 1; color: var(--text); }
+        .kpi-sub   { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+        .kpi-trend { font-size: .75rem; font-weight: 600; }
+        .kpi-trend.up   { color: var(--success); }
+        .kpi-trend.down { color: var(--red); }
 
-        .chart-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.25rem;
-        }
-
-        .chart-header h2 {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--adm-text);
-            margin: 0;
-        }
-
-        /* Activity section (inside grid) */
-        .activity-section {
-            background: var(--adm-surface);
-            border-radius: var(--adm-radius);
-            border: 1px solid var(--adm-border);
-            box-shadow: var(--adm-shadow-sm);
-            overflow: hidden;
-        }
-
-        .activity-list {
-            max-height: 380px;
-            overflow-y: auto;
-        }
-
-        /* Loading state */
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: var(--adm-text-muted);
-        }
-
-        /* 2-column bottom grid */
-        .dashboard-bottom-grid {
+        /* STATUS CARDS — HORIZONTAL GRID */
+        .status-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: .75rem; margin-bottom: 1.5rem;
+        }
+        .status-card {
+            background: var(--card); border-radius: 10px; padding: 1rem 1.25rem;
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: .3rem;
+        }
+        .status-card .sc-label { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+        .status-card .sc-value { font-size: 1.75rem; font-weight: 900; line-height: 1; }
+        .status-card.pending  .sc-label { color: var(--warning); }
+        .status-card.pending  .sc-value { color: var(--warning); }
+        .status-card.approved .sc-label, .status-card.allocated .sc-label { color: var(--success); }
+        .status-card.approved .sc-value, .status-card.allocated .sc-value { color: var(--success); }
+        .status-card.rejected .sc-label { color: #B84050; }
+        .status-card.rejected .sc-value { color: #B84050; }
+        .status-card.waitlist .sc-label { color: var(--info); }
+        .status-card.waitlist .sc-value { color: var(--info); }
+        .status-card .sc-sub { font-size: .7rem; color: var(--muted); }
+
+        /* MAIN GRID */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.25rem;
+            align-items: start;
         }
 
-        @media (max-width: 1024px) {
-            .dashboard-bottom-grid {
-                grid-template-columns: 1fr;
-            }
+        /* SECTION CARD */
+        .section-card {
+            background: var(--card); border-radius: var(--radius);
+            box-shadow: var(--shadow); border: 1px solid var(--border);
+            margin-bottom: 1.25rem; overflow: hidden;
         }
+        .section-head {
+            padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+        .section-head h2 { font-size: .95rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+        .section-head a { font-size: .78rem; color: var(--red); text-decoration: none; font-weight: 600; }
+        .section-head a:hover { text-decoration: underline; }
+        .section-body { padding: 1.25rem; }
 
-        @media (max-width: 768px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .container  { padding: 0 1rem 1.5rem; }
-        }
+        /* DOUGHNUT CHART */
+        .chart-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: center; }
+        .chart-canvas-wrap { position: relative; max-width: 220px; margin: 0 auto; }
+        .chart-legend .legend-item { display: flex; align-items: center; gap: .5rem; margin-bottom: .5rem; font-size: .82rem; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+        .legend-label { color: var(--muted); flex: 1; }
+        .legend-val   { font-weight: 700; }
 
-        @media (max-width: 480px) {
-            .stats-grid { grid-template-columns: 1fr; }
+        /* RECENT REGISTRATIONS TABLE */
+        .reg-table { width: 100%; border-collapse: collapse; }
+        .reg-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; padding: .5rem .75rem; border-bottom: 2px solid var(--border); text-align: left; }
+        .reg-table td { padding: .6rem .75rem; border-bottom: 1px solid var(--border); font-size: .82rem; vertical-align: middle; }
+        .reg-table tr:last-child td { border-bottom: none; }
+        .reg-table tr:hover td { background: #F7FAFC; }
+        .stu-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--red); color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 700; flex-shrink: 0; }
+        .stu-info   { display: flex; align-items: center; gap: .5rem; }
+        .stu-name   { font-weight: 600; font-size: .85rem; }
+        .stu-sid    { font-size: .72rem; color: var(--muted); }
+
+        /* BADGES */
+        .badge {
+            display: inline-flex; align-items: center; gap: .25rem;
+            padding: .2rem .55rem; border-radius: 20px; font-size: .72rem; font-weight: 700;
+            white-space: nowrap;
         }
+        .badge-pending  { background: #FEFAEE; color: #7A6428; border: 1px solid #E5D7A0; }
+        .badge-allocated{ background: #F2FAF7; color: #2D6B52; border: 1px solid #AADBC8; }
+        .badge-waitlist { background: #EEF5FC; color: #2D567A; border: 1px solid #AACDE8; }
+        .badge-rejected { background: #FBF2F3; color: #7A2D36; border: 1px solid #DFADAF; }
+        .badge-approved { background: #F2FAF7; color: #2D6B52; border: 1px solid #AADBC8; }
+        .badge-approved-wp { background: #F5F0FC; color: #5B4A8A; border: 1px solid #C8B8E8; }
+
+        /* NOTIFICATION PANEL */
+        .notif-panel { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+        .notif-head  { padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+        .notif-head h2 { font-size: .95rem; font-weight: 700; display: flex; align-items: center; gap: .5rem; }
+        .notif-badge { background: var(--red); color: #fff; font-size: .65rem; font-weight: 700; padding: .15rem .45rem; border-radius: 20px; min-width: 18px; text-align: center; }
+        .notif-list  { max-height: 340px; overflow-y: auto; padding: .5rem 0; }
+        .notif-item  { padding: .7rem 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background .15s; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item:hover { background: #F7FAFC; }
+        .notif-item.unread { background: #FBF6F7; }
+        .notif-item.unread:hover { background: #F5ECED; }
+        .notif-item-icon { float: left; margin-right: .6rem; font-size: 1rem; margin-top: .1rem; }
+        .notif-item-title { font-size: .82rem; font-weight: 600; }
+        .notif-item-msg   { font-size: .75rem; color: var(--muted); margin-top: .1rem; line-height: 1.4; }
+        .notif-item-time  { font-size: .7rem; color: var(--muted); margin-top: .25rem; }
+        .notif-empty { text-align: center; padding: 2rem 1rem; color: var(--muted); font-size: .85rem; }
+        .notif-empty i { font-size: 2rem; margin-bottom: .5rem; display: block; opacity: .4; }
+
+        /* QUICK ACTIONS */
+        .qa-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+        .qa-btn {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .3rem;
+            padding: .875rem .5rem; border-radius: 10px; background: #F7FAFC;
+            border: 1px solid var(--border); cursor: pointer; text-decoration: none;
+            font-size: .78rem; font-weight: 600; color: var(--text);
+            transition: all .2s;
+        }
+        .qa-btn i    { font-size: 1.3rem; }
+        .qa-btn:hover { background: var(--red); color: #fff; border-color: var(--red); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(200,16,46,.25); }
+        .qa-btn.qa-run { background: var(--red); color: #fff; border-color: var(--red); }
+        .qa-btn.qa-run:hover { background: var(--red-dark); }
+
+        /* DORM TABLE */
+        .dorm-table { width: 100%; border-collapse: collapse; }
+        .dorm-table th { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; padding: .5rem .75rem; border-bottom: 2px solid var(--border); text-align: left; }
+        .dorm-table td { padding: .65rem .75rem; border-bottom: 1px solid var(--border); font-size: .82rem; }
+        .dorm-table tr:last-child td { border-bottom: none; }
+        .occ-bar-bg { background: var(--border); border-radius: 4px; height: 6px; overflow: hidden; min-width: 80px; }
+        .occ-bar    { height: 100%; border-radius: 4px; transition: width .6s ease; }
+        .occ-high   { background: #DFA8A8; }
+        .occ-mid    { background: #DDD0A0; }
+        .occ-low    { background: #A8CCC0; }
+
+        /* LOADING SKELETON */
+        .skel { background: linear-gradient(90deg,#e8e8e8 25%,#f4f4f4 50%,#e8e8e8 75%); background-size: 400% 100%; animation: skelAnim 1.4s ease infinite; border-radius: 6px; }
+        @keyframes skelAnim { 0%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+        @media (max-width: 1100px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } .main-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 640px)  { .kpi-grid { grid-template-columns: 1fr 1fr; } .dash-container { padding: 1rem .875rem 2rem; } }
     </style>
 </head>
 <body>
     <%- include('navbar', { activeNav: 'dashboard' }) %>
 
-
-    <!-- MAIN CONTENT -->
     <div class="admin-content">
-        <div class="container">
-            <div class="page-header">
-                <div>
-                    <h1><i class="fas fa-chart-line"></i> Bảng Điều Khiển</h1>
-                    <p class="page-subtitle">Tổng quan về hệ thống quản lý ký túc xá</p>
+    <div class="dash-container">
+
+        <!-- PAGE HEADER -->
+        <div class="dash-header">
+            <div>
+                <h1>Dashboard <span>Quản lý KTX</span></h1>
+                <p style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Tổng quan hệ thống — cập nhật realtime</p>
+            </div>
+            <div class="header-right">
+                <div class="live-badge"><div class="live-dot"></div> Realtime</div>
+                <button class="refresh-btn" onclick="loadAll()"><i class="fa-solid fa-rotate-right"></i> Làm mới</button>
+            </div>
+        </div>
+
+        <!-- KPI CARDS -->
+        <div class="kpi-grid" id="kpiGrid">
+            <div class="kpi-card red">
+                <div class="kpi-icon red"><i class="fa-solid fa-file-alt"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-label">Tổng đơn đăng ký</div>
+                    <div class="kpi-value" id="kpiTotalApps">—</div>
+                    <div class="kpi-sub">Tất cả đợt + legacy</div>
                 </div>
             </div>
-
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Đang tải dữ liệu...</p>
+            <div class="kpi-card green">
+                <div class="kpi-icon green"><i class="fa-solid fa-door-open"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-label">Phòng trống</div>
+                    <div class="kpi-value" id="kpiAvailRooms">—</div>
+                    <div class="kpi-sub" id="kpiAvailSub">—</div>
+                </div>
             </div>
+            <div class="kpi-card blue">
+                <div class="kpi-icon blue"><i class="fa-solid fa-clock"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-label">Đơn chờ xử lý</div>
+                    <div class="kpi-value" id="kpiPending">—</div>
+                    <div class="kpi-sub">Cần xét duyệt</div>
+                </div>
+            </div>
+            <div class="kpi-card gold">
+                <div class="kpi-icon gold"><i class="fa-solid fa-percent"></i></div>
+                <div class="kpi-body">
+                    <div class="kpi-label">Tỷ lệ lấp đầy</div>
+                    <div class="kpi-value" id="kpiOccRate">—</div>
+                    <div class="kpi-sub" id="kpiOccSub">—</div>
+                </div>
+            </div>
+        </div>
 
-            <div id="dashboard-content" style="display: none;">
-                <div class="stats-grid" id="stats-grid"></div>
+        <!-- STATUS CARDS — HORIZONTAL GRID -->
+        <div class="status-grid" id="statusGrid">
+            <div class="status-card pending">
+                <div class="sc-label">Đang chờ xử lý</div>
+                <div class="sc-value" id="scPending">—</div>
+                <div class="sc-sub">Chưa xét duyệt</div>
+            </div>
+            <div class="status-card approved">
+                <div class="sc-label">Đã duyệt</div>
+                <div class="sc-value" id="scApproved">—</div>
+                <div class="sc-sub">Legacy + duyệt thủ công</div>
+            </div>
+            <div class="status-card allocated">
+                <div class="sc-label">Đã phân phòng</div>
+                <div class="sc-value" id="scAllocated">—</div>
+                <div class="sc-sub">Phân bổ tự động</div>
+            </div>
+            <div class="status-card waitlist">
+                <div class="sc-label">Danh sách chờ</div>
+                <div class="sc-value" id="scWaitlist">—</div>
+                <div class="sc-sub">Chờ có phòng trống</div>
+            </div>
+            <div class="status-card rejected">
+                <div class="sc-label">Đã từ chối</div>
+                <div class="sc-value" id="scRejected">—</div>
+                <div class="sc-sub">Không đủ tiêu chí</div>
+            </div>
+        </div>
 
-                <!-- Application stats row -->
-                <div class="dormitory-table" style="padding: 0; margin-bottom: 1.5rem;">
-                    <h2 class="section-heading"><i class="fas fa-file-alt"></i> Tình Trạng Đơn Đăng Ký</h2>
-                    <div style="padding: 1.25rem 1.5rem;" id="application-stats-container">
-                        <div class="loading-state" style="padding: 1.5rem;">
-                            <div class="spinner"></div>
+        <!-- MAIN GRID: LEFT + RIGHT -->
+        <div class="main-grid">
+
+            <!-- LEFT COLUMN -->
+            <div>
+
+                <!-- Doughnut Chart -->
+                <div class="section-card">
+                    <div class="section-head">
+                        <h2><i class="fa-solid fa-chart-pie" style="color:var(--red)"></i> Trạng thái phòng theo tòa</h2>
+                        <select id="dormSelect" style="font-size:.8rem;padding:.3rem .6rem;border:1px solid var(--border);border-radius:6px;cursor:pointer" onchange="updateDoughnut()">
+                            <option value="all">Tất cả tòa</option>
+                        </select>
+                    </div>
+                    <div class="section-body">
+                        <div class="chart-layout">
+                            <div class="chart-canvas-wrap">
+                                <canvas id="doughnutChart" width="220" height="220"></canvas>
+                            </div>
+                            <div class="chart-legend" id="doughnutLegend">
+                                <div class="legend-item"><span class="legend-dot" style="background:#DFA8A8"></span><span class="legend-label">Đã sử dụng</span><span class="legend-val" id="lgOccupied">—</span></div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#A8CCC0"></span><span class="legend-label">Còn trống</span><span class="legend-val" id="lgAvailable">—</span></div>
+                                <div class="legend-item"><span class="legend-dot" style="background:#C0C8D0"></span><span class="legend-label">Bảo trì</span><span class="legend-val" id="lgMaint">—</span></div>
+                                <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--border)">
+                                    <div style="font-size:.75rem;color:var(--muted)">Tổng chỗ</div>
+                                    <div style="font-size:1.3rem;font-weight:900" id="lgTotal">—</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Dormitory occupancy table -->
-                <div class="dormitory-table" style="padding: 0; margin-bottom: 1.5rem;">
-                    <h2 class="section-heading"><i class="fas fa-building"></i> Thống Kê Theo Ký Túc Xá</h2>
-                    <div style="overflow-x: auto;">
-                        <table class="admin-table" id="dormitory-stats-table">
+                <!-- Recent Registrations -->
+                <div class="section-card">
+                    <div class="section-head">
+                        <h2><i class="fa-solid fa-list-check" style="color:var(--red)"></i> Đơn đăng ký gần đây</h2>
+                        <a href="/admin/allocation/dashboard">Xem tất cả →</a>
+                    </div>
+                    <div style="overflow-x:auto">
+                        <table class="reg-table">
                             <thead>
                                 <tr>
-                                    <th>Tên KTX</th>
-                                    <th style="text-align:center">Tổng phòng</th>
-                                    <th style="text-align:center">Phòng trống</th>
-                                    <th style="text-align:center">Sức chứa</th>
-                                    <th style="text-align:center">Đã sử dụng</th>
-                                    <th>Tỷ lệ lấp đầy</th>
+                                    <th>Sinh viên</th>
+                                    <th>Khoa</th>
+                                    <th style="text-align:center">Điểm ưu tiên</th>
+                                    <th>Thời gian</th>
+                                    <th>Trạng thái</th>
                                 </tr>
                             </thead>
-                            <tbody id="dormitory-stats-body"></tbody>
+                            <tbody id="regTableBody">
+                                <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">
+                                    <div class="skel" style="height:14px;width:60%;margin:auto"></div>
+                                </td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
 
-                <!-- Chart + Activity 2-column layout on wide screens -->
-                <div class="dashboard-bottom-grid">
-                    <div class="chart-section" style="margin-bottom: 0;">
-                        <div class="chart-header">
-                            <h2>Phân Bố Sinh Viên Theo Năm</h2>
-                        </div>
-                        <div style="position: relative; height: 380px;">
-                            <canvas id="year-distribution-chart"></canvas>
-                        </div>
+                <!-- Dorm occupancy table -->
+                <div class="section-card">
+                    <div class="section-head">
+                        <h2><i class="fa-solid fa-building" style="color:var(--red)"></i> Thống kê lấp đầy KTX</h2>
                     </div>
-
-                    <div class="activity-section" style="margin-bottom: 0;">
-                        <h2 class="section-heading" style="margin-bottom: 0;"><i class="fas fa-history"></i> Hoạt Động Gần Đây</h2>
-                        <div class="activity-list" id="activity-list" style="padding: 0.5rem 1.5rem 1rem;"></div>
+                    <div style="overflow-x:auto">
+                        <table class="dorm-table">
+                            <thead>
+                                <tr>
+                                    <th>Tòa nhà</th>
+                                    <th style="text-align:center">Tổng phòng</th>
+                                    <th style="text-align:center">Còn trống</th>
+                                    <th>Lấp đầy</th>
+                                    <th style="text-align:right">Tỷ lệ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dormTableBody">
+                                <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">Đang tải...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <script>
-        let yearDistributionChart = null;
+            </div><!-- /left -->
 
-        // Load dashboard stats on page load
-        window.addEventListener('load', function() {
-            loadDashboardStats();
-            // Auto refresh every 60 seconds
-            setInterval(loadDashboardStats, 60000);
+            <!-- RIGHT COLUMN -->
+            <div>
+
+                <!-- NOTIFICATION PANEL -->
+                <div class="notif-panel" style="margin-bottom:1.25rem">
+                    <div class="notif-head">
+                        <h2><i class="fa-solid fa-bell" style="color:var(--red)"></i> Thông báo
+                            <span class="notif-badge" id="notifCount">0</span>
+                        </h2>
+                        <button onclick="clearNotifs()" style="background:none;border:none;font-size:.75rem;color:var(--muted);cursor:pointer">Xóa tất cả</button>
+                    </div>
+                    <div class="notif-list" id="notifList">
+                        <div class="notif-empty"><i class="fa-solid fa-bell-slash"></i>Chưa có thông báo mới</div>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS -->
+                <div class="section-card">
+                    <div class="section-head">
+                        <h2><i class="fa-solid fa-bolt" style="color:var(--red)"></i> Thao tác nhanh</h2>
+                    </div>
+                    <div class="section-body">
+                        <div class="qa-grid">
+                            <a href="/admin/allocation/dashboard" class="qa-btn qa-run">
+                                <i class="fa-solid fa-play"></i> Chạy phân bổ
+                            </a>
+                            <a href="/admin/applications" class="qa-btn">
+                                <i class="fa-solid fa-file-lines"></i> Xem đơn
+                            </a>
+                            <a href="/admin/master-dashboard" class="qa-btn">
+                                <i class="fa-solid fa-chart-line"></i> Báo cáo
+                            </a>
+                            <a href="/admin/master-dashboard/export" class="qa-btn">
+                                <i class="fa-solid fa-file-excel"></i> Xuất Excel
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /right -->
+
+        </div><!-- /main-grid -->
+
+    </div><!-- /dash-container -->
+    </div><!-- /admin-content -->
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// ── GLOBALS ─────────────────────────────────────────────
+let doughnutChart = null;
+let dormRoomData  = [];
+let notifList = [];
+let unreadCount = 0;
+
+// ── BOOT ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    loadAll();
+    initSocket();
+    // Auto-refresh every 60s
+    setInterval(loadAll, 60000);
+});
+
+async function loadAll() {
+    await Promise.all([loadKPI(), loadRecentRegs()]);
+}
+
+// ── KPI ──────────────────────────────────────────────────
+async function loadKPI() {
+    try {
+        const r = await fetch('/api/admin/kpi', { credentials: 'include' });
+        const d = await r.json();
+        if (!d.success) return;
+
+        const kpi = d.kpi || {};
+        document.getElementById('kpiTotalApps').textContent = fmt(kpi.totalApplications);
+        document.getElementById('kpiAvailRooms').textContent = fmt(kpi.availableRooms);
+        document.getElementById('kpiAvailSub').textContent  = `Trên tổng ${fmt(kpi.totalCapacity)} chỗ`;
+        document.getElementById('kpiPending').textContent   = fmt(kpi.pendingApplications);
+        document.getElementById('kpiOccRate').textContent   = (kpi.occupancyRate || 0) + '%';
+        document.getElementById('kpiOccSub').textContent    = `${fmt(kpi.occupiedSpots)}/${fmt(kpi.totalCapacity)} chỗ`;
+
+        // Status grid — combine reg + app stats
+        const rs = d.registrationStats || {};
+        const as = d.applicationStats  || {};
+        document.getElementById('scPending').textContent  = fmt((rs.PENDING||0)+(as.pending||0));
+        document.getElementById('scApproved').textContent = fmt(as.approved||0);
+        document.getElementById('scAllocated').textContent= fmt(rs.ALLOCATED||0);
+        document.getElementById('scWaitlist').textContent = fmt(rs.WAITLIST||0);
+        document.getElementById('scRejected').textContent = fmt((rs.REJECTED||0)+(as.rejected||0));
+
+        // Doughnut
+        dormRoomData = d.dormRoomStatus || [];
+        buildDormSelect(dormRoomData);
+        updateDoughnut();
+
+        // Dorm table
+        renderDormTable(dormRoomData);
+
+    } catch(e) { console.error('KPI load error', e); }
+}
+
+// ── DORM SELECT & DOUGHNUT ─────────────────────────────
+function buildDormSelect(data) {
+    const sel = document.getElementById('dormSelect');
+    const cur = sel.value;
+    // Keep 'all' option, add dorm options
+    while (sel.options.length > 1) sel.remove(1);
+    data.forEach(d => {
+        const o = document.createElement('option');
+        o.value = d.name; o.textContent = d.name;
+        sel.appendChild(o);
+    });
+    sel.value = cur || 'all';
+}
+
+function updateDoughnut() {
+    const val = document.getElementById('dormSelect').value;
+    let occupied=0, available=0, maintenance=0;
+
+    if (val === 'all') {
+        dormRoomData.forEach(d => {
+            occupied    += d.occupied    || 0;
+            available   += d.available  || 0;
+            maintenance += d.maintenance|| 0;
         });
+    } else {
+        const d = dormRoomData.find(x => x.name === val) || {};
+        occupied    = d.occupied    || 0;
+        available   = d.available  || 0;
+        maintenance = d.maintenance|| 0;
+    }
 
-        // Main function to load dashboard statistics
-        async function loadDashboardStats() {
-            const loadingEl = document.getElementById('loading');
-            const dashboardContent = document.getElementById('dashboard-content');
-            
-            if (loadingEl) loadingEl.style.display = 'block';
-            if (dashboardContent) dashboardContent.style.display = 'none';
-            
-            try {
-                const response = await fetch('/admin/dashboard/stats');
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
+    const total = occupied + available + maintenance;
+    document.getElementById('lgOccupied').textContent  = occupied;
+    document.getElementById('lgAvailable').textContent = available;
+    document.getElementById('lgMaint').textContent     = maintenance;
+    document.getElementById('lgTotal').textContent     = total;
 
-                if (data.success && data.stats) {
-                    // Render all dashboard components
-                    renderStats(data.stats.summary || {});
-                    renderDormitoryTable(data.stats.dormitories || []);
-                    renderActivities(data.stats.recentActivity || []);
-                    renderApplicationStats(data.stats.applications || {});
-                    
-                    // Load year distribution chart
-                    await loadYearDistributionChart();
+    const chartData = [occupied, available, maintenance];
+    const colors    = ['#DFA8A8','#A8CCC0','#C0C8D0'];
 
-                    if (loadingEl) loadingEl.style.display = 'none';
-                    if (dashboardContent) dashboardContent.style.display = 'block';
-                } else {
-                    throw new Error(data.error || 'Invalid response format');
+    if (doughnutChart) {
+        doughnutChart.data.datasets[0].data = chartData;
+        doughnutChart.update('active');
+        return;
+    }
+
+    const ctx = document.getElementById('doughnutChart').getContext('2d');
+    doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Đã sử dụng','Còn trống','Bảo trì'],
+            datasets: [{ data: chartData, backgroundColor: colors, borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+        },
+        options: {
+            responsive: true, cutout: '68%',
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => ` ${ctx.label}: ${ctx.parsed} (${total ? Math.round(ctx.parsed/total*100) : 0}%)`
+                    }
                 }
-            } catch (error) {
-                console.error('Error loading dashboard:', error);
-                if (loadingEl) {
-                    loadingEl.innerHTML = `
-                        <div class="alert alert-danger">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <p>Không thể tải dữ liệu. Vui lòng thử lại.</p>
-                            <button onclick="loadDashboardStats()" class="btn btn-primary mt-2">
-                                <i class="fas fa-redo"></i> Thử lại
-                            </button>
-                        </div>
-                    `;
-                }
-                
-                // Show default empty state
-                renderStats({});
-                renderDormitoryTable([]);
-                renderActivities([]);
             }
         }
+    });
+}
 
-        // Render summary statistics cards
-        function renderStats(stats) {
-            const statsGrid = document.getElementById('stats-grid');
-            if (!statsGrid) return;
-            
-            // Extract stats with default values
-            const totalStudents = stats.totalStudents || 0;
-            const totalRooms = stats.totalRooms || 0;
-            const availableRooms = stats.availableRooms || 0;
-            const totalCapacity = stats.totalCapacity || 0;
-            const occupiedSpots = stats.occupiedSpots || 0;
-            const occupancyRate = stats.overallOccupancyRate || 0;
-            const pendingApplications = stats.pendingApplications || 0;
-            
-            const statsCards = [
-                {
-                    title: 'Sinh viên đang ở KTX',
-                    value: totalStudents.toLocaleString('vi-VN'),
-                    label: 'Tổng số sinh viên',
-                    color: 'blue',
-                    icon: 'fas fa-users'
-                },
-                {
-                    title: 'Phòng trống',
-                    value: availableRooms.toLocaleString('vi-VN'),
-                    label: `Trên tổng ${totalRooms.toLocaleString('vi-VN')} phòng`,
-                    color: 'green',
-                    icon: 'fas fa-door-open'
-                },
-                {
-                    title: 'Đơn chờ duyệt',
-                    value: pendingApplications.toLocaleString('vi-VN'),
-                    label: 'Cần xử lý',
-                    color: 'orange',
-                    icon: 'fas fa-clock'
-                },
-                {
-                    title: 'Tỷ lệ sử dụng',
-                    value: `${occupancyRate}%`,
-                    label: `${occupiedSpots.toLocaleString('vi-VN')}/${totalCapacity.toLocaleString('vi-VN')} chỗ`,
-                    color: occupancyRate > 80 ? 'red' : (occupancyRate > 50 ? 'orange' : 'blue'),
-                    icon: 'fas fa-chart-pie'
-                }
-            ];
+// ── DORM TABLE ───────────────────────────────────────────
+function renderDormTable(data) {
+    const tbody = document.getElementById('dormTableBody');
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--muted)">Không có dữ liệu</td></tr>'; return; }
+    tbody.innerHTML = data.map(d => {
+        const total = d.total || (d.occupied + d.available);
+        const occ   = total > 0 ? Math.round((d.occupied / total) * 100) : 0;
+        const barCls = occ >= 80 ? 'occ-high' : occ >= 50 ? 'occ-mid' : 'occ-low';
+        return `<tr>
+            <td style="font-weight:600">${esc(d.name)}</td>
+            <td style="text-align:center">${d.available+d.occupied}</td>
+            <td style="text-align:center;color:var(--success);font-weight:600">${d.available}</td>
+            <td style="min-width:100px">
+                <div class="occ-bar-bg"><div class="occ-bar ${barCls}" style="width:${occ}%"></div></div>
+            </td>
+            <td style="text-align:right;font-weight:700">${occ}%</td>
+        </tr>`;
+    }).join('');
+}
 
-            statsGrid.innerHTML = statsCards.map(card => `
-                <div class="stat-card ${card.color}">
-                    <div class="stat-icon">
-                        <i class="${card.icon}"></i>
-                    </div>
-                    <h3>${escapeHtml(card.title)}</h3>
-                    <div class="value">${card.value}</div>
-                    <div class="label">${escapeHtml(card.label)}</div>
-                </div>
-            `).join('');
-        }
+// ── RECENT REGISTRATIONS ─────────────────────────────────
+async function loadRecentRegs() {
+    try {
+        const r = await fetch('/api/admin/recent-registrations?limit=15', { credentials: 'include' });
+        const d = await r.json();
+        renderRegTable(d.registrations || []);
+    } catch(e) {
+        document.getElementById('regTableBody').innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:1.5rem">Không thể tải dữ liệu</td></tr>`;
+    }
+}
 
-        // Render dormitory statistics table
-        function renderDormitoryTable(dormitories) {
-            const tbody = document.getElementById('dormitory-stats-body');
-            if (!tbody) return;
-            
-            if (!dormitories || dormitories.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="6" class="text-center py-4">
-                            <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
-                            <p class="text-muted">Chưa có dữ liệu ký túc xá</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-            
-            tbody.innerHTML = dormitories.map(dorm => {
-                const name = dorm.name || 'N/A';
-                const totalRooms = dorm.totalRooms || 0;
-                const availableRooms = dorm.availableRooms || 0;
-                const capacity = dorm.totalCapacity || 0;
-                const occupied = dorm.occupiedSpots || 0;
-                const rate = dorm.occupancyRate || 0;
-                
-                let progressClass = 'low';
-                if (rate > 80) progressClass = 'high';
-                else if (rate > 50) progressClass = 'medium';
-
-                return `
-                    <tr>
-                        <td><strong>${escapeHtml(name)}</strong></td>
-                        <td class="text-center">${totalRooms.toLocaleString('vi-VN')}</td>
-                        <td class="text-center">${availableRooms.toLocaleString('vi-VN')}</td>
-                        <td class="text-center">${capacity.toLocaleString('vi-VN')}</td>
-                        <td class="text-center">${occupied.toLocaleString('vi-VN')}</td>
-                        <td>
-                            <div class="d-flex align-items-center justify-content-between mb-1">
-                                <span><strong>${rate}%</strong></span>
-                                <small class="text-muted">${occupied}/${capacity}</small>
-                            </div>
-                            <div class="progress-bar">
-                                <div class="progress-fill ${progressClass}" 
-                                     style="width: ${rate}%" 
-                                     title="${rate}% lấp đầy">
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        // Render application statistics
-        function renderApplicationStats(applications) {
-            const container = document.getElementById('application-stats-container');
-            if (!container) return;
-            
-            const pending = applications.pending || 0;
-            const approved = applications.approved || 0;
-            const rejected = applications.rejected || 0;
-            const total = applications.total || (pending + approved + rejected);
-            
-            container.innerHTML = `
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <div class="app-stat-card pending">
-                            <div class="icon"><i class="fas fa-clock"></i></div>
-                            <div class="number">${pending.toLocaleString('vi-VN')}</div>
-                            <div class="label">Đang chờ</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="app-stat-card approved">
-                            <div class="icon"><i class="fas fa-check-circle"></i></div>
-                            <div class="number">${approved.toLocaleString('vi-VN')}</div>
-                            <div class="label">Đã duyệt</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="app-stat-card rejected">
-                            <div class="icon"><i class="fas fa-times-circle"></i></div>
-                            <div class="number">${rejected.toLocaleString('vi-VN')}</div>
-                            <div class="label">Đã từ chối</div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="app-stat-card total">
-                            <div class="icon"><i class="fas fa-file-alt"></i></div>
-                            <div class="number">${total.toLocaleString('vi-VN')}</div>
-                            <div class="label">Tổng cộng</div>
-                        </div>
+function renderRegTable(regs) {
+    const tbody = document.getElementById('regTableBody');
+    if (!regs.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--muted)">Chưa có đơn đăng ký nào</td></tr>';
+        return;
+    }
+    tbody.innerHTML = regs.map(reg => {
+        const initials = (reg.studentName||'?').split(' ').map(w=>w[0]).slice(-2).join('').toUpperCase();
+        const badgeCls = { PENDING:'badge-pending', ALLOCATED:'badge-allocated', WAITLIST:'badge-waitlist', REJECTED:'badge-rejected', WITHDRAWN:'badge-rejected' };
+        const statusVN  = { PENDING:'Đang chờ', ALLOCATED:'Đã phân phòng', WAITLIST:'Danh sách chờ', REJECTED:'Đã từ chối', WITHDRAWN:'Đã rút' };
+        const bdge = `<span class="badge ${badgeCls[reg.status]||'badge-pending'}">${statusVN[reg.status]||reg.status||'—'}</span>`;
+        const timeAgo = relTime(reg.createdAt);
+        return `<tr>
+            <td>
+                <div class="stu-info">
+                    <div class="stu-avatar">${initials}</div>
+                    <div>
+                        <div class="stu-name">${esc(reg.studentName||'—')}</div>
+                        <div class="stu-sid">${esc(reg.studentId||'')}</div>
                     </div>
                 </div>
-            `;
-        }
+            </td>
+            <td style="color:var(--muted);font-size:.78rem">${esc(reg.faculty||'—')}</td>
+            <td style="text-align:center;font-weight:700;color:var(--red)">${reg.priority||0}</td>
+            <td style="color:var(--muted);font-size:.78rem;white-space:nowrap">${timeAgo}</td>
+            <td>${bdge}</td>
+        </tr>`;
+    }).join('');
+}
 
-        // Load and render year distribution chart
-        async function loadYearDistributionChart() {
-            try {
-                const response = await fetch('/admin/dashboard/year-distribution');
-                
-                if (!response.ok) return; // Silently fail if endpoint not available
-                
-                const result = await response.json();
+// ── NOTIFICATIONS ─────────────────────────────────────────
+function addNotif(icon, title, msg, color) {
+    const now = new Date();
+    notifList.unshift({ icon, title, msg, color, time: now, read: false });
+    if (notifList.length > 50) notifList.pop();
+    unreadCount++;
+    renderNotifList();
+    document.getElementById('notifCount').textContent = unreadCount;
+}
 
-                if (result.success && result.data) {
-                    renderYearDistributionChart(result.data);
-                }
-            } catch (error) {
-                console.warn('Year distribution chart not available:', error);
-            }
-        }
+function renderNotifList() {
+    const el = document.getElementById('notifList');
+    if (!notifList.length) {
+        el.innerHTML = '<div class="notif-empty"><i class="fa-solid fa-bell-slash"></i>Chưa có thông báo mới</div>';
+        return;
+    }
+    el.innerHTML = notifList.map((n,i) => `
+        <div class="notif-item${n.read ? '' : ' unread'}" onclick="markRead(${i})">
+            <span class="notif-item-icon" style="color:${n.color||'var(--red)'}">${n.icon}</span>
+            <div style="overflow:hidden">
+                <div class="notif-item-title">${esc(n.title)}</div>
+                <div class="notif-item-msg">${esc(n.msg)}</div>
+                <div class="notif-item-time">${relTime(n.time)}</div>
+            </div>
+        </div>`).join('');
+}
 
-        // Render year distribution chart using vertical bars
-        function renderYearDistributionChart(data) {
-            const canvas = document.getElementById('year-distribution-chart');
-            if (!canvas) return;
-            
-            // Destroy existing chart
-            if (yearDistributionChart) {
-                yearDistributionChart.destroy();
-            }
+function markRead(i) { notifList[i].read = true; unreadCount = Math.max(0, notifList.filter(n=>!n.read).length); document.getElementById('notifCount').textContent = unreadCount; renderNotifList(); }
+function clearNotifs() { notifList=[]; unreadCount=0; document.getElementById('notifCount').textContent=0; renderNotifList(); }
 
-            const yearColors = {
-                'Năm 1': '#C8102E',
-                'Năm 2': '#9CA3AF',
-                'Năm 3': '#D97706',
-                'Năm 4': '#F97316',
-                'Năm 5': '#6B7280',
-                'Năm 6': '#374151',
-                'Sau đại học': '#A20D25'
-            };
+// ── SOCKET.IO ─────────────────────────────────────────────
+function initSocket() {
+    try {
+        const socket = io({ withCredentials: true });
+        socket.on('connect', () => {
+            socket.emit('admin:dashboard:subscribe');
+        });
+        socket.on('admin:new-registration', data => {
+            addNotif('📋', 'Đơn đăng ký mới',
+                `${data.studentName || '—'} (${data.studentFaculty||''}) vừa đăng ký`,
+                'var(--red)');
+            // Refresh data
+            setTimeout(loadAll, 800);
+        });
+        socket.on('admin:dashboard:refresh', () => {
+            loadAll();
+        });
+        socket.on('student:assigned', data => {
+            addNotif('✅', 'Sinh viên được phân bổ',
+                `Đơn ${data.registrationId ? data.registrationId.toString().slice(-6) : ''} đã được phân bổ phòng`,
+                'var(--success)');
+            setTimeout(loadAll, 800);
+        });
+        socket.on('application:updated', data => {
+            addNotif('🔄', 'Đơn cập nhật trạng thái',
+                `Đơn đăng ký vừa được cập nhật`,
+                'var(--info)');
+            setTimeout(loadAll, 800);
+        });
+    } catch(e) { console.warn('Socket init failed:', e.message); }
+}
 
-            const ctx = canvas.getContext('2d');
-            yearDistributionChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: data.labels || [],
-                    datasets: [{
-                        label: 'Số sinh viên',
-                        data: data.values || [],
-                        backgroundColor: data.labels?.map(label => yearColors[label] || '#95a5a6') || [],
-                        borderColor: data.labels?.map(label => yearColors[label] || '#95a5a6') || [],
-                        borderWidth: 0,
-                        borderRadius: 8
-                    }]
-                },
-                options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const value = context.parsed.x || 0;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${value} sinh viên (${percentage}%)`;
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        x: {
-                            beginAtZero: true,
-                            ticks: {
-                                callback: function(value) {
-                                    return value;
-                                }
-                            },
-                            grid: {
-                                color: '#f0f0f0'
-                            }
-                        },
-                        y: {
-                            grid: {
-                                display: false
-                            }
-                        }
-                    }
-                },
-                plugins: [{
-                    id: 'dataLabels',
-                    afterDatasetsDraw(chart) {
-                        const { ctx, data, scales } = chart;
-                        ctx.font = 'bold 13px Arial';
-                        ctx.fillStyle = '#2c3e50';
-                        ctx.textAlign = 'start';
-                        ctx.textBaseline = 'middle';
-
-                        data.datasets.forEach((dataset) => {
-                            const xScale = scales.x;
-                            const yScale = scales.y;
-                            const total = dataset.data.reduce((a, b) => a + b, 0);
-
-                            dataset.data.forEach((value, index) => {
-                                const x = xScale.getPixelForValue(value);
-                                const y = yScale.getPixelForValue(index);
-                                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                                ctx.fillText(`${percentage}%`, x + 8, y);
-                            });
-                        });
-                    }
-                }]
-            });
-        }
-
-        // Render recent activities
-        function renderActivities(activities) {
-            const activityList = document.getElementById('activity-list');
-            if (!activityList) return;
-            
-            if (!activities || activities.length === 0) {
-                activityList.innerHTML = `
-                    <div class="text-center py-4">
-                        <i class="fas fa-history fa-2x text-muted mb-2"></i>
-                        <p class="text-muted">Chưa có hoạt động nào</p>
-                    </div>
-                `;
-                return;
-            }
-
-            activityList.innerHTML = activities.map(activity => {
-                const actionLabels = {
-                    'login': 'đã đăng nhập',
-                    'logout': 'đã đăng xuất',
-                    'register_success': 'đã đăng ký thành công',
-                    'register_failed': 'đăng ký thất bại',
-                    'checked_in': 'đã nhận phòng',
-                    'checked_out': 'đã trả phòng',
-                    'room_assigned': 'được phân phòng',
-                    'room_changed': 'đã đổi phòng',
-                    'application_approved': 'được duyệt đơn',
-                    'application_rejected': 'bị từ chối đơn',
-                    'profile_updated': 'đã cập nhật hồ sơ',
-                    'payment_success': 'thanh toán thành công',
-                    'payment_failed': 'thanh toán thất bại',
-                    'registration_approved': 'đăng ký được duyệt',
-                    'registration_rejected': 'đăng ký bị từ chối'
-                };
-
-                const actionIcons = {
-                    'login': 'fas fa-sign-in-alt',
-                    'logout': 'fas fa-sign-out-alt',
-                    'register_success': 'fas fa-check-circle',
-                    'register_failed': 'fas fa-times-circle',
-                    'checked_in': 'fas fa-door-open',
-                    'checked_out': 'fas fa-door-closed',
-                    'room_assigned': 'fas fa-home',
-                    'room_changed': 'fas fa-exchange-alt',
-                    'application_approved': 'fas fa-thumbs-up',
-                    'application_rejected': 'fas fa-thumbs-down',
-                    'profile_updated': 'fas fa-user-edit',
-                    'payment_success': 'fas fa-dollar-sign',
-                    'payment_failed': 'fas fa-exclamation-triangle'
-                };
-
-                const userName = activity.userId?.name || activity.actor || 'Người dùng';
-                const studentId = activity.userId?.studentId || '';
-                const timestamp = activity.createdAt || activity.timestamp;
-                const time = timestamp ? new Date(timestamp).toLocaleString('vi-VN') : 'N/A';
-                const action = actionLabels[activity.action] || activity.action || 'thực hiện hành động';
-                const icon = actionIcons[activity.action] || 'fas fa-info-circle';
-                const description = activity.description || '';
-
-                return `
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="${icon}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <div class="activity-header">
-                                <span class="actor">
-                                    <strong>${escapeHtml(userName)}</strong>
-                                    ${studentId ? `<small class="text-muted">(${escapeHtml(studentId)})</small>` : ''}
-                                </span>
-                                <span class="time">${time}</span>
-                            </div>
-                            <div class="activity-text">
-                                ${action}
-                                ${description ? `<div class="text-muted small mt-1">${escapeHtml(description)}</div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // Utility function to escape HTML
-        function escapeHtml(text) {
-            if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.toString().replace(/[&<>"']/g, m => map[m]);
-        }
-
-        // Export for external use
-        window.loadDashboardStats = loadDashboardStats;
-    </script>
+// ── UTILS ─────────────────────────────────────────────────
+function fmt(n) { return typeof n === 'number' ? n.toLocaleString('vi-VN') : (n || '0'); }
+function esc(t) { if(!t) return ''; return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+function relTime(ts) {
+    if (!ts) return '—';
+    const ms  = Date.now() - new Date(ts).getTime();
+    const sec = Math.floor(ms/1000);
+    if (sec < 60) return 'Vừa xong';
+    const min = Math.floor(sec/60);
+    if (min < 60) return `${min} phút trước`;
+    const hr = Math.floor(min/60);
+    if (hr < 24) return `${hr} giờ trước`;
+    const day = Math.floor(hr/24);
+    return `${day} ngày trước`;
+}
+</script>
 </body>
 </html>

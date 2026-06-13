@@ -10,7 +10,7 @@ const NotificationSchema = new mongoose.Schema({
     // Notification details
     type: {
         type: String,
-        enum: ['violation', 'maintenance', 'system', 'alert', '2fa'],
+        enum: ['violation', 'maintenance', 'system', 'alert', '2fa', 'allocation', 'announcement', 'room_assigned', 'application'],
         required: true
     },
     

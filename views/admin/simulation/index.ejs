@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Simulation Workspace — eDorm</title>
+  <%- include('../navbar', { user, activeNav: 'simulation' }) %>
+  <style>
+    .sim-wrap { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
+    .sim-header { margin-bottom: 28px; }
+    .sim-header h2 { font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 6px; }
+    .sim-header p  { font-size: 14px; color: #6B7280; margin: 0; }
+
+    .sandbox-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;
+      font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+      margin-bottom: 12px;
+    }
+    .sandbox-badge i { font-size: 11px; }
+
+    .ws-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; margin-bottom: 28px; }
+    .ws-card {
+      background: #fff; border: 1px solid #E5E7EB; border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .ws-card .label { font-size: 11px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .ws-card .value { font-size: 26px; font-weight: 700; color: #111827; }
+    .ws-card .sub   { font-size: 12px; color: #6B7280; margin-top: 3px; }
+
+    .flow-section { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px 28px; margin-bottom: 24px; }
+    .flow-section h3 { font-size: 15px; font-weight: 700; color: #111827; margin: 0 0 16px; }
+
+    .flow-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+    .flow-step {
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      min-width: 100px;
+    }
+    .flow-step .icon {
+      width: 44px; height: 44px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .flow-step .icon.prod   { background: #EFF6FF; color: #2563EB; }
+    .flow-step .icon.clone  { background: #F0FDF4; color: #16A34A; }
+    .flow-step .icon.policy { background: #FEF9C3; color: #CA8A04; }
+    .flow-step .icon.reg    { background: #FDF4FF; color: #7C3AED; }
+    .flow-step .icon.alloc  { background: #FFF0F2; color: #C8102E; }
+    .flow-step .name { font-size: 12px; font-weight: 600; color: #374151; text-align: center; }
+    .flow-step .desc { font-size: 11px; color: #9CA3AF; text-align: center; }
+    .flow-arrow { color: #D1D5DB; font-size: 18px; padding: 0 8px; margin-bottom: 20px; }
+
+    .action-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+    .btn-sim {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
+      border: none; cursor: pointer; transition: background .15s, transform .1s;
+    }
+    .btn-sim:active { transform: scale(.97); }
+    .btn-primary { background: #C8102E; color: #fff; }
+    .btn-primary:hover { background: #a50d24; }
+    .btn-secondary { background: #fff; color: #374151; border: 1px solid #D1D5DB; }
+    .btn-secondary:hover { background: #F9FAFB; }
+    .btn-warning { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
+    .btn-warning:hover { background: #FFEDD5; }
+    .btn-sim:disabled { opacity: .5; cursor: not-allowed; }
+
+    .status-pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .pill-active   { background: #DCFCE7; color: #15803D; }
+    .pill-init     { background: #FEF9C3; color: #854D0E; }
+    .pill-none     { background: #F3F4F6; color: #6B7280; }
+    .pill-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+    .section-panel { background: #fff; border: 1px solid #E5E7EB; border-radius: 12px; padding: 24px 28px; margin-bottom: 20px; }
+    .section-panel h3 { font-size: 14px; font-weight: 700; color: #111827; margin: 0 0 14px; }
+
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid #F3F4F6; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-size: 13px; color: #6B7280; }
+    .info-value { font-size: 13px; font-weight: 600; color: #111827; }
+
+    .toast-container { position: fixed; top: 72px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      background: #1F2937; color: #F9FAFB; padding: 12px 18px; border-radius: 10px;
+      font-size: 13px; min-width: 240px; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      animation: slideIn .2s ease;
+    }
+    .toast.success { border-left: 4px solid #22C55E; }
+    .toast.error   { border-left: 4px solid #EF4444; }
+    .toast.info    { border-left: 4px solid #3B82F6; }
+    @keyframes slideIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    #spinnerOverlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.35); z-index: 9000;
+      align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+    }
+    #spinnerOverlay.show { display: flex; }
+    .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
+    .spinner-label { color: #fff; font-size: 15px; font-weight: 600; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div id="spinnerOverlay">
+  <div class="spinner"></div>
+  <div class="spinner-label" id="spinnerLabel">Đang xử lý...</div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="sim-wrap">
+
+  <div class="sim-header">
+    <div class="sandbox-badge"><i class="fas fa-flask"></i> SANDBOX — không ảnh hưởng dữ liệu thật</div>
+    <h2>Simulation Workspace</h2>
+    <p>Môi trường thử nghiệm phân bổ độc lập. Dữ liệu được clone từ Production và reset mỗi lần đăng nhập.</p>
+  </div>
+
+  <!-- Flow Diagram -->
+  <div class="flow-section">
+    <h3><i class="fas fa-route" style="color:#C8102E;margin-right:6px;"></i>Luồng Sandbox</h3>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="icon prod"><i class="fas fa-database"></i></div>
+        <div class="name">Policy</div>
+        <div class="desc">Chính sách phân bổ</div>
+      </div>
+      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="flow-step">
+        <div class="icon reg"><i class="fas fa-clipboard-list"></i></div>
+        <div class="name">Registration</div>
+        <div class="desc">Sinh viên đăng ký</div>
+      </div>
+      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="flow-step">
+        <div class="icon policy"><i class="fas fa-star"></i></div>
+        <div class="name">Priority</div>
+        <div class="desc">Tính điểm ưu tiên</div>
+      </div>
+      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="flow-step">
+        <div class="icon clone"><i class="fas fa-layer-group"></i></div>
+        <div class="name">Allocation</div>
+        <div class="desc">Engine phân bổ</div>
+      </div>
+      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="flow-step">
+        <div class="icon alloc"><i class="fas fa-bed"></i></div>
+        <div class="name">Room Assignment</div>
+        <div class="desc">Kết quả phân phòng</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Workspace Status -->
+  <% if (workspaceStatus.hasWorkspace) { %>
+  <div class="ws-grid">
+    <div class="ws-card">
+      <div class="label">Sinh viên (Sandbox)</div>
+      <div class="value"><%= workspaceStatus.liveCounts.studentCount.toLocaleString() %></div>
+      <div class="sub">Clone từ production</div>
+    </div>
+    <div class="ws-card">
+      <div class="label">Ký túc xá</div>
+      <div class="value"><%= workspaceStatus.liveCounts.dormCount %></div>
+      <div class="sub">KTX được clone</div>
+    </div>
+    <div class="ws-card">
+      <div class="label">Đăng ký mô phỏng</div>
+      <div class="value"><%= workspaceStatus.liveCounts.regCount.toLocaleString() %></div>
+      <div class="sub">Sinh viên trong queue</div>
+    </div>
+    <div class="ws-card">
+      <div class="label">Chính sách</div>
+      <div class="value"><%= workspaceStatus.liveCounts.policyCount %></div>
+      <div class="sub"><%= workspaceStatus.liveCounts.cycleCount %> chu kỳ</div>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Actions -->
+  <div class="action-row">
+    <% if (!workspaceStatus.hasWorkspace) { %>
+    <button class="btn-sim btn-primary" onclick="initWorkspace()">
+      <i class="fas fa-play"></i> Khởi tạo Workspace
+    </button>
+    <% } else { %>
+    <a href="/admin/simulation/engine" class="btn-sim btn-primary" style="text-decoration:none;">
+      <i class="fas fa-bolt"></i> Mở Simulation Engine
+    </a>
+    <button class="btn-sim btn-warning" onclick="resetWorkspace()">
+      <i class="fas fa-redo"></i> Reset & Clone lại
+    </button>
+    <button class="btn-sim btn-secondary" onclick="refreshStatus()">
+      <i class="fas fa-sync"></i> Làm mới
+    </button>
+    <% } %>
+  </div>
+
+  <!-- Workspace Detail -->
+  <% if (workspaceStatus.hasWorkspace) { %>
+  <div class="section-panel">
+    <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Thông tin Workspace</h3>
+    <div class="info-grid">
+      <div>
+        <div class="info-row">
+          <span class="info-label">Trạng thái</span>
+          <span class="info-value">
+            <span class="status-pill pill-active">
+              <span class="pill-dot"></span> ACTIVE
+            </span>
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Clone lúc</span>
+          <span class="info-value" id="clonedAt"><%= new Date(workspaceStatus.workspace.clonedAt).toLocaleString('vi-VN') %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Hoạt động gần nhất</span>
+          <span class="info-value" id="lastActivity"><%= new Date(workspaceStatus.workspace.lastActivity).toLocaleString('vi-VN') %></span>
+        </div>
+      </div>
+      <div>
+        <div class="info-row">
+          <span class="info-label">Workspace ID</span>
+          <span class="info-value" style="font-family:monospace;font-size:11px;color:#6B7280"><%= workspaceStatus.workspace._id %></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Số phòng</span>
+          <span class="info-value"><%= workspaceStatus.workspace.snapshotSummary.roomCount %> phòng</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Reset khi</span>
+          <span class="info-value">Logout hoặc Login lại</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-panel">
+    <h3><i class="fas fa-exclamation-triangle" style="color:#CA8A04;margin-right:6px;"></i>Lưu ý quan trọng</h3>
+    <ul style="margin:0;padding-left:18px;color:#374151;font-size:14px;line-height:1.8;">
+      <li>Mọi thay đổi trong Workspace <strong>không ảnh hưởng</strong> đến dữ liệu thật</li>
+      <li>Workspace tự động <strong>xóa và clone lại</strong> khi bạn đăng xuất hoặc đăng nhập lại</li>
+      <li>Chỉ tài khoản <code>admintest</code> mới có thể truy cập tính năng này</li>
+      <li>Dữ liệu được clone tại thời điểm: <strong><%= new Date(workspaceStatus.workspace.clonedAt).toLocaleString('vi-VN') %></strong></li>
+    </ul>
+  </div>
+  <% } else { %>
+  <div class="section-panel">
+    <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Chưa có Workspace</h3>
+    <p style="color:#6B7280;font-size:14px;margin:0;">
+      Nhấn <strong>Khởi tạo Workspace</strong> để clone dữ liệu từ Production vào Sandbox.
+      Quá trình này sẽ sao chép sinh viên, ký túc xá, chính sách và chu kỳ phân bổ.
+    </p>
+  </div>
+  <% } %>
+
+</div>
+
+<script>
+function showSpinner(label) {
+  document.getElementById('spinnerLabel').textContent = label || 'Đang xử lý...';
+  document.getElementById('spinnerOverlay').classList.add('show');
+}
+function hideSpinner() {
+  document.getElementById('spinnerOverlay').classList.remove('show');
+}
+function toast(msg, type = 'info') {
+  const c = document.getElementById('toastContainer');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = msg;
+  c.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+async function initWorkspace() {
+  showSpinner('Đang clone dữ liệu từ Production...');
+  try {
+    const res = await fetch('/api/simulation/workspace/init', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json();
+    hideSpinner();
+    if (data.success) {
+      toast('Workspace khởi tạo thành công! Đang tải lại...', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      toast('Lỗi: ' + data.error, 'error');
+    }
+  } catch (e) {
+    hideSpinner();
+    toast('Lỗi kết nối server', 'error');
+  }
+}
+
+async function resetWorkspace() {
+  if (!confirm('Reset workspace sẽ xóa toàn bộ dữ liệu sandbox hiện tại và clone lại từ production. Tiếp tục?')) return;
+  showSpinner('Đang reset và clone lại dữ liệu...');
+  try {
+    const res = await fetch('/api/simulation/workspace/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const data = await res.json();
+    hideSpinner();
+    if (data.success) {
+      toast('Workspace đã được reset thành công! Đang tải lại...', 'success');
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      toast('Lỗi: ' + data.error, 'error');
+    }
+  } catch (e) {
+    hideSpinner();
+    toast('Lỗi kết nối server', 'error');
+  }
+}
+
+async function refreshStatus() {
+  showSpinner('Đang cập nhật...');
+  try {
+    await new Promise(r => setTimeout(r, 400));
+    hideSpinner();
+    location.reload();
+  } catch(e) {
+    hideSpinner();
+  }
+}
+</script>
+</body>
+</html>
