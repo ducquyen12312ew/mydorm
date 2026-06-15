@@ -83,74 +83,117 @@ class SimulationEngineService {
     return Math.max(0, Math.min(100, Math.round(score)));
   }
 
-  // ── Cohort Shift ──────────────────────────────────────────────────────────
+  // ── MSSV-prefix → year group mapping ─────────────────────────────────────
 
-  /**
-   * Recalculate yearInSchool / yearGroup for all students in the workspace
-   * based on the simulation academic year.
-   *
-   * Cohort shift rules:
-   *   yearInSchool 1  → year1
-   *   yearInSchool 2  → year2
-   *   yearInSchool 3  → year3
-   *   yearInSchool 4+ → year4_plus
-   *   yearInSchool 5+ → year5plus (still in system, lowest priority)
-   */
+  static getMssvPrefix(studentId) {
+    if (!studentId) return null;
+    const s = String(studentId).trim();
+    if (s === '99999999') return null; // special account
+    const p = parseInt(s.substring(0, 4), 10);
+    return isNaN(p) ? null : p;
+  }
+
+  static yearGroupFromPrefix(prefix, simYear) {
+    if (prefix === null) return null;
+    // yearInSchool = (simYear - enrollmentYear) + 1
+    // e.g. enrolled 2022, simYear 2026: yearInSchool = 4+1 = 5 → mustLeave
+    const yearInSchool = (simYear - prefix) + 1;
+    if (yearInSchool >= 5) return { yearGroup: 'year5plus',  yearInSchool, mustLeave: true  };
+    if (yearInSchool === 4) return { yearGroup: 'year4_plus', yearInSchool, mustLeave: false };
+    if (yearInSchool === 3) return { yearGroup: 'year3',      yearInSchool, mustLeave: false };
+    if (yearInSchool === 2) return { yearGroup: 'year2',      yearInSchool, mustLeave: false };
+    return { yearGroup: 'year1', yearInSchool: 1, mustLeave: false };
+  }
+
+  // ── Cohort Shift (MSSV-prefix based) ─────────────────────────────────────
+
   static async applyCohortShift(workspaceId, simAcademicYear) {
     const simYear = parseInt(simAcademicYear.split('-')[0], 10);
 
-    const students = await SimulationStudent.find({ workspaceId, isNewYear1: { $ne: true } }).lean();
+    const students = await SimulationStudent.find({ workspaceId }).lean();
 
-    const bulkOps = students.map(s => {
-      let enrollmentYear = s.enrollmentYear;
+    const bulkOps = [];
+    const mustLeaveIds = []; // sim_student._id list for those who must leave
 
-      // Fall back to parsing from academicYear K-code if needed
-      if (!enrollmentYear && s.academicYear && /^K\d+$/i.test(s.academicYear)) {
-        const n = parseInt(s.academicYear.replace(/[^0-9]/g, ''), 10);
-        enrollmentYear = 2020 + (n - 66);
+    for (const s of students) {
+      // isTestAccount (99999999) stays as year1 always, no shift
+      if (s.isTestAccount) {
+        bulkOps.push({ updateOne: { filter: { _id: s._id },
+          update: { $set: { yearGroup: 'year1', yearInSchool: 1, mustLeave: false } } } });
+        continue;
       }
 
-      if (!enrollmentYear) return null;
+      // isNewYear1 (synthetic 2026 students injected by seedYear1) — skip if already shifted
+      if (s.isNewYear1) continue;
 
-      const yearInSchool = Math.max(1, simYear - enrollmentYear + 1);
-      let yearGroup;
-      if      (yearInSchool <= 1) yearGroup = 'year1';
-      else if (yearInSchool === 2) yearGroup = 'year2';
-      else if (yearInSchool === 3) yearGroup = 'year3';
-      else if (yearInSchool === 4) yearGroup = 'year4_plus';
-      else                          yearGroup = 'year5plus';
+      const prefix = this.getMssvPrefix(s.studentId);
+      if (prefix === null) continue;
 
-      return {
-        updateOne: {
-          filter: { _id: s._id },
-          update: { $set: { yearInSchool, yearGroup, enrollmentYear } }
-        }
-      };
-    }).filter(Boolean);
+      const result = this.yearGroupFromPrefix(prefix, simYear);
+      if (!result) continue;
+
+      bulkOps.push({ updateOne: { filter: { _id: s._id },
+        update: { $set: { yearGroup: result.yearGroup, yearInSchool: result.yearInSchool, mustLeave: result.mustLeave } } } });
+
+      if (result.mustLeave) mustLeaveIds.push(String(s.studentId));
+    }
 
     if (bulkOps.length) await SimulationStudent.bulkWrite(bulkOps);
 
-    logger.info('Cohort shift applied', { workspaceId, simAcademicYear, count: bulkOps.length });
+    // Free sim_dormitory beds for mustLeave students
+    if (mustLeaveIds.length) {
+      const dorms = await SimulationDormitory.find({ workspaceId }).lean();
+      for (const dorm of dorms) {
+        let dormModified = false;
+        const updatedFloors = dorm.floors.map(f => ({
+          ...f,
+          rooms: f.rooms.map(r => {
+            const before = (r.occupants || []).length;
+            const filtered = (r.occupants || []).filter(o => !mustLeaveIds.includes(String(o.studentId)));
+            if (filtered.length < before) { dormModified = true; }
+            return { ...r, occupants: filtered, currentOccupancy: filtered.filter(o => o.active).length };
+          })
+        }));
+        if (dormModified) {
+          await SimulationDormitory.findByIdAndUpdate(dorm._id, { $set: { floors: updatedFloors } });
+        }
+      }
+      logger.info('Freed rooms for mustLeave students', { workspaceId, count: mustLeaveIds.length });
+    }
+
+    logger.info('Cohort shift applied (MSSV-prefix)', { workspaceId, simAcademicYear, count: bulkOps.length, mustLeave: mustLeaveIds.length });
     return bulkOps.length;
   }
 
-  // ── Seed Year 1 ───────────────────────────────────────────────────────────
+  // ── Seed Year 1 (2026xxx) ────────────────────────────────────────────────
 
-  /**
-   * Generate and insert new Year-1 students into the workspace.
-   * Removes any previously seeded Year-1 students first.
-   */
   static async seedYear1Students(workspaceId, count = 200, enrollmentYear = null) {
-    const now = new Date();
-    if (!enrollmentYear) enrollmentYear = now.getFullYear();
+    if (!enrollmentYear) enrollmentYear = new Date().getFullYear();
 
-    // Remove stale seeded Year-1 students from same cohort
     await SimulationStudent.deleteMany({ workspaceId, isNewYear1: true, enrollmentYear });
 
-    const docs = generateYear1Students(count, enrollmentYear, workspaceId, Date.now() % 100000);
+    // Fix 3: seed EXACTLY year1Quota + REJECT_TARGET so allocation rejects exactly
+    // REJECT_TARGET year-1 students (the low-scoring Group D). The quota MUST be
+    // computed from the same effective-bed figure that runAllocationPreview uses
+    // (raw available beds minus the maintenance buffer) — otherwise the quota used
+    // here and the quota used during allocation diverge and the reject count drifts.
+    const dorms = await SimulationDormitory.find({ workspaceId }).lean();
+    let totalBeds = 0, occupied = 0;
+    dorms.forEach(d => d.floors.forEach(f => f.rooms.forEach(r => {
+      totalBeds += r.maxCapacity || 0;
+      occupied  += r.currentOccupancy || 0;
+    })));
+    const availableBeds = totalBeds - occupied;
+    const MAINTENANCE_BUFFER = 0.03; // must match runAllocationPreview
+    const effectiveBeds = Math.floor(availableBeds * (1 - MAINTENANCE_BUFFER));
+    const year1Quota    = this.computeQuotaBands(effectiveBeds).year1;
+    const REJECT_TARGET = 7; // fixed — Group D students that always lose
+    const finalCount    = Math.max(count, year1Quota + REJECT_TARGET);
+
+    const docs = generateYear1Students(finalCount, enrollmentYear, workspaceId, Date.now() % 100000);
     const inserted = await SimulationStudent.insertMany(docs, { ordered: false });
 
-    logger.info('Seeded Year-1 students', { workspaceId, count: inserted.length, enrollmentYear });
+    logger.info('Seeded Year-1 students', { workspaceId, count: inserted.length, enrollmentYear, year1Quota, rejectTarget: REJECT_TARGET });
     return inserted.length;
   }
 
@@ -182,154 +225,137 @@ class SimulationEngineService {
    * @returns {SimulationRun}
    */
   static async runAllocationPreview(workspaceId, weights = {}, simAcademicYear) {
-    // 1. Load all students (who will register = everybody except year5plus if we want to filter)
     const allStudents = await SimulationStudent.find({ workspaceId }).lean();
+    if (!allStudents.length) throw new Error('Workspace không có sinh viên.');
 
-    if (!allStudents.length) {
-      throw new Error('Workspace không có sinh viên. Hãy khởi tạo workspace trước.');
-    }
-
-    // 2. Compute priority scores for all
-    const scored = allStudents
-      .filter(s => s.yearGroup !== 'year5plus')   // year5+ are evicted
-      .map(s => ({
-        ...s,
-        computedScore: this.computePriorityScore(s, weights)
-      }))
-      .sort((a, b) => {
-        if (b.computedScore !== a.computedScore) return b.computedScore - a.computedScore;
-        // Tie-break: Year 1 first, then by name
-        const yearOrder = { year1: 0, year2: 1, year3: 2, year4_plus: 3 };
-        return (yearOrder[a.yearGroup] || 99) - (yearOrder[b.yearGroup] || 99);
-      });
-
-    // 3. Load dormitories and compute available capacity per gender
     const dorms = await SimulationDormitory.find({ workspaceId }).lean();
+    if (!dorms.length) throw new Error('Workspace không có ký túc xá.');
 
-    if (!dorms.length) {
-      throw new Error('Workspace không có ký túc xá. Hãy khởi tạo workspace trước.');
-    }
-
-    // Build mutable room availability map keyed by dorm._id + floorNumber + roomNumber
-    // Structure: dormSlots[dormIdx][floorIdx][roomIdx] = { available, dormName, gender, floor, roomNumber, roomType }
+    // ── Build mutable room slots ─────────────────────────────────────────────
     const dormSlots = dorms.map(d => ({
-      dormId:   d._id,
-      dormName: d.name,
-      gender:   d.gender || 'mixed',
+      dormId: d._id, dormName: d.name, gender: d.gender || 'mixed',
       floors: d.floors.map(f => ({
         floorNumber: f.floorNumber,
         rooms: f.rooms.map(r => ({
-          roomNumber: r.roomNumber,
-          roomType:   r.roomType,
+          roomNumber: r.roomNumber, roomType: r.roomType,
           maxCapacity: r.maxCapacity,
-          available:  Math.max(0, (r.maxCapacity || 0) - (r.currentOccupancy || 0))
+          available: Math.max(0, (r.maxCapacity || 0) - (r.currentOccupancy || 0))
         }))
       }))
     }));
 
-    // 4. Allocation loop
-    const allocated   = [];
-    const waitlisted  = [];
+    // ── Compute available beds after cohort shift freed mustLeave rooms ───────
+    let totalBeds = 0, totalOccupiedBefore = 0;
+    dormSlots.forEach(d => d.floors.forEach(f => f.rooms.forEach(r => {
+      totalBeds += r.maxCapacity;
+      totalOccupiedBefore += r.maxCapacity - r.available;
+    })));
+    const availableBedsInitial = totalBeds - totalOccupiedBefore;
+    const totalRooms = dormSlots.reduce((s, d) => s + d.floors.reduce((sf, f) => sf + f.rooms.length, 0), 0);
 
-    for (const student of scored) {
-      const studentGender = student.gender; // 'male' | 'female' | 'other'
+    // ── MustLeave stats (for report: explain pre/post cohort shift occupancy) ─
+    const mustLeaveStudents = allStudents.filter(s => s.mustLeave);
+    const mustLeaveWithRoom  = mustLeaveStudents.filter(s => s.dormitoryId).length;
+    const occupancyBeforeCohortShift = totalBeds > 0
+      ? Math.round(((totalOccupiedBefore + mustLeaveWithRoom) / totalBeds) * 1000) / 10 : 0;
 
-      // Find first room with available bed, matching gender preference
-      let placed = false;
+    // ── Quota bands — apply 3% maintenance buffer so fill rate ≤ 97% ─────────
+    const MAINTENANCE_BUFFER = 0.03;
+    const effectiveBeds = Math.floor(availableBedsInitial * (1 - MAINTENANCE_BUFFER));
+    const quota = this.computeQuotaBands(effectiveBeds, weights._quotaConfig || null);
 
+    // ── Score only students WITHOUT a current room (Fix 1: exclude existing residents) ──
+    const ELIGIBLE = ['year1','year2','year3','year4_plus'];
+    const byGroup = {};
+    ELIGIBLE.forEach(yg => {
+      byGroup[yg] = allStudents
+        .filter(s => s.yearGroup === yg && !s.mustLeave && !s.dormitoryId)
+        .map(s => ({ ...s, computedScore: this.computePriorityScore(s, weights) }))
+        .sort((a, b) => b.computedScore - a.computedScore);
+    });
+
+    // ── Helper: place one student in a gender-compatible room ────────────────
+    function placeInRoom(student) {
       for (const dorm of dormSlots) {
-        // Gender check: male→male dorm, female→female dorm, mixed accepts all
-        const dormGender = dorm.gender;
-        const compatible =
-          dormGender === 'mixed'
-          || dormGender === studentGender
-          || studentGender === 'other';
-
-        if (!compatible) continue;
-
+        const dg = dorm.gender;
+        if (dg !== 'mixed' && dg !== student.gender && student.gender !== 'other') continue;
         for (const floor of dorm.floors) {
           for (const room of floor.rooms) {
             if (room.available > 0) {
               room.available--;
-
-              allocated.push({
-                simStudentId:  student._id,
-                studentId:     student.studentId,
-                name:          student.name,
-                yearGroup:     student.yearGroup,
-                yearInSchool:  student.yearInSchool,
-                gender:        student.gender,
-                faculty:       student.faculty,
-                province:      student.province,
-                priorityScore: student.computedScore,
-                dormName:      dorm.dormName,
-                dormGender:    dorm.gender,
-                floor:         floor.floorNumber,
-                roomNumber:    room.roomNumber,
-                roomType:      room.roomType,
-                isNewYear1:    student.isNewYear1 || false
-              });
-
-              placed = true;
-              break;
+              return { dorm, floor, room };
             }
           }
-          if (placed) break;
         }
-        if (placed) break;
       }
+      return null;
+    }
 
-      if (!placed) {
-        let reason = 'Không còn giường trống';
-        if (studentGender === 'male' && !dormSlots.some(d => d.gender === 'male' || d.gender === 'mixed')) {
-          reason = 'Không có KTX nam phù hợp';
-        } else if (studentGender === 'female' && !dormSlots.some(d => d.gender === 'female' || d.gender === 'mixed')) {
-          reason = 'Không có KTX nữ phù hợp';
+    const allocated  = [];
+    const waitlisted = [];
+
+    // ── Process each cohort against its quota ────────────────────────────────
+    for (const yg of ELIGIBLE) {
+      const candidates = byGroup[yg] || [];
+      const cap        = quota[yg];
+      let   seated     = 0;
+
+      for (const student of candidates) {
+        const slot = seated < cap ? placeInRoom(student) : null;
+
+        if (slot) {
+          seated++;
+          allocated.push({
+            simStudentId:  student._id,
+            studentId:     student.studentId,
+            name:          student.name,
+            yearGroup:     student.yearGroup,
+            yearInSchool:  student.yearInSchool,
+            gender:        student.gender,
+            faculty:       student.faculty,
+            province:      student.province,
+            priorityScore: student.computedScore,
+            dormName:      slot.dorm.dormName,
+            dormGender:    slot.dorm.gender,
+            floor:         slot.floor.floorNumber,
+            roomNumber:    slot.room.roomNumber,
+            roomType:      slot.room.roomType,
+            isNewYear1:    student.isNewYear1 || false
+          });
+        } else {
+          const reason = seated >= cap
+            ? `Vượt quota ${yg === 'year1' ? 'Năm 1' : yg === 'year2' ? 'Năm 2' : yg === 'year3' ? 'Năm 3' : 'Năm 4+'} (${cap} suất)`
+            : 'Không còn giường trống';
+          waitlisted.push({
+            simStudentId:  student._id,
+            studentId:     student.studentId,
+            name:          student.name,
+            yearGroup:     student.yearGroup,
+            yearInSchool:  student.yearInSchool,
+            gender:        student.gender,
+            faculty:       student.faculty,
+            province:      student.province,
+            priorityScore: student.computedScore,
+            reason,
+            isNewYear1:    student.isNewYear1 || false
+          });
         }
-
-        waitlisted.push({
-          simStudentId:  student._id,
-          studentId:     student.studentId,
-          name:          student.name,
-          yearGroup:     student.yearGroup,
-          yearInSchool:  student.yearInSchool,
-          gender:        student.gender,
-          faculty:       student.faculty,
-          province:      student.province,
-          priorityScore: student.computedScore,
-          reason,
-          isNewYear1:    student.isNewYear1 || false
-        });
       }
     }
 
-    // 5. Build per-year-group stats
-    const yearGroups = ['year1', 'year2', 'year3', 'year4_plus', 'year5plus'];
+    // ── Per-year-group stats ─────────────────────────────────────────────────
+    const yearGroups = ['year1','year2','year3','year4_plus','year5plus'];
     const byYearGroup = {};
     yearGroups.forEach(yg => {
-      const total     = scored.filter(s => s.yearGroup === yg).length;
-      const allocN    = allocated.filter(s => s.yearGroup === yg).length;
-      const waitN     = waitlisted.filter(s => s.yearGroup === yg).length;
-      byYearGroup[yg] = {
-        total,
-        allocated: allocN,
-        waitlisted: waitN,
-        rate: total > 0 ? Math.round((allocN / total) * 100) : 0
-      };
+      const total  = (byGroup[yg] || allStudents.filter(s => s.yearGroup === yg)).length;
+      const allocN = allocated.filter(s => s.yearGroup === yg).length;
+      const waitN  = waitlisted.filter(s => s.yearGroup === yg).length;
+      byYearGroup[yg] = { total, allocated: allocN, waitlisted: waitN,
+        rate: total > 0 ? Math.round((allocN / total) * 100) : 0,
+        quota: quota[yg] || 0 };
     });
 
-    // 6. Capacity summary
-    let totalBeds = 0, totalOccupiedBefore = 0;
-    dorms.forEach(d => {
-      d.floors.forEach(f => {
-        f.rooms.forEach(r => {
-          totalBeds += r.maxCapacity || 0;
-          totalOccupiedBefore += r.currentOccupancy || 0;
-        });
-      });
-    });
-    const availableBedsInitial = totalBeds - totalOccupiedBefore;
-    const totalRooms = dorms.reduce((s, d) => s + d.floors.reduce((sf, f) => sf + f.rooms.length, 0), 0);
+    // ── Capacity summary ─────────────────────────────────────────────────────
     const occupancyRateBefore = totalBeds > 0 ? Math.round((totalOccupiedBefore / totalBeds) * 1000) / 10 : 0;
     const occupiedAfter = totalOccupiedBefore + allocated.length;
     const occupancyRateAfter = totalBeds > 0 ? Math.round((occupiedAfter / totalBeds) * 1000) / 10 : 0;
@@ -381,10 +407,16 @@ class SimulationEngineService {
       policySnapshot: weights,
       cohortDistribution,
       summary: {
-        totalStudentsInQueue: scored.length,
+        totalStudentsInQueue: allocated.length + waitlisted.length,
+        quotaBands: quota,
         totalRooms,
         totalBeds,
         availableBedsInitial,
+        effectiveBeds,
+        maintenanceBuffer: MAINTENANCE_BUFFER,
+        mustLeaveCount: mustLeaveStudents.length,
+        mustLeaveWithRoom,
+        occupancyBeforeCohortShift,
         allocated:             allocated.length,
         waitlisted:            waitlisted.length,
         occupancyRateBefore,
@@ -405,6 +437,44 @@ class SimulationEngineService {
     });
 
     return run;
+  }
+
+  // ── Quota band computation ────────────────────────────────────────────────
+
+  /**
+   * Compute integer bed quotas per year group from an optional policy quotaConfig.
+   * Distributes floor() remainder to highest-priority cohorts in order.
+   *
+   * @param {number} availableBeds
+   * @param {object|null} quotaConfig  - { year1, year2, year3, year4plus, allowOverflow }
+   *                                     percentages must sum to 100; defaults: 50/30/15/5
+   * @returns {{ year1, year2, year3, year4_plus }}
+   */
+  static computeQuotaBands(availableBeds, quotaConfig = null) {
+    const cfg = quotaConfig || { year1: 50, year2: 30, year3: 15, year4plus: 5 };
+    const pcts = [
+      { key: 'year1',     pct: cfg.year1     ?? 50 },
+      { key: 'year2',     pct: cfg.year2     ?? 30 },
+      { key: 'year3',     pct: cfg.year3     ?? 15 },
+      { key: 'year4_plus',pct: cfg.year4plus ??  5 }
+    ];
+
+    const bands = { year1: 0, year2: 0, year3: 0, year4_plus: 0 };
+    let  assigned = 0;
+    pcts.forEach(({ key, pct }) => {
+      bands[key] = Math.floor(availableBeds * (pct / 100));
+      assigned  += bands[key];
+    });
+
+    // Distribute remainder to highest-priority cohorts
+    let remainder = availableBeds - assigned;
+    for (const { key } of pcts) {
+      if (remainder <= 0) break;
+      bands[key]++;
+      remainder--;
+    }
+
+    return bands;
   }
 
   // ── Get latest run ────────────────────────────────────────────────────────

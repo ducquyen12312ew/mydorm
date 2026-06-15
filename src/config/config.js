@@ -116,6 +116,10 @@ const StudentSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    isTestAccount: {
+        type: Boolean,
+        default: false
+    },
     isProtected: {
         type: Boolean,
         default: false,
@@ -141,6 +145,15 @@ const StudentSchema = new mongoose.Schema({
         type: Object,
         default: {}
     },
+    // Student profile fields — stored in production, used by simulation engine for scoring
+    enrollmentYear: { type: Number },
+    province:       { type: String },
+    distanceToHanoi: { type: Number },
+    familySituation: { type: String, enum: ['poor', 'average', 'wealthy', null], default: null },
+    ethnicity:       { type: String },
+    priorityPolicies: { type: Object, default: {} },
+    violationHistory: { type: String, enum: ['none', 'minor', 'major', 'critical', null], default: null },
+    dormHistory:      { type: String, enum: ['never_stayed', 'good_history', 'bad_history', null], default: null },
     favoriteRoomIds: {
         type: [{ type: mongoose.Schema.Types.ObjectId }],
         default: []

@@ -85,7 +85,7 @@ class SimulationWorkspaceService {
       AllocationCycle.find({}).lean()
     ]);
 
-    // Clone students
+    // Clone students — include all profile fields used by the simulation scoring engine
     const studentDocs = students.map(s => ({
       workspaceId,
       sourceStudentId: s._id,
@@ -98,11 +98,21 @@ class SimulationWorkspaceService {
       academicYear: s.academicYear,
       gender: s.gender,
       role: s.role,
-      priorityScore: s.priorityScore || 0,
-      priorityDetails: s.priorityDetails || {},
-      enrollmentYear: s.enrollmentYear,
-      dormitoryId: s.dormitoryId,
-      roomNumber: s.roomNumber
+      priorityScore:    s.priorityScore || 0,
+      priorityDetails:  s.priorityDetails || {},
+      enrollmentYear:   s.enrollmentYear,
+      dormitoryId:      s.dormitoryId,
+      roomNumber:       s.roomNumber,
+      isTestAccount:    s.isTestAccount || false,
+      // Scoring profile fields (Fix 2: must be cloned so engine produces varied scores)
+      province:         s.province,
+      distanceToHanoi:  s.distanceToHanoi,
+      familySituation:  s.familySituation,
+      ethnicity:        s.ethnicity,
+      priorityPolicies: s.priorityPolicies || {},
+      violationHistory: s.violationHistory,
+      dormHistory:      s.dormHistory,
+      mustLeave:        false
     }));
 
     // Clone dormitories (with embedded rooms)

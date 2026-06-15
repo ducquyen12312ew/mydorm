@@ -390,9 +390,11 @@ class SimulationApplyService {
       );
     }
 
-    // 3. Cancel the created AllocationCycle if it was ours
+    // 3. Restore AllocationCycle to PENDING (undo = not cancelled, just rolled back)
     if (snapshot.createdCycleId) {
-      await AllocationCycle.findByIdAndUpdate(snapshot.createdCycleId, { status: 'CANCELLED' });
+      await AllocationCycle.findByIdAndUpdate(snapshot.createdCycleId, {
+        status: 'PENDING', executedBy: null, executedAt: null
+      });
     }
 
     // 4. Mark snapshot as undone
@@ -438,9 +440,12 @@ class SimulationApplyService {
       return `### ${d.dormName} (${d.gender === 'male' ? 'Nam' : d.gender === 'female' ? 'Nữ' : 'Hỗn hợp'})\n- Giường: ${d.occupiedBeds}/${d.totalBeds} (${d.occupancyRate}%)\n${floorLines}`;
     }).join('\n\n');
 
-    // Rejected list
-    const rejectedLines = (run.waitlistedStudents || []).slice(0, 50).map((s, i) =>
-      `| ${i+1} | ${s.studentId || '—'} | ${s.name} | ${ygLabel[s.yearGroup] || s.yearGroup} | ${s.priorityScore} | ${s.reason} |`
+    // Rejected list — sorted by score ASC (lowest score first)
+    const sortedWaitlist = (run.waitlistedStudents || [])
+      .slice()
+      .sort((a, b) => (a.priorityScore ?? 0) - (b.priorityScore ?? 0));
+    const rejectedLines = sortedWaitlist.slice(0, 50).map((s, i) =>
+      `| ${i+1} | ${s.studentId || '—'} | ${s.name} | ${ygLabel[s.yearGroup] || s.yearGroup} | ${s.priorityScore ?? '—'} | ${s.reason} |`
     ).join('\n');
 
     // Rollback section
@@ -470,17 +475,23 @@ class SimulationApplyService {
 
 ## 1. Database Overview
 
-| Chỉ số              | Giá trị         |
-|---------------------|-----------------|
+| Chỉ số | Giá trị |
+|--------|---------|
+| Tổng phòng | ${s.totalRooms} |
+| Tổng giường | ${s.totalBeds.toLocaleString()} |
+| Occupancy **trước** cohort shift | **${s.occupancyBeforeCohortShift ?? '—'}%** (${((s.totalBeds || 0) - (s.availableBedsInitial || 0) + (s.mustLeaveWithRoom || 0)).toLocaleString()} / ${s.totalBeds.toLocaleString()} giường) |
+| Năm 5+ rời KTX | **${s.mustLeaveCount ?? 0}** người → giải phóng **${s.mustLeaveWithRoom ?? 0}** giường |
+| Occupancy **sau** cohort shift | **${s.occupancyRateBefore}%** (${((s.totalBeds || 0) - (s.availableBedsInitial || 0)).toLocaleString()} / ${s.totalBeds.toLocaleString()} giường) |
+| Giường trống cho phân bổ | ${s.availableBedsInitial.toLocaleString()} |
+| Effective beds (buffer ${((s.maintenanceBuffer ?? 0.03) * 100).toFixed(0)}% dự phòng) | ${s.effectiveBeds ?? s.availableBedsInitial} |
 | Sinh viên trong Queue | ${s.totalStudentsInQueue.toLocaleString()} |
-| Tổng phòng           | ${s.totalRooms} |
-| Tổng giường          | ${s.totalBeds.toLocaleString()} |
-| Giường trống ban đầu | ${s.availableBedsInitial.toLocaleString()} |
-| Occupancy trước Sim  | ${s.occupancyRateBefore}% |
 
 ---
 
 ## 2. Kết quả Allocation
+
+> ⚠️ **Lưu ý:** ${s.allocated.toLocaleString()} sinh viên được nhận trong simulation.
+> Khi Apply thực tế, chỉ sinh viên real được apply — sinh viên Năm 1 synthetic (2026xxx — isNewYear1=true) sẽ bị bỏ qua.
 
 | Kết quả          | Số lượng        |
 |------------------|-----------------|
@@ -491,11 +502,15 @@ class SimulationApplyService {
 
 ### Theo Khóa
 
-| Khóa   | Tổng đăng ký | Được nhận | Chờ | Tỷ lệ |
-|--------|-------------|-----------|-----|-------|
-${Object.entries(byYG).map(([yg, st]) =>
-  `| ${ygLabel[yg] || yg} | ${st.total} | ${st.allocated} | ${st.waitlisted} | ${st.rate}% |`
-).join('\n')}
+| Khóa   | Quota | Đăng ký | Được nhận | Fill quota | Waitlist |
+|--------|-------|---------|-----------|-----------|---------|
+${Object.entries(byYG).filter(([yg]) => yg !== 'year5plus').map(([yg, st]) => {
+  const quota = s.quotaBands?.[yg] ?? st.quota ?? '—';
+  const fill  = (quota && quota !== '—' && quota > 0)
+    ? Math.round((st.allocated / quota) * 100) + '%'
+    : '—';
+  return `| ${ygLabel[yg] || yg} | ${quota} | ${st.total} | ${st.allocated} | ${fill} | ${st.waitlisted} |`;
+}).join('\n')}
 
 ---
 

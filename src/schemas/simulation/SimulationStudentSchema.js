@@ -38,7 +38,9 @@ const SimulationStudentSchema = new mongoose.Schema({
     default: 'year1',
     index: true
   },
-  isNewYear1: { type: Boolean, default: false },  // seeded for this sim
+  isNewYear1:    { type: Boolean, default: false },  // seeded synthetic student (2026xxx)
+  isTestAccount: { type: Boolean, default: false },  // 99999999 — never shifts, always year1
+  mustLeave:     { type: Boolean, default: false },  // year5plus after cohort shift → room freed
 
   // ── Geography ──────────────────────────────────────────────────
   province:       { type: String, trim: true },

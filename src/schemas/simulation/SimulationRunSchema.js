@@ -62,7 +62,8 @@ const YearGroupStatSchema = new mongoose.Schema({
   total:     { type: Number, default: 0 },
   allocated: { type: Number, default: 0 },
   waitlisted: { type: Number, default: 0 },
-  rate:       { type: Number, default: 0 }
+  rate:       { type: Number, default: 0 },
+  quota:      { type: Number, default: 0 }
 }, { _id: false });
 
 const SimulationRunSchema = new mongoose.Schema({
@@ -91,11 +92,22 @@ const SimulationRunSchema = new mongoose.Schema({
     totalRooms:           { type: Number, default: 0 },
     totalBeds:            { type: Number, default: 0 },
     availableBedsInitial: { type: Number, default: 0 },
+    effectiveBeds:        { type: Number, default: 0 },
+    maintenanceBuffer:    { type: Number, default: 0 },
+    mustLeaveCount:       { type: Number, default: 0 },
+    mustLeaveWithRoom:    { type: Number, default: 0 },
+    occupancyBeforeCohortShift: { type: Number, default: 0 },
     allocated:            { type: Number, default: 0 },
     waitlisted:           { type: Number, default: 0 },
     occupancyRateBefore:  { type: Number, default: 0 },
     occupancyRateAfter:   { type: Number, default: 0 },
-    fillRate:             { type: Number, default: 0 }
+    fillRate:             { type: Number, default: 0 },
+    quotaBands: {
+      year1:     { type: Number, default: 0 },
+      year2:     { type: Number, default: 0 },
+      year3:     { type: Number, default: 0 },
+      year4_plus: { type: Number, default: 0 }
+    }
   },
 
   byYearGroup: {

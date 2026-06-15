@@ -363,7 +363,7 @@
                 <span class="close-btn" onclick="closeModal('createPolicyModal')">&times;</span>
             </div>
             
-            <form action="/admin/allocation/policies" method="POST">
+            <form action="/admin/allocation/policies" method="POST" id="createPolicyForm">
                 <div class="form-group">
                     <label>Năm Học *</label>
                     <input type="text" name="academicYear" placeholder="2025-2026" required>
@@ -374,6 +374,45 @@
                     <textarea name="notes" rows="3" placeholder="Mô tả chính sách ưu tiên (tùy chọn)"></textarea>
                 </div>
 
+                <!-- Quota sliders -->
+                <div class="distribution-group">
+                    <h4>Hạn ngạch phân bổ theo nhóm năm</h4>
+                    <p style="font-size:13px;color:#6b7280;margin-bottom:14px;">Tổng các % phải bằng 100%. Hệ thống tự động phân phối suất giường theo tỷ lệ này.</p>
+
+                    <% [
+                        {key:'year1',    label:'Năm 1 (SV mới)',       def:50, color:'#b35a5a'},
+                        {key:'year2',    label:'Năm 2',                def:30, color:'#6b7280'},
+                        {key:'year3',    label:'Năm 3',                def:15, color:'#4b5563'},
+                        {key:'year4plus',label:'Năm 4+ (ưu tiên thấp)',def:5,  color:'#9ca3af'}
+                    ].forEach(row => { %>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="display:flex;justify-content:space-between;">
+                            <span><%= row.label %></span>
+                            <span id="lbl_<%= row.key %>" style="font-weight:700;color:<%= row.color %>"><%= row.def %>%</span>
+                        </label>
+                        <input type="range" name="quota_<%= row.key %>" id="rng_<%= row.key %>"
+                               min="0" max="100" value="<%= row.def %>"
+                               oninput="syncQuota()"
+                               style="width:100%;accent-color:<%= row.color %>;">
+                        <input type="hidden" name="quotaConfig[<%= row.key %>]" id="hid_<%= row.key %>" value="<%= row.def %>">
+                    </div>
+                    <% }); %>
+
+                    <div id="quotaTotal" style="text-align:center;padding:10px;border-radius:6px;font-weight:700;background:#f3f4f6;color:#374151;">
+                        Tổng: <span id="totalPct">100</span>%
+                    </div>
+                    <div id="quotaWarning" style="display:none;color:#dc2626;font-size:13px;margin-top:6px;text-align:center;">
+                        Tổng phải bằng 100% để lưu chính sách.
+                    </div>
+
+                    <div class="form-group" style="margin-top:14px;">
+                        <label>
+                            <input type="checkbox" name="quotaConfig[allowOverflow]" value="true">
+                            Cho phép overflow (dùng quota dư từ nhóm có ít đơn)
+                        </label>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label>
                         <input type="checkbox" name="active" checked>
@@ -382,7 +421,7 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button type="submit" class="btn btn-success">💾 Lưu Chính Sách</button>
+                    <button type="submit" class="btn btn-success" id="savePolicyBtn">💾 Lưu Chính Sách</button>
                     <button type="button" class="btn btn-danger" onclick="closeModal('createPolicyModal')">❌ Hủy</button>
                 </div>
             </form>
@@ -433,10 +472,6 @@
     </div>
 
     <script>
-        function openCreatePolicyModal() {
-            document.getElementById('createPolicyModal').style.display = 'block';
-        }
-
         function openCreateCycleModal() {
             const year = document.getElementById('selectedYear').textContent;
             document.getElementById('cycleAcademicYear').value = year;
@@ -533,6 +568,33 @@
             if (event.target.classList.contains('modal')) {
                 event.target.style.display = 'none';
             }
+        }
+
+        function syncQuota() {
+            const keys = ['year1','year2','year3','year4plus'];
+            let total = 0;
+            keys.forEach(k => {
+                const v = parseInt(document.getElementById('rng_' + k).value, 10);
+                document.getElementById('lbl_' + k).textContent = v + '%';
+                document.getElementById('hid_' + k).value = v;
+                total += v;
+            });
+            const totalEl   = document.getElementById('totalPct');
+            const warnEl    = document.getElementById('quotaWarning');
+            const totalBox  = document.getElementById('quotaTotal');
+            const saveBtn   = document.getElementById('savePolicyBtn');
+            totalEl.textContent = total;
+            const ok = total === 100;
+            totalBox.style.background = ok ? '#f0fdf4' : '#fef2f2';
+            totalBox.style.color      = ok ? '#166534' : '#dc2626';
+            warnEl.style.display      = ok ? 'none' : 'block';
+            saveBtn.disabled          = !ok;
+        }
+
+        // Init on modal open
+        function openCreatePolicyModal() {
+            document.getElementById('createPolicyModal').style.display = 'block';
+            syncQuota();
         }
     </script>
 </body>
