@@ -280,21 +280,21 @@
                 min-height:44px; padding:10px 16px;
             }
 
-            /* Mode toggle → move to TOP-right as a compact horizontal switch,
-               freeing the bottom-left corner for the joystick */
+            /* Mode toggle → top-right as a compact VERTICAL stack (keeps labels,
+               narrow enough to never cover the top-left back button) */
             #mode-toggle {
                 top:calc(env(safe-area-inset-top, 0px) + 12px);
                 right:calc(env(safe-area-inset-right, 0px) + 12px);
                 bottom:auto; left:auto;
-                flex-direction:row; gap:4px; padding:6px;
+                gap:4px; padding:6px; max-width:46vw;
             }
             .mode-opt { padding:8px 12px; min-height:44px; gap:8px; }
-            .mode-opt-desc { display:none; }      /* save horizontal space */
-            .mode-opt-name { font-size:.78rem; }
+            .mode-opt-desc { display:none; }      /* keep name, drop description */
+            .mode-opt-name { font-size:.76rem; }
 
-            /* Explore HUD — pin under the mode toggle, not at right:170px */
+            /* Explore HUD — pin BELOW the mode toggle stack (not at right:170px) */
             #ex-hud {
-                top:calc(env(safe-area-inset-top, 0px) + 70px);
+                top:calc(env(safe-area-inset-top, 0px) + 122px);
                 right:calc(env(safe-area-inset-right, 0px) + 12px);
             }
             .hud-btn { min-height:44px; }
