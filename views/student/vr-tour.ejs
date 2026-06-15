@@ -266,6 +266,62 @@
                 transform:translate(-50%,-50%); pointer-events:none; transition:transform .05s;
             }
         }
+
+        /* ══════════════════════════════════════════════════
+           MOBILE LAYOUT FIXES (≤768px)
+           - Avoid overlap between mode-toggle & joystick in explore mode
+           - Enforce ≥44px touch targets, keep within safe-area
+           ══════════════════════════════════════════════════ */
+        @media (max-width:768px) {
+            /* Back button — bigger tap target + safe-area inset */
+            #back-btn {
+                top:calc(env(safe-area-inset-top, 0px) + 12px);
+                left:calc(env(safe-area-inset-left, 0px) + 12px);
+                min-height:44px; padding:10px 16px;
+            }
+
+            /* Mode toggle → move to TOP-right as a compact horizontal switch,
+               freeing the bottom-left corner for the joystick */
+            #mode-toggle {
+                top:calc(env(safe-area-inset-top, 0px) + 12px);
+                right:calc(env(safe-area-inset-right, 0px) + 12px);
+                bottom:auto; left:auto;
+                flex-direction:row; gap:4px; padding:6px;
+            }
+            .mode-opt { padding:8px 12px; min-height:44px; gap:8px; }
+            .mode-opt-desc { display:none; }      /* save horizontal space */
+            .mode-opt-name { font-size:.78rem; }
+
+            /* Explore HUD — pin under the mode toggle, not at right:170px */
+            #ex-hud {
+                top:calc(env(safe-area-inset-top, 0px) + 70px);
+                right:calc(env(safe-area-inset-right, 0px) + 12px);
+            }
+            .hud-btn { min-height:44px; }
+
+            /* Minimap — slightly smaller, kept bottom-right */
+            #minimap-wrap {
+                bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
+                right:calc(env(safe-area-inset-right, 0px) + 12px);
+            }
+            #minimap { width:88px; height:88px; }
+
+            /* Joystick — bottom-left, clear of the (now top) mode toggle */
+            #mobile-ctrl {
+                bottom:calc(env(safe-area-inset-bottom, 0px) + 20px);
+                left:calc(env(safe-area-inset-left, 0px) + 20px);
+            }
+
+            /* Node strip — bigger, tappable dots (matterport) */
+            #mp-node-strip {
+                bottom:calc(env(safe-area-inset-bottom, 0px) + 16px);
+                gap:6px; padding:8px 12px; max-width:92vw; flex-wrap:wrap; justify-content:center;
+                background:rgba(10,12,18,.55); border-radius:16px;
+                backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+            }
+            .mp-node-dot { width:14px; height:14px; }
+            .mp-node-dot.active { width:16px; height:16px; }
+        }
     </style>
 </head>
 <body>
