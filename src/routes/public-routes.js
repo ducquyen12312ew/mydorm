@@ -131,31 +131,15 @@ router.get('/api/student/profile', isAuthenticated, async (req, res) => {
     try {
         const student = await StudentCollection.findById(req.session.userId).lean();
         if (!student) return res.status(404).json({ success: false, error: 'Sinh viên không tìm thấy' });
-
-        let dormName = null;
-        if (student.dormitoryId) {
-            const dorm = await DormitoryCollection.findById(student.dormitoryId, { name: 1 }).lean();
-            dormName = dorm ? dorm.name : null;
-        }
-
         res.json({
             success: true,
             student: {
                 studentId: student.studentId,
                 name: student.name,
-                // major/cohort are not stored directly — fall back to the canonical
-                // schema fields (faculty / academicYear) so the profile never shows "-".
-                major: student.major || student.faculty || null,
-                cohort: student.cohort || student.academicYear || null,
-                class: student.studentClass || null,
+                major: student.major,
+                cohort: student.cohort,
                 email: student.email,
-                phone: student.phone,
-                gender: student.gender || null,
-                province: student.province || null,
-                roomNumber: student.roomNumber || null,
-                dormName,
-                enrollmentYear: student.enrollmentYear || null,
-                createdAt: student.createdAt || null
+                phone: student.phone
             }
         });
     } catch (error) {

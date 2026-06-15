@@ -82,6 +82,12 @@ router.get('/student/profile', requireLogin, async (req, res) => {
             });
         }
 
+        let dormName = null;
+        if (student.dormitoryId) {
+            const dorm = await DormitoryCollection.findById(student.dormitoryId, { name: 1 }).lean();
+            dormName = dorm ? dorm.name : null;
+        }
+
         res.json({
             success: true,
             student: {
@@ -89,8 +95,17 @@ router.get('/student/profile', requireLogin, async (req, res) => {
                 name: student.name,
                 email: student.email,
                 phone: student.phone,
+                // Trang hồ sơ đọc major/cohort/class — map từ field chuẩn của schema
+                major: student.major || student.faculty || '',
+                cohort: student.cohort || student.academicYear || '',   // khóa, vd "K70"
+                class: student.studentClass || student.class || '',
                 faculty: student.faculty || '',
-                class: student.class || '',
+                gender: student.gender || null,
+                roomNumber: student.roomNumber || null,
+                dormName,
+                enrollmentYear: student.enrollmentYear || null,
+                createdAt: student.createdAt || null,
+                // năm học (study year, vd "1") suy từ MSSV — giữ lại cho tương thích
                 academicYear: deriveAcademicYear(student.studentId) || ''
             }
         });
