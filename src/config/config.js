@@ -81,6 +81,11 @@ const StudentSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
+    // Lớp sinh hoạt / mã lớp (vd "IT1-03 K70"). Hiển thị trên trang hồ sơ.
+    studentClass: {
+        type: String,
+        trim: true
+    },
     academicYear: {
         type: String
     },
