@@ -1,792 +1,732 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enhanced Dormitory Application | Priority Ranking System</title>
+  <title>Đăng ký KTX — HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #C8102E; --red-dark: #9E0D25;
+      --bg: #F4F6FA; --card: #FFFFFF; --border: #E2E8F0;
+      --text: #1A202C; --muted: #718096;
+      --success: #38A169; --info: #3182CE;
+      --radius: 12px; --shadow: 0 4px 24px rgba(0,0,0,.08);
     }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu',
-        'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
+    /* TOP BAR */
+    .topbar {
+      background: linear-gradient(135deg, var(--red) 0%, var(--red-dark) 100%);
+      color: #fff; padding: .9rem 2rem; position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(200,16,46,.3);
     }
+    .topbar-brand { display: flex; align-items: center; gap: .7rem; font-weight: 700; font-size: 1.05rem; }
+    .topbar-brand img { width: 34px; height: 34px; object-fit: contain; }
+    .topbar-back { color: rgba(255,255,255,.85); font-size: .875rem; text-decoration: none; display: flex; align-items: center; gap: .4rem; transition: color .2s; }
+    .topbar-back:hover { color: #fff; }
 
-    .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 40px 30px;
-      text-align: center;
+    /* LAYOUT */
+    .page-wrap { max-width: 880px; margin: 2rem auto; padding: 0 1.25rem 4rem; }
+
+    /* STEPPER */
+    .stepper { display: flex; align-items: center; margin-bottom: 2rem; }
+    .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
+    .step-item:not(:last-child)::after {
+      content: ''; position: absolute; top: 20px; left: 60%; width: 80%; height: 2px;
+      background: var(--border); z-index: 0; transition: background .3s;
     }
-
-    .header h1 {
-      font-size: 28px;
-      margin-bottom: 10px;
+    .step-item.done:not(:last-child)::after,
+    .step-item.active:not(:last-child)::after { background: var(--red); }
+    .step-num {
+      width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--border);
+      background: #fff; display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: .9rem; color: var(--muted); position: relative; z-index: 1; transition: all .3s;
     }
+    .step-item.active .step-num { border-color: var(--red); background: var(--red); color: #fff; box-shadow: 0 0 0 4px rgba(200,16,46,.15); }
+    .step-item.done .step-num   { border-color: var(--success); background: var(--success); color: #fff; }
+    .step-label { font-size: .78rem; color: var(--muted); margin-top: .35rem; text-align: center; font-weight: 500; transition: color .3s; }
+    .step-item.active .step-label { color: var(--red); font-weight: 600; }
+    .step-item.done .step-label   { color: var(--success); }
 
-    .header p {
-      font-size: 14px;
-      opacity: 0.9;
+    /* ALERTS */
+    .alert { padding: 1rem 1.25rem; border-radius: 8px; display: flex; align-items: flex-start; gap: .75rem; margin-bottom: 1.5rem; }
+    .alert-warning { background: #FFFBEB; border: 1px solid #F6E05E; color: #744210; }
+    .alert-danger  { background: #FFF5F5; border: 1px solid #FC8181; color: #742A2A; }
+    .alert-info    { background: #EBF8FF; border: 1px solid #63B3ED; color: #2C5282; }
+
+    /* WIZARD PANELS */
+    .step-panel { display: none; animation: fadeIn .3s ease; }
+    .step-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* SECTION CARDS */
+    .section-card {
+      background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+      padding: 1.5rem; margin-bottom: 1.25rem; border: 1px solid var(--border);
     }
-
-    .form-section {
-      padding: 40px;
-    }
-
     .section-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 20px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #667eea;
+      font-size: 1rem; font-weight: 700; color: var(--red);
+      display: flex; align-items: center; gap: .5rem; margin-bottom: 1.25rem;
+      padding-bottom: .75rem; border-bottom: 2px solid #FFF0F3;
     }
 
-    .form-group {
-      margin-bottom: 30px;
+    /* DORM CARDS */
+    .dorm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+    .dorm-card {
+      border: 2px solid var(--border); border-radius: 10px; padding: 1rem; cursor: pointer;
+      transition: all .2s; background: #fff; position: relative;
     }
-
-    .form-group label {
-      display: block;
-      font-weight: 500;
-      color: #333;
-      margin-bottom: 8px;
-      font-size: 14px;
+    .dorm-card:hover { border-color: var(--red); box-shadow: 0 4px 16px rgba(200,16,46,.12); }
+    .dorm-card.selected { border-color: var(--red); background: #FFF5F7; }
+    .dorm-card .check-badge {
+      position: absolute; top: 8px; right: 8px; width: 22px; height: 22px;
+      border-radius: 50%; background: var(--red); color: #fff;
+      display: none; align-items: center; justify-content: center; font-size: .65rem;
     }
+    .dorm-card.selected .check-badge { display: flex; }
+    .dorm-name  { font-weight: 700; font-size: .95rem; margin-bottom: .35rem; }
+    .dorm-badge { display: inline-block; padding: .18rem .5rem; border-radius: 20px; font-size: .7rem; font-weight: 600; background: #EBF8FF; color: #2C5282; margin-bottom: .5rem; }
+    .dorm-meta  { font-size: .8rem; color: var(--muted); line-height: 1.8; }
+    .avail-ok   { color: var(--success); font-weight: 600; }
+    .avail-full { color: #E53E3E; font-weight: 600; }
 
-    .form-group small {
-      display: block;
-      color: #666;
-      font-size: 12px;
-      margin-top: 5px;
+    /* ROOM TYPE CARDS */
+    .room-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: .75rem; }
+    .room-card {
+      border: 2px solid var(--border); border-radius: 10px; padding: 1rem; cursor: pointer;
+      transition: all .2s; text-align: center; background: #fff;
     }
+    .room-card:hover { border-color: var(--red); }
+    .room-card.selected { border-color: var(--red); background: #FFF5F7; }
+    .room-icon { font-size: 1.8rem; margin-bottom: .35rem; }
+    .room-name  { font-weight: 700; font-size: .875rem; margin-bottom: .2rem; }
+    .room-cap   { font-size: .75rem; color: var(--muted); margin-bottom: .25rem; }
+    .room-price { font-size: .8rem; font-weight: 600; color: var(--red); }
 
-    .form-group input[type="number"],
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 14px;
-      font-family: inherit;
-      transition: all 0.3s ease;
+    /* STUDENT INFO GRID */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .info-field { background: #F7FAFC; border-radius: 8px; padding: .75rem 1rem; }
+    .info-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; margin-bottom: .2rem; }
+    .info-value { font-size: .9rem; font-weight: 600; }
+
+    /* FORM */
+    .form-group { margin-bottom: 1.25rem; }
+    .form-label { font-size: .875rem; font-weight: 600; margin-bottom: .5rem; display: block; }
+    .form-label .req { color: var(--red); }
+
+    /* CRITERIA CARDS */
+    .crit-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .6rem; }
+    .crit-card {
+      border: 2px solid var(--border); border-radius: 10px; padding: .875rem; cursor: pointer;
+      transition: all .2s; text-align: center; background: #fff;
     }
+    .crit-card:hover { border-color: var(--red); }
+    .crit-card.selected { border-color: var(--red); background: #FFF5F7; }
+    .crit-icon { font-size: 1.4rem; margin-bottom: .25rem; }
+    .crit-title { font-size: .82rem; font-weight: 700; }
+    .crit-desc  { font-size: .7rem; color: var(--muted); margin-top: .15rem; }
 
-    .form-group input[type="number"]:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    /* SLIDER */
+    .slider-wrap { position: relative; padding-top: 1.5rem; }
+    .slider-val  { position: absolute; right: 0; top: 0; background: var(--red); color: #fff; font-size: .72rem; font-weight: 700; padding: .15rem .5rem; border-radius: 20px; }
+    input[type=range] {
+      width: 100%; height: 6px; border-radius: 3px; outline: none; cursor: pointer;
+      -webkit-appearance: none; appearance: none;
+      background: linear-gradient(to right, var(--red) 0%, var(--red) var(--pct,5%), #E2E8F0 var(--pct,5%), #E2E8F0 100%);
     }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+      background: var(--red); cursor: pointer; border: 2px solid #fff; box-shadow: 0 2px 6px rgba(200,16,46,.4);
     }
+    .slider-marks { display: flex; justify-content: space-between; font-size: .68rem; color: var(--muted); margin-top: .3rem; }
 
-    /* Distance Range Slider */
-    .distance-slider-container {
-      margin-top: 10px;
-    }
+    /* TOGGLE */
+    .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: .7rem 0; border-bottom: 1px solid var(--border); }
+    .toggle-row:last-child { border-bottom: none; }
+    .tl { font-size: .875rem; font-weight: 600; }
+    .td { font-size: .75rem; color: var(--muted); }
+    .tog { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .tog input { opacity: 0; width: 0; height: 0; }
+    .tog-slider { position: absolute; inset: 0; background: #CBD5E0; border-radius: 24px; cursor: pointer; transition: .3s; }
+    .tog-slider::before { content: ''; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; border-radius: 50%; transition: .3s; }
+    input:checked + .tog-slider { background: var(--red); }
+    input:checked + .tog-slider::before { transform: translateX(20px); }
 
-    input[type="range"] {
-      width: 100%;
-      height: 8px;
-      border-radius: 5px;
-      background: #e0e0e0;
-      outline: none;
-      -webkit-appearance: none;
-      cursor: pointer;
-    }
+    /* SCORE PANEL */
+    .score-panel { background: linear-gradient(135deg, #1A1A2E 0%, #2D2D44 100%); border-radius: var(--radius); padding: 1.25rem; color: #fff; }
+    .score-ttl  { font-size: .75rem; text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.55); margin-bottom: .4rem; }
+    .score-big  { font-size: 3rem; font-weight: 900; line-height: 1; }
+    .score-big span { font-size: 1.1rem; font-weight: 400; color: rgba(255,255,255,.5); }
+    .score-sub  { font-size: .75rem; color: rgba(255,255,255,.5); margin: .2rem 0 .875rem; }
+    .score-bg   { background: rgba(255,255,255,.1); border-radius: 4px; height: 8px; margin-bottom: 1rem; overflow: hidden; }
+    .score-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #C8102E, #FF6B6B); transition: width .5s ease; }
+    .bd-item    { display: flex; justify-content: space-between; align-items: center; padding: .28rem 0; border-bottom: 1px solid rgba(255,255,255,.06); font-size: .78rem; }
+    .bd-item:last-child { border-bottom: none; }
+    .bd-lbl { color: rgba(255,255,255,.75); }
+    .bd-pts { font-weight: 700; }
+    .bd-pos { color: #68D391; }
+    .bd-neg { color: #FC8181; }
+    .bd-neu { color: rgba(255,255,255,.45); }
 
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #667eea;
-      cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
+    /* SUMMARY */
+    .sum-row { display: flex; justify-content: space-between; align-items: center; padding: .55rem 0; border-bottom: 1px solid var(--border); font-size: .875rem; }
+    .sum-row:last-child { border-bottom: none; }
+    .sum-lbl { color: var(--muted); }
+    .sum-val { font-weight: 600; }
+    .confirm-box { display: flex; align-items: flex-start; gap: .75rem; background: #FFF5F7; border: 1px solid #FEB2C0; border-radius: 8px; padding: 1rem; margin-top: 1rem; }
+    .confirm-box input { width: 16px; height: 16px; accent-color: var(--red); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+    .confirm-box label { font-size: .875rem; cursor: pointer; line-height: 1.5; }
 
-    input[type="range"]::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: #667eea;
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    }
+    /* BUTTONS */
+    .nav-row { display: flex; gap: .75rem; justify-content: flex-end; margin-top: 1.5rem; }
+    .btn { padding: .68rem 1.75rem; border-radius: 8px; font-size: .875rem; font-weight: 600; cursor: pointer; border: none; transition: all .2s; display: inline-flex; align-items: center; gap: .4rem; }
+    .btn-outline { background: transparent; border: 2px solid var(--border); color: var(--muted); }
+    .btn-outline:hover { border-color: var(--red); color: var(--red); }
+    .btn-primary { background: var(--red); color: #fff; }
+    .btn-primary:hover { background: var(--red-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(200,16,46,.3); }
+    .btn-primary:disabled, .btn-success:disabled { background: #CBD5E0; color: #A0AEC0; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-success { background: var(--success); color: #fff; }
+    .btn-success:hover { background: #2F855A; transform: translateY(-1px); }
 
-    .distance-display {
-      margin-top: 10px;
-      padding: 12px;
-      background: #f5f5f5;
-      border-radius: 6px;
-      text-align: center;
-      font-weight: 600;
-      color: #667eea;
-    }
+    /* LOADING */
+    .loading-box { text-align: center; padding: 2.5rem 1rem; color: var(--muted); }
+    .spinner { display: inline-block; width: 38px; height: 38px; border: 3px solid #FFF0F3; border-top-color: var(--red); border-radius: 50%; animation: spin .8s linear infinite; margin-bottom: .75rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Financial Tier Cards */
-    .tier-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-      margin-top: 15px;
-    }
+    /* SUCCESS */
+    #successScreen { display: none; text-align: center; padding: 3rem 1rem; }
+    #successScreen .si { font-size: 4rem; margin-bottom: 1rem; }
+    #successScreen h2  { color: var(--success); font-size: 1.5rem; margin-bottom: .5rem; }
+    #successScreen p   { color: var(--muted); font-size: .9rem; line-height: 1.6; }
 
-    .tier-card {
-      padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: white;
-    }
-
-    .tier-card:hover {
-      border-color: #667eea;
-      background: #f9f9ff;
-    }
-
-    .tier-card input[type="radio"] {
-      margin-right: 10px;
-    }
-
-    .tier-card.selected {
-      border-color: #667eea;
-      background: #f0f2ff;
-    }
-
-    .tier-card-title {
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 5px;
-      font-size: 14px;
-    }
-
-    .tier-card-desc {
-      font-size: 12px;
-      color: #666;
-    }
-
-    /* Priority Level Buttons */
-    .priority-buttons {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .priority-btn {
-      padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 6px;
-      background: white;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-
-    .priority-btn:hover {
-      border-color: #667eea;
-      background: #f9f9ff;
-    }
-
-    .priority-btn input[type="radio"] {
-      display: block;
-      margin: 0 0 8px 0;
-    }
-
-    .priority-btn.selected {
-      border-color: #667eea;
-      background: #667eea;
-      color: white;
-    }
-
-    /* File Upload */
-    .file-upload-area {
-      border: 2px dashed #667eea;
-      border-radius: 8px;
-      padding: 30px;
-      text-align: center;
-      background: #f9f9ff;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 15px;
-    }
-
-    .file-upload-area:hover {
-      background: #f0f2ff;
-    }
-
-    .file-upload-area.dragover {
-      border-color: #764ba2;
-      background: #f0f2ff;
-    }
-
-    .file-upload-area icon {
-      font-size: 40px;
-      margin-bottom: 10px;
-      display: block;
-      color: #667eea;
-    }
-
-    .file-upload-area input[type="file"] {
-      display: none;
-    }
-
-    .uploaded-files {
-      margin-top: 20px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-
-    .file-item {
-      padding: 12px;
-      background: #f5f5f5;
-      border-radius: 6px;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 13px;
-    }
-
-    .file-item-name {
-      flex: 1;
-      color: #333;
-      font-weight: 500;
-    }
-
-    .file-item-size {
-      color: #999;
-      margin: 0 15px;
-      font-size: 12px;
-    }
-
-    .btn-remove {
-      background: #ff6b6b;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-      transition: background 0.3s;
-    }
-
-    .btn-remove:hover {
-      background: #ff5252;
-    }
-
-    /* Scoring Preview */
-    .scoring-preview {
-      background: #f0f2ff;
-      border-left: 4px solid #667eea;
-      padding: 20px;
-      border-radius: 6px;
-      margin-bottom: 30px;
-    }
-
-    .score-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: 13px;
-    }
-
-    .score-item-name {
-      color: #555;
-      font-weight: 500;
-    }
-
-    .score-item-value {
-      color: #667eea;
-      font-weight: 600;
-    }
-
-    .score-total {
-      border-top: 1px solid #e0e0e0;
-      padding-top: 10px;
-      margin-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      font-weight: 600;
-      color: #333;
-    }
-
-    /* Buttons */
-    .form-actions {
-      display: flex;
-      gap: 15px;
-      margin-top: 40px;
-      justify-content: center;
-    }
-
-    button {
-      padding: 14px 30px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 150px;
-    }
-
-    .btn-submit {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-    }
-
-    .btn-submit:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .btn-reset {
-      background: #e0e0e0;
-      color: #333;
-    }
-
-    .btn-reset:hover {
-      background: #d0d0d0;
-    }
-
-    /* Messages */
-    .info-box {
-      padding: 15px;
-      background: #e3f2fd;
-      border-left: 4px solid #2196f3;
-      border-radius: 4px;
-      margin-bottom: 30px;
-      font-size: 13px;
-      color: #1565c0;
-    }
-
-    .success-message {
-      display: none;
-      padding: 20px;
-      background: #4caf50;
-      color: white;
-      border-radius: 6px;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .error-message {
-      display: none;
-      padding: 20px;
-      background: #f44336;
-      color: white;
-      border-radius: 6px;
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .loading {
-      display: none;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #667eea;
-      border-radius: 50%;
-      width: 30px;
-      height: 30px;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .form-section {
-        padding: 20px;
-      }
-
-      .header {
-        padding: 30px 20px;
-      }
-
-      .header h1 {
-        font-size: 22px;
-      }
-
-      .priority-buttons,
-      .tier-cards {
-        grid-template-columns: 1fr;
-      }
-
-      .form-actions {
-        flex-direction: column;
-      }
-
-      button {
-        min-width: auto;
-      }
+    @media (max-width: 640px) {
+      .info-grid { grid-template-columns: 1fr; }
+      .dorm-grid { grid-template-columns: 1fr; }
+      .room-grid { grid-template-columns: repeat(2,1fr); }
+      .crit-grid { grid-template-columns: repeat(2,1fr); }
+      .page-wrap { padding: 0 .875rem 3rem; }
+      .topbar    { padding: .75rem 1rem; }
+      .step-label { display: none; }
+      .two-col   { grid-template-columns: 1fr !important; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <h1>🎓 Enhanced Dormitory Application</h1>
-      <p>Priority-Based Ranking System - Fair & Transparent Allocation</p>
+
+<header class="topbar">
+  <div class="topbar-brand">
+    <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png" alt="eDorm Logo" style="max-height:36px;width:auto;object-fit:contain;" onerror="this.style.display='none'">
+    <span>Đăng ký KTX — HUST</span>
+  </div>
+  <a href="/student/home" class="topbar-back"><i class="fa-solid fa-arrow-left"></i> Quay lại</a>
+</header>
+
+<div class="page-wrap">
+
+  <div id="noCycleAlert" class="alert alert-warning" style="display:none">
+    <i class="fa-solid fa-triangle-exclamation fa-lg" style="margin-top:2px"></i>
+    <div><strong>Chưa có chu kỳ đăng ký nào đang mở.</strong><br><span style="font-size:.875rem">Vui lòng chờ Ban quản lý KTX thông báo đợt đăng ký tiếp theo.</span></div>
+  </div>
+
+  <div id="alreadyAlert" class="alert alert-info" style="display:none">
+    <i class="fa-solid fa-circle-info fa-lg" style="margin-top:2px"></i>
+    <div><strong>Bạn đã đăng ký trong chu kỳ hiện tại.</strong><br>
+    <span style="font-size:.875rem">Xem trạng thái tại <a href="/student/room-status" style="color:var(--info);font-weight:600">Trạng thái phòng</a>.</span></div>
+  </div>
+
+  <!-- Stepper -->
+  <div class="stepper" id="stepper" style="display:none">
+    <div class="step-item active" data-step="1">
+      <div class="step-num">1</div>
+      <div class="step-label">Chọn KTX &amp; Phòng</div>
     </div>
-
-    <div class="form-section">
-      <div class="info-box">
-        ℹ️ This application uses a transparent ranking system based on distance, financial condition, and priority
-        level. Your ranking will determine allocation fairness. All information is used for fair distribution only.
-      </div>
-
-      <div class="success-message" id="successMessage">
-        ✅ Application submitted successfully! Check your ranking status.
-      </div>
-
-      <div class="error-message" id="errorMessage"></div>
-
-      <form id="applicationForm" enctype="multipart/form-data">
-        <!-- BASIC INFO SECTION -->
-        <div class="section-title">📋 Basic Information</div>
-
-        <div class="form-group">
-          <label>Academic Year *</label>
-          <select name="academicYear" required>
-            <option value="">Select year...</option>
-            <option value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>">
-              <%= new Date().getFullYear() %>-<%= new Date().getFullYear() + 1 %>
-            </option>
-          </select>
-          <small>Choose the academic year for your application</small>
-        </div>
-
-        <!-- DISTANCE SECTION -->
-        <div class="section-title">📍 Distance from Campus</div>
-
-        <div class="form-group">
-          <label>Home Distance from Campus (km) *</label>
-          <small>This affects your ranking score (35% weight)</small>
-
-          <div class="distance-slider-container">
-            <input
-              type="range"
-              name="distance"
-              min="0"
-              max="1000"
-              value="250"
-              oninput="updateDistanceDisplay(this.value)"
-              required
-            />
-          </div>
-
-          <div class="distance-display" id="distanceDisplay">
-            250 km - <span id="distanceDesc">Moderate distance</span>
-          </div>
-        </div>
-
-        <!-- FINANCIAL SECTION -->
-        <div class="section-title">💰 Financial Condition</div>
-
-        <div class="form-group">
-          <label>Financial Situation *</label>
-          <small>Select your financial condition (35% weight in ranking)</small>
-
-          <div class="tier-cards" id="financialTiers">
-            <% financialTiers.forEach(tier => { %>
-              <label class="tier-card">
-                <input type="radio" name="financialCondition" value="<%= tier.value %>" />
-                <div class="tier-card-title"><%= tier.label %></div>
-                <div class="tier-card-desc"><%= tier.description %></div>
-              </label>
-            <% }); %>
-          </div>
-        </div>
-
-        <!-- PRIORITY SECTION -->
-        <div class="section-title">⭐ Priority Level</div>
-
-        <div class="form-group">
-          <label>Priority Category *</label>
-          <small>Choose category that applies to you (30% weight)</small>
-
-          <div class="priority-buttons">
-            <% priorityLevels.forEach(level => { %>
-              <label class="priority-btn">
-                <input type="radio" name="priorityLevel" value="<%= level.value %>" />
-                <strong><%= level.label %></strong>
-                <div style="font-size: 11px; margin-top: 5px;"><%= level.description %></div>
-              </label>
-            <% }); %>
-          </div>
-        </div>
-
-        <!-- REASON FOR PRIORITY -->
-        <div class="form-group">
-          <label>Why do you need priority? *</label>
-          <textarea
-            name="priorityReason"
-            placeholder="Explain your circumstances (orphan, financial hardship, medical, etc.)..."
-            required
-          ></textarea>
-          <small>This helps us understand your situation better</small>
-        </div>
-
-        <!-- SPECIAL NEEDS -->
-        <div class="form-group">
-          <label>Special Needs (if any)</label>
-          <textarea
-            name="specialNeeds"
-            placeholder="Wheelchair access, medical equipment, service animal, etc..."
-          ></textarea>
-          <small>Tell us about any accommodations you need</small>
-        </div>
-
-        <!-- PREFERENCES -->
-        <div class="section-title">🏢 Building Preferences</div>
-
-        <div class="form-group">
-          <label>Preferred Buildings</label>
-          <select name="preferredBuildings" multiple>
-            <option value="A">Building A - Main Campus</option>
-            <option value="B">Building B - South Wing</option>
-            <option value="C">Building C - North Campus</option>
-            <option value="D">Building D - East Complex</option>
-          </select>
-          <small>Hold Ctrl/Cmd to select multiple buildings (optional)</small>
-        </div>
-
-        <!-- FILE UPLOAD -->
-        <div class="section-title">📄 Supporting Documents</div>
-
-        <div class="form-group">
-          <label>Upload supporting documents *</label>
-          <small>PDF, Word, Excel, Images, Videos (up to 50MB per file)</small>
-
-          <div class="file-upload-area" id="fileUploadArea">
-            <div style="font-size: 30px;">📁</div>
-            <strong>Drag & drop files here</strong>
-            <p style="font-size: 12px; color: #999; margin-top: 5px;">or click to browse</p>
-            <input type="file" id="fileInput" name="attachments" multiple />
-          </div>
-
-          <div class="uploaded-files" id="uploadedFiles"></div>
-        </div>
-
-        <!-- PREVIEW -->
-        <div class="scoring-preview" id="scoringPreview" style="display: none;">
-          <strong>Score Preview</strong>
-          <div class="score-item">
-            <span class="score-item-name">Distance Score:</span>
-            <span class="score-item-value" id="previewDistanceScore">0</span>
-          </div>
-          <div class="score-item">
-            <span class="score-item-name">Financial Score:</span>
-            <span class="score-item-value" id="previewFinancialScore">0</span>
-          </div>
-          <div class="score-item">
-            <span class="score-item-name">Priority Score:</span>
-            <span class="score-item-value" id="previewPriorityScore">0</span>
-          </div>
-          <div class="score-total">
-            <span>Total Score:</span>
-            <span id="previewTotalScore">0</span>
-          </div>
-        </div>
-
-        <!-- SUBMIT -->
-        <div class="form-actions">
-          <button type="submit" class="btn-submit" id="submitBtn">📤 Submit Application</button>
-          <button type="reset" class="btn-reset">🔄 Clear Form</button>
-        </div>
-
-        <div class="loading" id="loading">
-          <div class="spinner"></div>
-          <p>Processing your application...</p>
-        </div>
-      </form>
+    <div class="step-item" data-step="2">
+      <div class="step-num">2</div>
+      <div class="step-label">Thông tin ưu tiên</div>
+    </div>
+    <div class="step-item" data-step="3">
+      <div class="step-num">3</div>
+      <div class="step-label">Xác nhận &amp; Gửi</div>
     </div>
   </div>
 
-  <script>
-    const distanceRanges = <%- JSON.stringify(distanceRanges) %>;
+  <!-- ═══════════════ STEP 1 ═══════════════ -->
+  <div id="step1" class="step-panel" style="display:none">
 
-    function updateDistanceDisplay(value) {
-      const range = distanceRanges.find(r => r.value >= parseInt(value)) || distanceRanges[distanceRanges.length - 1];
-      document.getElementById('distanceDisplay').innerHTML = `${value} km - <span id="distanceDesc">${range.label}</span>`;
-      updateScoringPreview();
+    <div class="section-card">
+      <div class="section-title"><i class="fa-solid fa-building"></i> Chọn ký túc xá</div>
+      <div id="dormLoading" class="loading-box"><div class="spinner"></div><div>Đang tải danh sách KTX...</div></div>
+      <div id="dormGrid" class="dorm-grid" style="display:none"></div>
+      <div id="dormErr" class="alert alert-danger" style="display:none"><i class="fa-solid fa-circle-xmark"></i>&nbsp;Không thể tải danh sách KTX.</div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title"><i class="fa-solid fa-door-open"></i> Loại phòng mong muốn</div>
+      <div class="room-grid">
+        <div class="room-card" data-value="8-person" onclick="selRoomType(this)">
+          <div class="room-icon">🛏</div>
+          <div class="room-name">Phòng 8 người</div>
+          <div class="room-cap">8 SV / phòng · Tiêu chuẩn</div>
+          <div class="room-price">~400.000 đ/tháng</div>
+        </div>
+        <div class="room-card" data-value="5-person" onclick="selRoomType(this)">
+          <div class="room-icon">🛏</div>
+          <div class="room-name">Phòng 5 người</div>
+          <div class="room-cap">5 SV / phòng · Thoải mái</div>
+          <div class="room-price">~600.000 đ/tháng</div>
+        </div>
+        <div class="room-card" data-value="4-person-service" onclick="selRoomType(this)">
+          <div class="room-icon">🏠</div>
+          <div class="room-name">Phòng dịch vụ 4 người</div>
+          <div class="room-cap">4 SV / phòng · Cao cấp</div>
+          <div class="room-price">~1.200.000 đ/tháng</div>
+        </div>
+        <div class="room-card" data-value="10-person" onclick="selRoomType(this)">
+          <div class="room-icon">🏨</div>
+          <div class="room-name">Phòng 10 người</div>
+          <div class="room-cap">10 SV / phòng · Tiết kiệm</div>
+          <div class="room-price">~300.000 đ/tháng</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-primary" id="btnNext1" onclick="toStep2()" disabled>
+        Tiếp theo <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 2 ═══════════════ -->
+  <div id="step2" class="step-panel">
+
+    <div style="display:grid;grid-template-columns:1fr 300px;gap:1.25rem;align-items:start" class="two-col">
+      <div>
+
+        <!-- Student info readonly -->
+        <div class="section-card">
+          <div class="section-title"><i class="fa-solid fa-user-graduate"></i> Thông tin sinh viên (chỉ đọc)</div>
+          <div class="info-grid">
+            <div class="info-field"><div class="info-label">Họ và tên</div><div class="info-value" id="iName">—</div></div>
+            <div class="info-field"><div class="info-label">MSSV</div><div class="info-value" id="iSid">—</div></div>
+            <div class="info-field"><div class="info-label">Email</div><div class="info-value" id="iEmail" style="font-size:.82rem;word-break:break-all">—</div></div>
+            <div class="info-field"><div class="info-label">Số điện thoại</div><div class="info-value" id="iPhone">—</div></div>
+            <div class="info-field"><div class="info-label">Khoa</div><div class="info-value" id="iFaculty">—</div></div>
+            <div class="info-field"><div class="info-label">Khóa học</div><div class="info-value" id="iAcYear">—</div></div>
+          </div>
+        </div>
+
+        <!-- Priority criteria -->
+        <div class="section-card">
+          <div class="section-title"><i class="fa-solid fa-star-half-stroke"></i> Tiêu chí ưu tiên</div>
+
+          <div class="form-group">
+            <label class="form-label">Khoảng cách từ nhà đến trường <span class="req">*</span></label>
+            <div class="slider-wrap">
+              <span class="slider-val" id="distVal">50 km</span>
+              <input type="range" id="distSlider" min="0" max="1000" value="50" step="10"
+                     oninput="onDist(this.value)" style="--pct:5%">
+            </div>
+            <div class="slider-marks"><span>0 km</span><span>250 km</span><span>500 km</span><span>750 km</span><span>1000 km</span></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tình trạng tài chính <span class="req">*</span></label>
+            <div class="crit-grid">
+              <div class="crit-card" data-g="fin" data-v="tier1" onclick="selCrit(this,'fin')">
+                <div class="crit-icon">😰</div><div class="crit-title">Rất khó khăn</div><div class="crit-desc">Không đủ chi phí cơ bản</div>
+              </div>
+              <div class="crit-card" data-g="fin" data-v="tier2" onclick="selCrit(this,'fin')">
+                <div class="crit-icon">😟</div><div class="crit-title">Khó khăn</div><div class="crit-desc">Nguồn lực hạn chế</div>
+              </div>
+              <div class="crit-card" data-g="fin" data-v="tier3" onclick="selCrit(this,'fin')">
+                <div class="crit-icon">😐</div><div class="crit-title">Bình thường</div><div class="crit-desc">Ngân sách eo hẹp</div>
+              </div>
+              <div class="crit-card" data-g="fin" data-v="tier4" onclick="selCrit(this,'fin')">
+                <div class="crit-icon">😊</div><div class="crit-title">Ổn định</div><div class="crit-desc">Tài chính thoải mái</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Hoàn cảnh gia đình</label>
+            <div class="crit-grid" style="grid-template-columns:repeat(3,1fr)">
+              <div class="crit-card" data-g="fam" data-v="poor" onclick="selCrit(this,'fam')">
+                <div class="crit-icon">🏚</div><div class="crit-title">Hộ nghèo</div><div class="crit-desc">Gia đình khó khăn</div>
+              </div>
+              <div class="crit-card" data-g="fam" data-v="average" onclick="selCrit(this,'fam')">
+                <div class="crit-icon">🏠</div><div class="crit-title">Trung bình</div><div class="crit-desc">Mức sống bình thường</div>
+              </div>
+              <div class="crit-card" data-g="fam" data-v="wealthy" onclick="selCrit(this,'fam')">
+                <div class="crit-icon">🏰</div><div class="crit-title">Khá giả</div><div class="crit-desc">Thu nhập cao</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Thông tin bổ sung</label>
+            <div class="toggle-row">
+              <div><div class="tl">Học bổng</div><div class="td">Đang nhận học bổng trường / tổ chức</div></div>
+              <label class="tog"><input type="checkbox" id="togScholarship" onchange="recalc()"><span class="tog-slider"></span></label>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /left -->
+
+      <!-- Score panel (sticky) -->
+      <div style="position:sticky;top:76px">
+        <div class="score-panel">
+          <div class="score-ttl">Điểm ưu tiên dự kiến</div>
+          <div class="score-big" id="scoreBig">—<span>/100</span></div>
+          <div class="score-sub" id="scoreSub">Điền thông tin để xem điểm</div>
+          <div class="score-bg"><div class="score-fill" id="scoreBar" style="width:0%"></div></div>
+          <div id="scoreBD"></div>
+          <div style="margin-top:.75rem;font-size:.7rem;color:rgba(255,255,255,.35);line-height:1.5">
+            * Tính theo chính sách phân bổ hiện hành. Điểm thực tế do Ban quản lý xét duyệt.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="goStep(1)"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+      <button class="btn btn-primary" id="btnNext2" onclick="toStep3()" disabled>
+        Xem tóm tắt <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════ STEP 3 ═══════════════ -->
+  <div id="step3" class="step-panel">
+
+    <div class="section-card">
+      <div class="section-title"><i class="fa-solid fa-clipboard-check"></i> Tóm tắt đơn đăng ký</div>
+
+      <p style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:.5rem">Lựa chọn KTX</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.25rem">
+        <div style="background:#F7FAFC;border-radius:8px;padding:.875rem">
+          <div style="font-size:.72rem;color:var(--muted);margin-bottom:.2rem">Ký túc xá ưu tiên</div>
+          <div style="font-weight:700" id="sumDorm">—</div>
+        </div>
+        <div style="background:#F7FAFC;border-radius:8px;padding:.875rem">
+          <div style="font-size:.72rem;color:var(--muted);margin-bottom:.2rem">Loại phòng</div>
+          <div style="font-weight:700" id="sumRoom">—</div>
+        </div>
+      </div>
+
+      <p style="font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;margin-bottom:.5rem">Thông tin ưu tiên</p>
+      <div class="sum-row"><span class="sum-lbl">Khoảng cách</span><span class="sum-val" id="sumDist">—</span></div>
+      <div class="sum-row"><span class="sum-lbl">Tình trạng tài chính</span><span class="sum-val" id="sumFin">—</span></div>
+      <div class="sum-row"><span class="sum-lbl">Hoàn cảnh gia đình</span><span class="sum-val" id="sumFam">—</span></div>
+      <div class="sum-row"><span class="sum-lbl">Học bổng</span><span class="sum-val" id="sumSch">—</span></div>
+      <div class="sum-row" style="border-top:2px solid var(--border);margin-top:.4rem;padding-top:.6rem">
+        <span style="font-weight:700">Điểm ưu tiên dự kiến</span>
+        <span style="font-size:1.3rem;font-weight:900;color:var(--red)" id="sumScore">—</span>
+      </div>
+
+      <div class="confirm-box">
+        <input type="checkbox" id="confirmCk" onchange="chkSubmit()">
+        <label for="confirmCk">
+          Tôi xác nhận tất cả thông tin là chính xác và trung thực. Tôi đồng ý với <strong>điều kiện đăng ký KTX HUST</strong>
+          và hiểu rằng mọi thông tin sai lệch có thể dẫn đến hủy đơn.
+        </label>
+      </div>
+
+      <div id="submitErr" class="alert alert-danger" style="display:none;margin-top:1rem">
+        <i class="fa-solid fa-circle-xmark"></i>&nbsp;<span id="submitErrMsg"></span>
+      </div>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn btn-outline" onclick="goStep(2)"><i class="fa-solid fa-arrow-left"></i> Quay lại</button>
+      <button class="btn btn-success" id="btnSubmit" onclick="submitApp()" disabled>
+        <i class="fa-solid fa-paper-plane"></i> Gửi đơn đăng ký
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="successScreen">
+    <div style="display:flex;justify-content:center;gap:.3rem;margin-bottom:1rem">
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#C8102E"></span>
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#FFD700"></span>
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#38A169"></span>
+      <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:#3182CE"></span>
+    </div>
+    <div class="si">🎉</div>
+    <h2>Đăng ký thành công!</h2>
+    <p style="margin:.5rem 0 1.5rem">Đơn đăng ký của bạn đã được ghi nhận.<br>Hệ thống sẽ thông báo kết quả khi có.</p>
+    <a href="/student/room-status" class="btn btn-primary" style="text-decoration:none">
+      <i class="fa-solid fa-eye"></i> Xem trạng thái đơn
+    </a>
+  </div>
+
+</div>
+
+<script>
+// ── DATA FROM SERVER ─────────────────────────────────
+const _student = <%- JSON.stringify(student || {}) %>;
+const _user    = <%- JSON.stringify(user || {}) %>;
+
+// ── STATE ─────────────────────────────────────────────
+let cycleInfo = null;
+let selDormId = null, selDormName = null, selRoom = null;
+let critFin = null, critFam = null;
+let lastScore = 0, lastBD = [];
+
+// ── BOOT ──────────────────────────────────────────────
+(async function boot() {
+  fillInfo();
+  await loadCycle();
+})();
+
+function fillInfo() {
+  const s = _student.studentId ? _student : _user;
+  document.getElementById('iName').textContent    = s.name || '—';
+  document.getElementById('iSid').textContent     = s.studentId || '—';
+  document.getElementById('iEmail').textContent   = s.email || '—';
+  document.getElementById('iPhone').textContent   = s.phone || '—';
+  document.getElementById('iFaculty').textContent = s.faculty || '—';
+  document.getElementById('iAcYear').textContent  = s.academicYear || (s.enrollmentYear ? 'K' + String(s.enrollmentYear).slice(-2) : '—');
+}
+
+async function loadCycle() {
+  try {
+    const r = await fetch('/api/allocation/current', { credentials: 'include' });
+    const d = await r.json();
+    if (!d.success || !d.cycle) {
+      document.getElementById('noCycleAlert').style.display = 'flex';
+      return;
     }
-
-    function calculateDistanceScore(distance) {
-      distance = parseInt(distance);
-      if (distance <= 0) return 10;
-      if (distance <= 50) return Math.round(10 + (distance / 50) * 20);
-      if (distance <= 100) return Math.round(30 + ((distance - 50) / 50) * 20);
-      if (distance <= 300) return Math.round(50 + ((distance - 100) / 200) * 20);
-      if (distance <= 500) return Math.round(70 + ((distance - 300) / 200) * 15);
-      return 100;
+    if (d.alreadyRegistered) {
+      document.getElementById('alreadyAlert').style.display = 'flex';
+      return;
     }
+    cycleInfo = d.cycle;
+    // Show wizard
+    document.getElementById('stepper').style.display = 'flex';
+    document.getElementById('step1').style.display = 'block';
+    document.getElementById('step1').classList.add('active');
+    await loadDorms();
+  } catch(e) {
+    document.getElementById('noCycleAlert').style.display = 'flex';
+  }
+}
 
-    function calculateFinancialScore(tier) {
-      const scores = { '1': 100, '2': 75, '3': 50, '4': 20 };
-      return scores[tier] || 0;
+async function loadDorms() {
+  const loading = document.getElementById('dormLoading');
+  const grid    = document.getElementById('dormGrid');
+  const errEl   = document.getElementById('dormErr');
+  try {
+    const r = await fetch('/api/dormitories', { credentials: 'include' });
+    const d = await r.json();
+    const dorms = d.dormitories || d || [];
+    loading.style.display = 'none';
+    grid.style.display = 'grid';
+    if (!dorms.length) {
+      grid.innerHTML = '<p style="color:var(--muted);grid-column:1/-1;padding:.5rem">Chưa có KTX nào.</p>';
+      return;
     }
-
-    function calculatePriorityScore(level) {
-      const scores = { 'SPECIAL': 100, 'HIGH': 75, 'MEDIUM': 50, 'LOW': 25 };
-      return scores[level] || 0;
-    }
-
-    function updateScoringPreview() {
-      const distance = document.querySelector('input[name="distance"]')?.value || 0;
-      const financial = document.querySelector('input[name="financialCondition"]:checked')?.value || 0;
-      const priority = document.querySelector('input[name="priorityLevel"]:checked')?.value || 0;
-
-      if (financial && priority) {
-        const dScore = calculateDistanceScore(distance);
-        const fScore = calculateFinancialScore(financial);
-        const pScore = calculatePriorityScore(priority);
-        const total = Math.round((dScore * 0.35 + fScore * 0.35 + pScore * 0.3));
-
-        document.getElementById('previewDistanceScore').textContent = dScore;
-        document.getElementById('previewFinancialScore').textContent = fScore;
-        document.getElementById('previewPriorityScore').textContent = pScore;
-        document.getElementById('previewTotalScore').textContent = total;
-        document.getElementById('scoringPreview').style.display = 'block';
-      }
-    }
-
-    // File upload
-    const fileUploadArea = document.getElementById('fileUploadArea');
-    const fileInput = document.getElementById('fileInput');
-    const uploadedFilesDiv = document.getElementById('uploadedFiles');
-
-    fileUploadArea.addEventListener('click', () => fileInput.click());
-    fileUploadArea.addEventListener('dragover', e => {
-      e.preventDefault();
-      fileUploadArea.classList.add('dragover');
-    });
-
-    fileUploadArea.addEventListener('dragleave', () => {
-      fileUploadArea.classList.remove('dragover');
-    });
-
-    fileUploadArea.addEventListener('drop', e => {
-      e.preventDefault();
-      fileUploadArea.classList.remove('dragover');
-      fileInput.files = e.dataTransfer.files;
-      displayFiles();
-    });
-
-    fileInput.addEventListener('change', displayFiles);
-
-    function displayFiles() {
-      uploadedFilesDiv.innerHTML = '';
-      Array.from(fileInput.files).forEach((file, index) => {
-        const size = (file.size / (1024 * 1024)).toFixed(2);
-        const fileItem = document.createElement('div');
-        fileItem.className = 'file-item';
-        fileItem.innerHTML = `
-          <span class="file-item-name">📎 ${file.name}</span>
-          <span class="file-item-size">${size} MB</span>
-          <button type="button" class="btn-remove" onclick="removeFile(${index})">Remove</button>
-        `;
-        uploadedFilesDiv.appendChild(fileItem);
-      });
-    }
-
-    function removeFile(index) {
-      const dt = new DataTransfer();
-      Array.from(fileInput.files).forEach((file, i) => {
-        if (i !== index) dt.items.add(file);
-      });
-      fileInput.files = dt.files;
-      displayFiles();
-    }
-
-    // Form submission
-    document.getElementById('applicationForm').addEventListener('submit', async e => {
-      e.preventDefault();
-
-      const submitBtn = document.getElementById('submitBtn');
-      const loading = document.getElementById('loading');
-      const successMsg = document.getElementById('successMessage');
-      const errorMsg = document.getElementById('errorMessage');
-
-      submitBtn.disabled = true;
-      loading.style.display = 'block';
-
-      try {
-        const formData = new FormData(document.getElementById('applicationForm'));
-
-        const response = await fetch('/api/allocation/student/enhanced-application', {
-          method: 'POST',
-          body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-          successMsg.textContent = `✅ ${data.message} Your score: ${data.ranking.score.toFixed(1)}`;
-          successMsg.style.display = 'block';
-          document.getElementById('applicationForm').reset();
-          setTimeout(() => {
-            window.location.href = '/student/my-ranking';
-          }, 2000);
-        } else {
-          errorMsg.textContent = `❌ ${data.error}`;
-          errorMsg.style.display = 'block';
+    grid.innerHTML = dorms.map(dorm => {
+      let totalBeds = 0, availBeds = 0;
+      for (const f of (dorm.floors || [])) {
+        for (const rm of (f.rooms || [])) {
+          const cap = rm.maxCapacity || 0;
+          const occ = (rm.occupants || []).filter(o => o.active).length;
+          totalBeds += cap;
+          availBeds += Math.max(0, cap - occ);
         }
-      } catch (error) {
-        errorMsg.textContent = `❌ Error: ${error.message}`;
-        errorMsg.style.display = 'block';
-      } finally {
-        submitBtn.disabled = false;
-        loading.style.display = 'none';
       }
-    });
+      const cls  = availBeds > 0 ? 'avail-ok' : 'avail-full';
+      const atxt = availBeds > 0 ? `${availBeds} chỗ trống` : 'Hết chỗ';
+      return `<div class="dorm-card" data-id="${dorm._id}" data-name="${esc(dorm.name)}" onclick="selDorm(this)">
+        <div class="check-badge"><i class="fa-solid fa-check"></i></div>
+        <div class="dorm-name">${esc(dorm.name)}</div>
+        <span class="dorm-badge">${esc(dorm.type || 'KTX')}</span>
+        <div class="dorm-meta">
+          <div>👤 ${esc(dorm.genderPolicy || 'Nam &amp; Nữ')}</div>
+          <div>💰 ${dormPrice(dorm)}</div>
+          <div class="${cls}">🏠 ${atxt}</div>
+          <div>📍 ${esc((dorm.address || '').substring(0,50))}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    loading.style.display = 'none';
+    errEl.style.display = 'flex';
+  }
+}
 
-    // Update preview on form changes
-    document.querySelectorAll('input, select, textarea').forEach(field => {
-      field.addEventListener('change', updateScoringPreview);
+function dormPrice(dorm) {
+  let mn = Infinity, mx = 0;
+  for (const f of (dorm.floors||[])) for (const r of (f.rooms||[])) { const p=r.pricePerMonth||0; if(p>0){mn=Math.min(mn,p);mx=Math.max(mx,p);} }
+  if (mx===0) return 'Liên hệ';
+  const fmt = v => new Intl.NumberFormat('vi-VN').format(v);
+  return mn===mx ? fmt(mn)+' đ/tháng' : fmt(mn)+'–'+fmt(mx)+' đ';
+}
+
+// ── SELECTIONS ────────────────────────────────────────
+function selDorm(el) {
+  document.querySelectorAll('.dorm-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selDormId = el.dataset.id; selDormName = el.dataset.name;
+  chkStep1();
+}
+function selRoomType(el) {
+  document.querySelectorAll('.room-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  selRoom = el.dataset.value;
+  chkStep1();
+}
+function chkStep1() { document.getElementById('btnNext1').disabled = !(selDormId && selRoom); }
+
+function selCrit(el, grp) {
+  el.closest('.crit-grid').querySelectorAll('.crit-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  if (grp==='fin') critFin = el.dataset.v;
+  if (grp==='fam') critFam = el.dataset.v;
+  chkStep2();
+  recalc();
+}
+function onDist(v) {
+  document.getElementById('distVal').textContent = v + ' km';
+  document.getElementById('distSlider').style.setProperty('--pct', (v/10).toFixed(1)+'%');
+  recalc();
+}
+function chkStep2() { document.getElementById('btnNext2').disabled = !critFin; }
+function chkSubmit() { document.getElementById('btnSubmit').disabled = !document.getElementById('confirmCk').checked; }
+
+// ── SCORE ──────────────────────────────────────────────
+async function recalc() {
+  if (!critFin) return;
+  const dist = parseInt(document.getElementById('distSlider').value)||0;
+  const sch  = document.getElementById('togScholarship').checked;
+  const fam  = critFam || 'average';
+  const hasHardship = critFin==='tier1'||critFin==='tier2';
+  const enYear = _student.enrollmentYear || _user.enrollmentYear || new Date().getFullYear();
+  try {
+    const r = await fetch('/api/allocation/estimate-score', {
+      method:'POST', credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ distanceFromHome:dist, financialHardship:hasHardship, scholarship:sch, familyWealth:fam, enrollmentYear:enYear })
     });
-  </script>
+    const d = await r.json();
+    if (d.success) { lastScore=d.score; lastBD=d.breakdown||[]; renderScore(d.score,d.breakdown,d.base||50); }
+  } catch {
+    // Fallback client-side
+    let sc=50;
+    if(hasHardship) sc+=30;
+    if(dist>500) sc+=30; else if(dist>200) sc+=20; else if(dist<50) sc-=15;
+    if(sch) sc+=10;
+    if(fam==='poor') sc+=10; else if(fam==='wealthy') sc-=10;
+    sc=Math.max(0,Math.min(100,sc));
+    lastScore=sc; renderScore(sc,[],50);
+  }
+}
+
+function renderScore(score, bd, base) {
+  document.getElementById('scoreBig').innerHTML = `${score}<span>/100</span>`;
+  document.getElementById('scoreBar').style.width = score+'%';
+  document.getElementById('scoreSub').textContent =
+    score>=70 ? '⭐ Điểm tốt — Cơ hội được phân bổ cao' :
+    score>=50 ? '✅ Điểm trung bình — Trong diện xét duyệt' :
+                '⚠️ Điểm thấp — Có thể vào danh sách chờ';
+  const rows = [`<div class="bd-item"><span class="bd-lbl">Điểm cơ sở</span><span class="bd-pts bd-neu">+${base}</span></div>`];
+  for (const b of (bd||[])) {
+    const cls = b.points>0?'bd-pos':b.points<0?'bd-neg':'bd-neu';
+    rows.push(`<div class="bd-item"><span class="bd-lbl">${esc(b.label)}</span><span class="bd-pts ${cls}">${b.points>0?'+':''}${b.points}</span></div>`);
+  }
+  document.getElementById('scoreBD').innerHTML = rows.join('');
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+function goStep(n) {
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('step'+n).classList.add('active');
+  document.querySelectorAll('.step-item').forEach(si => {
+    const sn=parseInt(si.dataset.step);
+    si.classList.remove('active','done');
+    if(sn===n) si.classList.add('active');
+    else if(sn<n) si.classList.add('done');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function toStep2() {
+  if (!selDormId||!selRoom) return;
+  goStep(2); recalc();
+}
+
+function toStep3() {
+  if (!critFin) return;
+  const rL = {'8-person':'Phòng 8 người','5-person':'Phòng 5 người','4-person-service':'Phòng dịch vụ 4 người','10-person':'Phòng 10 người'};
+  const fL = {tier1:'Rất khó khăn',tier2:'Khó khăn',tier3:'Bình thường',tier4:'Ổn định'};
+  const wL = {poor:'Hộ nghèo',average:'Trung bình',wealthy:'Khá giả'};
+  document.getElementById('sumDorm').textContent  = selDormName||'—';
+  document.getElementById('sumRoom').textContent  = rL[selRoom]||selRoom;
+  document.getElementById('sumDist').textContent  = document.getElementById('distSlider').value+' km';
+  document.getElementById('sumFin').textContent   = fL[critFin]||'—';
+  document.getElementById('sumFam').textContent   = wL[critFam||'average'];
+  document.getElementById('sumSch').textContent   = document.getElementById('togScholarship').checked?'Có':'Không';
+  document.getElementById('sumScore').textContent = lastScore+' điểm';
+  goStep(3);
+}
+
+// ── SUBMIT ────────────────────────────────────────────
+async function submitApp() {
+  if (!cycleInfo||!cycleInfo._id) return;
+  const errEl=document.getElementById('submitErr'), errMsg=document.getElementById('submitErrMsg');
+  const btn=document.getElementById('btnSubmit');
+  errEl.style.display='none';
+  btn.disabled=true;
+  btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+  try {
+    const body={
+      academicYear: cycleInfo.academicYear,
+      cycleId: cycleInfo._id,
+      preferences:{
+        preferredBuildings:[selDormId],
+        preferredRoomType: selRoom,
+        distanceFromHome: parseInt(document.getElementById('distSlider').value),
+        financialHardship: critFin==='tier1'||critFin==='tier2',
+        scholarship: document.getElementById('togScholarship').checked,
+        familyWealth: critFam||'average',
+        priorityLevel: critFin==='tier1'?'SPECIAL':critFin==='tier2'?'HIGH':critFin==='tier3'?'MEDIUM':'LOW'
+      }
+    };
+    const r=await fetch('/api/allocation/register',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const d=await r.json();
+    if(r.ok&&(d.message||d.registration)) {
+      document.getElementById('stepper').style.display='none';
+      document.getElementById('step3').style.display='none';
+      document.getElementById('successScreen').style.display='block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else {
+      errMsg.textContent=d.error||'Đăng ký thất bại. Vui lòng thử lại.';
+      errEl.style.display='flex';
+      btn.disabled=false;
+      btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Gửi đơn đăng ký';
+      chkSubmit();
+    }
+  } catch(e) {
+    errMsg.textContent='Lỗi kết nối: '+e.message;
+    errEl.style.display='flex';
+    btn.disabled=false;
+    btn.innerHTML='<i class="fa-solid fa-paper-plane"></i> Gửi đơn đăng ký';
+    chkSubmit();
+  }
+}
+
+function esc(t) {
+  if(!t) return '';
+  return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+}
+</script>
 </body>
 </html>

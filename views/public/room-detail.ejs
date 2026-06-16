@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chi tiết phòng - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/premium-home.css">
     <style>
         * {
             margin: 0;
@@ -15,7 +16,7 @@
             box-sizing: border-box;
         }
         :root {
-            --primary-color: #e61a1a;
+            --primary-color: #d63031;
             --text-color: #333;
             --bg-color: #f8f3ef;
             --menu-bg: white;
@@ -440,12 +441,11 @@
     <!-- Header -->
     <header class="header">
         <div class="header-logo">
-            <img src="/image/logo.png" alt="HUST Logo">
+            <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png" alt="eDorm Logo" style="max-height:38px;width:auto;object-fit:contain;">
         </div>
         <div class="nav-container">
             <nav class="nav-links">
                 <a href="/" class="nav-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link active-link">BẢN ĐỒ</a>
                 <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
                 <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
                 <a href="/student/maintenance-requests" class="nav-link">BẢO TRÌ</a>
@@ -472,8 +472,8 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="breadcrumb">
-            <a href="/map">Bản đồ</a> / 
-            <span id="breadcrumbDorm"></span> / 
+            <a href="/">Trang chủ</a> /
+            <span id="breadcrumbDorm"></span> /
             <span id="breadcrumbRoom"></span>
         </div>
 
@@ -731,5 +731,7 @@
             event.target.closest('.tab-btn').classList.add('active');
         }
     </script>
+
+    <%- include('../shared/footer') %>
 </body>
 </html>

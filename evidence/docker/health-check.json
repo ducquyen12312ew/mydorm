@@ -1,0 +1,23 @@
+{
+    "status": "healthy",
+    "timestamp": "2026-05-29T17:38:37.202Z",
+    "uptime": 55,
+    "nodeVersion": "v20.20.2",
+    "environment": "production",
+    "services": {
+        "db": {
+            "status": "healthy",
+            "state": "connected",
+            "latencyMs": 144
+        },
+        "redis": {
+            "status": "healthy",
+            "latencyMs": 7
+        },
+        "sentry": {
+            "status": "configured",
+            "environment": "production",
+            "dsn": "https://***@o4511468038586368.ingest.de.sentry.io/4511468052414544"
+        }
+    }
+}

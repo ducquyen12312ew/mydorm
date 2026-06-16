@@ -139,3 +139,13 @@ dist
 playwright-report/
 test-results/
 blob-report/
+
+# Removed subprojects (kept out of repo, rebuild separately)
+mobile-expo/
+student-web/
+
+# Thesis / LaTeX writing
+DATN_WRITE/
+
+# PlantUML tooling
+.plantuml/

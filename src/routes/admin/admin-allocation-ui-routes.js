@@ -42,24 +42,32 @@ router.get('/policies', requireAdmin, async (req, res) => {
 // POST: Create new policy
 router.post('/policies', requireAdmin, async (req, res) => {
     try {
-        const {
-            academicYear,
-            notes,
-            active
-        } = req.body;
+        const { academicYear, notes, active, quotaConfig } = req.body;
 
         // Validate academic year format
         if (!/^\d{4}-\d{4}$/.test(academicYear)) {
-            return res.redirect('/admin/allocation/policies?message=' + 
-                encodeURIComponent('Định dạng năm học không hợp lệ (YYYY-YYYY)') + 
+            return res.redirect('/admin/allocation/policies?message=' +
+                encodeURIComponent('Định dạng năm học không hợp lệ (YYYY-YYYY)') +
+                '&type=error');
+        }
+
+        // Validate quota config sums to 100
+        const qc = quotaConfig || {};
+        const y1 = parseInt(qc.year1 || 50, 10);
+        const y2 = parseInt(qc.year2 || 30, 10);
+        const y3 = parseInt(qc.year3 || 15, 10);
+        const y4 = parseInt(qc.year4plus || 5, 10);
+        if (y1 + y2 + y3 + y4 !== 100) {
+            return res.redirect('/admin/allocation/policies?message=' +
+                encodeURIComponent(`Tổng % quota phải bằng 100 (hiện tại: ${y1+y2+y3+y4})`) +
                 '&type=error');
         }
 
         // Check if policy already exists
         const existing = await AllocationPolicy.findOne({ academicYear });
         if (existing) {
-            return res.redirect('/admin/allocation/policies?message=' + 
-                encodeURIComponent('Chính sách cho năm học này đã tồn tại') + 
+            return res.redirect('/admin/allocation/policies?message=' +
+                encodeURIComponent('Chính sách cho năm học này đã tồn tại') +
                 '&type=error');
         }
 
@@ -68,7 +76,11 @@ router.post('/policies', requireAdmin, async (req, res) => {
             academicYear,
             notes: notes || '',
             createdBy: req.session.username,
-            active: active === 'on'
+            active: active === 'on',
+            quotaConfig: {
+                year1: y1, year2: y2, year3: y3, year4plus: y4,
+                allowOverflow: qc.allowOverflow === 'true'
+            }
         });
 
         await policy.save();
@@ -228,6 +240,12 @@ router.get('/cycles/:cycleId/results', requireAdmin, async (req, res) => {
 // ===============================
 // DASHBOARD
 // ===============================
+
+// GET: Redirect /dashboard → current academic year
+router.get('/dashboard', requireAdmin, (req, res) => {
+    const y = new Date().getFullYear();
+    res.redirect(`/admin/allocation/dashboard/${y}-${y + 1}`);
+});
 
 // GET: Dashboard for a year
 router.get('/dashboard/:academicYear', requireAdmin, async (req, res) => {

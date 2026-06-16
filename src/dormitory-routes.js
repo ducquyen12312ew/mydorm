@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { DormitoryCollection } = require('./config/config');
 const { logger } = require('./config/logger');
+const { uploadDormitory } = require('./middleware/upload');
 const notDeletedQuery = { $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }] };
 const isAdmin = (req, res, next) => {
     if (req.session && req.session.role === 'admin') {
@@ -238,6 +239,12 @@ router.get('/dormitories/:id', async (req, res) => {
     }
 });
 
+// Dedicated image upload endpoint (returns Cloudinary URL)
+router.post('/upload/dormitory-image', isAdmin, uploadDormitory.single('image'), async (req, res) => {
+    if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
+    res.json({ success: true, url: req.file.path });
+});
+
 router.post('/dormitories', isAdmin, async (req, res) => {
     try {
         logger.info('Received dormitory create payload');
@@ -356,7 +363,7 @@ router.post('/dormitories', isAdmin, async (req, res) => {
                 available: req.body.details && req.body.details.available === 'true' ? true : false
             },
             floors: floors,
-            imageUrl: req.body.imageUrl || ''
+            imageUrl: req.file ? req.file.path : (req.body.imageUrl || '')
         };
         
         logger.info('Creating dormitory with normalized data', { name: dormitoryData.name });
@@ -375,7 +382,8 @@ router.post('/dormitories', isAdmin, async (req, res) => {
 
 router.put('/dormitories/:id', isAdmin, async (req, res) => {
     try {
-        const { floors, ...updateData } = req.body;    
+        const { floors, ...updateData } = req.body;
+        if (req.file) updateData.imageUrl = req.file.path;
         const updatedDormitory = await DormitoryCollection.findByIdAndUpdate(
             req.params.id,
             updateData,

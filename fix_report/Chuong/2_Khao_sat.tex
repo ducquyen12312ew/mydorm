@@ -1,0 +1,451 @@
+\documentclass[../DoAn.tex]{subfiles}
+
+\begin{document}
+
+Trong chương 1, đồ án đã trình bày tổng quan về đề tài "Hệ thống quản lý và
+tiện ích ký túc xá cho sinh viên tích hợp phân bổ phòng tự động và trực quan
+hóa không gian", bao gồm bối cảnh thực hiện, mục tiêu, phạm vi và định hướng
+giải pháp. Những phân tích đó đã chỉ ra rằng bài toán phân bổ ký túc xá cần
+được tiếp cận trên cả ba mặt: tự động hoá quy trình, đảm bảo minh bạch và nâng
+cao trải nghiệm người dùng.
+
+Tiếp nối hướng đi đó, chương 2 tập trung khảo sát thực trạng vận hành, phân
+tích nhu cầu thực tế của các đối tượng sử dụng, và nghiên cứu ưu nhược điểm
+của các hệ thống quản lý ký túc xá hiện có, từ đó xác định khoảng trống mà
+giải pháp đề xuất hướng tới lấp đầy. Chương này được tổ chức thành bốn phần:
+khảo sát hiện trạng và xu hướng phát triển (2.1), tổng quan chức năng và biểu
+đồ use case (2.2), đặc tả các trường hợp sử dụng trọng yếu (2.3) và yêu cầu
+phi chức năng (2.4).
+
+% =====================================================================
+\section{Khảo sát hiện trạng}
+\label{sec:survey}
+% =====================================================================
+
+\subsection{Khảo sát người dùng}
+
+Trong quá trình thực hiện đồ án, tác giả đã tiến hành khảo sát và trao đổi
+trực tiếp với các đối tượng liên quan đến hệ thống ký túc xá, bao gồm sinh
+viên đang cư trú, sinh viên có nhu cầu đăng ký chỗ ở lần đầu, và cán bộ hỗ
+trợ quy trình đăng ký và quản lý hồ sơ.
+
+Kết quả khảo sát cho thấy vấn đề được phản ánh nhiều nhất tập trung vào ba
+nhóm chính. Nhóm đầu tiên liên quan đến sự thiếu minh bạch trong quy trình
+phân bổ: sinh viên không hiểu rõ cách điểm ưu tiên được tính toán, vì sao một
+số trường hợp được ưu tiên hơn, dẫn đến tâm lý hoài nghi và gia tăng khiếu
+nại sau mỗi đợt phân bổ. Nhóm thứ hai liên quan đến trải nghiệm đăng ký: quy
+trình hiện tại thiếu phản hồi tức thì và không có kênh theo dõi trạng thái hồ
+sơ trong quá trình xét duyệt. Nhóm thứ ba xuất phát từ phía cán bộ quản lý:
+thiếu công cụ mô phỏng để đánh giá tác động của thay đổi chính sách trước khi
+áp dụng, cùng với khó khăn trong việc tổng hợp hồ sơ từ nhiều nguồn dữ liệu
+không đồng nhất.
+
+Một nhu cầu nổi bật được ghi nhận là khả năng xem trước không gian phòng trước
+khi đăng ký. Sinh viên mong muốn tham khảo sơ đồ tầng, vị trí phòng và hình
+ảnh thực tế thay vì chỉ nhận thông tin dạng văn bản. Bên cạnh đó, kỳ vọng về
+thông báo kịp thời cũng được phản ánh rõ rệt: kết quả phân bổ và thay đổi
+trạng thái hồ sơ cần được truyền đến ngay lập tức. Từ những phát hiện này,
+trực quan hoá không gian phòng, phân bổ tự động và thông báo thời gian thực
+được xác định là yêu cầu cốt lõi của giải pháp, không chỉ đơn thuần là tính
+năng nâng cao.
+
+\subsection{Xu hướng phát triển các hệ thống quản lý ký túc xá}
+
+Trước khi phân tích xu hướng thị trường, cần nhìn nhận thực trạng của phần lớn
+hệ thống quản lý ký túc xá hiện nay tại Việt Nam. Thông tin về phòng ở thường
+bị phân tán qua nhiều kênh --- bảng thông báo, email, website tĩnh --- khiến
+sinh viên khó tổng hợp để đưa ra quyết định. Quy trình đăng ký vẫn phụ thuộc
+nhiều vào thủ tục giấy tờ hoặc biểu mẫu điện tử đơn giản, thiếu khả năng theo
+dõi trạng thái hồ sơ theo thời gian thực. Đặc biệt, sinh viên không có cơ hội
+xem trước không gian phòng trước khi đăng ký, dẫn đến quyết định thiếu căn cứ
+và gia tăng số lượng điều chỉnh sau phân bổ.
+
+Một hạn chế khác thường bị bỏ qua là khả năng tiếp cận đối với sinh viên quốc
+tế. Các hệ thống đang vận hành chủ yếu chỉ hỗ trợ tiếng Việt và giả định người
+dùng quen với quy trình hành chính trong nước. Điều này tạo ra rào cản không
+nhỏ cho sinh viên trao đổi, du học sinh và sinh viên quốc tế --- nhóm đối tượng
+ngày càng chiếm tỷ trọng lớn hơn trong cộng đồng đại học, đặc biệt tại các
+trường có định hướng hội nhập quốc tế như Đại học Bách Khoa Hà Nội.
+
+Để hiểu rõ hơn xu hướng phát triển của thị trường và tìm kiếm các hướng tiếp
+cận tham khảo, tác giả tiến hành khảo sát một số nền tảng quản lý chỗ ở sinh
+viên quốc tế đang hoạt động hiệu quả, từ đó rút ra bài học cho việc thiết kế
+hệ thống eDorm.
+
+\subsubsection*{Khảo sát nền tảng Scape}
+
+Scape (\textit{scape.com.au}) là nền tảng cho thuê chỗ ở sinh viên tại Úc, nổi
+bật với định hướng lấy người dùng làm trung tâm trong toàn bộ hành trình tìm
+kiếm và đăng ký. Điểm đáng chú ý nhất là tính năng tham quan phòng bằng tour
+3D 360° tích hợp ngay trong trang chi tiết, cho phép sinh viên trải nghiệm
+không gian thực tế trước khi đưa ra quyết định mà không cần đến trực tiếp. Hệ
+thống hiển thị tình trạng phòng còn trống theo thời gian thực và hỗ trợ lựa
+chọn thời gian nhận phòng linh hoạt theo học kỳ. Thông tin về loại phòng, số
+người ở, tiện nghi đi kèm, giá thuê và bộ lọc giới tính được trình bày rõ ràng
+theo từng danh mục, giúp sinh viên tự tìm hiểu và so sánh mà không cần liên hệ
+trực tiếp với nhân viên.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\linewidth]{Hinhve/khaosat_scape.png}
+\caption{Giao diện khảo sát từ nền tảng Scape.com.au}
+\label{fig:scape}
+\end{figure}
+
+Từ góc độ trải nghiệm người dùng, Scape thể hiện rõ triết lý tự phục vụ: sinh
+viên có thể hoàn thành toàn bộ quy trình từ tìm kiếm đến đặt phòng mà không cần
+tương tác với nhân viên. Giao diện được tối ưu cho cả web desktop lẫn thiết bị
+di động, với tốc độ tải trang nhanh và luồng thao tác tối giản. Đây là điểm
+mạnh đáng học hỏi cho hệ thống trong nước, nơi quy trình đăng ký KTX vẫn thường
+yêu cầu nhiều bước xác nhận thủ công.
+
+\subsubsection*{Khảo sát nền tảng University Living}
+
+University Living (\textit{universityliving.com}) là nền tảng tổng hợp chỗ ở
+sinh viên quốc tế, tiếp cận theo hướng cá nhân hóa hành trình tìm kiếm. Thay
+vì hiển thị danh sách phòng ngay lập tức, hệ thống dẫn dắt sinh viên qua luồng
+onboarding 5 bước tuần tự (University $\rightarrow$ Intake $\rightarrow$ Distance
+$\rightarrow$ Room Type $\rightarrow$ Curated Options), thu thập đủ ngữ cảnh để
+lọc kết quả phù hợp trước khi hiển thị. Mỗi cơ sở được trình bày kết hợp nhiều
+định dạng nội dung --- ảnh thực tế, video, ``Snapshot by Students'' và 360°
+Virtual Tour --- tạo bức tranh toàn diện hơn ảnh chụp đơn thuần. Một tính năng
+đáng chú ý là tính toán khoảng cách đến trường theo phương thức di chuyển cụ
+thể (đi bộ, phương tiện công cộng, xe đạp), giúp sinh viên đánh giá vị trí một
+cách thực tế. Nền tảng cũng sử dụng social proof hiệu quả thông qua chỉ số
+``93 students enquired about this property'' và nhãn ``Student's choice'' để hỗ
+trợ quyết định của người dùng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\linewidth]{Hinhve/khaosat_uniliving.png}
+\caption{Giao diện khảo sát từ nền tảng University Living}
+\label{fig:uniliving}
+\end{figure}
+
+Điểm mạnh của University Living nằm ở khả năng cá nhân hóa theo ngữ cảnh: thay
+vì để người dùng tự lọc trong một danh sách dài, hệ thống chủ động thu thập
+thông tin và trình bày kết quả phù hợp. Cách tiếp cận này làm giảm đáng kể
+nhận thức về sự phức tạp của quy trình, ngay cả với người dùng lần đầu sử dụng
+hoặc không thành thạo ngôn ngữ địa phương. Đây là bài học quan trọng về thiết
+kế quy trình đăng ký: thay vì đổ tải nhận thức lên người dùng, hệ thống nên
+dẫn dắt từng bước rõ ràng.
+
+\subsubsection*{Phân tích xu hướng thị trường}
+
+Từ kết quả khảo sát hai nền tảng trên kết hợp với tổng quan các hệ thống quản
+lý chỗ ở sinh viên hiện đại, có thể nhận diện bốn xu hướng phát triển nổi bật.
+
+Số hóa toàn diện quy trình đăng ký và quản lý hồ sơ đang trở thành chuẩn tối
+thiểu. Các hệ thống tiên tiến không dừng ở mức số hóa biểu mẫu giấy mà xây
+dựng toàn bộ luồng từ khai báo, nộp minh chứng, xét duyệt đến thông báo kết
+quả trong một nền tảng thống nhất, kèm cơ chế audit trail để bảo đảm tính giải
+trình.
+
+Ứng dụng di động và thiết kế đa thiết bị đã chuyển từ tùy chọn sang yêu cầu
+bắt buộc. Sinh viên kỳ vọng truy cập thông tin và thực hiện thao tác cơ bản từ
+điện thoại thông minh với cùng chất lượng trải nghiệm như trên máy tính. Trong
+bối cảnh đó, thiết kế responsive và ứng dụng di động native là hai hướng triển
+khai song song, mỗi hướng phục vụ nhóm nhu cầu khác nhau.
+
+Tự động hóa phân bổ với khả năng giải thích kết quả đang được quan tâm ngày
+càng nhiều. Các mô hình phân bổ dựa trên xếp hạng đa tiêu chí đã được nghiên
+cứu rộng rãi, song thách thức thực tế không nằm ở thuật toán mà ở khả năng trình
+bày kết quả theo cách sinh viên và cán bộ có thể kiểm chứng. Minh bạch trong
+quy trình phân bổ là yếu tố quyết định mức độ tin cậy của hệ thống.
+
+Thông báo thời gian thực và trực quan hóa không gian đang thay thế mô hình thông
+báo theo lịch. Việc kết hợp push notification với ảnh 360° và sơ đồ tầng giúp
+sinh viên đưa ra quyết định nhanh hơn và chủ động hơn trong suốt quy trình, đồng
+thời giảm tải cho bộ phận hỗ trợ khi cần giải đáp thắc mắc về vị trí phòng.
+
+\subsubsection*{Kết luận thị trường}
+
+Nhìn chung, các nền tảng quốc tế đã giải quyết tốt bài toán tự phục vụ và minh
+bạch thông tin, với giao diện hiện đại, đa thiết bị và quy trình dẫn dắt người
+dùng rõ ràng. Tuy nhiên, toàn bộ các nền tảng này phục vụ mô hình thị trường
+tự do --- sinh viên tự lựa chọn chỗ ở theo khả năng tài chính --- trong khi ký
+túc xá đại học công lập tại Việt Nam vận hành theo cơ chế phân bổ tập trung
+có điều kiện, với các tiêu chí ưu tiên về học lực, khu vực địa lý, hoàn cảnh
+kinh tế và đối tượng chính sách. Đây là sự khác biệt căn bản khiến không thể
+áp dụng trực tiếp các giải pháp thương mại trên mà cần một hướng thiết kế riêng,
+vừa kế thừa các điểm mạnh về trải nghiệm người dùng, vừa đáp ứng đặc thù vận
+hành của môi trường giáo dục công lập Việt Nam.
+
+\subsection{So sánh các giải pháp}
+
+\begin{table}[htbp]
+\centering
+\caption{So sánh các giải pháp trong bài toán quản lý phân bổ ký túc xá}
+\label{tab:comparison}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{p{4.0cm} p{4.8cm} p{4.8cm}}
+\toprule
+\textbf{Giải pháp} & \textbf{Ưu điểm} & \textbf{Nhược điểm} \\
+\midrule
+Bảng tính điện tử
+  & Triển khai nhanh, chi phí thấp, phù hợp thử nghiệm nhỏ.
+  & Khó mở rộng, dễ sai sót, thiếu khả năng audit và mô phỏng. \\
+Phần mềm quản lý KTX thương mại
+  & Ổn định, nhiều tính năng quản trị, hỗ trợ báo cáo.
+  & Chi phí cao, hạn chế tùy biến chính sách, tích hợp phức tạp. \\
+Giải pháp nghiên cứu (matching/ILP)
+  & Cơ sở lý thuyết vững, tối ưu mục tiêu cụ thể.
+  & Khó chuyển sang sản phẩm, lời giải khó diễn giải cho người dùng. \\
+Hệ thống tích hợp (Engine + UI)
+  & Tùy biến chính sách, mô phỏng, realtime, trải nghiệm tốt.
+  & Cần đầu tư phát triển, yêu cầu tích hợp dữ liệu từ nhiều nguồn. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Bảng~\ref{tab:comparison} tổng hợp sự đánh đổi giữa các hướng tiếp cận và làm
+rõ lý do tại sao không có giải pháp đơn lẻ nào đáp ứng đồng thời toàn bộ yêu
+cầu về chất lượng thuật toán, khả năng vận hành và trải nghiệm người dùng. Do
+đó, giải pháp trong đề tài này là kết hợp có chọn lọc: một engine với nền tảng
+lý thuyết đủ vững để đảm bảo chất lượng phân bổ, tích hợp trong một hệ thống
+có đầy đủ cơ chế audit, mô phỏng và giao diện thân thiện.
+
+\subsection{Định hướng cho EDorm}
+
+Từ kết quả khảo sát thực tế và phân tích xu hướng thị trường, có thể suy ra hai
+nhóm yêu cầu tính năng đối với hệ thống EDorm: nhóm tính năng bắt buộc phản ánh
+những gì đã trở thành chuẩn tối thiểu trên thị trường, và nhóm tính năng tạo
+khác biệt thể hiện những điểm chưa được triển khai tốt trong bối cảnh đại học
+Việt Nam.
+
+Nhóm tính năng bắt buộc bao gồm: cổng đăng ký trực tuyến để sinh viên tự khai
+báo, nộp minh chứng và theo dõi trạng thái hồ sơ mà không cần đến trực tiếp;
+thông báo thời gian thực về kết quả phân bổ và thay đổi trạng thái hồ sơ; tra
+cứu công nợ và lịch sử thanh toán; bảng điều khiển quản trị tổng hợp tình trạng
+phòng ở cho cán bộ; giao diện responsive tương thích đa thiết bị; và ứng dụng
+di động cho sinh viên. Đây là những tính năng mà một hệ thống quản lý chỗ ở
+sinh viên hiện đại không thể thiếu, được xác nhận qua cả khảo sát người dùng
+trong nước lẫn nghiên cứu các nền tảng quốc tế.
+
+Nhóm tính năng tạo khác biệt tập trung vào những điểm mà các nền tảng quốc tế
+đã triển khai hiệu quả nhưng hầu như chưa có mặt trong các hệ thống ký túc xá
+tại Việt Nam, đặc biệt là tại Đại học Bách Khoa Hà Nội. Trực quan hóa không
+gian phòng thông qua ảnh 360° và sơ đồ tầng tương tác giúp sinh viên đưa ra
+quyết định đăng ký có căn cứ thay vì chỉ dựa vào thông tin văn bản. Minh bạch
+hóa điểm ưu tiên --- hiển thị chi tiết điểm theo từng tiêu chí kèm lời giải
+thích có thể kiểm chứng --- giải quyết trực tiếp nguyên nhân chính gây khiếu
+nại sau mỗi đợt phân bổ. Công cụ mô phỏng phân bổ cho cán bộ quản lý, cho phép
+đánh giá tác động của các kịch bản chính sách trước khi công bố kết quả chính
+thức, là tính năng gần như chưa từng xuất hiện trong các hệ thống ký túc xá
+đại học công lập trong nước. Ngoài ra, nhật ký hoạt động (audit trail) cấu trúc
+ghi lại toàn bộ thao tác kèm thời gian thực hiện đáp ứng yêu cầu giải trình
+ngày càng cao trong quản lý giáo dục công lập.
+
+Như vậy, luồng suy luận từ khảo sát đến thiết kế hệ thống có thể được tóm tắt
+như sau: khảo sát thực tế người dùng chỉ ra sự thiếu minh bạch và thiếu trực
+quan là hai điểm đau lớn nhất; khảo sát thị trường quốc tế cho thấy các giải
+pháp tự phục vụ, đa thiết bị và trực quan hóa không gian đã được chứng minh
+hiệu quả; phân tích sự khác biệt giữa mô hình thị trường tự do và mô hình phân
+bổ tập trung tại Việt Nam xác định khoảng trống cần lấp đầy; từ đó, các tính
+năng được lựa chọn đưa vào eDorm không phải là sao chép nguyên vẹn giải pháp
+thương mại mà là sự tổng hợp có chọn lọc, phù hợp với đặc thù vận hành của
+môi trường đại học công lập.
+
+
+% =====================================================================
+\section{Tổng quan chức năng}
+\label{sec:functional}
+% =====================================================================
+
+Hệ thống phục vụ bốn nhóm tác nhân chính: sinh viên (đăng ký, nộp minh chứng,
+tra cứu kết quả), cán bộ quản lý (cấu hình chính sách, vận hành phiên phân bổ),
+hệ thống tự động (Allocation Engine, API, audit) và nhóm kiểm duyệt (tra cứu
+báo cáo).
+
+Quy trình xử lý của hệ thống gồm các bước: thu thập và chuẩn hoá hồ sơ sinh viên, cấu hình chính sách phân bổ, chạy mô phỏng để đánh giá các kịch bản trước khi commit kết quả chính thức, sau đó gửi thông báo đến sinh viên và hỗ trợ xử lý khiếu nại; việc tách biệt giữa mô phỏng và commit giúp kiểm soát chất lượng và hạn chế sai sót trong quá trình phân phòng.
+
+\subsection{Biểu đồ use case tổng quát}
+
+Biểu đồ use case tổng quát cung cấp cái nhìn hệ thống về các chức năng cốt lõi và mối quan hệ giữa các tác nhân chính trong hệ thống quản lý ký túc xá. Biểu đồ này có vai trò xác lập ranh giới nghiệp vụ của hệ thống, đồng thời chỉ ra những nhóm chức năng mức cao sẽ được phân rã ở các mục tiếp theo. Về mặt phương pháp, đây là bước nền để chuyển từ mô tả yêu cầu tổng thể sang đặc tả chức năng có thể kiểm chứng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.66\linewidth]{Hinhve/usecase_overview.png}
+\caption{Biểu đồ use case tổng quát của hệ thống quản lý ký túc xá}
+\label{fig:usecase_overview}
+\end{figure}
+
+Biểu đồ tổng quát xác định bốn tác nhân chính gồm sinh viên, cán bộ quản lý, hệ thống tự động và nhóm kiểm duyệt/kiểm toán. Sinh viên thực hiện các hành động liên quan tới đăng ký, nộp minh chứng và tra cứu kết quả; cán bộ quản lý chịu trách nhiệm cấu hình chính sách, vận hành phiên phân bổ và xử lý khiếu nại; hệ thống tự động thực hiện mô phỏng, phân bổ, ghi nhận audit log và phát thông báo thời gian thực; nhóm kiểm duyệt thực hiện kiểm tra tuân thủ và truy xuất báo cáo. Ở cấp độ tổng quan, chu trình vận hành chính bao gồm thu thập hồ sơ, kiểm duyệt dữ liệu, cấu hình chính sách, mô phỏng, thực thi phân bổ, thông báo và xử lý khiếu nại. Về mặt kỹ thuật, biểu đồ này định hướng các ràng buộc tích hợp API, phạm vi trách nhiệm của các service và các điểm cần ghi log để đảm bảo tính giải thích cho kết quả phân bổ.
+
+\subsection{Biểu đồ use case phân rã}
+
+Nhóm biểu đồ phân rã được trình bày tập trung trong một sơ đồ duy nhất nhằm minh hoạ mối quan hệ phân tầng giữa các chức năng mức cao và các chức năng con. Sơ đồ này thể hiện bảy nhóm chức năng mức cao cùng các thành phần phân rã tương ứng. Dưới đây là phần phân tích ngắn gọn cho từng nhóm chức năng, mỗi đoạn mô tả các chức năng con chính sau khi phân rã.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{Hinhve/phanra.png}
+\caption{Biểu đồ phân rã chức năng (toàn cảnh)}
+\label{fig:phanra}
+\end{figure}
+
+Phân tích phân rã chức năng (tóm tắt):
+
+Đăng ký và hồ sơ: phân rã thành các chức năng con chính bao gồm đăng nhập, khai báo thông tin, nộp minh chứng và kiểm duyệt hồ sơ; các chức năng con này đảm bảo tính chuẩn hoá dữ liệu đầu vào và tạo điều kiện cho bước xét ưu tiên tiếp theo.
+
+Tra cứu và hỗ trợ: phân rã thành tra cứu trạng thái, hiển thị kết quả phân bổ kèm lời giải thích rút gọn và kênh gửi phản hồi, khiếu nại; nhóm này tối ưu cho tính minh bạch và tương tác người dùng.
+
+Cấu hình chính sách: phân rã thành quản lý mẫu chính sách, chỉnh sửa trọng số và ràng buộc, và quản lý phiên bản/audit; đây là vùng chịu trách nhiệm chính về cách thức tính toán điểm ưu tiên và ràng buộc phân bổ.
+
+Mô phỏng và phân bổ: phân rã thành chạy mô phỏng, so sánh phương án và xác nhận commit; chức năng này tách rõ hai chế độ preview và commit, đồng thời sinh báo cáo và chỉ ra các xung đột ràng buộc cần xử lý.
+
+Quản lý phòng: phân rã thành các chức năng CRUD phòng, cập nhật sức chứa và liên kết ảnh/sơ đồ phục vụ trực quan hoá; đảm bảo dữ liệu không gian chuẩn để engine phân bổ sử dụng.
+
+Thông báo và realtime: phân rã thành đẩy thông báo, hàng đợi retry và ghi nhật ký sự kiện; đảm bảo tính kịp thời và tin cậy trong giao tiếp với người dùng.
+
+Báo cáo và thống kê: phân rã thành báo cáo phân bổ và thống kê KPI nhằm hỗ trợ phân tích kết quả và ra quyết định chính sách.
+
+\subsection{Quy trình nghiệp vụ}
+
+Quy trình nghiệp vụ tổng thể của hệ thống được thiết kế theo chuỗi xử lý liên tục, bắt đầu từ tiếp nhận hồ sơ đăng ký và kết thúc ở giai đoạn thông báo, phản hồi và xử lý các phát sinh sau phân bổ. Trước hết, sinh viên thực hiện đăng ký và nộp minh chứng; sau đó hệ thống kiểm tra dữ liệu đầu vào và chuyển hồ sơ hợp lệ sang trạng thái sẵn sàng xét duyệt. Trên cơ sở dữ liệu đã chuẩn hóa, cán bộ quản lý cấu hình chính sách và tham số phân bổ, từ đó khởi chạy mô phỏng để đánh giá tác động của cấu hình hiện hành. Khi kết quả mô phỏng phù hợp, hệ thống được chuyển sang chế độ thực thi để ghi nhận kết quả chính thức.
+
+Sau khi kết quả phân bổ được công bố, sinh viên tra cứu kết quả, đọc phần giải thích và phản hồi nếu phát sinh khiếu nại. Đồng thời, hệ thống phát thông báo thời gian thực tới các bên liên quan và ghi lại audit log cho toàn bộ thao tác quan trọng. Chu trình này thể hiện rõ mối liên hệ nhân quả giữa các khối chức năng: dữ liệu đầu vào tốt làm nền cho mô phỏng chính xác, mô phỏng đúng giúp giảm rủi ro khi commit, còn thông báo và nhật ký giúp bảo đảm tính minh bạch và khả năng kiểm chứng trong vận hành thực tế.
+
+\section{Đặc tả chức năng}
+\label{sec:usecase}
+% =====================================================================
+
+Phần này trình bày sáu use case trọng yếu đại diện cho các luồng nghiệp vụ chính của hệ thống. Mỗi use case được mô tả theo khuôn mẫu chuẩn bao gồm tác nhân, điều kiện tiên quyết, điều kiện hậu kết và luồng thực hiện chính. Hình minh hoạ tương ứng cho mỗi use case được chèn ngay sau phần mô tả.
+
+\subsection{Use Case 1: Đăng ký ở và nộp minh chứng}
+
+Sinh viên có nhu cầu ở ký túc xá đăng nhập vào hệ thống, khai báo thông tin cá nhân theo biểu mẫu quy định và tải lên các tài liệu minh chứng ưu tiên nếu có, bao gồm giấy xác nhận hoàn cảnh khó khăn, giấy chứng nhận thành tích học tập, hoặc các loại giấy tờ đặc thù khác. Hệ thống thực hiện kiểm tra sơ bộ tính hợp lệ của dữ liệu và tệp tải lên, lưu hồ sơ vào cơ sở dữ liệu và phản hồi mã xác nhận cho sinh viên.
+
+Tiền điều kiện: sinh viên đã có tài khoản hợp lệ được cấp bởi nhà trường. Hậu điều kiện: hồ sơ đăng ký ở trạng thái ``đã tiếp nhận'', sẵn sàng cho bước xét duyệt và phân bổ. Luồng phát sinh bao gồm trường hợp tệp tải lên không đúng định dạng hoặc vượt giới hạn dung lượng (hệ thống từ chối và yêu cầu tải lại) và trường hợp thông tin bắt buộc còn thiếu (hệ thống thông báo cụ thể và dừng quy trình).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{Hinhve/usecase_registration.png}
+\caption{Đăng ký ở và nộp minh chứng}
+\label{fig:uc_registration}
+\end{figure}
+
+\subsection{Use Case 2: Cấu hình chính sách và tham số phân bổ}
+
+Cán bộ quản lý đã được phân quyền vào trang cấu hình chính sách, lựa chọn mẫu chính sách có sẵn hoặc tạo mới, sau đó nhập các tham số bao gồm trọng số của từng tiêu chí ưu tiên, các ràng buộc cứng về sức chứa và phân nhóm, cùng các quy tắc xử lý trường hợp đặc biệt. Sau khi lưu cấu hình, cán bộ có thể chuyển ngay sang chế độ mô phỏng để xem trước tác động của cấu hình này trên tập dữ liệu hiện tại.
+
+Tiền điều kiện: tài khoản có vai trò cán bộ quản lý chính. Hậu điều kiện: cấu hình chính sách được lưu vào cơ sở dữ liệu và sẵn sàng để kích hoạt cho phiên phân bổ. Luồng phát sinh: nếu các tham số nhập vào vi phạm ràng buộc logic, chẳng hạn tổng trọng số không bằng 100\% hoặc sức chứa thiết lập âm, hệ thống báo lỗi chi tiết và yêu cầu điều chỉnh trước khi lưu.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.86\textwidth]{Hinhve/usecase_config.png}
+\caption{Cấu hình chính sách và tham số phân bổ}
+\label{fig:uc_config}
+\end{figure}
+
+\subsection{Use Case 3: Chạy mô phỏng \& thực thi phân bổ}
+
+Đây là use case trung tâm của hệ thống. Cán bộ chọn chế độ mô phỏng (preview) để Allocation Engine thực thi trên tập dữ liệu thực nhưng không ghi kết quả vào cơ sở dữ liệu chính thức. Hệ thống sinh ra báo cáo tổng quan về kết quả phân bổ dự kiến bao gồm tỷ lệ lấp đầy phòng, phân bổ điểm ưu tiên và danh sách các trường hợp không thể phân bổ do thiếu phòng hoặc vi phạm ràng buộc. Cán bộ có thể so sánh nhiều kịch bản mô phỏng với tham số khác nhau trước khi quyết định. Khi đã hài lòng với một kịch bản, cán bộ xác nhận chuyển sang chế độ thực thi (commit): hệ thống cập nhật trạng thái phòng, ghi nhận kết quả vào hồ sơ sinh viên, ghi audit log đầy đủ và kích hoạt thông báo đến sinh viên.
+
+Tiền điều kiện: dữ liệu ứng viên và cấu hình chính sách đã sẵn sàng. Hậu điều kiện: kết quả phân bổ chính thức được lưu trữ, có thể tra cứu và xuất báo cáo. Luồng phát sinh: nếu engine phát hiện vi phạm ràng buộc cứng không thể giải quyết, hệ thống liệt kê chi tiết các trường hợp và đề xuất điều chỉnh tham số.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{Hinhve/usecase_simulation.png}
+\caption{Mô phỏng và thực thi phân bổ}
+\label{fig:uc_simulation}
+\end{figure}
+
+\subsection{Use Case 4: Tra cứu kết quả, khiếu nại và tương tác}
+
+Sau khi phiên phân bổ hoàn tất, sinh viên đăng nhập để xem kết quả phân bổ của mình cùng với bản tóm tắt lời giải thích: phòng nào được phân bổ, điểm ưu tiên của mình là bao nhiêu và được tính từ các tiêu chí nào. Nếu sinh viên không đồng ý với kết quả, hệ thống cung cấp kênh nộp khiếu nại kèm tài liệu bổ sung. Cán bộ nhận khiếu nại qua giao diện quản trị, xem xét và cập nhật trạng thái xử lý.
+
+Tiền điều kiện: phiên phân bổ chính thức đã được commit. Hậu điều kiện: khiếu nại được ghi nhận và vào hàng đợi xử lý với trạng thái theo dõi rõ ràng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{Hinhve/usecase_lookup.png}
+\caption{Tra cứu kết quả, khiếu nại và tương tác}
+\label{fig:uc_lookup}
+\end{figure}
+
+\subsection{Use Case 5: Quản lý danh sách phòng và kiểm duyệt dữ liệu}
+
+Cán bộ quản trị thực hiện nhập mới, cập nhật hoặc vô hiệu hoá thông tin phòng bao gồm sức chứa, loại phòng, trang thiết bị và trạng thái hoạt động. Hệ thống kiểm tra tính hợp lệ của dữ liệu trước khi cho phép lưu, đảm bảo không có phòng nào có sức chứa âm hoặc thiếu thông tin bắt buộc.
+
+Tiền điều kiện: tài khoản có vai trò quản trị. Hậu điều kiện: danh sách phòng được cập nhật nhất quán và sẵn sàng cho phiên phân bổ tiếp theo.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{Hinhve/usecase_rooms.png}
+\caption{Quản lý danh sách phòng và kiểm duyệt dữ liệu}
+\label{fig:uc_rooms}
+\end{figure}
+
+\subsection{Use Case 6: Thông báo thời gian thực và audit log}
+
+Hệ thống tự động phát thông báo đến người dùng liên quan khi có sự kiện quan trọng: kết thúc phiên phân bổ, thay đổi trạng thái hồ sơ, hoặc có phản hồi từ cán bộ cho khiếu nại. Đồng thời, mọi thao tác có tác động đến dữ liệu phân bổ đều được ghi audit log đầy đủ với thông tin về thời gian, người thực hiện, đối tượng bị ảnh hưởng và nội dung thay đổi.
+
+Tiền điều kiện: dịch vụ WebSocket hoạt động bình thường. Hậu điều kiện: thông báo đã được gửi đến thiết bị của người dùng; audit log được ghi vào bộ lưu trữ riêng không thể chỉnh sửa.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.60\textwidth]{Hinhve/usecase_notifications.png}
+\caption{Thông báo thời gian thực và audit log}
+\label{fig:uc_notifications}
+\end{figure}
+
+% =====================================================================
+\section{Yêu cầu phi chức năng}
+\label{sec:nonfunctional}
+% =====================================================================
+
+Yêu cầu phi chức năng xác định các tiêu chuẩn chất lượng mà hệ thống phải đạt
+được trong điều kiện vận hành thực tế, bổ sung cho các yêu cầu chức năng và có
+vai trò quyết định đến độ tin cậy và khả năng chấp nhận của hệ thống trong dài
+hạn.
+
+Về hiệu năng, hệ thống phải xử lý được tối thiểu 5.000 yêu cầu đọc đồng thời,
+bao gồm tra cứu trạng thái và hiển thị kết quả, với độ trễ P95 dưới 300 ms
+trong điều kiện tải bình thường. Đối với các tác vụ ghi phức tạp như chạy phiên
+phân bổ hay cập nhật đồng loạt, hệ thống hỗ trợ ít nhất 200 yêu cầu đồng thời.
+Các tác vụ nặng như chạy Allocation Engine trên tập dữ liệu lớn được thực hiện
+theo mô hình bất đồng bộ với thông báo khi hoàn thành, tránh block giao diện
+người dùng.
+
+Về bảo mật, toàn bộ API được bảo vệ bằng JWT kết hợp RBAC với ba vai trò chính:
+cán bộ quản lý toàn quyền, cán bộ chỉ xem và sinh viên. Thông tin cá nhân và
+tài liệu minh chứng được mã hoá khi lưu trữ. Mọi giao tiếp giữa client và
+server sử dụng TLS/HTTPS. Audit log cho các thao tác quan trọng được lưu trong
+bộ lưu trữ riêng với quyền ghi một lần, đảm bảo tính bất biến.
+
+Về độ tin cậy và sẵn sàng, mục tiêu availability là 99,9\% cho các chức năng
+cốt lõi trong giờ vận hành bình thường. Dữ liệu được sao lưu tự động theo lịch
+và quy trình khôi phục được kiểm thử định kỳ. Hệ thống được thiết kế để khởi
+động lại gracefully mà không mất dữ liệu giao dịch đang xử lý.
+
+Về khả năng mở rộng, kiến trúc được thiết kế để hỗ trợ mở rộng theo chiều ngang
+cho tầng API khi lưu lượng tăng. Cơ sở dữ liệu MongoDB Atlas hỗ trợ sharding
+khi kích thước collection vượt ngưỡng hiệu năng. Các thành phần được đóng gói
+bằng Docker để triển khai nhất quán trên mọi môi trường.
+
+Về tính dễ sử dụng và truy cập, giao diện sinh viên tuân theo nguyên tắc
+mobile-first, đảm bảo trải nghiệm tốt trên màn hình nhỏ với băng thông giới
+hạn. Giao diện hỗ trợ đầy đủ các trình duyệt phổ biến và không yêu cầu cài đặt
+plugin hay phần mềm bổ sung.
+
+Về tính dễ bảo trì, Allocation Engine và các service lõi phải đạt coverage kiểm
+thử đơn vị tối thiểu 80\%. Log hệ thống có cấu trúc JSON để dễ tích hợp với các
+công cụ phân tích log. Mã nguồn tuân theo các quy ước đặt tên và tổ chức thư
+mục nhất quán, kèm tài liệu API theo chuẩn OpenAPI 3.0.
+
+Về tương thích và stack công nghệ, các lựa chọn bao gồm Node.js/Express cho
+backend triển khai dạng Docker container; MongoDB Atlas cho cơ sở dữ liệu đám
+mây; Redis cho tầng realtime adapter; Socket.IO cho thông báo thời gian thực;
+EJS kết hợp Bootstrap cho giao diện web; Expo/React Native cho ứng dụng di
+động; và TanStack Query kết hợp Zustand cho state management phía mobile. Thiết
+kế collection cơ sở dữ liệu bao gồm trên 19 schema với chỉ mục phù hợp cho tra
+cứu theo mã sinh viên, trạng thái và thời gian.
+
+Thông qua việc khảo sát thực trạng, phân tích nhu cầu người dùng và nghiên cứu
+các hệ thống quản lý ký túc xá hiện có, chương 2 đã xác định rõ những hạn chế
+cần khắc phục và khoảng trống mà giải pháp đề xuất hướng tới. Các phân tích về
+yêu cầu chức năng và phi chức năng trình bày trong chương này đặt nền tảng cho
+việc lựa chọn công nghệ và thiết kế kiến trúc hệ thống, là chủ đề trọng tâm
+của chương 3.
+
+\end{document}

@@ -1,0 +1,12 @@
+ dormitory_graduation-app  Built
+ Network dormitory_graduation_default  Creating
+ Network dormitory_graduation_default  Created
+ Container dormitory_graduation-redis-1  Creating
+ Container dormitory_graduation-redis-1  Created
+ Container dormitory_graduation-app-1  Creating
+ Container dormitory_graduation-app-1  Created
+ Container dormitory_graduation-redis-1  Starting
+ Container dormitory_graduation-redis-1  Started
+ Container dormitory_graduation-redis-1  Healthy
+ Container dormitory_graduation-app-1  Starting
+ Container dormitory_graduation-app-1  Started

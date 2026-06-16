@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác nhận email | KTX HUST</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/auth-forms.css">
+</head>
+<body class="auth-page">
+    <main class="auth-shell" style="min-height:100vh;display:flex;align-items:center;justify-content:center">
+        <div style="max-width:480px;width:100%;text-align:center;padding:40px 32px;background:#fff;border-radius:20px;box-shadow:0 20px 48px rgba(0,0,0,0.1)">
+            <% if (verified) { %>
+                <div style="width:72px;height:72px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+                    <i class="fa-solid fa-circle-check" style="font-size:2rem;color:#2e7d32"></i>
+                </div>
+                <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 10px">Email đã xác nhận!</h1>
+                <p style="color:#736660;margin:0 0 28px;line-height:1.6">Tài khoản của bạn đã được kích hoạt thành công. Bạn có thể đăng nhập ngay bây giờ.</p>
+                <a href="/login" style="display:inline-block;background:#C8102E;color:#fff;text-decoration:none;padding:13px 32px;border-radius:12px;font-weight:700">Đăng nhập ngay</a>
+            <% } else { %>
+                <div style="width:72px;height:72px;background:#fdecea;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+                    <i class="fa-solid fa-circle-xmark" style="font-size:2rem;color:#c62828"></i>
+                </div>
+                <h1 style="font-size:1.6rem;font-weight:800;margin:0 0 10px">Link không hợp lệ</h1>
+                <p style="color:#736660;margin:0 0 28px;line-height:1.6">Link xác nhận đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại để nhận link mới.</p>
+                <a href="/login" style="display:inline-block;background:#C8102E;color:#fff;text-decoration:none;padding:13px 32px;border-radius:12px;font-weight:700">Về trang đăng nhập</a>
+            <% } %>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const { 
-    StudentCollection, 
-    DormitoryCollection, 
-    PendingApplicationCollection,  // Đảm bảo import đúng
-    NotificationCollection, 
-    ActivityLogCollection 
+const {
+    StudentCollection,
+    DormitoryCollection,
+    PendingApplicationCollection,
+    NotificationCollection,
+    ActivityLogCollection
 } = require('../config/config');
+const { uploadDormitoryVideo, cloudinary } = require('../middleware/upload');
 
 // Middleware kiểm tra quyền admin
 const isAdmin = (req, res, next) => {
@@ -248,5 +249,75 @@ function generateRandomSeries(length, min, max) {
 function generateConstantSeries(length, value) {
     return Array.from({ length }, () => value);
 }
+
+// PUT /dormitories/:id — Update dormitory info and media
+router.put('/dormitories/:id', isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, address, description, contact, images, videos, virtualTour, imageUrl, details } = req.body;
+
+        const updateData = {};
+        if (address !== undefined) updateData.address = address;
+        if (description !== undefined) updateData.description = description;
+        if (contact !== undefined) updateData.contact = contact;
+        if (imageUrl !== undefined) updateData.imageUrl = imageUrl;
+        if (details !== undefined) updateData.details = details;
+        // Media fields
+        if (images !== undefined) updateData.images = images;
+        if (videos !== undefined) updateData.videos = videos;
+        if (virtualTour !== undefined) updateData.virtualTour = virtualTour;
+
+        updateData.updatedAt = new Date();
+
+        const dormitory = await DormitoryCollection.findByIdAndUpdate(id, updateData, { new: true });
+        if (!dormitory) return res.status(404).json({ success: false, error: 'Không tìm thấy KTX' });
+
+        res.json({ success: true, dormitory });
+    } catch (err) {
+        console.error('PUT dormitory error:', err);
+        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
+});
+
+// POST /api/dormitories/:id/upload-image — Upload image to Cloudinary
+const { uploadDormitory: uploadDormImage } = require('../middleware/upload');
+router.post('/dormitories/:id/upload-image', isAdmin, uploadDormImage.single('image'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
+        const url = req.file.path || req.file.secure_url;
+        await DormitoryCollection.findByIdAndUpdate(req.params.id, {
+            $push: { images: url },
+            $set: { imageUrl: url, updatedAt: new Date() }
+        });
+        res.json({ success: true, url, publicId: req.file.filename || req.file.public_id });
+    } catch (err) {
+        console.error('Upload image error:', err);
+        res.status(500).json({ success: false, error: 'Upload ảnh thất bại' });
+    }
+});
+
+// POST /api/dormitories/:id/upload-video — Upload video to Cloudinary
+router.post('/dormitories/:id/upload-video', isAdmin, uploadDormitoryVideo.single('video'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, error: 'Không có file video' });
+        const url       = req.file.path || req.file.secure_url || req.file.url;
+        const publicId  = req.file.filename || req.file.public_id || '';
+        const duration  = req.file.duration || null;
+        // Generate thumbnail from Cloudinary (replace extension with .jpg + auto thumbnail)
+        const thumbnail = publicId
+            ? `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/video/upload/so_0,w_480,h_270,c_fill/${publicId}.jpg`
+            : '';
+
+        const mediaObj = { type: 'video', url, publicId, thumbnail, duration };
+        await DormitoryCollection.findByIdAndUpdate(req.params.id, {
+            $push: { videos: url, media: mediaObj },
+            $set: { updatedAt: new Date() }
+        });
+        res.json({ success: true, url, publicId, thumbnail, duration });
+    } catch (err) {
+        console.error('Upload video error:', err);
+        res.status(500).json({ success: false, error: 'Upload video thất bại: ' + err.message });
+    }
+});
 
 module.exports = router;

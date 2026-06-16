@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Master Dashboard | Dormitory Control</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <title>Dashboard Tổng quan — KTX HUST Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <style>
     :root {
-      --ink: #13202f;
-      --muted: #5f6f83;
-      --accent: #0f9c8f;
-      --accent-2: #f59f0b;
+      --ink: #111827;
+      --muted: #6B7280;
+      --accent: #C8102E;
+      --accent-2: #A20D25;
       --surface: #ffffff;
-      --bg-soft: #edf2f7;
-      --line: #d7e0ea;
-      --danger: #dc3545;
+      --bg-soft: #F7F7F7;
+      --line: #E5E7EB;
+      --danger: #DC2626;
       --success: #15803d;
     }
 
@@ -29,10 +29,7 @@
       margin: 0;
       font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
       color: var(--ink);
-      background:
-        radial-gradient(circle at 20% 0%, rgba(15,156,143,0.18), transparent 35%),
-        radial-gradient(circle at 80% 100%, rgba(245,159,11,0.14), transparent 40%),
-        var(--bg-soft);
+      background: var(--bg-soft);
       min-height: 100vh;
     }
 
@@ -89,8 +86,7 @@
     }
 
     .btn:hover {
-      transform: translateY(-1px);
-    }
+      }
 
     .btn-primary {
       background: var(--ink);
@@ -161,19 +157,19 @@
       font-weight: 700;
       text-align: center;
       cursor: pointer;
-      background: #f8fbfd;
-      color: #213247;
+      background: #F7F7F7;
+      color: #111827;
     }
 
     .heat-cell:hover {
       transform: translateY(-1px);
     }
 
-    .heat-zero { background: #f5f9fc; }
-    .heat-low { background: #d8f4ef; border-color: #96e0d3; }
-    .heat-medium { background: #b9ece2; border-color: #66d4bf; }
-    .heat-high { background: #ffe6bf; border-color: #ffc06a; }
-    .heat-full { background: #ffd7db; border-color: #ff9eaa; }
+    .heat-zero  { background: #F9FAFB; border-color: #E5E7EB; }
+    .heat-low   { background: #DCFCE7; border-color: #86EFAC; }
+    .heat-medium { background: #FFFBEB; border-color: #FDE68A; }
+    .heat-high  { background: #FFF0F2; border-color: #FECDD3; }
+    .heat-full  { background: #FFF0F2; border-color: #C8102E; }
 
     .kpi {
       border-radius: 14px;
@@ -242,7 +238,7 @@
     .panel-head {
       padding: 14px 16px;
       border-bottom: 1px solid var(--line);
-      background: linear-gradient(120deg, rgba(15,156,143,.1), rgba(245,159,11,.08));
+      background: linear-gradient(120deg, rgba(200,16,46,.05), rgba(200,16,46,.02));
     }
 
     .panel-head h2 {
@@ -275,7 +271,7 @@
     .item:hover,
     .item.active {
       border-color: var(--accent);
-      background: #f4fffd;
+      background: #FFF0F2;
       transform: translateX(2px);
     }
 
@@ -343,8 +339,8 @@
     }
 
     .bed.occupied {
-      border-color: #9ec5fe;
-      background: #f1f7ff;
+      border-color: #D1D5DB;
+      background: #F9FAFB;
     }
 
     .bed .label {
@@ -452,7 +448,7 @@
       border-radius: 12px;
       padding: 12px;
       display: none;
-      background: #fcfefe;
+      background: #FAFAFA;
     }
 
     .three-d-zone.active {
@@ -475,7 +471,7 @@
       font-size: .78rem;
       transform: perspective(400px) rotateX(30deg) rotateY(-20deg);
       transform-origin: center;
-      background: linear-gradient(145deg, #fefefe, #dce7f3);
+      background: linear-gradient(145deg, #FFFFFF, #F3F4F6);
       box-shadow: 4px 4px 12px rgba(0,0,0,.1);
     }
 
@@ -490,7 +486,7 @@
       padding: 14px;
       text-align: center;
       font-size: .85rem;
-      background: #fafcfd;
+      background: #FAFAFA;
     }
 
     @media (max-width: 1100px) {
@@ -512,30 +508,30 @@
   <div class="shell">
     <div class="topbar">
       <div>
-        <h1>Dormitory Master Dashboard</h1>
-        <p>Realtime room intelligence with drill-down and student discovery.</p>
+        <h1>Dashboard Tổng quan KTX</h1>
+        <p>Thống kê thời gian thực · Drill-down theo tầng và phòng.</p>
       </div>
       <div class="nav-actions">
         <a class="btn btn-secondary" href="/admin/dashboard"><i class="fas fa-arrow-left"></i> Dashboard</a>
-        <a class="btn btn-primary" href="/admin/dormitories"><i class="fas fa-building"></i> Dormitories</a>
+        <a class="btn btn-primary" href="/admin/dormitories"><i class="fas fa-building"></i> Ký túc xá</a>
       </div>
     </div>
 
     <div class="kpi-grid">
       <button id="kpiTotal" class="kpi" type="button">
-        <h3>Total Rooms</h3>
+        <h3>Tổng số phòng</h3>
         <div id="kpiTotalValue" class="value">0</div>
-        <div class="sub">Total managed rooms</div>
+        <div class="sub">Tổng phòng đang quản lý</div>
       </button>
       <button id="kpiAvailable" class="kpi" type="button">
-        <h3>Available Rooms</h3>
+        <h3>Phòng còn trống</h3>
         <div id="kpiAvailableValue" class="value">0</div>
-        <div class="sub">Click to start drill-down flow</div>
+        <div class="sub">Bấm để xem chi tiết</div>
       </button>
       <button id="kpiOccupied" class="kpi kpi-occupied" type="button">
-        <h3>Occupied Rooms</h3>
+        <h3>Phòng đã đầy</h3>
         <div id="kpiOccupiedValue" class="value">0</div>
-        <div class="sub">Rooms currently full</div>
+        <div class="sub">Phòng đã đạt tối đa</div>
       </button>
     </div>
 
@@ -560,21 +556,23 @@
 
       <section class="panel">
         <div class="panel-head">
-          <h2 id="detailTitle">Building Overview</h2>
+          <h2 id="detailTitle">Tổng quan hệ thống</h2>
         </div>
         <div class="panel-body">
-          <div id="detailBody" class="empty">Click "Available Rooms" to view buildings, then continue building → floor → room.</div>
+          <div id="detailBody" class="empty">Chọn KTX để xem chi tiết → tầng → phòng.</div>
 
           <div class="tools">
-            <input id="studentSearchInput" type="text" placeholder="Search by student name, code, email" />
+            <input id="studentSearchInput" type="text" placeholder="Tìm theo tên, MSSV, email..." />
             <select id="cohortFilterSelect">
-              <option value="">All Cohorts</option>
+              <option value="">Tất cả khóa</option>
               <option value="K70">K70</option>
               <option value="K69">K69</option>
+              <option value="K68">K68</option>
+              <option value="K67">K67</option>
             </select>
             <div class="tool-actions">
-              <button id="exportCsvBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-csv"></i> CSV</button>
-              <button id="exportXlsxBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-excel"></i> XLSX</button>
+              <button id="exportCsvBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-csv"></i> Xuất CSV</button>
+              <button id="exportXlsxBtn" class="btn btn-secondary" type="button"><i class="fas fa-file-excel"></i> Xuất Excel</button>
             </div>
           </div>
 
@@ -582,13 +580,13 @@
             <table>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Code</th>
-                  <th>Cohort</th>
-                  <th>Building</th>
-                  <th>Floor</th>
-                  <th>Room</th>
-                  <th>Bed</th>
+                  <th>Họ tên</th>
+                  <th>MSSV</th>
+                  <th>Khóa</th>
+                  <th>KTX</th>
+                  <th>Tầng</th>
+                  <th>Phòng</th>
+                  <th>Giường</th>
                 </tr>
               </thead>
               <tbody id="studentTableBody">
@@ -599,10 +597,10 @@
 
           <label class="three-d-toggle">
             <input type="checkbox" id="threeDToggle" />
-            Optional 3D room block view
+            Xem sơ đồ phòng 3D (tùy chọn)
           </label>
           <div id="threeDZone" class="three-d-zone">
-            <div style="font-size:.82rem; color:var(--muted);">Visual block map for selected floor (optional).</div>
+            <div style="font-size:.82rem; color:var(--muted);">Sơ đồ khối phòng theo tầng (tùy chọn).</div>
             <div id="threeDBlocks" class="three-d-blocks"></div>
           </div>
         </div>

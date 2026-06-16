@@ -27,14 +27,14 @@
         }
         
         .header {
-            border-bottom: 2px solid #007bff;
+            border-bottom: 1px solid #E5E7EB;
             padding-bottom: 20px;
             margin-bottom: 30px;
         }
         
         .header h1 {
             color: #333;
-            font-size: 28px;
+            1.3rem;
             margin-bottom: 10px;
         }
         
@@ -45,16 +45,20 @@
         
         .back-btn {
             display: inline-block;
-            padding: 8px 16px;
-            background: #6c757d;
-            color: white;
+            padding: 7px 14px;
+            background: #F3F4F6;
+            color: #374151;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 6px;
+            border: 1px solid #E5E7EB;
+            font-size: 13px;
+            font-weight: 500;
             margin-bottom: 20px;
         }
-        
+
         .back-btn:hover {
-            background: #5a6268;
+            background: #E5E7EB;
+            color: #111827;
         }
         
         .stats-grid {
@@ -65,23 +69,23 @@
         }
         
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #C8102E;
             color: white;
-            padding: 20px;
+            padding: 16px 20px;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
-        
+
         .stat-card.success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            background: #15803D;
         }
-        
+
         .stat-card.warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            background: #D97706;
         }
-        
+
         .stat-card.info {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            background: #A20D25;
         }
         
         .stat-card .label {
@@ -140,23 +144,27 @@
         }
         
         .status-badge.sufficient {
-            background: #d4edda;
-            color: #155724;
+            background: #F3F4F6;
+            color: #374151;
+            border: 1px solid #E5E7EB;
         }
-        
+
         .status-badge.deficit {
-            background: #f8d7da;
-            color: #721c24;
+            background: #FFF0F2;
+            color: #991B1B;
+            border: 1px solid #FECDD3;
         }
-        
+
         .status-badge.surplus {
-            background: #d1ecf1;
-            color: #0c5460;
+            background: #F3F4F6;
+            color: #374151;
+            border: 1px solid #E5E7EB;
         }
-        
+
         .status-badge.available {
-            background: #fff3cd;
-            color: #856404;
+            background: #FFFBEB;
+            color: #92400E;
+            border: 1px solid #FDE68A;
         }
         
         .progress-bar {
@@ -170,16 +178,16 @@
         
         .progress-fill {
             height: 100%;
-            background: #007bff;
+            background: #C8102E;
             transition: width 0.3s ease;
         }
-        
+
         .progress-fill.full {
-            background: #28a745;
+            background: #6B7280;
         }
-        
+
         .progress-fill.over {
-            background: #dc3545;
+            background: #DC2626;
         }
     </style>
 </head>

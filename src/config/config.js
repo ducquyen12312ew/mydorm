@@ -10,6 +10,12 @@ const mongoUri =
 mongoose.connect(mongoUri, {
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
+}).catch((err) => {
+    // Surface fatal connection errors (bad URI format, auth failure) instead of
+    // letting them become unhandled rejections that crash the process silently.
+    console.error('[FATAL] MongoDB initial connection failed:', err.message);
+    console.error('Check MONGO_URI / MONGODB_URI in your .env file.');
+    process.exit(1);
 });
 
 mongoose.connection.on('connected', () => {
@@ -52,9 +58,31 @@ const StudentSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        required: false
+    },
+    oauthProvider: {
+        type: String,
+        enum: ['google', 'microsoft', null],
+        default: null
+    },
+    oauthId: {
+        type: String,
+        sparse: true
+    },
+    emailVerified: {
+        type: Boolean,
+        default: false
+    },
+    onboardingComplete: {
+        type: Boolean,
+        default: false
     },
     faculty: {
+        type: String,
+        trim: true
+    },
+    // Lớp sinh hoạt / mã lớp (vd "IT1-03 K70"). Hiển thị trên trang hồ sơ.
+    studentClass: {
         type: String,
         trim: true
     },
@@ -89,6 +117,24 @@ const StudentSchema = new mongoose.Schema({
         enum: ['user', 'admin'],
         default: 'user'
     },
+    isSuperAdmin: {
+        type: Boolean,
+        default: false
+    },
+    isTestAccount: {
+        type: Boolean,
+        default: false
+    },
+    isProtected: {
+        type: Boolean,
+        default: false,
+        index: true
+    },
+    language: {
+        type: String,
+        enum: ['vi', 'en', 'zh', 'ko', 'ru', 'th', 'lo', 'km'],
+        default: 'vi'
+    },
     dormitoryId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'dormitories'
@@ -104,6 +150,15 @@ const StudentSchema = new mongoose.Schema({
         type: Object,
         default: {}
     },
+    // Student profile fields — stored in production, used by simulation engine for scoring
+    enrollmentYear: { type: Number },
+    province:       { type: String },
+    distanceToHanoi: { type: Number },
+    familySituation: { type: String, enum: ['poor', 'average', 'wealthy', null], default: null },
+    ethnicity:       { type: String },
+    priorityPolicies: { type: Object, default: {} },
+    violationHistory: { type: String, enum: ['none', 'minor', 'major', 'critical', null], default: null },
+    dormHistory:      { type: String, enum: ['never_stayed', 'good_history', 'bad_history', null], default: null },
     favoriteRoomIds: {
         type: [{ type: mongoose.Schema.Types.ObjectId }],
         default: []
@@ -273,6 +328,37 @@ const DormitorySchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    coverImage: {
+        type: String,
+        default: ''
+    },
+    images: {
+        type: [String],
+        default: []
+    },
+    videos: {
+        type: [String],
+        default: []
+    },
+    media: {
+        type: [{
+            type: { type: String, enum: ['image', 'video', 'youtube', 'vr360', 'tour360', 'model3d'], default: 'image' },
+            url: String,
+            publicId: String,
+            thumbnail: String,
+            duration: Number,
+            title: String
+        }],
+        default: []
+    },
+    virtualTour: {
+        type: String,
+        default: ''
+    },
+    description: {
+        type: String,
+        default: ''
+    },
     createdAt: {
         type: Date,
         default: Date.now
@@ -386,7 +472,6 @@ const PendingApplicationSchema = new mongoose.Schema({
         enum: [
             'pending',
             'pending_review',
-            'approved_waiting_payment',
             'approved',
             'rejected',
             'waitlist',
@@ -473,9 +558,19 @@ const NotificationSchema = new mongoose.Schema({
         enum: ['low', 'normal', 'high'],
         default: 'normal'
     },
+    // Semantic category for mobile filtering/deep-linking (optional, backward-compat)
+    category: {
+        type: String,
+        enum: ['allocation', 'registration', 'maintenance', 'violation', 'payment', 'system', 'announcement'],
+        default: null
+    },
     expiresAt: {
         type: Date
     },
+    deletedBy: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'students'
+    }],
     createdAt: {
         type: Date,
         default: Date.now
@@ -557,6 +652,15 @@ const AcademicWindowSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+StudentSchema.index({ studentId: 1 }, { unique: true, sparse: true });
+StudentSchema.index({ email: 1 }, { sparse: true });
+StudentSchema.index({ role: 1 });
+PendingApplicationSchema.index({ studentId: 1, status: 1 });
+PendingApplicationSchema.index({ dormitoryId: 1, status: 1 });
+NotificationSchema.index({ targetUsers: 1, createdAt: -1 });
+NotificationSchema.index({ isGlobal: 1, targetRole: 1, createdAt: -1 });
+ActivityLogSchema.index({ userId: 1, createdAt: -1 });
 
 const StudentCollection = mongoose.model('students', StudentSchema);
 const DormitoryCollection = mongoose.model('dormitories', DormitorySchema);

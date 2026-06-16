@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yêu cầu chuyển phòng — Admin KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #C8102E; --red-dark: #9E0D25;
+      --bg: #F5F6F8; --card: #FFFFFF;
+      --border: #EAECF0; --text: #2D3748; --muted: #9AA3AD;
+      --success: #6BAF95; --warning: #C8AA60; --info: #6B9FC8; --danger: #E05252;
+      --radius: 12px; --shadow: 0 1px 6px rgba(0,0,0,.04);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .admin-content { min-height: 100vh; }
+    .page-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: .75rem; }
+    .page-header h1 { font-size: 1.3rem; font-weight: 700; }
+    .page-header h1 span { color: var(--red); }
+
+    /* Stats row */
+    .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: var(--card); border-radius: var(--radius); padding: 1rem 1.25rem; border: 1px solid var(--border); }
+    .stat-card .label { font-size: .78rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+    .stat-card .value { font-size: 2rem; font-weight: 800; margin-top: .25rem; }
+    .stat-card.pending .value { color: var(--warning); }
+    .stat-card.approved .value { color: var(--info); }
+    .stat-card.done .value { color: var(--success); }
+    .stat-card.rejected .value { color: var(--danger); }
+
+    /* Filter tabs */
+    .filter-bar { display: flex; gap: .5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-btn { padding: .4rem .9rem; border-radius: 20px; border: 1px solid var(--border); background: var(--card);
+      font-size: .82rem; font-weight: 600; color: var(--muted); cursor: pointer; transition: all .2s; text-decoration: none; }
+    .filter-btn:hover, .filter-btn.active { background: var(--red); color: #fff; border-color: var(--red); }
+
+    /* Table */
+    .table-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #F8F9FB; font-size: .78rem; font-weight: 700; color: var(--muted); text-transform: uppercase; padding: .75rem 1rem; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: .85rem 1rem; border-bottom: 1px solid var(--border); font-size: .88rem; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #FAFBFC; }
+
+    .badge { display: inline-flex; align-items: center; gap: .3rem; padding: .25rem .65rem; border-radius: 20px; font-size: .75rem; font-weight: 700; }
+    .badge-pending  { background: #FEF3C7; color: #92400E; }
+    .badge-approved { background: #DBEAFE; color: #1E40AF; }
+    .badge-completed { background: #D1FAE5; color: #065F46; }
+    .badge-rejected  { background: #FEE2E2; color: #991B1B; }
+    .badge-cancelled { background: #F3F4F6; color: #6B7280; }
+
+    .btn-sm { display: inline-flex; align-items: center; gap: .3rem; padding: .35rem .75rem; border-radius: 7px; font-size: .78rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; }
+    .btn-primary { background: var(--red); color: #fff; }
+    .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
+    .btn-ghost:hover { border-color: var(--red); color: var(--red); }
+    .btn-primary:hover { background: var(--red-dark); }
+
+    .pagination { display: flex; align-items: center; gap: .5rem; padding: 1rem; justify-content: flex-end; }
+    .page-link { padding: .35rem .7rem; border: 1px solid var(--border); border-radius: 7px; font-size: .82rem; color: var(--text); text-decoration: none; }
+    .page-link.active { background: var(--red); color: #fff; border-color: var(--red); }
+    .empty { text-align: center; padding: 3rem; color: var(--muted); }
+    .empty i { font-size: 2rem; display: block; margin-bottom: .75rem; }
+    @media (max-width: 900px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'requests' }) %>
+<div class="admin-content">
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1>Yêu cầu <span>Chuyển phòng</span></h1>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Quản lý và xử lý tất cả yêu cầu chuyển phòng của sinh viên</p>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-row" id="statsRow">
+    <div class="stat-card pending"><div class="label">Đang chờ</div><div class="value" id="sPending">…</div></div>
+    <div class="stat-card approved"><div class="label">Đã duyệt</div><div class="value" id="sApproved">…</div></div>
+    <div class="stat-card done"><div class="label">Hoàn thành</div><div class="value" id="sDone">…</div></div>
+    <div class="stat-card rejected"><div class="label">Từ chối</div><div class="value" id="sRejected">…</div></div>
+  </div>
+
+  <!-- Filter tabs -->
+  <div class="filter-bar">
+    <% const filters = [
+      {key:'all',label:'Tất cả'},
+      {key:'pending',label:'Đang chờ'},
+      {key:'approved',label:'Đã duyệt'},
+      {key:'completed',label:'Hoàn thành'},
+      {key:'rejected',label:'Từ chối'},
+      {key:'cancelled',label:'Đã huỷ'}
+    ]; %>
+    <% filters.forEach(f => { %>
+      <a href="/admin/room-transfer?status=<%= f.key %>&page=1"
+         class="filter-btn <%= filter === f.key ? 'active' : '' %>"><%= f.label %></a>
+    <% }) %>
+  </div>
+
+  <!-- Table -->
+  <div class="table-card">
+    <table>
+      <thead>
+        <tr>
+          <th>Sinh viên</th>
+          <th>Phòng hiện tại</th>
+          <th>Yêu cầu</th>
+          <th>Lý do</th>
+          <th>Ngày gửi</th>
+          <th>Trạng thái</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (requests.length === 0) { %>
+          <tr><td colspan="7" class="empty"><i class="fas fa-inbox"></i>Không có yêu cầu nào</td></tr>
+        <% } %>
+        <% requests.forEach(r => { %>
+          <tr>
+            <td>
+              <strong style="display:block"><%= r.studentName %></strong>
+              <span style="color:var(--muted);font-size:.78rem"><%= r.studentMSSV || '' %></span>
+            </td>
+            <td><%= r.fromDormitoryName || '—' %> / Phòng <%= r.fromRoomNumber || '—' %></td>
+            <td>
+              <% if (r.preferredBuilding) { %><div style="font-size:.8rem">KTX: <%= r.preferredBuilding %></div><% } %>
+              <div style="font-size:.8rem;color:var(--muted)">Loại: <%= r.preferredRoomType || 'Bất kỳ' %></div>
+            </td>
+            <td style="max-width:200px">
+              <span style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">
+                <%= r.reason %>
+              </span>
+            </td>
+            <td style="white-space:nowrap;color:var(--muted);font-size:.82rem">
+              <%= new Date(r.createdAt).toLocaleDateString('vi-VN') %>
+            </td>
+            <td>
+              <span class="badge badge-<%= r.status %>">
+                <% const labels = {pending:'Chờ duyệt',approved:'Đã duyệt',completed:'Hoàn thành',rejected:'Từ chối',cancelled:'Đã huỷ'} %>
+                <%= labels[r.status] || r.status %>
+              </span>
+            </td>
+            <td>
+              <a href="/admin/room-transfer/<%= r._id %>" class="btn-sm btn-ghost">
+                <i class="fas fa-eye"></i> Chi tiết
+              </a>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <span style="font-size:.82rem;color:var(--muted)"><%= total %> yêu cầu</span>
+      <% for (let p = 1; p <= totalPages; p++) { %>
+        <a href="/admin/room-transfer?status=<%= filter %>&page=<%= p %>"
+           class="page-link <%= p === page ? 'active' : '' %>"><%= p %></a>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+
+</div>
+</div>
+<script>
+  fetch('/admin/api/room-transfer/stats')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('sPending').textContent  = d.pending;
+      document.getElementById('sApproved').textContent = d.approved;
+      document.getElementById('sDone').textContent     = d.completed;
+      document.getElementById('sRejected').textContent = d.rejected;
+    }).catch(() => {});
+</script>
+</body>
+</html>

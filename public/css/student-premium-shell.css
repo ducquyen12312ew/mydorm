@@ -10,14 +10,7 @@
     --student-shadow-strong: 0 26px 52px rgba(18, 20, 26, 0.14);
 }
 
-.header .header-content {
-    width: min(1220px, 92%);
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1.25rem;
-}
+/* .header-content wrapper removed — navbar uses direct flex layout like startuphome */
 
 .overlay {
     position: fixed;
@@ -83,7 +76,7 @@ body.student-shell-page .container {
     border-radius: 999px;
     background: rgba(192, 129, 87, 0.1);
     color: var(--student-brand-strong);
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -92,7 +85,7 @@ body.student-shell-page .container {
 
 .student-page-title {
     margin-top: 1rem;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: clamp(2rem, 3vw, 3.25rem);
     line-height: 1.08;
     letter-spacing: -0.03em;
@@ -124,7 +117,7 @@ body.student-shell-page .container {
 .student-page-meta-card strong {
     display: block;
     margin-bottom: 0.28rem;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.88rem;
     letter-spacing: 0.05em;
     text-transform: uppercase;
@@ -228,7 +221,7 @@ body.student-shell-page .page-title {
 }
 
 .student-accent-card h3 {
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: 1rem;
     margin-bottom: 0.4rem;
 }
@@ -267,7 +260,7 @@ body.student-shell-page .page-title {
     background: linear-gradient(135deg, var(--student-brand), var(--student-brand-strong));
     color: #fff;
     text-decoration: none;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: 0.03em;
 }
@@ -291,10 +284,6 @@ body.student-shell-page .page-title {
 }
 
 @media (max-width: 768px) {
-    .header .header-content {
-        width: calc(100% - 1.8rem);
-    }
-
     .student-page-hero {
         margin-top: 92px;
         padding: 1.45rem 1.2rem;
@@ -359,7 +348,7 @@ body.student-shell-page .nav-link {
     position: relative !important;
     text-transform: uppercase !important;
     letter-spacing: 0.08em !important;
-    font-family: 'Montserrat', sans-serif !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
 }
 
 body.student-shell-page .nav-link::after {
@@ -390,20 +379,33 @@ body.student-shell-page .user-profile {
     align-items: center !important;
     margin-left: auto !important;
     position: relative !important;
+    flex-shrink: 0 !important;
+    gap: 0 !important;
 }
 
 body.student-shell-page .avatar-container {
     display: flex !important;
     align-items: center !important;
-    gap: 0.8rem !important;
+    gap: 12px !important;
     text-decoration: none !important;
     cursor: pointer !important;
     color: var(--student-ink) !important;
+    padding: 6px 12px 6px 6px !important;
+    border-radius: 30px !important;
+    white-space: nowrap !important;
+    transition: background 0.18s ease !important;
+    user-select: none !important;
+}
+
+body.student-shell-page .avatar-container:hover {
+    background: rgba(192, 129, 87, 0.08) !important;
 }
 
 body.student-shell-page .avatar {
     width: 40px !important;
     height: 40px !important;
+    min-width: 40px !important;
+    min-height: 40px !important;
     border-radius: 50% !important;
     background: linear-gradient(135deg, var(--student-brand), var(--student-brand-strong)) !important;
     color: #fff !important;
@@ -412,6 +414,17 @@ body.student-shell-page .avatar {
     justify-content: center !important;
     font-weight: 700 !important;
     font-size: 1.2rem !important;
+    flex-shrink: 0 !important;
+}
+
+body.student-shell-page .user-name {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 150px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: var(--student-ink) !important;
 }
 
 body.student-shell-page .dropdown-menu {

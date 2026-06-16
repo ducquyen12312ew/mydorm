@@ -3,15 +3,16 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { 
-    DormitoryCollection, 
-    PendingApplicationCollection, 
-    StudentCollection, 
-    ActivityLogCollection,
-    AcademicWindowCollection 
+const {
+    DormitoryCollection,
+    PendingApplicationCollection,
+    StudentCollection,
+    ActivityLogCollection
 } = require('../../config/config');
+const AllocationCycleModel = require('../../schemas/AllocationCycleSchema');
 const { logger } = require('../../config/logger');
 const { calculatePriorityScore } = require('../../utils/priorityCalculator');
+const { sendNotificationOnEvent } = require('../../utils/notificationHelper');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -81,6 +82,12 @@ router.get('/student/profile', requireLogin, async (req, res) => {
             });
         }
 
+        let dormName = null;
+        if (student.dormitoryId) {
+            const dorm = await DormitoryCollection.findById(student.dormitoryId, { name: 1 }).lean();
+            dormName = dorm ? dorm.name : null;
+        }
+
         res.json({
             success: true,
             student: {
@@ -88,8 +95,17 @@ router.get('/student/profile', requireLogin, async (req, res) => {
                 name: student.name,
                 email: student.email,
                 phone: student.phone,
+                // Trang hồ sơ đọc major/cohort/class — map từ field chuẩn của schema
+                major: student.major || student.faculty || '',
+                cohort: student.cohort || student.academicYear || '',   // khóa, vd "K70"
+                class: student.studentClass || student.class || '',
                 faculty: student.faculty || '',
-                class: student.class || '',
+                gender: student.gender || null,
+                roomNumber: student.roomNumber || null,
+                dormName,
+                enrollmentYear: student.enrollmentYear || null,
+                createdAt: student.createdAt || null,
+                // năm học (study year, vd "1") suy từ MSSV — giữ lại cho tương thích
                 academicYear: deriveAcademicYear(student.studentId) || ''
             }
         });
@@ -127,20 +143,26 @@ router.get('/registration/my-application', requireLogin, async (req, res) => {
 // API lấy danh sách KTX cho đăng ký
 router.get('/dormitories/registration', async (req, res) => {
     try {
-        // Kiểm tra cửa sổ đăng ký mở
-        const now = new Date();
-        const academicWindows = await AcademicWindowCollection.find({
-            startDate: { $lte: now },
-            endDate: { $gte: now },
-            status: 'active'
+        // Use AllocationCycleModel as the authoritative window source (same as POST /registration)
+        const allCycles = await AllocationCycleModel.find({}).lean();
+        logger.info('Student registration GET: total AllocationCycles in DB', { count: allCycles.length });
+        allCycles.forEach(c => {
+            logger.info('Student registration cycle detail', {
+                _id: c._id,
+                academicYear: c.academicYear,
+                status: c.status,
+                registrationStart: c.registrationStart,
+                registrationEnd: c.registrationEnd,
+                policyId: c.policyId || null
+            });
         });
 
-        logger.info('Student registration checking academic windows', { now });
-        logger.info('Student registration active windows found', { count: academicWindows.length });
+        // Find any RUNNING cycle (admin explicitly activated it)
+        const runningCycles = allCycles.filter(c => c.status === 'RUNNING');
+        logger.info('Student registration GET: RUNNING cycles found', { count: runningCycles.length });
 
-        // Nếu không có cửa sổ đăng ký nào đang mở
-        if (academicWindows.length === 0) {
-            logger.info('Student registration no open windows');
+        if (runningCycles.length === 0) {
+            logger.info('Student registration GET: no RUNNING AllocationCycles');
             return res.status(200).json({
                 openForRegistration: false,
                 dormitories: [],
@@ -148,11 +170,14 @@ router.get('/dormitories/registration', async (req, res) => {
             });
         }
 
-        const currentWindow = academicWindows[0];
-        const currentAcademicYears = academicWindows.map(aw => aw.academicYear);
-        logger.info('Student registration active academic years', { currentAcademicYears });
+        const currentCycle = runningCycles[0];
+        logger.info('Student registration GET: selected cycle', {
+            _id: currentCycle._id,
+            academicYear: currentCycle.academicYear,
+            status: currentCycle.status,
+            policyId: currentCycle.policyId || null
+        });
 
-        // Lấy danh sách KTX có sẵn
         const dormitories = await DormitoryCollection.find({
             'details.available': true
         }, {
@@ -166,23 +191,25 @@ router.get('/dormitories/registration', async (req, res) => {
             imageUrl: 1
         });
 
-        logger.info(`Fetched ${dormitories.length} available dormitories for registration`);
-        
+        logger.info(`Student registration GET: fetched ${dormitories.length} available dormitories`);
+
         res.status(200).json({
             openForRegistration: true,
-            academicYears: currentAcademicYears,
+            academicYear: currentCycle.academicYear,
+            academicYears: runningCycles.map(c => c.academicYear),
             window: {
-                _id: currentWindow._id,
-                academicYear: currentWindow.academicYear,
-                startDate: currentWindow.startDate,
-                endDate: currentWindow.endDate,
-                allowedAcademicYears: currentWindow.allowedAcademicYears || ['1', '2', '3', '4', '5', '6']
+                _id: currentCycle._id,
+                academicYear: currentCycle.academicYear,
+                status: currentCycle.status,
+                startDate: currentCycle.registrationStart,
+                endDate: currentCycle.registrationEnd,
+                allowedAcademicYears: currentCycle.allowedAcademicYears || ['1', '2', '3', '4', '5', '6']
             },
-            dormitories: dormitories,
-            allowedAcademicYears: currentWindow.allowedAcademicYears || ['1', '2', '3', '4', '5', '6']
+            dormitories,
+            allowedAcademicYears: currentCycle.allowedAcademicYears || ['1', '2', '3', '4', '5', '6']
         });
     } catch (error) {
-        console.error('Error fetching dormitories for registration:', error);
+        logger.error('Error fetching dormitories for registration', { error: error.message });
         res.status(500).json({ error: 'Không thể lấy dữ liệu ký túc xá' });
     }
 });
@@ -283,10 +310,9 @@ router.post('/registration', requireLogin, upload.fields([
         
         // Kiểm tra cửa sổ đăng ký
         const now = new Date();
-        const academicWindow = await AcademicWindowCollection.findOne({
-            startDate: { $lte: now },
-            endDate: { $gte: now },
-            status: 'active'
+        // Check for any RUNNING window — admin explicitly activates windows, no date range check needed
+        const academicWindow = await AllocationCycleModel.findOne({
+            status: 'RUNNING'
         });
         
         if (!academicWindow) {
@@ -449,14 +475,6 @@ router.post('/registration', requireLogin, upload.fields([
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_new_registration', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: newApplication._id
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 
@@ -470,86 +488,9 @@ router.post('/registration', requireLogin, upload.fields([
     }
 });
 
-// API xác nhận thanh toán
-router.post('/registration/payment/confirm', requireLogin, async (req, res) => {
-    try {
-        // Lấy thông tin từ session
-        const userId = req.session.userId;
-        const student = await StudentCollection.findById(userId);
-        
-        if (!student) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Không tìm thấy thông tin sinh viên' 
-            });
-        }
-        
-        // Tìm đơn đăng ký đang chờ thanh toán
-        const application = await PendingApplicationCollection.findOne({
-            studentId: student.studentId,
-            status: 'approved_waiting_payment'
-        });
-        
-        if (!application) {
-            return res.status(404).json({ 
-                success: false, 
-                error: 'Không tìm thấy đơn đăng ký đang chờ thanh toán' 
-            });
-        }
-        
-        // Lấy thông tin từ body request
-        const { txnRef, method } = req.body;
-        
-        if (!txnRef || !method) {
-            return res.status(400).json({ 
-                success: false, 
-                error: 'Thiếu thông tin thanh toán' 
-            });
-        }
-        
-        // Cập nhật thông tin thanh toán
-        application.payment = {
-            paid: true,
-            txnRef,
-            method,
-            amount: application.paymentAmount || 0,
-            confirmedAt: new Date(),
-            payerNote: req.body.note || ''
-        };
-        
-        await application.save();
-        
-        // Tạo log hoạt động
-        await ActivityLogCollection.create({
-            actorId: student._id,
-            actorRole: 'student',
-            action: 'payment_submitted',
-            meta: { 
-                applicationId: application._id,
-                txnRef,
-                method
-            }
-        });
-        
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_payment_submitted', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: application._id,
-                txnRef,
-                method
-            }, 'admin');
-        }
-        
-        res.status(200).json({ 
-            success: true, 
-            message: 'Xác nhận thanh toán thành công! Chúng tôi sẽ kiểm tra và phản hồi sớm.'
-        });
-    } catch (error) {
-        console.error('Error confirming payment:', error);
-        res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
-    }
+// Payment flow removed
+router.post('/registration/payment/confirm', requireLogin, (req, res) => {
+    res.status(410).json({ success: false, error: 'Payment flow has been removed from this system.' });
 });
 
 // API kiểm tra trạng thái đăng ký
@@ -655,13 +596,8 @@ router.get('/registration/status', requireLogin, async (req, res) => {
             }
         }
         
-        // Kiểm tra các đợt đăng ký đang mở
-        const now = new Date();
-        const openWindows = await AcademicWindowCollection.find({
-            registerOpenAt: { $lte: now },
-            registerCloseAt: { $gte: now }
-        });
-        
+        const openWindows = await AllocationCycleModel.find({ status: 'RUNNING' });
+
         res.status(200).json({
             success: true,
             student: {
@@ -680,8 +616,8 @@ router.get('/registration/status', requireLogin, async (req, res) => {
             } : null,
             applications: applicationDetails,
             openRegistrationWindows: openWindows.map(w => ({
-                year: w.year,
-                openUntil: w.registerCloseAt
+                year: w.academicYear,
+                openUntil: w.registrationEnd
             }))
         });
     } catch (error) {
@@ -723,7 +659,7 @@ router.post('/registration/:id/cancel', requireLogin, async (req, res) => {
         }
         
         // Kiểm tra trạng thái đơn
-        const allowedStatuses = ['pending_review', 'approved_waiting_payment', 'waitlist'];
+        const allowedStatuses = ['pending_review', 'approved', 'waitlist'];
         if (!allowedStatuses.includes(application.status)) {
             return res.status(400).json({ 
                 success: false, 
@@ -756,15 +692,6 @@ router.post('/registration/:id/cancel', requireLogin, async (req, res) => {
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_registration_cancelled', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: application._id,
-                reason: req.body.reason || 'Hủy bởi sinh viên'
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 
@@ -839,16 +766,6 @@ router.post('/registration/:id/request-checkout', requireLogin, async (req, res)
             }
         });
         
-        // Gửi thông báo cho admin (nếu có)
-        if (typeof global.sendNotificationOnEvent === 'function') {
-            await global.sendNotificationOnEvent('admin_checkout_requested', null, {
-                studentName: student.name,
-                studentId: student.studentId,
-                applicationId: application._id,
-                reason: req.body.reason || 'Yêu cầu trả phòng',
-                scheduledDate: req.body.scheduledDate
-            }, 'admin');
-        }
         
         res.status(200).json({ 
             success: true, 

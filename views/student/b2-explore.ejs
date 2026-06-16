@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>B2 Free Explore – Khảo sát tọa độ</title>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0c12;
+      color: #f0f2f7;
+      font-family: 'Courier New', monospace;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+
+    /* ── Canvas ── */
+    #canvas {
+      position: fixed;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── Loading ── */
+    #loading-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: #0a0c12;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    #loading-screen h2 { font-size: 1.4rem; color: #e63946; }
+    .ld-bar-wrap { width: 280px; height: 4px; background: rgba(255,255,255,.1); border-radius: 2px; overflow: hidden; }
+    .ld-bar { height: 100%; width: 0; background: #e63946; border-radius: 2px; transition: width .2s; }
+    #ld-msg { font-size: .8rem; color: rgba(240,242,247,.6); }
+
+    /* ── Pointer Lock Overlay ── */
+    #lock-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 900;
+      background: rgba(0,0,0,.7);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      cursor: pointer;
+    }
+    #lock-overlay h2 { font-size: 1.6rem; }
+    #lock-overlay p  { color: rgba(240,242,247,.7); font-size: .9rem; }
+    #lock-overlay .hint { font-size: .75rem; color: rgba(240,242,247,.4); }
+    #lock-overlay.hidden { display: none; }
+
+    /* ── Back button ── */
+    #btn-back {
+      position: fixed;
+      top: 16px;
+      left: 16px;
+      z-index: 800;
+      background: rgba(20,20,28,.85);
+      border: 1px solid rgba(255,255,255,.12);
+      color: #f0f2f7;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .85rem;
+      backdrop-filter: blur(10px);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background .15s;
+    }
+    #btn-back:hover { background: rgba(230,57,70,.25); border-color: #e63946; }
+
+    /* ── Mode label ── */
+    #mode-label {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 800;
+      background: rgba(230,57,70,.18);
+      border: 1px solid rgba(230,57,70,.4);
+      color: #e63946;
+      padding: 6px 18px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    /* ── Debug Panel ── */
+    #debug-panel {
+      position: fixed;
+      top: 60px;
+      right: 16px;
+      z-index: 800;
+      background: rgba(10,12,18,.88);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 14px 16px;
+      min-width: 210px;
+      backdrop-filter: blur(12px);
+      font-size: .78rem;
+      line-height: 1.7;
+      pointer-events: auto;
+    }
+    #debug-panel .dbg-title {
+      font-size: .7rem;
+      color: #4fc3f7;
+      font-weight: 700;
+      letter-spacing: .1em;
+      margin-bottom: 10px;
+      border-bottom: 1px solid rgba(79,195,247,.2);
+      padding-bottom: 6px;
+    }
+    #debug-panel .dbg-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    #debug-panel .dbg-label { color: rgba(240,242,247,.5); }
+    #debug-panel .dbg-val   { color: #f0f2f7; font-weight: 600; min-width: 70px; text-align: right; }
+
+    #btn-copy {
+      margin-top: 12px;
+      width: 100%;
+      background: rgba(79,195,247,.15);
+      border: 1px solid rgba(79,195,247,.35);
+      color: #4fc3f7;
+      padding: 7px 0;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: .78rem;
+      font-family: 'Courier New', monospace;
+      transition: background .15s;
+    }
+    #btn-copy:hover { background: rgba(79,195,247,.3); }
+    #btn-copy.copied { background: rgba(39,174,96,.2); border-color: rgba(39,174,96,.5); color: #2ecc71; }
+
+    /* ── Crosshair ── */
+    #crosshair {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%);
+      z-index: 700;
+      pointer-events: none;
+      color: rgba(255,255,255,.85);
+      font-size: 20px;
+      line-height: 1;
+      text-shadow: 0 0 4px rgba(0,0,0,.8);
+      display: none;
+    }
+
+    /* ── Controls hint ── */
+    #controls-hint {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 800;
+      background: rgba(10,12,18,.75);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 8px;
+      padding: 8px 20px;
+      font-size: .72rem;
+      color: rgba(240,242,247,.45);
+      pointer-events: none;
+      display: none;
+      gap: 20px;
+      white-space: nowrap;
+    }
+    #controls-hint span { color: rgba(240,242,247,.7); }
+  </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading-screen">
+  <h2>Đang tải phòng B2…</h2>
+  <div class="ld-bar-wrap"><div class="ld-bar" id="ld-bar"></div></div>
+  <div id="ld-msg">Khởi tạo Three.js…</div>
+</div>
+
+<!-- Pointer Lock Overlay -->
+<div id="lock-overlay">
+  <h2>🔍 B2 Free Explore</h2>
+  <p>Nhấn vào đây để bắt đầu khảo sát</p>
+  <div class="hint">WASD di chuyển &nbsp;|&nbsp; Chuột xoay góc nhìn &nbsp;|&nbsp; ESC thoát</div>
+  <div class="hint">Space / E → log tọa độ ra console</div>
+</div>
+
+<!-- Canvas -->
+<canvas id="canvas"></canvas>
+
+<!-- Back button -->
+<a href="/vr-tour" id="btn-back">← Quay lại</a>
+
+<!-- Mode label -->
+<div id="mode-label">🔍 Free Explore – B2</div>
+
+<!-- Debug Panel -->
+<div id="debug-panel">
+  <div class="dbg-title">[ DEBUG ]</div>
+  <div class="dbg-row"><span class="dbg-label">X</span><span class="dbg-val" id="d-x">—</span></div>
+  <div class="dbg-row"><span class="dbg-label">Y</span><span class="dbg-val" id="d-y">—</span></div>
+  <div class="dbg-row"><span class="dbg-label">Z</span><span class="dbg-val" id="d-z">—</span></div>
+  <div style="margin: 6px 0; border-top: 1px solid rgba(255,255,255,.06);"></div>
+  <div class="dbg-row"><span class="dbg-label">RotX</span><span class="dbg-val" id="d-rx">—</span></div>
+  <div class="dbg-row"><span class="dbg-label">RotY</span><span class="dbg-val" id="d-ry">—</span></div>
+  <div class="dbg-row"><span class="dbg-label">RotZ</span><span class="dbg-val" id="d-rz">—</span></div>
+  <button id="btn-copy">📋 Copy Position</button>
+</div>
+
+<!-- Crosshair -->
+<div id="crosshair">+</div>
+
+<!-- Controls hint -->
+<div id="controls-hint" style="display:flex;">
+  <span>W A S D</span> di chuyển &nbsp;|&nbsp;
+  <span>Chuột</span> nhìn &nbsp;|&nbsp;
+  <span>Space / E</span> log tọa độ &nbsp;|&nbsp;
+  <span>ESC</span> mở khóa chuột
+</div>
+
+<!-- Three.js + GLTFLoader via importmap -->
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+
+<script type="module">
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+const MODEL_URL = '/models/roomm.glb';
+
+// ── DOM refs ──
+const canvas       = document.getElementById('canvas');
+const loadingEl    = document.getElementById('loading-screen');
+const ldBar        = document.getElementById('ld-bar');
+const ldMsg        = document.getElementById('ld-msg');
+const lockOverlay  = document.getElementById('lock-overlay');
+const crosshair    = document.getElementById('crosshair');
+const dX  = document.getElementById('d-x');
+const dY  = document.getElementById('d-y');
+const dZ  = document.getElementById('d-z');
+const dRX = document.getElementById('d-rx');
+const dRY = document.getElementById('d-ry');
+const dRZ = document.getElementById('d-rz');
+const btnCopy = document.getElementById('btn-copy');
+
+// ── Scene ──
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = false;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x1a1c24);
+scene.fog = new THREE.Fog(0x1a1c24, 30, 80);
+
+const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.05, 200);
+
+// ── Lighting ──
+const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+scene.add(ambient);
+const dirLight = new THREE.DirectionalLight(0xffffff, 1.0);
+dirLight.position.set(5, 10, 5);
+scene.add(dirLight);
+const fillLight = new THREE.DirectionalLight(0x8ab4f8, 0.4);
+fillLight.position.set(-5, 3, -5);
+scene.add(fillLight);
+
+// ── Movement state ──
+const keys = { w: false, a: false, s: false, d: false };
+const moveSpeed = 3.5;
+let isLocked = false;
+let clock = new THREE.Clock();
+
+// ── Euler for camera rotation (yaw/pitch) ──
+const euler = new THREE.Euler(0, 0, 0, 'YXZ');
+const PI_2 = Math.PI / 2;
+
+// ── Load GLB ──
+ldMsg.textContent = 'Đang tải model roomm.glb…';
+
+const loader = new GLTFLoader();
+loader.load(
+  MODEL_URL,
+  (gltf) => {
+    const model = gltf.scene;
+    scene.add(model);
+
+    // Count meshes
+    let meshCount = 0;
+    model.traverse(child => { if (child.isMesh) meshCount++; });
+
+    // Bounding box
+    const box = new THREE.Box3().setFromObject(model);
+    const center = box.getCenter(new THREE.Vector3());
+    const size   = box.getSize(new THREE.Vector3());
+
+    console.log('%cGLB loaded ✓', 'color:#4fc3f7;font-weight:bold');
+    console.log('Meshes:', meshCount);
+    console.log('BoundingBox:', { min: box.min, max: box.max });
+    console.log('Size:', { x: size.x.toFixed(2), y: size.y.toFixed(2), z: size.z.toFixed(2) });
+    console.log('Center:', { x: center.x.toFixed(3), y: center.y.toFixed(3), z: center.z.toFixed(3) });
+
+    // ── Spawn at center, eye height 1.6m, look toward -Z from center ──
+    camera.position.set(center.x, 1.6, center.z);
+    euler.set(0, 0, 0);
+    camera.quaternion.setFromEuler(euler);
+
+    // Update loading bar to 100%
+    ldBar.style.width = '100%';
+    ldMsg.textContent = `Model loaded — ${meshCount} meshes`;
+
+    setTimeout(() => {
+      loadingEl.style.display = 'none';
+      lockOverlay.classList.remove('hidden');
+    }, 400);
+  },
+  (xhr) => {
+    if (xhr.total) {
+      const pct = Math.round((xhr.loaded / xhr.total) * 100);
+      ldBar.style.width = pct + '%';
+      ldMsg.textContent = `Đang tải model… ${pct}%`;
+    }
+  },
+  (error) => {
+    console.error('Failed to load roomm.glb', error);
+    ldMsg.textContent = '❌ Lỗi: không tải được roomm.glb';
+    ldMsg.style.color = '#e63946';
+  }
+);
+
+// ── Pointer Lock ──
+lockOverlay.addEventListener('click', () => {
+  canvas.requestPointerLock();
+});
+
+document.addEventListener('pointerlockchange', () => {
+  isLocked = document.pointerLockElement === canvas;
+  if (isLocked) {
+    lockOverlay.classList.add('hidden');
+    crosshair.style.display = 'block';
+  } else {
+    lockOverlay.classList.remove('hidden');
+    crosshair.style.display = 'none';
+  }
+});
+
+document.addEventListener('pointerlockerror', () => {
+  console.warn('Pointer Lock request failed');
+});
+
+// ── Mouse look ──
+document.addEventListener('mousemove', (e) => {
+  if (!isLocked) return;
+  const sens = 0.002;
+  euler.y -= e.movementX * sens;
+  euler.x -= e.movementY * sens;
+  euler.x  = Math.max(-PI_2 + 0.01, Math.min(PI_2 - 0.01, euler.x));
+  camera.quaternion.setFromEuler(euler);
+});
+
+// ── WASD keyboard ──
+document.addEventListener('keydown', (e) => {
+  switch (e.code) {
+    case 'KeyW': case 'ArrowUp':    keys.w = true; break;
+    case 'KeyA': case 'ArrowLeft':  keys.a = true; break;
+    case 'KeyS': case 'ArrowDown':  keys.s = true; break;
+    case 'KeyD': case 'ArrowRight': keys.d = true; break;
+    case 'Space': case 'KeyE':
+      if (isLocked) logPosition();
+      break;
+  }
+});
+document.addEventListener('keyup', (e) => {
+  switch (e.code) {
+    case 'KeyW': case 'ArrowUp':    keys.w = false; break;
+    case 'KeyA': case 'ArrowLeft':  keys.a = false; break;
+    case 'KeyS': case 'ArrowDown':  keys.s = false; break;
+    case 'KeyD': case 'ArrowRight': keys.d = false; break;
+  }
+});
+
+// ── Movement direction vectors ──
+const fwd   = new THREE.Vector3();
+const right = new THREE.Vector3();
+const move  = new THREE.Vector3();
+
+function updateMovement(dt) {
+  if (!isLocked) return;
+  camera.getWorldDirection(fwd);
+  fwd.y = 0;
+  fwd.normalize();
+  right.crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize();
+
+  move.set(0, 0, 0);
+  if (keys.w) move.addScaledVector(fwd,   moveSpeed * dt);
+  if (keys.s) move.addScaledVector(fwd,  -moveSpeed * dt);
+  if (keys.d) move.addScaledVector(right,  moveSpeed * dt);
+  if (keys.a) move.addScaledVector(right, -moveSpeed * dt);
+
+  camera.position.add(move);
+  // Lock Y to eye height (no flying, no floor collision — just survey mode)
+  camera.position.y = 1.6;
+}
+
+// ── Debug helpers ──
+function fmt(n) { return n.toFixed(3); }
+
+function getSnapshot() {
+  return {
+    x:    parseFloat(fmt(camera.position.x)),
+    y:    parseFloat(fmt(camera.position.y)),
+    z:    parseFloat(fmt(camera.position.z)),
+    rotX: parseFloat(fmt(euler.x)),
+    rotY: parseFloat(fmt(euler.y)),
+    rotZ: parseFloat(fmt(euler.z))
+  };
+}
+
+function logPosition() {
+  const s = getSnapshot();
+  console.log('%c[ POSITION SNAPSHOT ]', 'color:#4fc3f7;font-weight:bold', JSON.stringify(s, null, 2));
+}
+
+function updateDebugPanel() {
+  dX.textContent  = fmt(camera.position.x);
+  dY.textContent  = fmt(camera.position.y);
+  dZ.textContent  = fmt(camera.position.z);
+  dRX.textContent = fmt(euler.x);
+  dRY.textContent = fmt(euler.y);
+  dRZ.textContent = fmt(euler.z);
+}
+
+// ── Copy Position button ──
+btnCopy.addEventListener('click', () => {
+  const s = getSnapshot();
+  const text = JSON.stringify(s, null, 2);
+  navigator.clipboard.writeText(text).then(() => {
+    btnCopy.textContent = '✅ Copied!';
+    btnCopy.classList.add('copied');
+    setTimeout(() => {
+      btnCopy.textContent = '📋 Copy Position';
+      btnCopy.classList.remove('copied');
+    }, 1800);
+  }).catch(() => {
+    // Fallback for non-secure context
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btnCopy.textContent = '✅ Copied!';
+    btnCopy.classList.add('copied');
+    setTimeout(() => {
+      btnCopy.textContent = '📋 Copy Position';
+      btnCopy.classList.remove('copied');
+    }, 1800);
+  });
+});
+
+// ── Resize ──
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ── Render loop ──
+function animate() {
+  requestAnimationFrame(animate);
+  const dt = clock.getDelta();
+  updateMovement(dt);
+  updateDebugPanel();
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

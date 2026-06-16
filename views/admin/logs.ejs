@@ -3,557 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhật ký hệ thống</title>
+    <title>Nhật ký hệ thống — KTX HUST Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f7fa;
-            color: #2c3e50;
-        }
-
-        /* Navigation */
-        .navbar {
-            background: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 5px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar-menu a {
-            padding: 10px 20px;
-            color: #2c3e50;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .navbar-menu a:hover {
-            background: #f8f9fa;
-        }
-
-        .navbar-menu a.active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        /* Page Header */
-        .page-header {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .page-header h1 {
-            color: #2c3e50;
-            font-size: 32px;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .page-header-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            color: white;
-        }
-
-        /* Filters */
-        .filters-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .filters-title {
-            font-weight: 600;
-            font-size: 16px;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-
-        .filter-controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .filter-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #95a5a6;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-        }
-
-        .filter-input,
-        .filter-select {
-            padding: 10px 12px;
-            border: 1px solid #e9ecef;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .filter-input:focus,
-        .filter-select:focus {
-            outline: none;
-            border-color: #e74c3c;
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
-        }
-
-        .filter-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #c0392b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
-        }
-
-        .btn-secondary {
-            background: #95a5a6;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #7f8c8d;
-        }
-
-        /* Logs Table */
-        .logs-section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            overflow: auto;
-        }
-
-        .section-title {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 0;
-        }
-
-        table thead tr {
-            background: #f8f9fa;
-            border-bottom: 2px solid #e9ecef;
-        }
-
-        table th {
-            padding: 15px 12px;
-            text-align: left;
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        table td {
-            padding: 12px;
-            border-bottom: 1px solid #e9ecef;
-            font-size: 14px;
-        }
-
-        table tbody tr {
-            transition: all 0.3s;
-        }
-
-        table tbody tr:hover {
-            background: linear-gradient(90deg, #fff5f5 0%, #ffe5e5 50%, #fff5f5 100%);
-        }
-
-        .log-action {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 12px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .log-action.create {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-
-        .log-action.update {
-            background: #e3f2fd;
-            color: #1565c0;
-        }
-
-        .log-action.delete {
-            background: #ffebee;
-            color: #c62828;
-        }
-
-        .log-action.login {
-            background: #f3e5f5;
-            color: #6a1b9a;
-        }
-
-        .log-action.logout {
-            background: #fff3e0;
-            color: #e65100;
-        }
-
-        .log-time {
-            color: #95a5a6;
-            font-size: 13px;
-        }
-
-        .log-user {
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        .log-details {
-            color: #555;
-            max-width: 300px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #999;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            color: #ddd;
-            margin-bottom: 15px;
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .navbar-container {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .navbar-menu {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .page-header {
-                flex-direction: column;
-                gap: 20px;
-                align-items: flex-start;
-            }
-
-            .filter-controls {
-                grid-template-columns: 1fr;
-            }
-
-            .filter-buttons {
-                flex-direction: column;
-            }
-
-            table {
-                font-size: 12px;
-            }
-
-            table th,
-            table td {
-                padding: 8px;
-            }
-
-            .log-details {
-                max-width: 200px;
-            }
-        }
+        *,*::before,*::after{box-sizing:border-box;}
+        body{font-family:'Segoe UI',system-ui,sans-serif;background:#f5f7fa;color:#2c3e50;}
+        .page-header{background:#fff;padding:1.5rem 1.75rem;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,.05);margin-bottom:1.5rem;display:flex;justify-content:space-between;align-items:center;}
+        .page-header h1{font-size:1.2rem;font-weight:700;margin:0;display:flex;align-items:center;gap:10px;}
+        .filter-card{background:#fff;padding:1.25rem 1.75rem;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,.05);margin-bottom:1.5rem;}
+        .filter-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+        .filter-group{display:flex;flex-direction:column;flex:1 1 140px;min-width:120px;}
+        .filter-label{font-size:.72rem;font-weight:700;color:#95a5a6;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+        .filter-input,.filter-select{padding:8px 10px;border:1px solid #e9ecef;border-radius:6px;font-size:.85rem;}
+        .filter-input:focus,.filter-select:focus{outline:none;border-color:#e74c3c;box-shadow:0 0 0 3px rgba(231,76,60,.08);}
+        .logs-card{background:#fff;border-radius:10px;box-shadow:0 2px 4px rgba(0,0,0,.05);overflow:hidden;}
+        .logs-card-header{padding:1rem 1.75rem;border-bottom:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;}
+        .logs-card-header h2{font-size:1rem;font-weight:700;margin:0;}
+        table{width:100%;border-collapse:collapse;}
+        thead tr{background:#f8f9fa;border-bottom:2px solid #e9ecef;}
+        th{padding:11px 12px;text-align:left;font-weight:700;color:#2c3e50;font-size:.76rem;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;}
+        td{padding:10px 12px;border-bottom:1px solid #f0f0f0;font-size:.85rem;vertical-align:middle;}
+        tbody tr:hover{background:#fff5f5;cursor:pointer;}
+        .action-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:4px;font-size:.76rem;font-weight:700;}
+        .a-login{background:#f3e5f5;color:#6a1b9a;}
+        .a-logout{background:#fff3e0;color:#e65100;}
+        .a-register_success,.a-registration_approved,.a-application_approved{background:#e8f5e9;color:#2e7d32;}
+        .a-register_failed,.a-registration_rejected,.a-application_rejected{background:#ffebee;color:#c62828;}
+        .a-room_assigned,.a-room_changed{background:#e3f2fd;color:#1565c0;}
+        .a-profile_updated,.a-password_changed{background:#fff8e1;color:#f57f17;}
+        .a-payment_success{background:#e8f5e9;color:#1b5e20;}
+        .a-payment_failed{background:#ffebee;color:#c62828;}
+        .status-ok{color:#27ae60;font-weight:700;}
+        .status-err{color:#e74c3c;font-weight:700;}
+        .log-detail{max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#555;}
+        .pagination{display:flex;justify-content:center;gap:6px;padding:1.25rem;}
+        .page-btn{padding:5px 11px;border:1px solid #e9ecef;border-radius:5px;cursor:pointer;font-size:.82rem;background:#fff;color:#2c3e50;transition:all .15s;}
+        .page-btn:hover{background:#f0f0f0;}
+        .page-btn.active{background:#e74c3c;color:#fff;border-color:#e74c3c;}
+        .empty-state{text-align:center;padding:3rem;color:#aaa;}
+        .empty-state i{font-size:2.5rem;display:block;margin-bottom:.75rem;color:#ddd;}
+        .spinner-wrap{text-align:center;padding:3rem;}
+        /* Modal */
+        .modal-content{border-radius:12px;}
+        .detail-row{display:flex;gap:8px;margin-bottom:.5rem;font-size:.85rem;}
+        .detail-key{font-weight:700;color:#374151;min-width:110px;flex-shrink:0;}
+        .detail-val{color:#555;word-break:break-all;}
+        pre.payload{background:#f8f9fa;border-radius:6px;padding:.75rem;font-size:.75rem;max-height:220px;overflow:auto;}
+        @media(max-width:768px){.filter-group{flex:1 1 100%;}.page-header{flex-direction:column;gap:12px;align-items:flex-start;}}
     </style>
 </head>
 <body>
     <%- include('navbar', { activeNav: 'logs' }) %>
 
-    <div class="container">
-        <!-- Page Header -->
+    <div class="container" style="max-width:1400px;padding:1.25rem;">
+
         <div class="page-header">
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="page-header-icon">
-                    <i class="fas fa-history"></i>
-                </div>
-                <h1>Nhật ký hệ thống</h1>
+            <h1><i class="fas fa-history" style="color:#e74c3c;"></i> Nhật ký hệ thống</h1>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-secondary btn-sm" id="refreshBtn">
+                    <i class="fas fa-sync-alt me-1"></i> Làm mới
+                </button>
+                <a href="/api/admin/logs/export" class="btn btn-outline-success btn-sm" id="exportBtn">
+                    <i class="fas fa-file-csv me-1"></i> Xuất CSV
+                </a>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="filters-section">
-            <div class="filters-title">Bộ lọc</div>
-            <div class="filter-controls">
+        <div class="filter-card">
+            <div class="filter-row">
+                <div class="filter-group" style="flex:2 1 220px;">
+                    <label class="filter-label">Tìm kiếm</label>
+                    <input type="text" class="filter-input" id="searchInput" placeholder="Tên, MSSV, IP, mô tả...">
+                </div>
                 <div class="filter-group">
-                    <label class="filter-label">Loại hành động</label>
+                    <label class="filter-label">Hành động</label>
                     <select class="filter-select" id="actionFilter">
                         <option value="">Tất cả</option>
-                        <option value="create">Tạo mới</option>
-                        <option value="update">Cập nhật</option>
-                        <option value="delete">Xóa</option>
                         <option value="login">Đăng nhập</option>
                         <option value="logout">Đăng xuất</option>
+                        <option value="register_success">Đăng ký thành công</option>
+                        <option value="register_failed">Đăng ký thất bại</option>
+                        <option value="room_assigned">Phân phòng</option>
+                        <option value="room_changed">Đổi phòng</option>
+                        <option value="application_approved">Duyệt đơn</option>
+                        <option value="application_rejected">Từ chối đơn</option>
+                        <option value="profile_updated">Cập nhật hồ sơ</option>
+                        <option value="password_changed">Đổi mật khẩu</option>
+                        <option value="payment_success">Thanh toán OK</option>
+                        <option value="payment_failed">Thanh toán lỗi</option>
                     </select>
                 </div>
-
                 <div class="filter-group">
-                    <label class="filter-label">Người dùng</label>
-                    <input type="text" class="filter-input" id="userFilter" placeholder="Tìm theo tên...">
+                    <label class="filter-label">Trạng thái</label>
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">Tất cả</option>
+                        <option value="success">Thành công</option>
+                        <option value="error">Lỗi</option>
+                    </select>
                 </div>
-
                 <div class="filter-group">
-                    <label class="filter-label">Ngày bắt đầu</label>
+                    <label class="filter-label">Từ ngày</label>
                     <input type="date" class="filter-input" id="startDate">
                 </div>
-
                 <div class="filter-group">
-                    <label class="filter-label">Ngày kết thúc</label>
+                    <label class="filter-label">Đến ngày</label>
                     <input type="date" class="filter-input" id="endDate">
                 </div>
-
-                <div class="filter-buttons">
-                    <button class="btn btn-primary" onclick="applyFilters()">
-                        <i class="fas fa-search"></i> Tìm kiếm
+                <div class="d-flex gap-2 align-items-end" style="flex-shrink:0;">
+                    <button class="btn btn-danger btn-sm" onclick="applyFilters()">
+                        <i class="fas fa-search me-1"></i> Tìm
                     </button>
-                    <button class="btn btn-secondary" onclick="resetFilters()">
-                        <i class="fas fa-redo"></i> Đặt lại
+                    <button class="btn btn-secondary btn-sm" onclick="resetFilters()">
+                        <i class="fas fa-redo me-1"></i> Reset
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Logs Table -->
-        <div class="logs-section">
-            <h2 class="section-title">Lịch sử hệ thống</h2>
-            
-            <% if (logs && logs.length > 0) { %>
-                <table>
-                    <thead>
-                        <tr>
-                            <th style="width: 150px;">Thời gian</th>
-                            <th style="width: 120px;">Loại</th>
-                            <th style="width: 180px;">Người dùng</th>
-                            <th>Mô tả</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% logs.forEach(function(log, index) { %>
-                            <tr>
-                                <td>
-                                    <div class="log-time">
-                                        <i class="fas fa-clock"></i>
-                                        <% 
-                                        const logDate = log.createdAt || log.timestamp;
-                                        const dateObj = new Date(logDate);
-                                        const formattedDate = dateObj.toLocaleString('vi-VN', {
-                                            year: 'numeric',
-                                            month: '2-digit',
-                                            day: '2-digit',
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                            second: '2-digit'
-                                        });
-                                        %>
-                                        <%= formattedDate %>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="log-action <%= (log.action || '').toLowerCase() %>">
-                                        <% if (log.action === 'CREATE') { %>
-                                            <i class="fas fa-plus"></i> Tạo
-                                        <% } else if (log.action === 'UPDATE') { %>
-                                            <i class="fas fa-pen"></i> Sửa
-                                        <% } else if (log.action === 'DELETE') { %>
-                                            <i class="fas fa-trash"></i> Xóa
-                                        <% } else if (log.action === 'LOGIN') { %>
-                                            <i class="fas fa-sign-in-alt"></i> Đăng nhập
-                                        <% } else if (log.action === 'LOGOUT') { %>
-                                            <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                                        <% } else if (log.action === 'APPROVE') { %>
-                                            <i class="fas fa-check"></i> Duyệt
-                                        <% } else if (log.action === 'REJECT') { %>
-                                            <i class="fas fa-times"></i> Từ chối
-                                        <% } else { %>
-                                            <%= log.action || 'N/A' %>
-                                        <% } %>
-                                    </span>
-                                </td>
-                                <td>
-                                    <div class="log-user">
-                                        <i class="fas fa-user-circle"></i>
-                                        <% 
-                                        let userName = 'N/A';
-                                        if (log.userId && log.userId.name) {
-                                            userName = log.userId.name;
-                                        } else if (log.actor) {
-                                            userName = log.actor;
-                                        }
-                                        %>
-                                        <%= userName %>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="log-details" title="<%= log.description || log.details || '' %>">
-                                        <%= log.description || log.details || 'Không có chi tiết' %>
-                                    </div>
-                                </td>
-                            </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-
-                <% if (totalPages > 1) { %>
-                    <div style="display: flex; justify-content: center; gap: 10px; margin-top: 20px; padding: 20px;">
-                        <% for (let i = 1; i <= totalPages; i++) { %>
-                            <a href="/admin/logs?page=<%= i %>" 
-                               style="padding: 8px 12px; border: 1px solid #e9ecef; border-radius: 4px; text-decoration: none; 
-                                       background: <%= i === currentPage ? '#e74c3c' : 'white' %>; 
-                                       color: <%= i === currentPage ? 'white' : '#2c3e50' %>;"
-                               <%= i === currentPage ? 'style="background: #e74c3c; color: white; pointer-events: none;"' : '' %>>
-                                <%= i %>
-                            </a>
-                        <% } %>
-                    </div>
-                <% } %>
-            <% } else { %>
-                <div class="empty-state">
-                    <i class="fas fa-inbox"></i>
-                    <p>Chưa có nhật ký nào</p>
+        <!-- Logs table -->
+        <div class="logs-card">
+            <div class="logs-card-header">
+                <h2>Lịch sử hoạt động</h2>
+                <span id="totalCount" style="font-size:.82rem;color:#aaa;"></span>
+            </div>
+            <div id="logsTableWrap">
+                <div class="spinner-wrap">
+                    <div class="spinner-border text-danger" role="status"></div>
                 </div>
-            <% } %>
+            </div>
+            <div class="pagination" id="paginationWrap"></div>
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-info-circle me-2 text-danger"></i>Chi tiết nhật ký</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailBody"></div>
+            </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function applyFilters() {
-            const action = document.getElementById('actionFilter').value;
-            const user = document.getElementById('userFilter').value;
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+    let currentPage = 1;
+    const PAGE_SIZE = 20;
+    let totalPages = 1;
 
-            let url = '/admin/logs?';
-            if (action) url += `action=${action}&`;
-            if (user) url += `user=${encodeURIComponent(user)}&`;
-            if (startDate) url += `startDate=${startDate}&`;
-            if (endDate) url += `endDate=${endDate}&`;
+    const ACTION_LABELS = {
+        login: 'Đăng nhập', logout: 'Đăng xuất',
+        register_success: 'ĐK thành công', register_failed: 'ĐK thất bại',
+        room_assigned: 'Phân phòng', room_changed: 'Đổi phòng',
+        application_approved: 'Duyệt đơn', application_rejected: 'Từ chối đơn',
+        profile_updated: 'Cập nhật hồ sơ', password_changed: 'Đổi MK',
+        payment_success: 'Thanh toán OK', payment_failed: 'Thanh toán lỗi',
+        registration_approved: 'XN đăng ký', registration_rejected: 'Từ chối đăng ký',
+    };
 
-            window.location.href = url;
+    function getFilters() {
+        return {
+            page: currentPage,
+            limit: PAGE_SIZE,
+            search: document.getElementById('searchInput').value.trim(),
+            action: document.getElementById('actionFilter').value,
+            status: document.getElementById('statusFilter').value,
+            startDate: document.getElementById('startDate').value,
+            endDate: document.getElementById('endDate').value,
+        };
+    }
+
+    function buildQuery(filters) {
+        const p = new URLSearchParams();
+        Object.entries(filters).forEach(([k,v]) => { if (v) p.set(k, v); });
+        return p.toString();
+    }
+
+    async function loadLogs() {
+        document.getElementById('logsTableWrap').innerHTML = '<div class="spinner-wrap"><div class="spinner-border text-danger" role="status"></div></div>';
+        document.getElementById('paginationWrap').innerHTML = '';
+        try {
+            const res = await fetch('/api/admin/logs?' + buildQuery(getFilters()), { credentials: 'include' });
+            const data = await res.json();
+            if (!data.success) throw new Error(data.error || 'API error');
+            totalPages = data.totalPages || 1;
+            renderTable(data.logs || []);
+            renderPagination(data.total || 0);
+        } catch(e) {
+            document.getElementById('logsTableWrap').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Không thể tải nhật ký: ${e.message}</p></div>`;
         }
+    }
 
-        function resetFilters() {
-            document.getElementById('actionFilter').value = '';
-            document.getElementById('userFilter').value = '';
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
-            window.location.href = '/admin/logs';
+    function renderTable(logs) {
+        document.getElementById('totalCount').textContent = '';
+        if (!logs.length) {
+            document.getElementById('logsTableWrap').innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Chưa có nhật ký nào</p></div>';
+            return;
         }
+        const rows = logs.map((log, i) => {
+            const ts = log.createdAt ? new Date(log.createdAt) : (log.details && log.details.timestamp ? new Date(log.details.timestamp) : null);
+            const timeStr = ts ? ts.toLocaleString('vi-VN', { hour12: false }) : '—';
+            const userName = (log.details && log.details.studentName) || '—';
+            const studentId = (log.details && log.details.studentId) || '—';
+            const action = log.action || '—';
+            const module = (log.details && log.details.module) || '—';
+            const ip = (log.details && log.details.ip) || '—';
+            const status = (log.details && log.details.status) || 'success';
+            const label = ACTION_LABELS[action] || action;
+            const rowNum = (currentPage - 1) * PAGE_SIZE + i + 1;
+            return `
+            <tr onclick="showDetail('${log._id}')">
+                <td style="color:#aaa;font-size:.78rem;">${rowNum}</td>
+                <td style="font-size:.8rem;color:#777;white-space:nowrap;">${timeStr}</td>
+                <td style="font-weight:600;">${esc(userName)}</td>
+                <td style="color:#888;font-size:.82rem;">${esc(studentId)}</td>
+                <td><span class="action-badge a-${esc(action)}">${esc(label)}</span></td>
+                <td style="color:#888;font-size:.82rem;">${esc(module)}</td>
+                <td style="font-size:.8rem;color:#888;">${esc(ip)}</td>
+                <td><span class="${status === 'error' ? 'status-err' : 'status-ok'}">${status === 'error' ? 'Lỗi' : 'OK'}</span></td>
+                <td>
+                    <button class="btn btn-outline-secondary btn-sm py-0 px-2" onclick="event.stopPropagation();showDetail('${log._id}')" style="font-size:.75rem;">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
 
-        document.getElementById('userFilter').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') applyFilters();
-        });
+        document.getElementById('logsTableWrap').innerHTML = `
+        <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;">#</th>
+                    <th style="width:150px;">Thời gian</th>
+                    <th>Người dùng</th>
+                    <th>MSSV</th>
+                    <th>Hành động</th>
+                    <th>Module</th>
+                    <th>IP</th>
+                    <th>Trạng thái</th>
+                    <th style="width:60px;">Chi tiết</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>
+        </div>`;
+    }
+
+    function renderPagination(total) {
+        document.getElementById('totalCount').textContent = `${total.toLocaleString()} bản ghi`;
+        const wrap = document.getElementById('paginationWrap');
+        if (totalPages <= 1) { wrap.innerHTML = ''; return; }
+        let html = '';
+        const start = Math.max(1, currentPage - 3);
+        const end   = Math.min(totalPages, currentPage + 3);
+        if (currentPage > 1) html += `<button class="page-btn" onclick="goPage(${currentPage-1})"><i class="fas fa-chevron-left"></i></button>`;
+        if (start > 1) html += `<button class="page-btn" onclick="goPage(1)">1</button>${start > 2 ? '<span style="padding:4px;">…</span>' : ''}`;
+        for (let p = start; p <= end; p++) {
+            html += `<button class="page-btn${p===currentPage?' active':''}" onclick="goPage(${p})">${p}</button>`;
+        }
+        if (end < totalPages) html += `${end < totalPages-1 ? '<span style="padding:4px;">…</span>' : ''}<button class="page-btn" onclick="goPage(${totalPages})">${totalPages}</button>`;
+        if (currentPage < totalPages) html += `<button class="page-btn" onclick="goPage(${currentPage+1})"><i class="fas fa-chevron-right"></i></button>`;
+        wrap.innerHTML = html;
+    }
+
+    function goPage(p) { currentPage = p; loadLogs(); }
+    function applyFilters() { currentPage = 1; loadLogs(); }
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('actionFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        document.getElementById('startDate').value = '';
+        document.getElementById('endDate').value = '';
+        currentPage = 1;
+        loadLogs();
+    }
+
+    // Cached logs for modal
+    let cachedLogs = {};
+    async function showDetail(id) {
+        if (!id || id === 'undefined') return;
+        const modal = new bootstrap.Modal(document.getElementById('detailModal'));
+        document.getElementById('detailBody').innerHTML = '<div class="text-center py-3"><div class="spinner-border text-danger"></div></div>';
+        modal.show();
+        try {
+            let log = cachedLogs[id];
+            if (!log) {
+                const res = await fetch(`/api/admin/logs/${id}`, { credentials: 'include' });
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                log = data.log;
+                cachedLogs[id] = log;
+            }
+            const ts = log.createdAt ? new Date(log.createdAt).toLocaleString('vi-VN') : '—';
+            const det = log.details || {};
+            document.getElementById('detailBody').innerHTML = `
+            <div class="detail-row"><span class="detail-key">Thời gian:</span><span class="detail-val">${ts}</span></div>
+            <div class="detail-row"><span class="detail-key">Hành động:</span><span class="detail-val"><span class="action-badge a-${esc(log.action)}">${esc(ACTION_LABELS[log.action]||log.action)}</span></span></div>
+            <div class="detail-row"><span class="detail-key">Người dùng:</span><span class="detail-val">${esc(det.studentName||'—')}</span></div>
+            <div class="detail-row"><span class="detail-key">MSSV:</span><span class="detail-val">${esc(det.studentId||'—')}</span></div>
+            <div class="detail-row"><span class="detail-key">Module:</span><span class="detail-val">${esc(det.module||'—')}</span></div>
+            <div class="detail-row"><span class="detail-key">IP:</span><span class="detail-val">${esc(det.ip||'—')}</span></div>
+            <div class="detail-row"><span class="detail-key">User Agent:</span><span class="detail-val" style="font-size:.78rem;">${esc(det.userAgent||'—')}</span></div>
+            <div class="detail-row"><span class="detail-key">Trạng thái:</span><span class="detail-val ${det.status==='error'?'status-err':'status-ok'}">${det.status==='error'?'Lỗi':'Thành công'}</span></div>
+            <div class="detail-row"><span class="detail-key">Mô tả:</span><span class="detail-val">${esc(log.description||'—')}</span></div>
+            <div class="mt-3"><strong style="font-size:.82rem;color:#374151;">Payload chi tiết:</strong><pre class="payload mt-1">${esc(JSON.stringify(det, null, 2))}</pre></div>`;
+        } catch(e) {
+            document.getElementById('detailBody').innerHTML = `<div class="text-danger">Không thể tải chi tiết: ${e.message}</div>`;
+        }
+    }
+
+    function esc(t) { return String(t||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
+
+    document.getElementById('refreshBtn').addEventListener('click', loadLogs);
+    document.getElementById('searchInput').addEventListener('keypress', e => { if (e.key === 'Enter') applyFilters(); });
+
+    // Initial load
+    loadLogs();
     </script>
 </body>
 </html>

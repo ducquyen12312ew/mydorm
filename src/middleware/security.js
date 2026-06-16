@@ -17,37 +17,86 @@ const helmetConfig = helmet({
         directives: {
             defaultSrc: ["'self'"],
             styleSrc: [
-                "'self'", 
-                "'unsafe-inline'", 
-                "https://cdn.jsdelivr.net", 
-                "https://cdnjs.cloudflare.com",
-                "https://unpkg.com",
-                "https://fonts.googleapis.com"
-            ],
-            scriptSrc: [
-                "'self'", 
-                "'unsafe-inline'", 
-                "https://cdn.jsdelivr.net", 
-                "https://cdnjs.cloudflare.com",
-                "https://unpkg.com"
-            ],
-            scriptSrcAttr: ["'unsafe-inline'"],
-            imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: [
                 "'self'",
+                "'unsafe-inline'",
                 "https://cdn.jsdelivr.net",
                 "https://cdnjs.cloudflare.com",
-                "https://unpkg.com"
+                "https://unpkg.com",
+                "https://fonts.googleapis.com",
+                "https://cesium.com"
+            ],
+            scriptSrc: [
+                "'self'",
+                "'unsafe-inline'",
+                "'wasm-unsafe-eval'",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com",
+                "https://cesium.com"
+            ],
+            scriptSrcAttr: ["'unsafe-inline'"],
+            imgSrc: [
+                "'self'",
+                "data:",
+                "blob:",
+                "https://res.cloudinary.com",
+                "https://img.youtube.com",
+                "https://server.arcgisonline.com",
+                "https://*.arcgisonline.com",
+                "https://tile.arcgis.com",
+                "https://*.arcgis.com",
+                "https:"
+            ],
+            connectSrc: [
+                "'self'",
+                // WebSocket for Socket.IO (ws: http, wss: https)
+                "ws:",
+                "wss:",
+                // Google Fonts — needed for SW cache fetch of font files
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com",
+                "https://cdn.jsdelivr.net",
+                "https://cdnjs.cloudflare.com",
+                "https://unpkg.com",
+                "https://tiles.openfreemap.org",
+                "https://*.openfreemap.org",
+                "https://tile.openstreetmap.org",
+                "https://*.tile.openstreetmap.org",
+                "https://cesium.com",
+                "https://*.cesium.com",
+                "https://server.arcgisonline.com",
+                "https://*.arcgisonline.com",
+                "https://tile.arcgis.com",
+                "https://*.arcgis.com",
+                "https://res.cloudinary.com",
+                "blob:"
             ],
             fontSrc: [
                 "'self'",
                 "data:",
                 "https://cdnjs.cloudflare.com",
-                "https://fonts.gstatic.com"
+                "https://fonts.gstatic.com",
+                "https://cesium.com"
             ],
+            workerSrc: ["'self'", "blob:", "https://cesium.com"],
             objectSrc: ["'none'"],
-            mediaSrc: ["'self'"],
-            frameSrc: ["'none'"],
+            mediaSrc: [
+                "'self'",
+                "https://res.cloudinary.com",
+                "blob:"
+            ],
+            frameSrc: [
+                "'self'",
+                "https://www.youtube.com",
+                "https://youtube.com",
+                "https://sketchfab.com",
+                "https://my.matterport.com",
+                "https://matterport.com"
+            ],
+            // helmet bật 'upgrade-insecure-requests' mặc định → WebView mobile
+            // nâng http://LAN_IP:5000/api lên https:// và fail SSL. Tắt ở dev,
+            // giữ ở production (HTTPS thật). null = gỡ directive mặc định.
+            upgradeInsecureRequests: isProduction ? [] : null,
         },
     },
     crossOriginEmbedderPolicy: false,
@@ -76,11 +125,12 @@ const apiLimiter = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     skip: (req) => {
-        // Skip rate limiting for static files
-        return req.path.startsWith('/public') || 
-               req.path.startsWith('/css') || 
-               req.path.startsWith('/js') ||
-               req.path.startsWith('/image');
+        // Skip rate limiting for static files and localhost in development
+        if (req.path.startsWith('/public') || req.path.startsWith('/css') ||
+            req.path.startsWith('/js') || req.path.startsWith('/image')) return true;
+        if (process.env.NODE_ENV !== 'production' &&
+            (req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1')) return true;
+        return false;
     }
 });
 
@@ -96,7 +146,9 @@ const loginLimiter = rateLimit({
     message: {
         error: 'Quá nhiều lần thử đăng nhập cho tài khoản này, vui lòng thử lại sau 15 phút'
     },
-    skipSuccessfulRequests: true
+    skipSuccessfulRequests: true,
+    skip: (req) => process.env.NODE_ENV !== 'production' &&
+        (req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1')
 });
 
 const userApiLimiter = rateLimit({

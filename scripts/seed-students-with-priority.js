@@ -107,13 +107,13 @@ async function generateStudentsWithPriority() {
         const hashedPassword = await bcrypt.hash(PASSWORD_PLAIN, SALT_ROUNDS);
         const students = [];
         
-        // Distribution: 200 students
+        // Distribution: 260 students
         const YEAR_DISTRIBUTION = [
-            { year: 2025, count: 50, suffixLength: 5 },  // Năm 1 (ưu tiên cao)
-            { year: 2024, count: 50, suffixLength: 5 },  // Năm 2
-            { year: 2023, count: 40, suffixLength: 4 },  // Năm 3
-            { year: 2022, count: 40, suffixLength: 4 },  // Năm 4
-            { year: 2021, count: 20, suffixLength: 4 }   // Năm 5+ (ưu tiên thấp)
+            { year: 2025, count: 100, suffixLength: 5 },  // Năm 1 (ưu tiên cao)
+            { year: 2024, count: 70,  suffixLength: 5 },  // Năm 2
+            { year: 2023, count: 50,  suffixLength: 4 },  // Năm 3
+            { year: 2022, count: 25,  suffixLength: 4 },  // Năm 4
+            { year: 2021, count: 15,  suffixLength: 4 }   // Năm 5+ (ưu tiên thấp)
         ];
         
         for (const yearConfig of YEAR_DISTRIBUTION) {

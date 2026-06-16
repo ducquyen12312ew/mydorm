@@ -44,6 +44,7 @@ router.get('/', requireAuth, async (req, res) => {
 
         res.json({
             notifications: notifications,
+            unreadCount: unreadCount,
             pagination: {
                 total: total,
                 unreadCount: unreadCount,
@@ -113,9 +114,9 @@ router.post('/:id/read', requireAuth, async (req, res) => {
 });
 
 /**
- * POST /notifications/read-all - Mark all notifications as read
+ * POST /notifications/read-all and /notifications/mark-all-read
  */
-router.post('/read-all', requireAuth, async (req, res) => {
+async function markAllReadHandler(req, res) {
     try {
         const result = await Notification.updateMany(
             { userId: req.session.userId, read: false },
@@ -127,16 +128,14 @@ router.post('/read-all', requireAuth, async (req, res) => {
                 }
             }
         );
-
-        res.json({
-            success: true,
-            message: `${result.modifiedCount} notifications marked as read`
-        });
+        res.json({ success: true, message: `${result.modifiedCount} notifications marked as read` });
     } catch (error) {
         logger.error('Mark all read failed', { userId: req.session.userId, error: error.message });
         res.status(500).json({ error: 'Failed to mark all as read' });
     }
-});
+}
+router.post('/mark-all-read', requireAuth, markAllReadHandler);
+router.post('/read-all', requireAuth, markAllReadHandler);
 
 /**
  * POST /notifications/:id/archive - Archive notification
@@ -224,7 +223,9 @@ router.get('/count/unread', requireAuth, async (req, res) => {
  */
 router.post('/admin/send', async (req, res) => {
     try {
-        // TODO: Add admin authentication check
+        if (!req.session.userId || req.session.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
 
         const { userId, userIds, type, title, message, description, data, channels = {} } = req.body;
 
@@ -270,6 +271,56 @@ router.post('/admin/send', async (req, res) => {
     } catch (error) {
         logger.error('Send notification failed', { error: error.message });
         res.status(500).json({ error: 'Failed to send notification' });
+    }
+});
+
+/**
+ * Admin: POST /notifications/admin/broadcast — send to all students or all users
+ */
+router.post('/admin/broadcast', async (req, res) => {
+    try {
+        if (!req.session.userId || req.session.role !== 'admin') {
+            return res.status(403).json({ error: 'Admin access required' });
+        }
+
+        const { type, title, message, priority } = req.body;
+        if (!type || !title || !message) {
+            return res.status(400).json({ error: 'type, title và message là bắt buộc' });
+        }
+
+        const validTypes = ['violation', 'maintenance', 'system', 'alert', '2fa', 'allocation', 'announcement', 'room_assigned', 'application'];
+        if (!validTypes.includes(type)) {
+            return res.status(400).json({ error: `type phải là một trong: ${validTypes.join(', ')}` });
+        }
+
+        // Lấy tất cả sinh viên (role = user/student)
+        const { StudentCollection } = require('../config/config');
+        const students = await StudentCollection.find({ role: { $ne: 'admin' } }, '_id').lean();
+        if (!students.length) {
+            return res.json({ success: true, count: 0, message: 'Không có sinh viên nào trong hệ thống.' });
+        }
+
+        const now = new Date();
+        const docs = students.map(s => ({
+            userId: s._id,
+            type,
+            title,
+            message,
+            priority: priority || 'normal',
+            read: false,
+            channels: { inApp: { sent: true, sentAt: now } }
+        }));
+
+        const result = await Notification.insertMany(docs, { ordered: false });
+
+        logger.info('Admin broadcast notification sent', {
+            adminId: req.session.userId, type, title, count: result.length
+        });
+
+        res.json({ success: true, count: result.length, message: `Đã gửi thông báo đến ${result.length} sinh viên.` });
+    } catch (error) {
+        logger.error('Broadcast notification failed', { error: error.message });
+        res.status(500).json({ error: 'Lỗi hệ thống khi gửi thông báo' });
     }
 });
 

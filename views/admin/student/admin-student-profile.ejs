@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= student.name %> — Hồ sơ cư dân</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #C8102E;
+      --primary-dk:#A20D25;
+      --primary-bg:#FFF0F2;
+      --bg:        #F7F7F7;
+      --surface:   #FFFFFF;
+      --border:    #E5E7EB;
+      --text:      #111827;
+      --text-2:    #6B7280;
+      --text-3:    #9CA3AF;
+      --success:   #166534;
+      --success-bg:#DCFCE7;
+      --warning:   #D97706;
+      --warning-bg:#FFFBEB;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --radius:    8px;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 48px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 0 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-2);
+    }
+    .breadcrumb a { color: var(--text-2); }
+    .breadcrumb a:hover { color: var(--text); }
+    .breadcrumb .sep { color: var(--text-3); }
+    .breadcrumb .current { color: var(--text); font-weight: 600; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      transition: background 0.15s, color 0.15s;
+    }
+    .btn:hover { background: var(--bg); color: var(--text); }
+
+    /* Profile header card */
+    .profile-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--primary-bg);
+      color: var(--primary);
+      font-size: 26px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 2px solid var(--primary);
+    }
+
+    .profile-meta { flex: 1; min-width: 0; }
+
+    .profile-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .profile-id {
+      font-size: 13px;
+      color: var(--text-2);
+      margin-bottom: 10px;
+    }
+
+    .profile-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text-2);
+    }
+    .tag-resident { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
+    .tag-male     { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
+    .tag-female   { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
+    .tag-faculty  { background: var(--primary-bg); color: var(--primary); border-color: #FCA5A5; }
+
+    /* Info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 640px) { .info-grid { grid-template-columns: 1fr; } }
+
+    .info-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .info-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .info-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 12px;
+    }
+    .info-row:last-child { margin-bottom: 0; }
+
+    .info-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .info-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .info-value.mono {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 13px;
+    }
+
+    /* Room info card */
+    .room-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .room-card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .room-card-title i { color: var(--primary); }
+
+    .room-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 640px) { .room-detail-grid { grid-template-columns: 1fr 1fr; } }
+
+    .room-stat {
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 12px 14px;
+    }
+
+    .room-stat-label { font-size: 11px; color: var(--text-3); font-weight: 600; text-transform: uppercase; }
+    .room-stat-value { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 2px; }
+
+    .no-room {
+      text-align: center;
+      padding: 32px;
+      color: var(--text-3);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../navbar', { activeNav: 'dormitories' }) %>
+
+  <div class="page">
+    <div class="page-head">
+      <div class="breadcrumb">
+        <a href="/admin/dormitories"><i class="fas fa-building"></i> Ký túc xá</a>
+        <span class="sep">/</span>
+        <a href="javascript:history.back()">Cư dân</a>
+        <span class="sep">/</span>
+        <span class="current"><%= student.name %></span>
+      </div>
+      <a href="javascript:history.back()" class="btn">
+        <i class="fas fa-arrow-left"></i> Quay lại
+      </a>
+    </div>
+
+    <!-- Profile header -->
+    <div class="profile-card">
+      <%
+        const initials = student.name
+          ? student.name.split(' ').map(w => w[0]).slice(-2).join('').toUpperCase()
+          : 'SV';
+      %>
+      <div class="profile-avatar"><%= initials %></div>
+      <div class="profile-meta">
+        <div class="profile-name"><%= student.name %></div>
+        <div class="profile-id">MSSV: <%= student.studentId || 'N/A' %></div>
+        <div class="profile-tags">
+          <% if (student.faculty) { %>
+            <span class="tag tag-faculty"><i class="fas fa-graduation-cap"></i><%= student.faculty %></span>
+          <% } %>
+          <% if (student.gender === 'male') { %>
+            <span class="tag tag-male"><i class="fas fa-mars"></i> Nam</span>
+          <% } else if (student.gender === 'female') { %>
+            <span class="tag tag-female"><i class="fas fa-venus"></i> Nữ</span>
+          <% } %>
+          <% if (student.dormitoryId) { %>
+            <span class="tag tag-resident"><i class="fas fa-home"></i> Đang ở KTX</span>
+          <% } else { %>
+            <span class="tag"><i class="fas fa-times-circle"></i> Chưa phân phòng</span>
+          <% } %>
+          <% if (student.academicYear) { %>
+            <span class="tag"><i class="fas fa-calendar"></i> Khóa <%= student.academicYear %></span>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info grid -->
+    <div class="info-grid">
+      <!-- Personal info -->
+      <div class="info-card">
+        <div class="info-card-title"><i class="fas fa-user"></i>&nbsp; Thông tin cá nhân</div>
+        <div class="info-row">
+          <div class="info-label">Họ tên</div>
+          <div class="info-value"><%= student.name || '—' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">MSSV</div>
+          <div class="info-value mono"><%= student.studentId || '—' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Giới tính</div>
+          <div class="info-value">
+            <% if (student.gender === 'male') { %>Nam<% } else if (student.gender === 'female') { %>Nữ<% } else { %>—<% } %>
+          </div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Khóa học</div>
+          <div class="info-value"><%= student.academicYear ? 'K' + (parseInt(student.academicYear) - 1950) : '—' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Khoa / Viện</div>
+          <div class="info-value"><%= student.faculty || '—' %></div>
+        </div>
+      </div>
+
+      <!-- Contact info -->
+      <div class="info-card">
+        <div class="info-card-title"><i class="fas fa-address-book"></i>&nbsp; Liên hệ</div>
+        <div class="info-row">
+          <div class="info-label">Email</div>
+          <div class="info-value mono" style="font-size:12px; word-break:break-all;"><%= student.email || '—' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Số điện thoại</div>
+          <div class="info-value mono"><%= student.phone || '—' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Tên đăng nhập</div>
+          <div class="info-value mono" style="font-size:12px;"><%= student.username || '—' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Quốc tịch</div>
+          <div class="info-value"><%= student.nationality || 'Việt Nam' %></div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">Điểm ưu tiên</div>
+          <div class="info-value" style="color: var(--primary); font-weight: 700;"><%= student.priorityScore || 0 %> điểm</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Room assignment -->
+    <div class="room-card">
+      <div class="room-card-title">
+        <i class="fas fa-door-open"></i>
+        Thông tin phòng ở
+        <% if (dormitory) { %>
+          &nbsp;—&nbsp;
+          <a href="/admin/dormitories/view/<%= dormitory._id %>" style="color: var(--primary); font-weight: 600; font-size: 13px;">
+            <%= dormitory.name %> <i class="fas fa-external-link-alt" style="font-size:10px;"></i>
+          </a>
+        <% } %>
+      </div>
+
+      <% if (dormitory && roomInfo) { %>
+        <div class="room-detail-grid">
+          <div class="room-stat">
+            <div class="room-stat-label">KTX</div>
+            <div class="room-stat-value" style="font-size:14px;"><%= dormitory.name %></div>
+          </div>
+          <div class="room-stat">
+            <div class="room-stat-label">Tầng</div>
+            <div class="room-stat-value"><%= roomInfo.floorNumber %></div>
+          </div>
+          <div class="room-stat">
+            <div class="room-stat-label">Phòng</div>
+            <div class="room-stat-value"><%= student.roomNumber %></div>
+          </div>
+          <div class="room-stat">
+            <div class="room-stat-label">Loại phòng</div>
+            <div class="room-stat-value" style="font-size:13px;">
+              <%= {
+                '8-person': '8 người',
+                '4-person-service': '4 người (DV)',
+                '5-person': '5 người',
+                '10-person': '10 người'
+              }[roomInfo.roomType] || roomInfo.roomType %>
+            </div>
+          </div>
+          <div class="room-stat">
+            <div class="room-stat-label">Sức chứa</div>
+            <div class="room-stat-value"><%= roomInfo.maxCapacity %> người</div>
+          </div>
+          <div class="room-stat">
+            <div class="room-stat-label">Giá phòng</div>
+            <div class="room-stat-value" style="font-size:13px; color: var(--primary);">
+              <%= (roomInfo.pricePerMonth || 0).toLocaleString('vi-VN') %>đ/tháng
+            </div>
+          </div>
+        </div>
+      <% } else if (student.dormitoryId) { %>
+        <div class="no-room">
+          <i class="fas fa-exclamation-circle" style="font-size:24px;margin-bottom:8px;display:block;"></i>
+          Đã phân KTX nhưng không tìm thấy thông tin phòng chi tiết.
+        </div>
+      <% } else { %>
+        <div class="no-room">
+          <i class="fas fa-home" style="font-size:24px;margin-bottom:8px;display:block;"></i>
+          Sinh viên chưa được phân phòng ký túc xá.
+        </div>
+      <% } %>
+    </div>
+
+  </div>
+</body>
+</html>

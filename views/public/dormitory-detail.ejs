@@ -2,11 +2,15 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết ký túc xá</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Chi tiết ký túc xá — eDorm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="/css/premium-home.css">
     <style>
+        /* ─── ROOT & RESET ──────────────────────────────── */
         :root {
             --brand: #ff5a5f;
             --brand-dark: #e0484e;
@@ -25,769 +29,703 @@
             --radius-md: 16px;
             --radius-sm: 12px;
         }
-
         * { margin: 0; padding: 0; box-sizing: border-box; }
-
         body {
-            font-family: 'Manrope', sans-serif;
+            font-family: 'Inter', sans-serif;
             background: var(--bg);
             color: var(--ink-900);
             line-height: 1.55;
             min-height: 100vh;
         }
 
+        /* ─── HEADER ────────────────────────────────────── */
         .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+            position: fixed; top: 0; left: 0; width: 100%;
             padding: 14px 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.93);
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(255,255,255,0.93);
             backdrop-filter: blur(10px);
             z-index: 2000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 8px 24px rgba(16, 16, 20, 0.06);
+            border-bottom: 1px solid rgba(255,255,255,0.8);
+            box-shadow: 0 8px 24px rgba(16,16,20,0.06);
         }
-
         .header-logo { display: flex; align-items: center; }
         .header-logo img { max-height: 2.5rem; width: auto; }
-
         .nav-container {
-            display: flex;
-            align-items: center;
-            flex-grow: 1;
-            margin-left: 3rem;
+            display: flex; align-items: center; flex-grow: 1; margin-left: 3rem;
         }
-
         .nav-links { display: flex; gap: 2.1rem; }
-
         .nav-link {
-            color: var(--ink-700);
-            text-decoration: none;
-            font-size: 0.98rem;
-            font-weight: 700;
-            transition: all 0.25s ease;
-            padding: 0.5rem 0;
-            position: relative;
-            letter-spacing: 0.02em;
-            text-transform: uppercase;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--ink-700); text-decoration: none;
+            font-size: 0.98rem; font-weight: 700;
+            transition: all .25s ease; padding: .5rem 0;
+            position: relative; letter-spacing: .02em;
+            text-transform: uppercase; font-family: 'Inter', sans-serif;
         }
-
         .nav-link::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            bottom: -2px;
-            width: 100%;
-            height: 2px;
-            transform: scaleX(0);
-            transform-origin: left;
-            background: var(--brand);
-            transition: transform 0.25s ease;
+            content: ''; position: absolute; left: 0; bottom: -2px;
+            width: 100%; height: 2px; transform: scaleX(0);
+            transform-origin: left; background: var(--brand); transition: transform .25s ease;
         }
-
-        .nav-link:hover,
-        .nav-link.active-link { color: var(--brand); }
-
-        .nav-link:hover::after,
-        .nav-link.active-link::after { transform: scaleX(1); }
-
+        .nav-link:hover, .nav-link.active-link { color: var(--brand); }
+        .nav-link:hover::after, .nav-link.active-link::after { transform: scaleX(1); }
         .user-profile {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-            position: relative;
+            display: flex; align-items: center; margin-left: auto; position: relative;
         }
-
         .avatar-container {
-            display: flex;
-            align-items: center;
-            gap: 0.7rem;
-            text-decoration: none;
-            cursor: pointer;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 6px 10px 6px 6px;
+            display: flex; align-items: center; gap: .7rem;
+            text-decoration: none; cursor: pointer;
+            background: rgba(255,255,255,.9); border: 1px solid var(--line);
+            border-radius: 999px; padding: 6px 10px 6px 6px;
         }
-
         .avatar {
-            width: 34px;
-            height: 34px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #ff7b63, #ff4a53);
-            color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            width: 34px; height: 34px; border-radius: 50%;
+            background: linear-gradient(145deg,#ff7b63,#ff4a53);
+            color: #fff; display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-family: 'Inter', sans-serif;
         }
-
         .user-name {
-            color: var(--ink-700);
-            font-weight: 700;
-            max-width: 125px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: var(--ink-700); font-weight: 700;
+            max-width: 125px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-
         .dropdown-menu {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: #fff;
-            border-radius: var(--radius-sm);
-            box-shadow: var(--shadow-soft);
-            display: none;
-            min-width: 200px;
-            z-index: 2001;
-            border: 1px solid var(--line);
-            overflow: hidden;
+            position: absolute; top: calc(100% + 10px); right: 0;
+            background: #fff; border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-soft); display: none;
+            min-width: 200px; z-index: 2001;
+            border: 1px solid var(--line); overflow: hidden;
         }
-
         .dropdown-menu.show { display: block; }
-
         .dropdown-item {
-            display: flex;
-            align-items: center;
-            gap: 0.65rem;
-            padding: 0.8rem 1rem;
-            color: var(--ink-700);
-            text-decoration: none;
-            transition: all 0.2s;
-            border-bottom: 1px solid var(--line);
-            font-weight: 600;
+            display: flex; align-items: center; gap: .65rem;
+            padding: .8rem 1rem; color: var(--ink-700);
+            text-decoration: none; transition: all .2s;
+            border-bottom: 1px solid var(--line); font-weight: 600;
         }
-
         .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:hover { background-color: var(--surface-soft); color: var(--brand); }
-
+        .dropdown-item:hover { background: var(--surface-soft); color: var(--brand); }
         .menu-toggle { display: none; flex-direction: column; cursor: pointer; gap: 4px; }
-        .menu-toggle span { width: 25px; height: 3px; background-color: var(--brand); border-radius: 3px; }
+        .menu-toggle span { width: 25px; height: 3px; background: var(--brand); border-radius: 3px; }
 
+        /* Mobile-only login button (hidden on desktop) */
+        .mobile-login-btn { display: none; }
+
+        /* ─── LOCAL NAV BAR ──────────────────────────────── */
+        .lnb {
+            position: fixed; top: 64px; left: 0; right: 0; z-index: 1800;
+            background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line);
+            transform: translateY(-100%);
+            transition: transform .3s ease;
+            pointer-events: none;
+        }
+        .lnb.visible { transform: translateY(0); pointer-events: auto; }
+        .lnb-inner {
+            max-width: 1440px; margin: 0 auto; padding: 0 20px;
+            display: flex; align-items: center; height: 46px; overflow-x: auto;
+        }
+        .lnb-links { display: flex; gap: 0; flex-shrink: 0; }
+        .lnb-link {
+            padding: 13px 16px; font-size: .84rem; font-weight: 700;
+            color: var(--ink-500); text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: all .2s; white-space: nowrap;
+        }
+        .lnb-link:hover, .lnb-link.active { color: var(--ink-900); border-bottom-color: var(--ink-900); }
+
+        /* ─── MAIN / SHELL ───────────────────────────────── */
         .main-content {
             width: min(1440px, 100% - 40px);
-            margin: 96px auto 40px;
+            margin: 88px auto 56px;
         }
+        .page-shell { display: flex; flex-direction: column; gap: 20px; }
 
-        .page-shell { display: flex; flex-direction: column; gap: 24px; }
+        /* ─── PROPERTY HEADER ────────────────────────────── */
+        .prop-hdr {
+            display: flex; align-items: flex-start;
+            justify-content: space-between; gap: 16px;
+            padding: 4px 0 0;
+        }
+        .prop-name {
+            font-size: clamp(1.45rem, 2.2vw, 1.9rem); font-weight: 800;
+            color: var(--ink-900); line-height: 1.2;
+        }
+        .prop-meta {
+            display: flex; align-items: center; gap: 10px;
+            margin-top: 7px; flex-wrap: wrap; font-size: .88rem;
+        }
+        .prop-rating { display: flex; align-items: center; gap: 5px; }
+        .star-gold { color: var(--warning); }
+        .rev-count { color: var(--ink-500); font-weight: 500; }
+        .prop-sep { color: var(--ink-500); }
+        .prop-addr { display: flex; align-items: center; gap: 4px; color: var(--ink-500); }
+        .prop-hdr-actions { display: flex; gap: 8px; flex-shrink: 0; padding-top: 2px; }
+        .icon-action-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 9px 16px; border: 1px solid var(--line);
+            border-radius: 999px; background: #fff; cursor: pointer;
+            font-size: .84rem; font-weight: 700; color: var(--ink-700);
+            transition: all .2s; font-family: 'Inter', sans-serif;
+        }
+        .icon-action-btn:hover { border-color: var(--ink-700); color: var(--ink-900); }
 
-        .hero-grid {
+        /* ─── HERO MEDIA ─────────────────────────────────── */
+        .hero-media {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 385px;
-            gap: 22px;
-            align-items: start;
-        }
-
-        .viewer-card {
-            position: relative;
+            grid-template-columns: 1fr 300px;
+            gap: 4px;
             border-radius: var(--radius-lg);
             overflow: hidden;
-            min-height: 540px;
+            height: 500px;
             box-shadow: var(--shadow-strong);
+        }
+        .hero-main-wrap {
+            position: relative; overflow: hidden;
             background: #0f1419;
-            isolation: isolate;
+        }
+        .hero-main-img {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: opacity .25s ease;
+        }
+        .img-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(255,255,255,.92); border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--ink-900); z-index: 4;
+            transition: all .2s; box-shadow: 0 2px 10px rgba(0,0,0,.18);
+        }
+        .img-nav-btn:hover { background: #fff; transform: translateY(-50%) scale(1.06); }
+        .img-nav-btn.prev { left: 14px; }
+        .img-nav-btn.next { right: 14px; }
+        .img-counter {
+            position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,.5); color: #fff;
+            padding: 4px 13px; border-radius: 999px;
+            font-size: .76rem; font-weight: 600; backdrop-filter: blur(4px);
+        }
+        .media-cards-grid {
+            display: grid; grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr; gap: 4px; background: #111;
+        }
+        .mc {
+            position: relative; overflow: hidden;
+            cursor: pointer; background: #1a1a2e;
+        }
+        .mc-bg {
+            width: 100%; height: 100%; object-fit: cover; display: block;
+            transition: transform .4s ease;
+        }
+        .mc:hover .mc-bg { transform: scale(1.07); }
+        .mc-ov {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,.28));
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; color: #fff; padding: 12px;
+            text-align: center; gap: 4px;
+        }
+        .mc-icon { width: 22px; height: 22px; stroke-width: 1.75; margin-bottom: 3px; }
+        .mc-icon-lg { width: 28px; height: 28px; }
+        .mc-label { font-size: .8rem; font-weight: 700; line-height: 1.2; }
+        .mc-sub { font-size: .7rem; opacity: .85; }
+        .coming-soon-tag {
+            background: rgba(255,255,255,.15); padding: 2px 8px;
+            border-radius: 999px; font-size: .67rem;
+        }
+        .mc-vr .mc-ov {
+            background: linear-gradient(to top, rgba(0,0,0,.78), rgba(0,30,60,.45));
         }
 
+        /* ─── FEATURE TAGS BAR ───────────────────────────── */
+        .feature-tags-bar {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            padding: 12px 0 4px;
+        }
+        .feature-tag {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 14px;
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 999px; font-size: .82rem; font-weight: 600;
+            color: var(--ink-700); white-space: nowrap;
+        }
+        .ft-icon { width: 14px; height: 14px; flex-shrink: 0; }
+
+        /* ─── DETAIL LAYOUT ──────────────────────────────── */
+        .detail-layout {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 28px; align-items: start;
+        }
+        .detail-sidebar { position: sticky; top: 120px; }
+        .det-sec {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius-md); padding: 24px;
+            margin-bottom: 20px;
+        }
+        .det-sec-head {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .det-sec-title { font-size: 1.12rem; font-weight: 800; color: var(--ink-900); }
+        .det-sec-action {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: .84rem; font-weight: 700; color: var(--brand);
+            text-decoration: none;
+        }
+        .det-sec-action:hover { text-decoration: underline; }
+
+        /* ─── DISTANCE SECTION ───────────────────────────── */
+        .dist-from-row {
+            display: flex; align-items: center; gap: 6px;
+            font-size: .8rem; color: var(--ink-500); font-weight: 600;
+            text-transform: uppercase; letter-spacing: .04em;
+            border-bottom: 1px solid var(--line); padding-bottom: 12px; margin-bottom: 14px;
+        }
+        .view-map-btn {
+            display: inline-flex; align-items: center; gap: 7px;
+            margin-top: 16px; padding: 10px 20px;
+            border: 1.5px solid var(--ink-900); border-radius: 10px;
+            font-size: .85rem; font-weight: 700; color: var(--ink-900);
+            background: #fff; cursor: pointer; text-decoration: none;
+            transition: all .2s;
+        }
+        .view-map-btn:hover { background: var(--ink-900); color: #fff; }
+
+        /* ─── PRICE CARD ─────────────────────────────────── */
+        .price-card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: var(--radius-md); padding: 24px;
+            box-shadow: var(--shadow-soft);
+        }
+        .price-from-lbl {
+            font-size: .75rem; color: var(--ink-500);
+            text-transform: uppercase; letter-spacing: .06em; font-weight: 600;
+        }
+        .price-amount {
+            display: flex; align-items: baseline; gap: 6px; margin: 4px 0 10px;
+        }
+        .price-val { font-size: 1.85rem; font-weight: 800; color: var(--brand); }
+        .price-unit { font-size: .8rem; color: var(--ink-500); font-weight: 500; }
+        .avail-badge-sidebar {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 4px 12px; border-radius: 999px;
+            font-size: .76rem; font-weight: 700; margin-bottom: 14px;
+        }
+        .avail-badge-sidebar.avail-yes { background: rgba(31,157,92,.1); color: #1f9d5c; }
+        .avail-badge-sidebar.avail-no  { background: rgba(220,53,69,.1); color: #dc3545; }
+        .sidebar-room-info {
+            display: flex; flex-direction: column; gap: 9px;
+            padding: 12px 0; border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line); margin-bottom: 14px;
+        }
+        .sidebar-stat {
+            display: flex; align-items: center; gap: 8px;
+            font-size: .85rem; color: var(--ink-700);
+        }
+        .ic-sm { width: 15px; height: 15px; flex-shrink: 0; color: var(--ink-500); }
+        .btn-primary-full {
+            width: 100%; padding: 13px;
+            background: var(--brand); color: #fff; border: none;
+            border-radius: 10px; font-size: .95rem; font-weight: 800;
+            cursor: pointer; margin-bottom: 8px;
+            transition: background .2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-primary-full:hover { background: var(--brand-dark); }
+        .btn-outline-full {
+            width: 100%; padding: 13px;
+            background: #fff; color: var(--ink-900);
+            border: 1.5px solid var(--ink-900); border-radius: 10px;
+            font-size: .95rem; font-weight: 800; cursor: pointer;
+            transition: all .2s; font-family: 'Inter', sans-serif;
+        }
+        .btn-outline-full:hover { background: var(--ink-900); color: #fff; }
+        .social-proof {
+            display: flex; align-items: center; gap: 6px;
+            font-size: .76rem; color: var(--ink-500);
+            margin-top: 12px; justify-content: center;
+        }
+
+        /* ─── VR VIEWER ──────────────────────────────────── */
         .custom-vr-viewer {
-            width: 100%;
-            min-height: 540px;
-            position: relative;
-            overflow: hidden;
-            background: #0f1419;
-            cursor: grab;
-            user-select: none;
+            width: 100%; min-height: 460px; position: relative;
+            overflow: hidden; background: #0f1419;
+            cursor: grab; user-select: none;
+            border-radius: var(--radius-sm);
         }
-
-        .custom-vr-viewer.dragging {
-            cursor: grabbing;
-        }
-
+        .custom-vr-viewer.dragging { cursor: grabbing; }
         .vr-track {
-            position: absolute;
-            inset: 0;
-            width: 160%;
-            height: 100%;
-            transform-origin: center center;
-            will-change: transform;
+            position: absolute; inset: 0; width: 160%; height: 100%;
+            transform-origin: center center; will-change: transform;
         }
-
         .vr-track img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+            width: 100%; height: 100%; object-fit: cover; display: block;
             filter: saturate(1.06) contrast(1.03);
         }
-
         .viewer-overlay-top {
-            position: absolute;
-            left: 18px;
-            right: 18px;
-            top: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            z-index: 6;
-            pointer-events: none;
+            position: absolute; left: 18px; right: 18px; top: 18px;
+            display: flex; align-items: center; justify-content: space-between;
+            z-index: 6; pointer-events: none;
         }
-
-        .viewer-badge,
-        .viewer-fullscreen,
-        .viewer-reset {
+        .viewer-badge, .viewer-fullscreen, .viewer-reset {
             pointer-events: auto;
-            border: 1px solid rgba(255, 255, 255, 0.44);
-            background: rgba(16, 20, 25, 0.33);
-            backdrop-filter: blur(8px);
-            color: #fff;
-            border-radius: 999px;
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            letter-spacing: 0.05em;
-            font-weight: 700;
+            border: 1px solid rgba(255,255,255,.44);
+            background: rgba(16,20,25,.33); backdrop-filter: blur(8px);
+            color: #fff; border-radius: 999px; padding: 9px 14px;
+            font-size: .82rem; letter-spacing: .04em; font-weight: 700;
             text-transform: uppercase;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            display: inline-flex; align-items: center; gap: 7px;
+            font-family: 'Inter', sans-serif;
         }
-
-        .viewer-controls {
-            display: flex;
-            gap: 8px;
+        .viewer-controls { display: flex; gap: 8px; }
+        .viewer-fullscreen, .viewer-reset {
+            cursor: pointer; transition: transform .18s ease, background .2s ease;
+            border-radius: 999px; border: none;
         }
-
+        .viewer-fullscreen:hover, .viewer-reset:hover {
+            transform: translateY(-1px); background: rgba(255,255,255,.22);
+        }
         .viewer-tour-strip {
-            position: absolute;
-            left: 16px;
-            right: 16px;
-            bottom: 112px;
-            z-index: 6;
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 2px;
+            position: absolute; left: 16px; right: 16px; bottom: 52px;
+            z-index: 6; display: flex; gap: 8px;
+            overflow-x: auto; padding-bottom: 2px;
         }
-
         .tour-chip {
-            border: 1px solid rgba(255, 255, 255, 0.42);
-            background: rgba(14, 18, 24, 0.45);
-            color: #fff;
-            border-radius: 999px;
-            padding: 8px 12px;
-            font-size: 0.76rem;
-            font-weight: 700;
-            white-space: nowrap;
-            cursor: pointer;
+            border: 1px solid rgba(255,255,255,.42);
+            background: rgba(14,18,24,.45); color: #fff;
+            border-radius: 999px; padding: 7px 12px;
+            font-size: .75rem; font-weight: 700; white-space: nowrap;
+            cursor: pointer; font-family: 'Inter', sans-serif;
         }
-
-        .tour-chip.active {
-            background: rgba(255, 90, 95, 0.3);
-            border-color: rgba(255, 140, 140, 0.65);
-        }
-
-        .vr-hotspot-layer {
-            position: absolute;
-            inset: 0;
-            z-index: 5;
-            pointer-events: none;
-        }
-
+        .tour-chip.active { background: rgba(255,90,95,.3); border-color: rgba(255,140,140,.65); }
+        .vr-hotspot-layer { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
         .vr-hotspot {
-            position: absolute;
-            transform: translate(-50%, -50%);
+            position: absolute; transform: translate(-50%,-50%);
             pointer-events: auto;
-            border: 1px solid rgba(255, 255, 255, 0.65);
-            background: rgba(18, 23, 28, 0.45);
-            color: #fff;
-            border-radius: 999px;
-            padding: 7px 10px;
-            font-size: 0.74rem;
-            font-weight: 700;
-            cursor: pointer;
+            border: 1px solid rgba(255,255,255,.65);
+            background: rgba(18,23,28,.45); color: #fff;
+            border-radius: 999px; padding: 7px 10px;
+            font-size: .74rem; font-weight: 700; cursor: pointer;
             backdrop-filter: blur(8px);
-            box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 0 0 rgba(255,255,255,.35);
             animation: pulse 2s infinite;
         }
-
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.35); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 255, 255, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+            0%   { box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
+            70%  { box-shadow: 0 0 0 10px rgba(255,255,255,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
         }
-
-        .viewer-fullscreen,
-        .viewer-reset {
-            cursor: pointer;
-            transition: transform 0.18s ease, background 0.2s ease;
-            border-radius: 999px;
-        }
-
-        .viewer-fullscreen:hover,
-        .viewer-reset:hover {
-            transform: translateY(-1px);
-            background: rgba(255, 255, 255, 0.22);
-        }
-
         .viewer-gradient {
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 150px;
-            background: linear-gradient(0deg, rgba(10, 13, 17, 0.64) 0%, rgba(10, 13, 17, 0) 100%);
-            z-index: 4;
-            pointer-events: none;
+            position: absolute; left: 0; right: 0; bottom: 0; height: 100px;
+            background: linear-gradient(0deg,rgba(10,13,17,.5),rgba(10,13,17,0));
+            z-index: 4; pointer-events: none;
+        }
+        .vr-hint-text {
+            font-size: .78rem; color: var(--ink-500);
+            text-align: center; margin-top: 10px;
         }
 
-        .viewer-meta {
-            position: absolute;
-            left: 24px;
-            right: 24px;
-            bottom: 24px;
-            z-index: 5;
-            color: #fff;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            gap: 16px;
-        }
-
-        .viewer-title {
-            font-size: clamp(1.25rem, 2vw, 1.9rem);
-            font-weight: 800;
-            line-height: 1.2;
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
-        }
-
-        .viewer-subtitle { opacity: 0.92; font-size: 0.95rem; }
-
-        .viewer-guide {
-            font-size: 0.78rem;
-            opacity: 0.9;
-            margin-top: 6px;
-        }
-
-        .booking-panel {
-            position: sticky;
-            top: 106px;
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-soft);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-        }
-
-        .booking-status {
-            display: inline-flex;
-            align-self: flex-start;
-            padding: 6px 10px;
-            border-radius: 999px;
-            background: rgba(31, 157, 92, 0.12);
-            color: var(--success);
-            font-size: 0.78rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .booking-title {
-            font-size: 1.64rem;
-            line-height: 1.2;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .feature-list {
-            display: grid;
-            gap: 12px;
-            border-top: 1px solid var(--line);
-            border-bottom: 1px solid var(--line);
-            padding: 14px 0;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            color: var(--ink-700);
-            font-weight: 600;
-        }
-
-        .feature-item i { color: var(--ink-500); width: 18px; }
-
-        .cta-row { display: flex; gap: 10px; }
-
-        .btn {
-            border: none;
-            border-radius: 12px;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            padding: 12px 14px;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease;
-            font-size: 0.95rem;
-        }
-
-        .btn:hover { transform: translateY(-1px); }
-
-        .btn-secondary {
-            width: 100%;
-            background: #fff;
-            color: var(--brand);
-            border: 1px solid rgba(255, 90, 95, 0.45);
-        }
-
-        .btn-secondary:hover { border-color: var(--brand); background: #fff5f5; }
-
-        .local-nav {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 2px;
-        }
-
-        .nav-chip {
-            border: 1px solid var(--line);
-            background: #fff;
-            color: var(--ink-700);
-            border-radius: 999px;
-            padding: 10px 14px;
-            font-size: 0.86rem;
-            font-weight: 700;
-            cursor: pointer;
-            white-space: nowrap;
-        }
-
-        .nav-chip:hover,
-        .nav-chip.active {
-            border-color: rgba(255, 90, 95, 0.35);
-            color: var(--brand);
-            background: rgba(255, 90, 95, 0.08);
-        }
-
-        .section-card {
-            background: #fff;
-            border: 1px solid var(--line);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-soft);
-            padding: 22px;
-        }
-
-        .section-title-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-            gap: 12px;
-        }
-
-        .section-title {
-            font-size: 1.45rem;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
+        /* ─── GALLERY ────────────────────────────────────── */
+        .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
         .tab-btn {
-            border: 1px solid var(--line);
-            background: #fff;
-            color: var(--ink-700);
-            border-radius: 999px;
-            padding: 9px 14px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
+            border: 1px solid var(--line); background: #fff;
+            color: var(--ink-700); border-radius: 999px;
+            padding: 9px 14px; font-weight: 700; font-size: .88rem;
+            cursor: pointer; transition: all .2s ease; font-family: 'Inter', sans-serif;
         }
-
-        .tab-btn .count { margin-left: 6px; opacity: 0.75; }
-
-        .tab-btn.active,
-        .tab-btn:hover {
-            border-color: rgba(255, 90, 95, 0.45);
-            color: var(--brand);
-            background: rgba(255, 90, 95, 0.08);
+        .tab-btn .count { margin-left: 6px; opacity: .72; }
+        .tab-btn.active, .tab-btn:hover {
+            border-color: rgba(255,90,95,.45); color: var(--brand);
+            background: rgba(255,90,95,.08);
         }
-
         .gallery-grid {
-            display: grid;
-            grid-template-columns: repeat(12, minmax(0, 1fr));
+            display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: 12px;
+        }
+        .gallery-item {
+            position: relative; border-radius: var(--radius-md);
+            overflow: hidden; min-height: 165px; cursor: pointer;
+            grid-column: span 4; background: #ddd;
+            transform: translateY(0);
+            transition: transform .2s ease, box-shadow .25s ease;
+            box-shadow: 0 6px 18px rgba(17,17,17,.08);
+        }
+        .gallery-item.large { grid-column: span 8; min-height: 270px; }
+        .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 14px 24px rgba(17,17,17,.16); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .gallery-meta {
+            position: absolute; left: 10px; right: 10px; bottom: 10px;
+            display: flex; align-items: center; justify-content: space-between;
+            color: #fff; z-index: 2; gap: 10px;
+        }
+        .gallery-chip {
+            border: 1px solid rgba(255,255,255,.45);
+            background: rgba(17,17,17,.35); backdrop-filter: blur(6px);
+            border-radius: 999px; font-size: .73rem; font-weight: 700;
+            padding: 5px 10px; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+        }
+        .gallery-label {
+            font-weight: 700; text-shadow: 0 1px 8px rgba(0,0,0,.35);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .gallery-item::after {
+            content: ''; position: absolute; left: 0; right: 0; bottom: 0;
+            height: 45%; background: linear-gradient(0deg,rgba(0,0,0,.52),rgba(0,0,0,0));
+            z-index: 1; pointer-events: none;
+        }
+        .gallery-item.video-item .video-play-btn {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
+            width: 54px; height: 54px; border-radius: 50%;
+            background: rgba(255,255,255,.92); border: none; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            color: #C8102E; z-index: 3;
+            transition: transform .2s, background .15s; box-shadow: 0 4px 16px rgba(0,0,0,.3);
+        }
+        .gallery-item.video-item:hover .video-play-btn { transform: translate(-50%,-50%) scale(1.12); background: #fff; }
+        .gallery-item.video-item .video-duration {
+            position: absolute; bottom: 42px; right: 10px;
+            background: rgba(0,0,0,.7); color: #fff; font-size: .72rem;
+            font-weight: 700; padding: 2px 7px; border-radius: 4px; z-index: 3;
+        }
+
+        /* ─── VIDEO MODAL ────────────────────────────────── */
+        #videoModal {
+            display: none; position: fixed; inset: 0; z-index: 99999;
+            background: rgba(0,0,0,.88); align-items: center; justify-content: center;
+        }
+        #videoModal.open { display: flex; }
+        #videoModal .vm-inner {
+            position: relative; width: min(860px,96vw);
+            background: #111; border-radius: 16px; overflow: hidden;
+        }
+        #videoModal video, #videoModal iframe {
+            width: 100%; aspect-ratio: 16/9; display: block; background: #000;
+        }
+        #videoModal .vm-close {
+            position: absolute; top: 10px; right: 12px; z-index: 2;
+            background: rgba(0,0,0,.6); border: none; color: #fff;
+            cursor: pointer; border-radius: 50%;
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* ─── AMENITIES ──────────────────────────────────── */
+        .amenity-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
+        .amenity-pill {
+            border-radius: 999px; border: 1px solid var(--line);
+            padding: 8px 13px; font-size: .84rem; font-weight: 700;
+            color: var(--ink-700); background: var(--surface-soft);
+        }
+
+        /* ─── REVIEWS ────────────────────────────────────── */
+        .review-summary {
+            display: grid; grid-template-columns: 1.2fr 1fr;
+            gap: 14px; margin-bottom: 16px;
+        }
+        .review-score-card, .review-tag-card {
+            border: 1px solid var(--line); border-radius: var(--radius-sm);
+            padding: 14px; background: var(--surface-soft);
+        }
+        .score-value { font-size: 2.2rem; font-weight: 800; font-family: 'Inter',sans-serif; line-height: 1; }
+        .score-stars { color: var(--warning); margin-top: 4px; font-size: .94rem; }
+        .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .tag-chip {
+            border: 1px solid rgba(31,157,92,.2); background: rgba(31,157,92,.08);
+            color: #127447; border-radius: 999px; padding: 6px 10px;
+            font-size: .76rem; font-weight: 700;
+        }
+        .reviews { display: grid; gap: 12px; }
+        .review-card {
+            border: 1px solid var(--line); border-radius: var(--radius-sm);
+            padding: 14px; background: #fff;
+        }
+        .review-head {
+            display: flex; justify-content: space-between;
+            gap: 8px; margin-bottom: 8px; align-items: center;
+        }
+        .review-profile { display: flex; align-items: center; gap: 10px; }
+        .review-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(145deg,#ff9f83,#ff5a5f);
+            color: #fff; font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Inter', sans-serif;
+        }
+        .review-name { font-weight: 800; }
+        .review-stars { color: var(--warning); font-size: .9rem; }
+        .review-text { color: var(--ink-700); font-size: .94rem; }
+        .review-form { margin-top: 16px; border-top: 1px solid var(--line); padding-top: 14px; display: grid; gap: 10px; }
+        .review-form textarea, .review-form select, .review-form input {
+            width: 100%; border: 1px solid var(--line); border-radius: 10px;
+            padding: 10px 12px; font: inherit; color: var(--ink-700); background: #fff;
+        }
+
+        /* ─── BUILDING INFO ──────────────────────────────── */
+        .building-info-grid {
+            display: grid; grid-template-columns: repeat(auto-fill,minmax(170px,1fr)); gap: 14px;
+        }
+        .bi-card {
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 14px; padding: 14px 16px;
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .bi-label { font-size: .71rem; color: var(--ink-500); text-transform: uppercase; letter-spacing: .04em; }
+        .bi-value { font-size: 1rem; font-weight: 700; color: var(--ink-900); }
+        .bi-badge {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 600;
+        }
+        .bi-badge.active  { background: rgba(31,157,92,.1); color: #1f9d5c; }
+        .bi-badge.inactive { background: rgba(220,53,69,.1); color: #dc3545; }
+        .occupancy-bar-wrap { margin-top: 4px; }
+        .occupancy-bar-bg { background: var(--line); border-radius: 999px; height: 6px; overflow: hidden; }
+        .occupancy-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg,#38b27a,#2ecc71); transition: width .6s ease; }
+
+        /* ─── LOCATION / MAP ─────────────────────────────── */
+        .location-meta-grid {
+            display: grid; grid-template-columns: repeat(auto-fill,minmax(190px,1fr));
             gap: 12px;
         }
-
-        .gallery-item {
-            position: relative;
-            border-radius: var(--radius-md);
-            overflow: hidden;
-            min-height: 165px;
-            cursor: pointer;
-            grid-column: span 4;
-            background: #ddd;
-            transform: translateY(0);
-            transition: transform 0.2s ease, box-shadow 0.25s ease;
-            box-shadow: 0 6px 18px rgba(17, 17, 17, 0.08);
+        .loc-item {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--surface); border: 1px solid var(--line);
+            border-radius: 12px; padding: 12px 16px;
+        }
+        .loc-icon {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; background: rgba(255,90,95,.1); color: var(--brand);
+        }
+        .loc-label { font-size: .71rem; color: var(--ink-500); }
+        .loc-val { font-size: .91rem; font-weight: 600; color: var(--ink-900); }
+        #dormDetailMap {
+            width: 100%; height: 360px;
+            border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--line);
         }
 
-        .gallery-item.large { grid-column: span 8; min-height: 270px; }
-        .gallery-item:hover { transform: translateY(-3px); box-shadow: 0 14px 24px rgba(17, 17, 17, 0.16); }
-        .gallery-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
-
-        .gallery-meta {
-            position: absolute;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            color: #fff;
-            z-index: 2;
-            gap: 10px;
+        /* ─── MISC BUTTONS ───────────────────────────────── */
+        .btn {
+            border: none; border-radius: 12px; font-weight: 800;
+            font-family: 'Inter',sans-serif; padding: 12px 14px;
+            cursor: pointer; transition: transform .15s ease; font-size: .95rem;
         }
+        .btn:hover { transform: translateY(-1px); }
+        .btn-primary { background: var(--brand); color: #fff; }
+        .btn-primary:hover { background: var(--brand-dark); }
 
-        .gallery-chip {
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            background: rgba(17, 17, 17, 0.35);
-            backdrop-filter: blur(6px);
-            border-radius: 999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 6px 10px;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-            white-space: nowrap;
+        /* ─── LOADING ────────────────────────────────────── */
+        .loading { text-align: center; padding: 60px 20px; font-size: 1.1rem; color: var(--ink-500); }
+        .spinner {
+            width: 42px; height: 42px; border: 3px solid var(--line);
+            border-top-color: var(--brand); border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+            margin: 0 auto 14px;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .gallery-label {
-            font-weight: 700;
-            text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .gallery-item::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            height: 45%;
-            background: linear-gradient(0deg, rgba(0, 0, 0, 0.52), rgba(0, 0, 0, 0));
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        .amenity-cloud { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-
-        .amenity-pill {
-            border-radius: 999px;
-            border: 1px solid var(--line);
-            padding: 8px 12px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            color: var(--ink-700);
-            background: #fff;
-        }
-
-        .review-summary {
-            display: grid;
-            grid-template-columns: 1.2fr 1fr;
-            gap: 14px;
-            margin-bottom: 12px;
-        }
-
-        .review-score-card,
-        .review-tag-card {
-            border: 1px solid var(--line);
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            background: var(--surface-soft);
-        }
-
-        .score-value {
-            font-size: 2.2rem;
-            font-weight: 800;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            line-height: 1;
-        }
-
-        .score-stars { color: var(--warning); margin-top: 4px; font-size: 0.94rem; }
-
-        .tag-cloud { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-
-        .tag-chip {
-            border: 1px solid rgba(31, 157, 92, 0.2);
-            background: rgba(31, 157, 92, 0.08);
-            color: #127447;
-            border-radius: 999px;
-            padding: 6px 10px;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .reviews { display: grid; gap: 12px; }
-
-        .review-card {
-            border: 1px solid var(--line);
-            border-radius: var(--radius-sm);
-            padding: 14px;
-            background: #fff;
-        }
-
-        .review-head {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 8px;
-            align-items: center;
-        }
-
-        .review-profile { display: flex; align-items: center; gap: 10px; }
-
-        .review-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(145deg, #ff9f83, #ff5a5f);
-            color: #fff;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .review-name { font-weight: 800; }
-        .review-stars { color: var(--warning); font-size: 0.9rem; }
-        .review-text { color: var(--ink-700); font-size: 0.95rem; }
-
-        .review-form {
-            margin-top: 16px;
-            border-top: 1px solid var(--line);
-            padding-top: 14px;
-            display: grid;
-            gap: 10px;
-        }
-
-        .review-form textarea,
-        .review-form select,
-        .review-form input {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 10px 12px;
-            font: inherit;
-            color: var(--ink-700);
-            background: #fff;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 60px 20px;
-            font-size: 1.1rem;
-            color: var(--ink-500);
-        }
-
-        .loading i {
-            font-size: 2.6rem;
-            color: var(--brand);
-            animation: spin 1s linear infinite;
-            margin-bottom: 14px;
-        }
-
-        .error-note {
-            margin-top: 10px;
-            font-size: 0.84rem;
-            color: #ffd7d9;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
+        /* ─── RESPONSIVE ─────────────────────────────────── */
         @media (max-width: 1180px) {
-            .hero-grid { grid-template-columns: 1fr; }
-            .booking-panel { position: static; }
-            .custom-vr-viewer { min-height: 440px; }
+            .hero-media { grid-template-columns: 1fr; height: auto; }
+            .hero-main-wrap { min-height: 340px; }
+            .media-cards-grid { grid-template-columns: repeat(4,1fr); grid-template-rows: 1fr; height: 110px; }
+            .detail-layout { grid-template-columns: 1fr; }
+            .detail-sidebar { position: static; }
         }
-
         @media (max-width: 900px) {
+            /* ── Navbar ── */
+            .header { padding: 10px 16px; }
+            .header-logo img { max-height: 1.85rem; }
             .menu-toggle { display: flex; }
-
-            .nav-container {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 82%;
-                max-width: 320px;
-                height: 100vh;
-                background-color: #fff;
-                flex-direction: column;
-                padding: 5rem 1.5rem 2rem;
-                transition: right 0.28s ease;
-                margin-left: 0;
-                box-shadow: -10px 0 24px rgba(17, 17, 17, 0.15);
-                z-index: 1999;
-                overflow-y: auto;
-                border-left: 1px solid var(--line);
+            .menu-toggle span { width: 22px; height: 2.5px; margin: 2.5px 0; }
+            .user-profile { display: none; }
+            .mobile-login-btn {
+                display: inline-flex; align-items: center;
+                padding: 7px 14px; border-radius: 999px;
+                text-decoration: none; color: #fff;
+                background: linear-gradient(135deg,#1d2530,#2f3a4a);
+                font-size: .79rem; font-weight: 700; letter-spacing: .04em;
+                white-space: nowrap; margin-right: 8px; flex-shrink: 0;
             }
-
+            /* ── Slide-out drawer ── */
+            .nav-container {
+                position: fixed; top: 0; right: -100%; width: 82%; max-width: 320px;
+                height: 100vh; background: #fff; flex-direction: column;
+                padding: 5rem 1.5rem 2rem; transition: right .28s ease;
+                margin-left: 0; box-shadow: -10px 0 24px rgba(17,17,17,.15);
+                z-index: 1999; overflow-y: auto; border-left: 1px solid var(--line);
+            }
             .nav-container.active { right: 0; }
-            .nav-links { flex-direction: column; gap: 0.9rem; width: 100%; margin-bottom: 1.8rem; }
+            .nav-links { flex-direction: column; gap: .9rem; width: 100%; margin-bottom: 1.8rem; }
             .user-name { display: none; }
-            .main-content { width: min(1440px, 100% - 20px); }
+            /* ── Content spacing (safe-area for iPhone notch) ── */
+            .main-content {
+                width: min(1440px, 100% - 20px);
+                margin-top: calc(64px + env(safe-area-inset-top, 0px));
+            }
+            /* ── VR ── */
             .custom-vr-viewer { min-height: 320px; }
             .viewer-overlay-top { left: 12px; right: 12px; top: 12px; }
-            .viewer-meta { left: 14px; right: 14px; bottom: 14px; }
-            .gallery-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+            /* ── Gallery ── */
+            .gallery-grid { grid-template-columns: repeat(6,minmax(0,1fr)); }
             .gallery-item { grid-column: span 3; min-height: 132px; }
             .gallery-item.large { grid-column: span 6; min-height: 190px; }
-            .cta-row { flex-direction: column; }
-            .viewer-tour-strip { bottom: 96px; }
+            /* ── Reviews ── */
             .review-summary { grid-template-columns: 1fr; }
+            /* ── Prop header ── */
+            .prop-hdr { flex-direction: column; gap: 8px; }
+            .prop-hdr-actions { display: none; }
+            /* ── Section cards ── */
+            .det-sec { padding: 16px 14px; margin-bottom: 14px; }
+            .lnb { display: none; }
+            /* ── Distance section: 2×2 compact grid ── */
+            .location-meta-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .loc-item { padding: 9px 10px; gap: 8px; border-radius: 10px; }
+            .loc-icon { width: 28px; height: 28px; flex-shrink: 0; }
+            .loc-icon i { width: 14px !important; height: 14px !important; }
+            .loc-label { font-size: .63rem; }
+            .loc-val { font-size: .82rem; }
+            .dist-from-row { font-size: .73rem; padding-bottom: 9px; margin-bottom: 10px; }
+            .view-map-btn { padding: 9px 16px; font-size: .8rem; margin-top: 12px; }
+            /* ── Building info: 2-col compact ── */
+            .building-info-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .bi-card { padding: 10px 12px; border-radius: 10px; gap: 2px; }
+            .bi-label { font-size: .62rem; }
+            .bi-value { font-size: .86rem; }
+            /* ── Feature tags ── */
+            .feature-tags-bar { gap: 6px; padding: 10px 0 4px; }
+            .feature-tag { padding: 6px 11px; font-size: .78rem; }
+            .ft-icon { width: 13px; height: 13px; }
+            /* ── Hero ── */
+            .hero-media { border-radius: 14px; }
+            .hero-main-wrap { min-height: 260px; }
         }
-
         @media (max-width: 560px) {
-            .header { padding: 10px 12px; }
-            .header-logo img { max-height: 2rem; }
-            .main-content { margin-top: 78px; }
-            .section-card { padding: 16px; border-radius: 18px; }
-            .booking-panel { padding: 16px; }
-            .viewer-badge, .viewer-fullscreen, .viewer-reset, .tour-chip { font-size: 0.7rem; padding: 8px 10px; }
-            .viewer-title { font-size: 1.05rem; }
-            .tabs { gap: 6px; }
-            .tab-btn { font-size: 0.82rem; padding: 8px 12px; }
+            .header { padding: 9px 12px; }
+            .header-logo img { max-height: 1.72rem; }
+            .menu-toggle span { width: 20px; height: 2px; margin: 2px 0; }
+            .mobile-login-btn { padding: 6px 11px; font-size: .74rem; margin-right: 6px; }
+            .main-content { margin-top: calc(56px + env(safe-area-inset-top, 0px)); }
+            .det-sec { padding: 14px 12px; border-radius: 14px; margin-bottom: 12px; }
+            .tabs { gap: 5px; }
+            .tab-btn { font-size: .78rem; padding: 7px 10px; }
+            .media-cards-grid { grid-template-columns: repeat(2,1fr); grid-template-rows: 1fr 1fr; height: 180px; }
+            .prop-name { font-size: 1.2rem; }
+            .det-sec-title { font-size: .98rem; }
+            .review-score-card, .review-tag-card { padding: 11px; }
+            .price-val { font-size: 1.6rem; }
+            .btn-primary-full, .btn-outline-full { padding: 11px; font-size: .88rem; }
+            .amenity-pill { padding: 6px 10px; font-size: .79rem; }
+            /* Building info: single column on very narrow screens */
+            .building-info-grid { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
     <header class="header">
         <div class="header-logo">
-            <img src="/image/logo.png" alt="HUST">
+            <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png" alt="eDorm" style="max-height:38px;width:auto;object-fit:contain;">
         </div>
-        <nav class="nav-container">
+        <nav class="nav-container" id="navContainer">
             <div class="nav-links">
                 <a href="/home" class="nav-link">Trang chủ</a>
-                <a href="/map" class="nav-link">Bản đồ</a>
                 <a href="/register" class="nav-link active-link">Đăng ký</a>
                 <a href="/room-status" class="nav-link">Phòng</a>
                 <a href="/maintenance-requests" class="nav-link">Bảo trì</a>
@@ -797,236 +735,714 @@
             <div class="avatar-container" onclick="toggleDropdown()">
                 <div class="avatar" id="userAvatar">U</div>
                 <span class="user-name" id="userName">Sinh viên</span>
-                <i class="fas fa-chevron-down"></i>
+                <i data-lucide="chevron-down" style="width:14px;height:14px;color:var(--ink-500)"></i>
             </div>
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="/profile" class="dropdown-item">
-                    <i class="fas fa-user"></i> Hồ sơ
+                    <i data-lucide="user" style="width:16px;height:16px"></i> Hồ sơ
                 </a>
                 <a href="#" class="dropdown-item" onclick="logout(); return false;">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
+                    <i data-lucide="log-out" style="width:16px;height:16px"></i> Đăng xuất
                 </a>
             </div>
         </div>
+        <!-- Login button: only visible on mobile, hides the auth avatar -->
+        <a href="/login" class="mobile-login-btn" aria-label="Đăng nhập">Đăng nhập</a>
         <div class="menu-toggle" onclick="toggleMenu()">
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span>
         </div>
     </header>
 
+    <!-- Sticky section nav (appears on scroll) -->
+    <div class="lnb" id="lnb">
+        <div class="lnb-inner">
+            <nav class="lnb-links">
+                <a class="lnb-link active" href="#secDistance" onclick="navClick(this,'secDistance');return false;">Vị trí</a>
+                <a class="lnb-link" href="#secInfo" onclick="navClick(this,'secInfo');return false;">Thông tin</a>
+                <a class="lnb-link" href="#secAmenities" onclick="navClick(this,'secAmenities');return false;">Tiện ích</a>
+                <a class="lnb-link" href="#secVrTour" onclick="navClick(this,'secVrTour');return false;">VR Tour</a>
+                <a class="lnb-link" href="#secGallery" onclick="navClick(this,'secGallery');return false;">Thư viện</a>
+                <a class="lnb-link" href="#secMap" onclick="navClick(this,'secMap');return false;">Bản đồ</a>
+                <a class="lnb-link" href="#secReviews" onclick="navClick(this,'secReviews');return false;">Đánh giá</a>
+            </nav>
+        </div>
+    </div>
+
     <main class="main-content">
         <div id="loading" class="loading">
-            <i class="fas fa-spinner"></i>
+            <div class="spinner"></div>
             <p>Đang tải thông tin...</p>
         </div>
 
         <div id="content" style="display:none;">
             <div class="page-shell">
-                <div class="hero-grid">
-                    <section class="viewer-card" id="viewerCard">
-                        <div class="custom-vr-viewer" id="customVrViewer">
-                            <div class="vr-track" id="vrTrack">
-                                <img id="vrImage" src="/image/camp1.png" alt="Không gian phòng">
-                            </div>
-                            <div class="vr-hotspot-layer" id="vrHotspotLayer"></div>
-                        </div>
-                        <div class="viewer-overlay-top">
-                            <span class="viewer-badge"><i class="fas fa-vr-cardboard"></i> Trải nghiệm 360</span>
-                            <div class="viewer-controls">
-                                <button class="viewer-reset" id="resetVrBtn" type="button"><i class="fas fa-rotate-left"></i> Đặt lại</button>
-                                <button class="viewer-fullscreen" id="fullscreenBtn" type="button"><i class="fas fa-expand"></i> Toàn màn hình</button>
-                            </div>
-                        </div>
-                        <div class="viewer-tour-strip" id="viewerTourStrip"></div>
-                        <div class="viewer-gradient"></div>
-                        <div class="viewer-meta">
-                            <div>
-                                <h1 class="viewer-title" id="heroDormName">Phòng KTX tiêu chuẩn</h1>
-                                <p class="viewer-subtitle" id="heroDormAddress">Hệ thống ký túc xá chất lượng cao</p>
-                                <p class="viewer-guide">Giữ chuột và kéo để xoay góc nhìn, cuộn để phóng to/thu nhỏ.</p>
-                            </div>
-                            <div class="viewer-subtitle">VR nội bộ</div>
-                        </div>
-                    </section>
 
-                    <aside class="booking-panel" id="bookingPanel">
-                        <span class="booking-status" id="availabilityBadge">Còn phòng</span>
-                        <h2 class="booking-title" id="selectedRoomName">Phòng KTX tiêu chuẩn</h2>
-
-                        <div class="feature-list">
-                            <div class="feature-item"><span><i class="fas fa-bed"></i> Tổng số giường</span><span id="featureBeds">2</span></div>
-                            <div class="feature-item"><span><i class="fas fa-user-check"></i> Đang sử dụng</span><span id="featureOccupiedBeds">0</span></div>
-                            <div class="feature-item"><span><i class="fas fa-circle-check"></i> Còn trống</span><span id="featureAvailableBeds">2</span></div>
+                <!-- ① Property Header -->
+                <div class="prop-hdr">
+                    <div>
+                        <h1 class="prop-name" id="propName">Ký túc xá HUST</h1>
+                        <div class="prop-meta">
+                            <div class="prop-rating" id="propRating"></div>
+                            <span class="prop-sep">·</span>
+                            <span class="prop-addr" id="propAddr">
+                                <i data-lucide="map-pin" style="width:13px;height:13px;flex-shrink:0"></i>
+                                <span id="propAddrText"></span>
+                            </span>
                         </div>
-
-                        <div class="cta-row">
-                            <button class="btn btn-secondary" type="button" onclick="askMore()">Hỏi ngay</button>
-                        </div>
-                    </aside>
+                    </div>
+                    <div class="prop-hdr-actions">
+                        <button class="icon-action-btn" onclick="shareProperty()">
+                            <i data-lucide="share-2" style="width:15px;height:15px"></i>
+                            Chia sẻ
+                        </button>
+                        <button class="icon-action-btn" id="saveBtn">
+                            <i data-lucide="heart" style="width:15px;height:15px"></i>
+                            Lưu
+                        </button>
+                    </div>
                 </div>
 
-                <nav class="local-nav">
-                    <button class="nav-chip active" data-target="sectionGallery">Bộ sưu tập</button>
-                    <button class="nav-chip" data-target="sectionAmenities">Tiện ích</button>
-                    <button class="nav-chip" data-target="sectionReviews">Đánh giá</button>
-                </nav>
-
-                <section class="section-card" id="sectionGallery">
-                    <div class="section-title-row">
-                        <h3 class="section-title">Image / VR Gallery</h3>
-                    </div>
-                    <div class="tabs" id="galleryTabs">
-                        <button class="tab-btn active" data-filter="all">Tất cả <span class="count" id="countAll">0</span></button>
-                        <button class="tab-btn" data-filter="vr">VR <span class="count" id="countVr">0</span></button>
-                        <button class="tab-btn" data-filter="room">Ảnh phòng <span class="count" id="countRoom">0</span></button>
-                        <button class="tab-btn" data-filter="amenity">Tiện ích <span class="count" id="countAmenity">0</span></button>
-                        <button class="tab-btn" data-filter="community">Cộng đồng <span class="count" id="countCommunity">0</span></button>
-                    </div>
-                    <div class="gallery-grid" id="galleryGrid"></div>
-                </section>
-
-                <section class="section-card" id="sectionAmenities">
-                    <div class="section-title-row">
-                        <h3 class="section-title">Hệ thống tiện ích</h3>
-                    </div>
-                    <div class="amenity-cloud" id="amenityCloud"></div>
-                </section>
-
-                <section class="section-card" id="sectionReviews">
-                    <div class="section-title-row">
-                        <h3 class="section-title">Hệ thống đánh giá</h3>
+                <!-- ② Hero Media Gallery -->
+                <div class="hero-media" id="heroMedia">
+                    <!-- Main photo carousel -->
+                    <div class="hero-main-wrap">
+                        <img class="hero-main-img" id="heroMainImg" src="/image/camp1.png" alt="Ảnh ký túc xá">
+                        <button class="img-nav-btn prev" id="imgPrevBtn" aria-label="Ảnh trước">
+                            <i data-lucide="chevron-left" style="width:20px;height:20px"></i>
+                        </button>
+                        <button class="img-nav-btn next" id="imgNextBtn" aria-label="Ảnh tiếp">
+                            <i data-lucide="chevron-right" style="width:20px;height:20px"></i>
+                        </button>
+                        <div class="img-counter" id="imgCounter">1 / 1</div>
                     </div>
 
-                    <div class="review-summary">
-                        <div class="review-score-card">
-                            <div class="score-value" id="reviewScoreValue">4.5</div>
-                            <div class="score-stars" id="reviewScoreStars">★★★★☆</div>
-                            <div style="font-size:0.88rem; color:var(--ink-500); margin-top:6px;" id="reviewScoreCaption">Được đánh giá bởi 2 sinh viên</div>
+                    <!-- 2×2 media cards -->
+                    <div class="media-cards-grid">
+                        <div class="mc" id="mcVideos">
+                            <img class="mc-bg" id="mcBgVideos" src="/image/camp1.png" alt="">
+                            <div class="mc-ov">
+                                <i data-lucide="play-circle" class="mc-icon"></i>
+                                <div class="mc-label" id="mcLabelVideos">Video</div>
+                            </div>
                         </div>
-                        <div class="review-tag-card">
-                            <div style="font-weight:800; font-size:0.92rem;">Thẻ nổi bật</div>
-                            <div class="tag-cloud" id="highlightTags"></div>
+                        <div class="mc" id="mcSnapshot">
+                            <img class="mc-bg" id="mcBgSnapshot" src="/image/camp1.png" alt="">
+                            <div class="mc-ov">
+                                <i data-lucide="camera" class="mc-icon"></i>
+                                <div class="mc-label">Snapshot</div>
+                                <div class="mc-sub coming-soon-tag">Sắp có</div>
+                            </div>
+                        </div>
+                        <div class="mc mc-vr" id="mcVr">
+                            <img class="mc-bg" id="mcBgVr" src="/image/camp1.png" alt="">
+                            <div class="mc-ov">
+                                <i data-lucide="box" class="mc-icon mc-icon-lg"></i>
+                                <div class="mc-label">VR Tour</div>
+                                <div class="mc-sub">360°</div>
+                            </div>
+                        </div>
+                        <div class="mc" id="mcPhotos">
+                            <img class="mc-bg" id="mcBgPhotos" src="/image/camp1.png" alt="">
+                            <div class="mc-ov">
+                                <i data-lucide="images" class="mc-icon"></i>
+                                <div class="mc-label" id="mcLabelPhotos">Ảnh</div>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="reviews" id="reviewsList"></div>
+                <!-- ③ Feature tags -->
+                <div class="feature-tags-bar" id="featureTagsBar"></div>
 
-                    <form class="review-form" id="reviewForm">
-                        <input id="reviewerName" type="text" placeholder="Tên của bạn" required>
-                        <select id="reviewRating" required>
-                            <option value="">Chọn số sao</option>
-                            <option value="5">5 sao</option>
-                            <option value="4">4 sao</option>
-                            <option value="3">3 sao</option>
-                            <option value="2">2 sao</option>
-                            <option value="1">1 sao</option>
-                        </select>
-                        <textarea id="reviewText" rows="4" placeholder="Chia sẻ trải nghiệm của bạn" required></textarea>
-                        <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
-                    </form>
-                </section>
-            </div>
-        </div>
+                <!-- ④ Two-column layout -->
+                <div class="detail-layout">
+
+                    <!-- Left: content sections -->
+                    <div class="detail-main">
+
+                        <!-- Distance & location -->
+                        <section class="det-sec" id="secDistance">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Khoảng cách đến trường</h2>
+                            </div>
+                            <div class="dist-from-row">
+                                <i data-lucide="map-pin" style="width:14px;height:14px;flex-shrink:0"></i>
+                                Trường Đại học Bách Khoa Hà Nội
+                            </div>
+                            <div class="location-meta-grid" id="locationMetaGrid"></div>
+                            <a class="view-map-btn" href="#secMap" onclick="scrollToSection('secMap'); return false;">
+                                <i data-lucide="map" style="width:15px;height:15px"></i>
+                                Xem bản đồ
+                            </a>
+                        </section>
+
+                        <!-- Building info -->
+                        <section class="det-sec" id="secInfo">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Thông tin tòa nhà</h2>
+                            </div>
+                            <div class="building-info-grid" id="buildingInfoGrid"></div>
+                        </section>
+
+                        <!-- Amenities -->
+                        <section class="det-sec" id="secAmenities">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Hệ thống tiện ích</h2>
+                            </div>
+                            <div class="amenity-cloud" id="amenityCloud"></div>
+                        </section>
+
+                        <!-- VR Tour -->
+                        <section class="det-sec" id="secVrTour">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Trải nghiệm VR 360°</h2>
+                                <a class="det-sec-action" id="vrFullBtn" href="/vr-tour" target="_blank">
+                                    <i data-lucide="external-link" style="width:13px;height:13px"></i>
+                                    Toàn màn hình
+                                </a>
+                            </div>
+                            <div class="custom-vr-viewer" id="customVrViewer">
+                                <div class="vr-track" id="vrTrack">
+                                    <img id="vrImage" src="/image/camp1.png" alt="Không gian phòng">
+                                </div>
+                                <div class="vr-hotspot-layer" id="vrHotspotLayer"></div>
+                                <div class="viewer-overlay-top">
+                                    <span class="viewer-badge">
+                                        <i data-lucide="box" style="width:12px;height:12px"></i>
+                                        360° VR
+                                    </span>
+                                    <div class="viewer-controls">
+                                        <button class="viewer-reset" id="resetVrBtn" type="button">
+                                            <i data-lucide="rotate-ccw" style="width:12px;height:12px"></i>
+                                            Đặt lại
+                                        </button>
+                                        <button class="viewer-fullscreen" id="fullscreenBtn" type="button">
+                                            <i data-lucide="maximize" style="width:12px;height:12px"></i>
+                                            Toàn màn hình
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="viewer-tour-strip" id="viewerTourStrip"></div>
+                                <div class="viewer-gradient"></div>
+                            </div>
+                            <p class="vr-hint-text">Giữ chuột và kéo để xoay góc nhìn · Cuộn để phóng to/thu nhỏ</p>
+                        </section>
+
+                        <!-- Gallery -->
+                        <section class="det-sec" id="secGallery">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Thư viện ảnh &amp; media</h2>
+                            </div>
+                            <div class="tabs" id="galleryTabs">
+                                <button class="tab-btn active" data-filter="all">Tất cả <span class="count" id="countAll">0</span></button>
+                                <button class="tab-btn" data-filter="video" id="tabVideo" style="display:none">Video <span class="count" id="countVideo">0</span></button>
+                                <button class="tab-btn" data-filter="vr">VR <span class="count" id="countVr">0</span></button>
+                                <button class="tab-btn" data-filter="room">Ảnh phòng <span class="count" id="countRoom">0</span></button>
+                                <button class="tab-btn" data-filter="amenity">Tiện ích <span class="count" id="countAmenity">0</span></button>
+                                <button class="tab-btn" data-filter="community">Cộng đồng <span class="count" id="countCommunity">0</span></button>
+                            </div>
+                            <div class="gallery-grid" id="galleryGrid"></div>
+                        </section>
+
+                        <!-- Map -->
+                        <section class="det-sec" id="secMap">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Vị trí trên bản đồ</h2>
+                            </div>
+                            <div id="dormDetailMap"></div>
+                        </section>
+
+                        <!-- Reviews -->
+                        <section class="det-sec" id="secReviews">
+                            <div class="det-sec-head">
+                                <h2 class="det-sec-title">Đánh giá từ sinh viên</h2>
+                            </div>
+                            <div class="review-summary">
+                                <div class="review-score-card">
+                                    <div class="score-value" id="reviewScoreValue">4.5</div>
+                                    <div class="score-stars" id="reviewScoreStars">★★★★☆</div>
+                                    <div style="font-size:.87rem;color:var(--ink-500);margin-top:6px" id="reviewScoreCaption"></div>
+                                </div>
+                                <div class="review-tag-card">
+                                    <div style="font-weight:800;font-size:.9rem">Thẻ nổi bật</div>
+                                    <div class="tag-cloud" id="highlightTags"></div>
+                                </div>
+                            </div>
+                            <div class="reviews" id="reviewsList"></div>
+                            <form class="review-form" id="reviewForm">
+                                <input id="reviewerName" type="text" placeholder="Tên của bạn" required>
+                                <select id="reviewRating" required>
+                                    <option value="">Chọn số sao</option>
+                                    <option value="5">5 sao ★★★★★</option>
+                                    <option value="4">4 sao ★★★★☆</option>
+                                    <option value="3">3 sao ★★★☆☆</option>
+                                    <option value="2">2 sao ★★☆☆☆</option>
+                                    <option value="1">1 sao ★☆☆☆☆</option>
+                                </select>
+                                <textarea id="reviewText" rows="4" placeholder="Chia sẻ trải nghiệm của bạn" required></textarea>
+                                <button class="btn btn-primary" type="submit">Gửi đánh giá</button>
+                            </form>
+                        </section>
+
+                    </div><!-- .detail-main -->
+
+                    <!-- Right: sticky price sidebar -->
+                    <aside class="detail-sidebar">
+                        <div class="price-card" id="priceCard">
+                            <div class="price-from-lbl">Từ</div>
+                            <div class="price-amount">
+                                <span class="price-val" id="priceSidebarMin">—</span>
+                                <span class="price-unit">₫ / tháng</span>
+                            </div>
+                            <div class="avail-badge-sidebar avail-yes" id="availSidebar">Còn phòng</div>
+                            <div class="sidebar-room-info" id="sidebarRoomInfo"></div>
+                            <button class="btn-primary-full" onclick="window.location.href='/register'">
+                                Đăng ký ngay
+                            </button>
+                            <button class="btn-outline-full" onclick="askMore()">
+                                Liên hệ tư vấn
+                            </button>
+                            <div class="social-proof" id="socialProof">
+                                <i data-lucide="eye" style="width:14px;height:14px;flex-shrink:0"></i>
+                                <span>93 lượt xem tuần này</span>
+                            </div>
+                        </div>
+                    </aside>
+
+                </div><!-- .detail-layout -->
+
+            </div><!-- .page-shell -->
+        </div><!-- #content -->
     </main>
 
-    <script>
-        let dormitoryData = null;
-        let roomVariants = [];
-        let galleryItems = [];
-        let currentGalleryFilter = 'all';
-        let vrScenes = [];
-        let currentVrSceneIndex = 0;
+    <!-- Video modal -->
+    <div id="videoModal">
+        <div class="vm-inner">
+            <button class="vm-close" id="vmClose" title="Đóng">
+                <i data-lucide="x" style="width:18px;height:18px"></i>
+            </button>
+            <div id="vmContent"></div>
+        </div>
+    </div>
 
-        const vrState = {
-            x: -20,
-            y: 0,
-            scale: 1,
-            dragging: false,
-            startX: 0,
-            startY: 0,
-            originX: -20,
-            originY: 0
-        };
+    <!-- Lucide icons CDN -->
+    <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
+
+    <script>
+        /* ─────────────────────────────────────────────────────
+           ICON SYSTEM
+        ───────────────────────────────────────────────────── */
+        function refreshIcons() {
+            if (window.lucide) window.lucide.createIcons();
+        }
+
+        /* ─────────────────────────────────────────────────────
+           STATE
+        ───────────────────────────────────────────────────── */
+        let dormitoryData   = null;
+        let roomVariants    = [];
+        let galleryItems    = [];
+        let currentGalleryFilter = 'all';
+        let vrScenes        = [];
+        let currentVrSceneIndex = 0;
+        let heroImages      = [];
+        let heroCurrentIdx  = 0;
+
+        const vrState = { x: -20, y: 0, scale: 1, dragging: false, startX: 0, startY: 0, originX: -20, originY: 0 };
 
         const dormId = window.location.pathname.split('/').pop();
 
         const fallbackReviews = [
-            {
-                name: 'Nguyễn Minh Anh',
-                stars: 5,
-                text: 'Không gian sạch, phần VR giúp mình hình dung phòng rất rõ trước khi đăng ký.'
-            },
-            {
-                name: 'Trần Bảo Châu',
-                stars: 4,
-                text: 'Tiện ích ổn, khu vực chung an toàn, quy trình đăng ký khá nhanh gọn.'
-            }
+            { name: 'Nguyễn Minh Anh', stars: 5, text: 'Không gian sạch, phần VR giúp mình hình dung phòng rất rõ trước khi đăng ký.' },
+            { name: 'Trần Bảo Châu',   stars: 4, text: 'Tiện ích ổn, khu vực chung an toàn, quy trình đăng ký khá nhanh gọn.' }
         ];
-
         const defaultHighlightTags = ['Wifi tốt', 'An ninh tốt', 'Phòng sạch', 'Đăng ký nhanh'];
 
+        /* ─────────────────────────────────────────────────────
+           LOAD DATA
+        ───────────────────────────────────────────────────── */
         async function loadDormitoryData() {
             try {
                 const response = await fetch(`/api/dormitories/${dormId}`);
                 const data = await response.json();
-
-                if (!data.success || !data.dormitory) {
-                    throw new Error('Không tìm thấy thông tin ký túc xá');
-                }
+                if (!data.success || !data.dormitory) throw new Error('Không tìm thấy thông tin ký túc xá');
 
                 dormitoryData = data.dormitory;
-                hydrateHeaderInfo();
+
                 buildRoomVariants();
                 buildGalleryItems();
+
+                hydratePropertyHeader();
+                initHeroCarousel();
+                renderMediaCards();
+                renderFeatureTags();
+                renderPriceSidebar();
+
                 renderGalleryTabs();
                 renderGallery();
                 renderAmenities();
+                renderBuildingInfo();
+                renderLocationSection();
                 renderReviews(fallbackReviews);
                 renderReviewSummary();
                 initCustomVr();
-                wireLocalNav();
                 wireGalleryTabs();
                 initFullscreenButton();
+                initLocalNav();
+                initMapWhenVisible();
 
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
+                setTimeout(refreshIcons, 30);
             } catch (error) {
                 console.error('Error loading dormitory detail:', error);
                 document.getElementById('loading').innerHTML = `
-                    <i class="fas fa-exclamation-circle" style="color:#dc3545"></i>
-                    <p style="color:#dc3545">Không thể tải thông tin. Vui lòng thử lại.</p>
-                `;
+                    <div style="font-size:2.4rem;margin-bottom:14px;color:#dc3545">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    </div>
+                    <p style="color:#dc3545">Không thể tải thông tin. Vui lòng thử lại.</p>`;
             }
         }
 
-        function hydrateHeaderInfo() {
-            const dormName = dormitoryData.name || 'Phòng KTX tiêu chuẩn';
-            const dormAddress = dormitoryData.address || 'Khu ký túc xá hiện đại';
-            document.getElementById('heroDormName').textContent = dormName;
-            document.getElementById('heroDormAddress').textContent = dormAddress;
+        /* ─────────────────────────────────────────────────────
+           PROPERTY HEADER
+        ───────────────────────────────────────────────────── */
+        function hydratePropertyHeader() {
+            const d = dormitoryData;
+            document.getElementById('propName').textContent = d.name || 'Ký túc xá HUST';
+            document.getElementById('propAddrText').textContent = d.address || '—';
 
-            const available = dormitoryData.details?.available !== false;
-            const badge = document.getElementById('availabilityBadge');
-            badge.textContent = available ? 'Còn phòng' : 'Tạm hết';
-            badge.style.background = available ? 'rgba(31, 157, 92, 0.12)' : 'rgba(220, 53, 69, 0.12)';
-            badge.style.color = available ? 'var(--success)' : '#dc3545';
+            const score = 4.5;
+            const fullStars = Math.floor(score);
+            document.getElementById('propRating').innerHTML =
+                `<span class="star-gold">${'★'.repeat(fullStars)}</span><span style="color:var(--line)">${'★'.repeat(5-fullStars)}</span>` +
+                `&nbsp;<strong>${score.toFixed(1)}</strong>&nbsp;<span class="rev-count">(${fallbackReviews.length} đánh giá)</span>`;
+
+            const vrPath = d.virtualTour || '/vr-tour';
+            const vrBtn = document.getElementById('vrFullBtn');
+            if (vrBtn) vrBtn.href = vrPath;
+
+            refreshIcons();
         }
 
+        /* ─────────────────────────────────────────────────────
+           HERO CAROUSEL
+        ───────────────────────────────────────────────────── */
+        function initHeroCarousel() {
+            const dormImages = dormitoryData.images || [];
+            const legacyImg  = dormitoryData.imageUrl || dormitoryData.coverImage || '';
+            const allImgs    = [...new Set([...dormImages, legacyImg].filter(Boolean))];
+            const roomImgs   = roomVariants.map(r => r.imageUrl).filter(Boolean);
+            const pool       = allImgs.length > 0 ? allImgs : roomImgs;
+            heroImages       = pool.length > 0 ? pool : ['/image/camp1.png'];
+            heroCurrentIdx   = 0;
+
+            setHeroImage(0);
+
+            const prevBtn = document.getElementById('imgPrevBtn');
+            const nextBtn = document.getElementById('imgNextBtn');
+
+            if (heroImages.length <= 1) {
+                if (prevBtn) prevBtn.style.display = 'none';
+                if (nextBtn) nextBtn.style.display = 'none';
+                document.getElementById('imgCounter').style.display = 'none';
+            } else {
+                prevBtn.addEventListener('click', () => {
+                    heroCurrentIdx = (heroCurrentIdx - 1 + heroImages.length) % heroImages.length;
+                    setHeroImage(heroCurrentIdx);
+                });
+                nextBtn.addEventListener('click', () => {
+                    heroCurrentIdx = (heroCurrentIdx + 1) % heroImages.length;
+                    setHeroImage(heroCurrentIdx);
+                });
+            }
+        }
+
+        function setHeroImage(idx) {
+            const img = document.getElementById('heroMainImg');
+            img.style.opacity = '0';
+            setTimeout(() => { img.src = heroImages[idx]; img.style.opacity = '1'; }, 150);
+            const counter = document.getElementById('imgCounter');
+            if (counter) counter.textContent = `${idx + 1} / ${heroImages.length}`;
+        }
+
+        /* ─────────────────────────────────────────────────────
+           MEDIA CARDS
+        ───────────────────────────────────────────────────── */
+        function renderMediaCards() {
+            const cover    = heroImages[0] || '/image/camp1.png';
+            const videos   = galleryItems.filter(g => g.type === 'video');
+            const photos   = galleryItems.filter(g => g.mediaType === 'image');
+            const vrPath   = dormitoryData.virtualTour || null;
+
+            // Videos card
+            const mcVideos = document.getElementById('mcVideos');
+            const mcBgVid  = document.getElementById('mcBgVideos');
+            if (mcBgVid) mcBgVid.src = heroImages[1] || cover;
+            if (mcVideos) {
+                if (videos.length === 0) {
+                    mcVideos.style.opacity = '.55';
+                } else {
+                    document.getElementById('mcLabelVideos').textContent = `${videos.length} Video`;
+                    mcVideos.addEventListener('click', () => openVideoModal(videos[0]));
+                }
+            }
+
+            // Snapshot card (coming soon)
+            const mcBgSnap = document.getElementById('mcBgSnapshot');
+            if (mcBgSnap) mcBgSnap.src = heroImages[2] || heroImages[1] || cover;
+
+            // VR card
+            const mcBgVr = document.getElementById('mcBgVr');
+            if (mcBgVr) mcBgVr.src = heroImages[3] || heroImages[2] || cover;
+            const mcVrEl = document.getElementById('mcVr');
+            if (mcVrEl) {
+                mcVrEl.addEventListener('click', () => {
+                    if (vrPath) window.open(vrPath, '_blank');
+                    else scrollToSection('secVrTour');
+                });
+            }
+
+            // Photos card
+            const mcBgPhotos = document.getElementById('mcBgPhotos');
+            if (mcBgPhotos) mcBgPhotos.src = heroImages[4] || heroImages[1] || cover;
+            const lbl = document.getElementById('mcLabelPhotos');
+            if (lbl) lbl.textContent = photos.length > 0 ? `${photos.length} Ảnh` : 'Ảnh';
+            const mcPhotosEl = document.getElementById('mcPhotos');
+            if (mcPhotosEl) mcPhotosEl.addEventListener('click', () => scrollToSection('secGallery'));
+        }
+
+        /* ─────────────────────────────────────────────────────
+           FEATURE TAGS
+        ───────────────────────────────────────────────────── */
+        function renderFeatureTags() {
+            const d = dormitoryData;
+            const amenities = (d.details?.amenities || []).map(a => a.toLowerCase());
+            const tags = [];
+
+            if (d.virtualTour) tags.push({ icon: 'box', label: 'VR Tour' });
+
+            if (amenities.some(a => a.includes('wifi') || a.includes('internet')))
+                tags.push({ icon: 'wifi', label: 'Wifi miễn phí' });
+
+            if (amenities.some(a => a.includes('bảo vệ') || a.includes('an ninh') || a.includes('security') || a.includes('24/7')))
+                tags.push({ icon: 'shield', label: 'An ninh 24/7' });
+
+            if (amenities.some(a => a.includes('dọn') || a.includes('vệ sinh') || a.includes('cleaning')))
+                tags.push({ icon: 'sparkles', label: 'Dọn dẹp định kỳ' });
+
+            if (amenities.some(a => a.includes('giặt') || a.includes('laundry')))
+                tags.push({ icon: 'layers', label: 'Máy giặt chung' });
+
+            const coords = d.location?.coordinates;
+            if (coords) {
+                const [lng, lat] = coords;
+                const distM = haversineDistance(lat, lng, 21.0048, 105.8435);
+                if (distM < 500) tags.push({ icon: 'building-2', label: 'Trong khuôn viên' });
+                else if (distM < 1500) tags.push({ icon: 'map-pin', label: 'Gần trường' });
+            }
+
+            if (d.details?.available !== false)
+                tags.push({ icon: 'circle-check', label: 'Còn phòng trống' });
+
+            if (d.details?.category === 'premium')
+                tags.push({ icon: 'award', label: 'KTX cao cấp' });
+
+            if (tags.length === 0) {
+                tags.push({ icon: 'building-2', label: 'KTX chính thức' });
+                tags.push({ icon: 'shield', label: 'An ninh' });
+                tags.push({ icon: 'wifi', label: 'Wifi' });
+            }
+
+            const bar = document.getElementById('featureTagsBar');
+            if (bar) {
+                bar.innerHTML = tags.map(t =>
+                    `<div class="feature-tag"><i data-lucide="${t.icon}" class="ft-icon"></i><span>${escapeHtml(t.label)}</span></div>`
+                ).join('');
+            }
+            refreshIcons();
+        }
+
+        /* ─────────────────────────────────────────────────────
+           PRICE SIDEBAR
+        ───────────────────────────────────────────────────── */
+        function renderPriceSidebar() {
+            const d = dormitoryData;
+            const priceMin = d.details?.priceRange?.min || 0;
+            const priceMax = d.details?.priceRange?.max || 0;
+
+            const minEl = document.getElementById('priceSidebarMin');
+            if (minEl) minEl.textContent = priceMin > 0 ? priceMin.toLocaleString('vi-VN') : '—';
+
+            const available = d.details?.available !== false;
+            const badge = document.getElementById('availSidebar');
+            if (badge) {
+                badge.textContent = available ? 'Còn phòng trống' : 'Tạm hết phòng';
+                badge.className = `avail-badge-sidebar ${available ? 'avail-yes' : 'avail-no'}`;
+            }
+
+            let totalBeds = 0, occupiedBeds = 0;
+            (d.floors || []).forEach(floor => {
+                (floor.rooms || []).forEach(room => {
+                    const cap = room.maxCapacity || room.capacity || 2;
+                    totalBeds += cap;
+                    occupiedBeds += Array.isArray(room.occupants)
+                        ? room.occupants.filter(o => o && o.active !== false).length : 0;
+                });
+            });
+            const freeBeds = Math.max(0, totalBeds - occupiedBeds);
+
+            const roomInfo = document.getElementById('sidebarRoomInfo');
+            if (roomInfo) {
+                roomInfo.innerHTML = `
+                    <div class="sidebar-stat"><i data-lucide="bed-double" class="ic-sm"></i><span>${totalBeds} giường tổng</span></div>
+                    <div class="sidebar-stat"><i data-lucide="circle-check" class="ic-sm"></i><span>${freeBeds} còn trống</span></div>
+                    ${priceMax > 0 ? `<div class="sidebar-stat"><i data-lucide="info" class="ic-sm"></i><span>Tối đa ${priceMax.toLocaleString('vi-VN')} ₫/tháng</span></div>` : ''}
+                `;
+            }
+
+            const viewCount = 80 + ((parseInt((dormId || '0').slice(-3), 16) || 0) % 50);
+            const sp = document.getElementById('socialProof');
+            if (sp) sp.innerHTML = `<i data-lucide="eye" style="width:14px;height:14px;flex-shrink:0"></i><span>${viewCount} lượt xem tuần này</span>`;
+
+            refreshIcons();
+        }
+
+        /* ─────────────────────────────────────────────────────
+           BUILDING INFO
+        ───────────────────────────────────────────────────── */
+        function renderBuildingInfo() {
+            const d = dormitoryData;
+            const details = d.details || {};
+            let totalRooms = 0, totalBeds = 0, occupiedBeds = 0;
+            (d.floors || []).forEach(floor => {
+                (floor.rooms || []).forEach(room => {
+                    totalRooms++;
+                    const cap = room.maxCapacity || room.capacity || 2;
+                    totalBeds += cap;
+                    occupiedBeds += Array.isArray(room.occupants)
+                        ? room.occupants.filter(o => o && o.active !== false).length : 0;
+                });
+            });
+            const occupancyPct = totalBeds > 0 ? Math.round(occupiedBeds / totalBeds * 100) : 0;
+            const typeLabel  = { school: 'Ký túc xá trường', private: 'Ký túc xá tư' }[details.type] || details.type || '—';
+            const catLabel   = { basic: 'Cơ bản', premium: 'Cao cấp', international: 'Quốc tế' }[details.category] || details.category || '—';
+            const available  = details.available !== false;
+            const priceMin   = (details.priceRange?.min || 0).toLocaleString('vi-VN');
+            const priceMax   = (details.priceRange?.max || 0).toLocaleString('vi-VN');
+            const shortId    = (d._id || '').toString().slice(-8).toUpperCase();
+
+            const cells = [
+                { label: 'Mã tòa',       value: shortId },
+                { label: 'Loại',         value: typeLabel },
+                { label: 'Hạng phòng',   value: catLabel },
+                { label: 'Số tầng',      value: (details.totalFloors || (d.floors || []).length || '—') + ' tầng' },
+                { label: 'Tổng số phòng',value: totalRooms + ' phòng' },
+                { label: 'Tổng giường',  value: totalBeds + ' giường' },
+                { label: 'Giá phòng',    value: priceMin + ' – ' + priceMax + ' ₫/tháng' },
+                {
+                    label: 'Tỉ lệ lấp đầy',
+                    custom: `<div class="bi-value">${occupiedBeds}/${totalBeds} (${occupancyPct}%)</div>
+                        <div class="occupancy-bar-wrap"><div class="occupancy-bar-bg">
+                            <div class="occupancy-bar-fill" style="width:${occupancyPct}%"></div>
+                        </div></div>`
+                },
+                {
+                    label: 'Trạng thái',
+                    custom: `<span class="bi-badge ${available ? 'active' : 'inactive'}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                        ${available ? 'Đang hoạt động' : 'Tạm dừng'}
+                    </span>`
+                }
+            ];
+
+            document.getElementById('buildingInfoGrid').innerHTML = cells.map(c =>
+                `<div class="bi-card"><span class="bi-label">${c.label}</span>${c.custom || `<span class="bi-value">${c.value}</span>`}</div>`
+            ).join('');
+        }
+
+        /* ─────────────────────────────────────────────────────
+           LOCATION SECTION
+        ───────────────────────────────────────────────────── */
+        function renderLocationSection() {
+            const d = dormitoryData;
+            const coords = d.location?.coordinates;
+            const lat = coords ? coords[1] : 21.0048;
+            const lng = coords ? coords[0] : 105.8435;
+
+            const hustLat = 21.0048, hustLng = 105.8435;
+            const distM    = haversineDistance(lat, lng, hustLat, hustLng);
+            const distDisp = distM < 1000 ? distM + ' m' : (distM / 1000).toFixed(1) + ' km';
+            const walkMin  = Math.round(distM / 80);
+            const bikeMin  = Math.max(1, Math.round(distM / 400));
+
+            const metaItems = [
+                { lucide: 'map-pin',    label: 'Địa chỉ',          val: d.address || '—' },
+                { lucide: 'school',     label: 'Cách trường BKHN', val: distDisp },
+                { lucide: 'footprints', label: 'Đi bộ',            val: walkMin + ' phút' },
+                { lucide: 'bike',       label: 'Xe đạp/máy',       val: bikeMin + ' phút' }
+            ];
+
+            document.getElementById('locationMetaGrid').innerHTML = metaItems.map(m =>
+                `<div class="loc-item">
+                    <div class="loc-icon"><i data-lucide="${m.lucide}" style="width:16px;height:16px"></i></div>
+                    <div><div class="loc-label">${m.label}</div><div class="loc-val">${escapeHtml(m.val)}</div></div>
+                </div>`
+            ).join('');
+            refreshIcons();
+
+            window._dormMapLat  = lat;
+            window._dormMapLng  = lng;
+            window._dormMapName = d.name || 'Ký túc xá';
+            window._dormMapInited = false;
+        }
+
+        function initDormMap() {
+            if (window._dormMapInited) return;
+            window._dormMapInited = true;
+            const lat = window._dormMapLat, lng = window._dormMapLng;
+            const map = L.map('dormDetailMap').setView([lat, lng], 16);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            L.marker([lat, lng]).addTo(map).bindPopup(`<b>${window._dormMapName}</b>`).openPopup();
+        }
+
+        function initMapWhenVisible() {
+            const mapEl = document.getElementById('dormDetailMap');
+            if (!mapEl) return;
+            const observer = new IntersectionObserver(([entry]) => {
+                if (entry.isIntersecting) {
+                    observer.disconnect();
+                    if (!window.L) {
+                        const s = document.createElement('script');
+                        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+                        s.onload = initDormMap;
+                        document.head.appendChild(s);
+                    } else {
+                        initDormMap();
+                    }
+                }
+            });
+            observer.observe(mapEl);
+        }
+
+        /* ─────────────────────────────────────────────────────
+           ROOM VARIANTS
+        ───────────────────────────────────────────────────── */
         function collectRoomsFromFloors() {
             const rooms = [];
-            (dormitoryData.floors || []).forEach((floor, floorIndex) => {
-                (floor.rooms || []).forEach((room, roomIndex) => {
-                    const activeOccupants = Array.isArray(room.occupants)
-                        ? room.occupants.filter(item => item && item.active !== false).length
-                        : 0;
+            (dormitoryData.floors || []).forEach((floor, fi) => {
+                (floor.rooms || []).forEach((room, ri) => {
+                    const active = Array.isArray(room.occupants)
+                        ? room.occupants.filter(o => o && o.active !== false).length : 0;
                     rooms.push({
-                        id: room._id || `floor-${floorIndex}-room-${roomIndex}`,
-                        name: room.name || room.roomNumber || `Phòng ${roomIndex + 1}`,
+                        id: room._id || `f${fi}-r${ri}`,
+                        name: room.name || room.roomNumber || `Phòng ${ri + 1}`,
                         beds: room.maxCapacity || room.capacity || room.beds || 2,
-                        occupiedBeds: activeOccupants,
+                        occupiedBeds: active,
                         imageUrl: room.imageUrl || null,
-                        roomNumber: room.roomNumber || `P${roomIndex + 1}`
+                        roomNumber: room.roomNumber || `P${ri + 1}`
                     });
                 });
             });
@@ -1036,364 +1452,393 @@
         function buildRoomVariants() {
             const apiRooms = collectRoomsFromFloors();
             if (apiRooms.length > 0) {
-                roomVariants = apiRooms.slice(0, 12).map((room) => {
-                    return {
-                        ...room,
-                        beds: Number(room.beds) || 2
-                    };
-                });
+                roomVariants = apiRooms.slice(0, 12).map(r => ({ ...r, beds: Number(r.beds) || 2 }));
             } else {
-                roomVariants = [
-                    {
-                        id: 'std-double',
-                        name: 'Phòng KTX tiêu chuẩn',
-                        beds: 2,
-                        occupiedBeds: 0,
-                        imageUrl: dormitoryData.imageUrl || '/image/camp1.png',
-                        roomNumber: 'P1'
-                    }
-                ];
+                roomVariants = [{
+                    id: 'std-double', name: 'Phòng KTX tiêu chuẩn', beds: 2, occupiedBeds: 0,
+                    imageUrl: dormitoryData.imageUrl || '/image/camp1.png', roomNumber: 'P1'
+                }];
             }
-
-            applyRoomToBookingPanel(roomVariants[0]);
         }
 
+        /* ─────────────────────────────────────────────────────
+           GALLERY
+        ───────────────────────────────────────────────────── */
         function buildGalleryItems() {
-            const baseImages = [];
-            if (dormitoryData.imageUrl) {
-                baseImages.push(dormitoryData.imageUrl);
-            }
+            galleryItems = [];
+            const dormImages = dormitoryData.images || [];
+            const legacyUrl  = dormitoryData.imageUrl || '';
+            const allImages  = [...new Set([...dormImages, legacyUrl].filter(Boolean))];
+            const roomImgUrls = roomVariants.map(r => r.imageUrl).filter(u => u && !allImages.includes(u));
 
-            roomVariants.forEach(room => {
-                if (room.imageUrl) {
-                    baseImages.push(room.imageUrl);
+            allImages.forEach((src, i) => {
+                galleryItems.push({ id: `dorm-img-${i}`, type: 'room', src, label: `Ảnh KTX #${i+1}`, mediaType: 'image' });
+            });
+            roomImgUrls.forEach((src, i) => {
+                galleryItems.push({ id: `room-img-${i}`, type: 'room', src, label: `Ảnh phòng #${i+1}`, mediaType: 'image' });
+            });
+
+            (dormitoryData.media || []).forEach((m, i) => {
+                if (m.type === 'video') {
+                    galleryItems.push({ id: `media-video-${i}`, type: 'video', src: m.thumbnail || allImages[0] || '/image/camp1.png', videoUrl: m.url, label: m.title || `Video #${i+1}`, duration: m.duration, mediaType: 'video' });
+                } else if (m.type === 'youtube') {
+                    const ytMatch = (m.url || '').match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+                    const ytId = ytMatch ? ytMatch[1] : null;
+                    galleryItems.push({ id: `media-yt-${i}`, type: 'video', src: ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : '/image/camp1.png', videoUrl: m.url, ytId, label: m.title || `YouTube #${i+1}`, mediaType: 'youtube' });
                 }
             });
 
-            const uniqueImages = [...new Set(baseImages.filter(Boolean))];
-            const imagePool = uniqueImages.length > 0 ? uniqueImages : ['/image/camp1.png'];
-
-            const categories = ['room', 'amenity', 'community'];
-            galleryItems = imagePool.map((src, index) => ({
-                id: `img-${index}`,
-                type: categories[index % categories.length],
-                src,
-                label: `${categories[index % categories.length] === 'room' ? 'Ảnh phòng' : categories[index % categories.length] === 'amenity' ? 'Tiện ích' : 'Cộng đồng'} #${index + 1}`
-            }));
-
-            galleryItems.unshift({
-                id: 'vr-main',
-                type: 'vr',
-                src: imagePool[0],
-                label: 'Trải nghiệm 360'
+            (dormitoryData.videos || []).forEach((url, i) => {
+                if (galleryItems.some(g => g.videoUrl === url)) return;
+                const ytMatch = url.match(/(?:v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+                if (ytMatch) {
+                    galleryItems.push({ id: `video-yt-${i}`, type: 'video', src: `https://img.youtube.com/vi/${ytMatch[1]}/hqdefault.jpg`, videoUrl: url, ytId: ytMatch[1], label: `YouTube #${i+1}`, mediaType: 'youtube' });
+                } else if (url) {
+                    galleryItems.push({ id: `video-file-${i}`, type: 'video', src: allImages[0] || '/image/camp1.png', videoUrl: url, label: `Video #${i+1}`, mediaType: 'video' });
+                }
             });
+
+            const hasImages = galleryItems.some(g => ['room','amenity','community'].includes(g.type));
+            if (!hasImages) galleryItems.push({ id: 'placeholder', type: 'room', src: '/image/camp1.png', label: 'Ảnh phòng', mediaType: 'image' });
+
+            const firstImgSrc = allImages[0] || '/image/camp1.png';
+            galleryItems.unshift({ id: 'vr-main', type: 'vr', src: firstImgSrc, label: 'Trải nghiệm 360°', mediaType: 'image' });
         }
 
         function renderGalleryTabs() {
             const counts = {
-                all: galleryItems.length,
-                vr: galleryItems.filter(item => item.type === 'vr').length,
-                room: galleryItems.filter(item => item.type === 'room').length,
-                amenity: galleryItems.filter(item => item.type === 'amenity').length,
-                community: galleryItems.filter(item => item.type === 'community').length
+                all:       galleryItems.length,
+                video:     galleryItems.filter(g => g.type === 'video').length,
+                vr:        galleryItems.filter(g => g.type === 'vr').length,
+                room:      galleryItems.filter(g => g.type === 'room').length,
+                amenity:   galleryItems.filter(g => g.type === 'amenity').length,
+                community: galleryItems.filter(g => g.type === 'community').length
             };
-
-            document.getElementById('countAll').textContent = counts.all;
-            document.getElementById('countVr').textContent = counts.vr;
-            document.getElementById('countRoom').textContent = counts.room;
-            document.getElementById('countAmenity').textContent = counts.amenity;
+            document.getElementById('countAll').textContent       = counts.all;
+            document.getElementById('countVideo').textContent     = counts.video;
+            document.getElementById('countVr').textContent        = counts.vr;
+            document.getElementById('countRoom').textContent      = counts.room;
+            document.getElementById('countAmenity').textContent   = counts.amenity;
             document.getElementById('countCommunity').textContent = counts.community;
+            const videoTab = document.getElementById('tabVideo');
+            if (videoTab) videoTab.style.display = counts.video > 0 ? '' : 'none';
+        }
+
+        function formatDuration(secs) {
+            if (!secs) return '';
+            const m = Math.floor(secs / 60), s = Math.round(secs % 60);
+            return m + ':' + String(s).padStart(2, '0');
         }
 
         function renderGallery() {
             const grid = document.getElementById('galleryGrid');
             const filtered = currentGalleryFilter === 'all'
-                ? galleryItems
-                : galleryItems.filter(item => item.type === currentGalleryFilter);
+                ? galleryItems : galleryItems.filter(g => g.type === currentGalleryFilter);
+            const chipLabel = { vr: 'VR Tour', room: 'Ảnh phòng', amenity: 'Tiện ích', community: 'Cộng đồng', video: 'Video' };
 
-            grid.innerHTML = filtered.map((item, index) => `
-                <article class="gallery-item ${index % 5 === 0 ? 'large' : ''}" data-type="${item.type}">
-                    <img src="${item.src}" alt="${item.label}">
+            grid.innerHTML = filtered.map((item, index) => {
+                const isLarge = index % 5 === 0;
+                if (item.type === 'video') {
+                    const dur = item.duration ? formatDuration(item.duration) : '';
+                    return `<article class="gallery-item video-item ${isLarge ? 'large' : ''}" data-idx="${index}">
+                        <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.label)}" onerror="this.src='/image/camp1.png'">
+                        <div class="video-play-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        </div>
+                        ${dur ? `<span class="video-duration">${escapeHtml(dur)}</span>` : ''}
+                        <div class="gallery-meta">
+                            <span class="gallery-chip">Video</span>
+                            <span class="gallery-label">${escapeHtml(item.label)}</span>
+                        </div>
+                    </article>`;
+                }
+                return `<article class="gallery-item ${isLarge ? 'large' : ''}" data-idx="${index}">
+                    <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.label)}" onerror="this.src='/image/camp1.png'">
                     <div class="gallery-meta">
-                        <span class="gallery-chip">${item.type === 'vr' ? 'VR Tour' : item.type === 'room' ? 'Ảnh phòng' : item.type === 'amenity' ? 'Tiện ích' : 'Cộng đồng'}</span>
-                        <span class="gallery-label">${item.label}</span>
+                        <span class="gallery-chip">${chipLabel[item.type] || item.type}</span>
+                        <span class="gallery-label">${escapeHtml(item.label)}</span>
                     </div>
-                </article>
-            `).join('');
+                </article>`;
+            }).join('');
+
+            grid.querySelectorAll('.gallery-item.video-item').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx = parseInt(el.dataset.idx);
+                    if (filtered[idx]) openVideoModal(filtered[idx]);
+                });
+            });
         }
 
         function wireGalleryTabs() {
             const tabContainer = document.getElementById('galleryTabs');
-            tabContainer.addEventListener('click', (event) => {
-                const button = event.target.closest('.tab-btn');
-                if (!button) return;
-                tabContainer.querySelectorAll('.tab-btn').forEach(tab => tab.classList.remove('active'));
-                button.classList.add('active');
-                currentGalleryFilter = button.dataset.filter;
+            tabContainer.addEventListener('click', (e) => {
+                const btn = e.target.closest('.tab-btn');
+                if (!btn) return;
+                tabContainer.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
+                btn.classList.add('active');
+                currentGalleryFilter = btn.dataset.filter;
                 renderGallery();
             });
         }
 
-        function applyRoomToBookingPanel(room) {
-            document.getElementById('selectedRoomName').textContent = room.name || 'Phòng KTX tiêu chuẩn';
-            const totalBeds = Number(room.beds) || 2;
-            const occupiedBeds = Number(room.occupiedBeds) || 0;
-            const availableBeds = Math.max(0, totalBeds - occupiedBeds);
-            document.getElementById('featureBeds').textContent = `${totalBeds} giường`;
-            document.getElementById('featureOccupiedBeds').textContent = `${occupiedBeds} giường`;
-            document.getElementById('featureAvailableBeds').textContent = `${availableBeds} giường`;
-        }
-
+        /* ─────────────────────────────────────────────────────
+           AMENITIES
+        ───────────────────────────────────────────────────── */
         function renderAmenities() {
             const amenities = dormitoryData.details?.amenities?.length
                 ? dormitoryData.details.amenities
-                : ['Internet tốc độ cao', 'Khu học nhóm', 'Máy giặt chung', 'Bảo vệ 24/7', 'Khu để xe trong nhà', 'Thang máy'];
-            const cloud = document.getElementById('amenityCloud');
-            cloud.innerHTML = amenities.map(item => `<span class="amenity-pill">${escapeHtml(item)}</span>`).join('');
+                : ['Internet tốc độ cao', 'Khu học nhóm', 'Máy giặt chung', 'Bảo vệ 24/7', 'Khu để xe', 'Thang máy'];
+            document.getElementById('amenityCloud').innerHTML =
+                amenities.map(item => `<span class="amenity-pill">${escapeHtml(item)}</span>`).join('');
         }
 
+        /* ─────────────────────────────────────────────────────
+           REVIEWS
+        ───────────────────────────────────────────────────── */
         function renderReviews(list) {
-            const reviewsList = document.getElementById('reviewsList');
-            reviewsList.innerHTML = list.map(review => {
-                const initial = (review.name || 'U').charAt(0).toUpperCase();
-                return `
-                    <article class="review-card">
-                        <div class="review-head">
-                            <div class="review-profile">
-                                <div class="review-avatar">${escapeHtml(initial)}</div>
-                                <div>
-                                    <div class="review-name">${escapeHtml(review.name)}</div>
-                                    <div style="font-size:0.78rem; color:var(--ink-500);">Sinh viên</div>
-                                </div>
+            document.getElementById('reviewsList').innerHTML = list.map(r => {
+                const initial = (r.name || 'U').charAt(0).toUpperCase();
+                return `<article class="review-card">
+                    <div class="review-head">
+                        <div class="review-profile">
+                            <div class="review-avatar">${escapeHtml(initial)}</div>
+                            <div>
+                                <div class="review-name">${escapeHtml(r.name)}</div>
+                                <div style="font-size:.76rem;color:var(--ink-500)">Sinh viên</div>
                             </div>
-                            <span class="review-stars">${'★'.repeat(review.stars)}${'☆'.repeat(5 - review.stars)}</span>
                         </div>
-                        <p class="review-text">${escapeHtml(review.text)}</p>
-                    </article>
-                `;
+                        <span class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</span>
+                    </div>
+                    <p class="review-text">${escapeHtml(r.text)}</p>
+                </article>`;
             }).join('');
         }
 
         function renderReviewSummary() {
-            const score = fallbackReviews.reduce((sum, item) => sum + item.stars, 0) / Math.max(fallbackReviews.length, 1);
-            const fixedScore = Math.round(score * 10) / 10;
-            const fullStars = Math.floor(fixedScore);
-            const starsDisplay = '★'.repeat(fullStars) + '☆'.repeat(5 - fullStars);
-            document.getElementById('reviewScoreValue').textContent = fixedScore.toFixed(1);
-            document.getElementById('reviewScoreStars').textContent = starsDisplay;
+            const score = fallbackReviews.reduce((sum, r) => sum + r.stars, 0) / Math.max(fallbackReviews.length, 1);
+            const fixed = Math.round(score * 10) / 10;
+            document.getElementById('reviewScoreValue').textContent   = fixed.toFixed(1);
+            document.getElementById('reviewScoreStars').textContent   = '★'.repeat(Math.floor(fixed)) + '☆'.repeat(5 - Math.floor(fixed));
             document.getElementById('reviewScoreCaption').textContent = `Được đánh giá bởi ${fallbackReviews.length} sinh viên`;
-            document.getElementById('highlightTags').innerHTML = defaultHighlightTags.map(tag => `<span class="tag-chip">${tag}</span>`).join('');
+            document.getElementById('highlightTags').innerHTML        = defaultHighlightTags.map(t => `<span class="tag-chip">${t}</span>`).join('');
         }
 
+        /* ─────────────────────────────────────────────────────
+           VR VIEWER
+        ───────────────────────────────────────────────────── */
         function initCustomVr() {
-            const viewer = document.getElementById('customVrViewer');
-            const track = document.getElementById('vrTrack');
-            const image = document.getElementById('vrImage');
+            const viewer    = document.getElementById('customVrViewer');
+            const track     = document.getElementById('vrTrack');
+            const image     = document.getElementById('vrImage');
             const tourStrip = document.getElementById('viewerTourStrip');
-            const hotspotLayer = document.getElementById('vrHotspotLayer');
+            const hotLayer  = document.getElementById('vrHotspotLayer');
 
-            const uniqueImages = [...new Set(roomVariants.map(item => item.imageUrl).filter(Boolean))];
-            const pool = uniqueImages.length > 0 ? uniqueImages : [dormitoryData.imageUrl || '/image/camp1.png'];
+            const dormImages = dormitoryData.images || [];
+            const legacyImg  = dormitoryData.imageUrl || dormitoryData.coverImage || '';
+            const allDormImgs = [...new Set([...dormImages, legacyImg].filter(Boolean))];
+            const roomImgUrls = roomVariants.map(r => r.imageUrl).filter(Boolean);
+            const unique = allDormImgs.length > 0 ? allDormImgs : roomImgUrls.length > 0 ? roomImgUrls : [];
+            const pool   = unique.length > 0 ? unique : [dormitoryData.imageUrl || '/image/camp1.png'];
 
-            vrScenes = pool.slice(0, 5).map((src, index) => ({
-                id: `scene-${index}`,
-                label: index === 0 ? 'Phòng chính' : `Góc ${index + 1}`,
-                src,
-                hotspots: []
+            vrScenes = pool.slice(0, 5).map((src, i) => ({
+                id: `scene-${i}`, label: i === 0 ? 'Phòng chính' : `Góc ${i+1}`, src, hotspots: []
             }));
 
             if (vrScenes.length > 1) {
-                vrScenes.forEach((scene, index) => {
-                    const next = (index + 1) % vrScenes.length;
-                    const prev = (index - 1 + vrScenes.length) % vrScenes.length;
+                vrScenes.forEach((scene, i) => {
                     scene.hotspots = [
-                        { to: next, x: 78, y: 58, label: 'Sang góc kế tiếp' },
-                        { to: prev, x: 20, y: 56, label: 'Quay lại góc trước' }
+                        { to: (i+1) % vrScenes.length, x: 78, y: 58, label: 'Sang góc kế tiếp' },
+                        { to: (i-1+vrScenes.length) % vrScenes.length, x: 20, y: 56, label: 'Quay lại góc trước' }
                     ];
                 });
             }
 
-            function setScene(index) {
-                currentVrSceneIndex = index;
-                const scene = vrScenes[index];
-                image.src = scene.src;
+            function setScene(idx) {
+                currentVrSceneIndex = idx;
+                image.src = vrScenes[idx].src;
                 renderTourStrip();
                 renderHotspots();
             }
-
             function renderTourStrip() {
-                tourStrip.innerHTML = vrScenes.map((scene, index) => `
-                    <button type="button" class="tour-chip ${index === currentVrSceneIndex ? 'active' : ''}" data-scene-index="${index}">${scene.label}</button>
-                `).join('');
-
-                tourStrip.querySelectorAll('[data-scene-index]').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const index = Number(button.dataset.sceneIndex);
-                        if (!Number.isFinite(index)) return;
-                        setScene(index);
-                    });
+                tourStrip.innerHTML = vrScenes.map((s, i) =>
+                    `<button type="button" class="tour-chip ${i === currentVrSceneIndex ? 'active' : ''}" data-scene-index="${i}">${s.label}</button>`
+                ).join('');
+                tourStrip.querySelectorAll('[data-scene-index]').forEach(btn => {
+                    btn.addEventListener('click', () => setScene(Number(btn.dataset.sceneIndex)));
                 });
             }
-
             function renderHotspots() {
-                const scene = vrScenes[currentVrSceneIndex];
-                hotspotLayer.innerHTML = (scene.hotspots || []).map((hotspot) => `
-                    <button
-                        type="button"
-                        class="vr-hotspot"
-                        style="left:${hotspot.x}%; top:${hotspot.y}%;"
-                        data-hotspot-target="${hotspot.to}"
-                    >${hotspot.label}</button>
-                `).join('');
-
-                hotspotLayer.querySelectorAll('[data-hotspot-target]').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const target = Number(button.dataset.hotspotTarget);
-                        if (!Number.isFinite(target)) return;
-                        setScene(target);
-                    });
+                hotLayer.innerHTML = (vrScenes[currentVrSceneIndex].hotspots || []).map(h =>
+                    `<button type="button" class="vr-hotspot" style="left:${h.x}%;top:${h.y}%" data-hotspot-target="${h.to}">${h.label}</button>`
+                ).join('');
+                hotLayer.querySelectorAll('[data-hotspot-target]').forEach(btn => {
+                    btn.addEventListener('click', () => setScene(Number(btn.dataset.hotspotTarget)));
                 });
             }
-
             function applyTransform() {
-                track.style.transform = `translate(${vrState.x}%, ${vrState.y}%) scale(${vrState.scale})`;
+                track.style.transform = `translate(${vrState.x}%,${vrState.y}%) scale(${vrState.scale})`;
             }
-
             function clamp() {
                 vrState.scale = Math.max(1, Math.min(2.2, vrState.scale));
                 vrState.x = Math.max(-52, Math.min(0, vrState.x));
                 vrState.y = Math.max(-10, Math.min(10, vrState.y));
             }
 
-            viewer.addEventListener('mousedown', (event) => {
-                vrState.dragging = true;
-                vrState.startX = event.clientX;
-                vrState.startY = event.clientY;
-                vrState.originX = vrState.x;
-                vrState.originY = vrState.y;
+            viewer.addEventListener('mousedown', e => {
+                vrState.dragging = true; vrState.startX = e.clientX; vrState.startY = e.clientY;
+                vrState.originX = vrState.x; vrState.originY = vrState.y;
                 viewer.classList.add('dragging');
             });
-
-            window.addEventListener('mouseup', () => {
-                vrState.dragging = false;
-                viewer.classList.remove('dragging');
-            });
-
-            window.addEventListener('mousemove', (event) => {
+            window.addEventListener('mouseup', () => { vrState.dragging = false; viewer.classList.remove('dragging'); });
+            window.addEventListener('mousemove', e => {
                 if (!vrState.dragging) return;
-                const dx = event.clientX - vrState.startX;
-                const dy = event.clientY - vrState.startY;
-                vrState.x = vrState.originX + dx * 0.04;
-                vrState.y = vrState.originY + dy * 0.02;
-                clamp();
-                applyTransform();
+                vrState.x = vrState.originX + (e.clientX - vrState.startX) * 0.04;
+                vrState.y = vrState.originY + (e.clientY - vrState.startY) * 0.02;
+                clamp(); applyTransform();
             });
-
-            viewer.addEventListener('wheel', (event) => {
-                event.preventDefault();
-                vrState.scale += event.deltaY > 0 ? -0.06 : 0.06;
-                clamp();
-                applyTransform();
+            viewer.addEventListener('wheel', e => {
+                e.preventDefault();
+                vrState.scale += e.deltaY > 0 ? -0.06 : 0.06;
+                clamp(); applyTransform();
             }, { passive: false });
-
-            viewer.addEventListener('touchstart', (event) => {
-                if (!event.touches || event.touches.length !== 1) return;
-                const touch = event.touches[0];
-                vrState.dragging = true;
-                vrState.startX = touch.clientX;
-                vrState.startY = touch.clientY;
-                vrState.originX = vrState.x;
-                vrState.originY = vrState.y;
+            viewer.addEventListener('touchstart', e => {
+                if (!e.touches || e.touches.length !== 1) return;
+                vrState.dragging = true; vrState.startX = e.touches[0].clientX; vrState.startY = e.touches[0].clientY;
+                vrState.originX = vrState.x; vrState.originY = vrState.y;
             }, { passive: true });
-
-            viewer.addEventListener('touchmove', (event) => {
-                if (!vrState.dragging || !event.touches || event.touches.length !== 1) return;
-                const touch = event.touches[0];
-                const dx = touch.clientX - vrState.startX;
-                const dy = touch.clientY - vrState.startY;
-                vrState.x = vrState.originX + dx * 0.06;
-                vrState.y = vrState.originY + dy * 0.02;
-                clamp();
-                applyTransform();
+            viewer.addEventListener('touchmove', e => {
+                if (!vrState.dragging || !e.touches || e.touches.length !== 1) return;
+                vrState.x = vrState.originX + (e.touches[0].clientX - vrState.startX) * 0.06;
+                vrState.y = vrState.originY + (e.touches[0].clientY - vrState.startY) * 0.02;
+                clamp(); applyTransform();
             }, { passive: true });
-
-            viewer.addEventListener('touchend', () => {
-                vrState.dragging = false;
-            });
-
-            window.addEventListener('keydown', (event) => {
-                if (event.key === 'ArrowLeft') {
-                    vrState.x = Math.min(0, vrState.x + 2.5);
-                    applyTransform();
-                }
-                if (event.key === 'ArrowRight') {
-                    vrState.x = Math.max(-52, vrState.x - 2.5);
-                    applyTransform();
-                }
-                if (event.key === 'ArrowUp') {
-                    vrState.y = Math.min(10, vrState.y + 1.5);
-                    applyTransform();
-                }
-                if (event.key === 'ArrowDown') {
-                    vrState.y = Math.max(-10, vrState.y - 1.5);
-                    applyTransform();
-                }
+            viewer.addEventListener('touchend', () => { vrState.dragging = false; });
+            window.addEventListener('keydown', e => {
+                if (e.key === 'ArrowLeft')  { vrState.x = Math.min(0, vrState.x + 2.5); applyTransform(); }
+                if (e.key === 'ArrowRight') { vrState.x = Math.max(-52, vrState.x - 2.5); applyTransform(); }
+                if (e.key === 'ArrowUp')    { vrState.y = Math.min(10, vrState.y + 1.5); applyTransform(); }
+                if (e.key === 'ArrowDown')  { vrState.y = Math.max(-10, vrState.y - 1.5); applyTransform(); }
             });
 
             document.getElementById('resetVrBtn').addEventListener('click', () => {
-                vrState.x = -20;
-                vrState.y = 0;
-                vrState.scale = 1;
-                applyTransform();
+                vrState.x = -20; vrState.y = 0; vrState.scale = 1; applyTransform();
             });
 
-            setScene(0);
-            applyTransform();
+            setScene(0); applyTransform();
         }
 
-        function wireLocalNav() {
-            const chips = Array.from(document.querySelectorAll('.nav-chip'));
-            chips.forEach(chip => {
-                chip.addEventListener('click', () => {
-                    chips.forEach(item => item.classList.remove('active'));
-                    chip.classList.add('active');
-                    const targetId = chip.dataset.target;
-                    const targetElement = document.getElementById(targetId);
-                    if (targetElement) {
-                        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }
-                });
-            });
-        }
-
+        /* ─────────────────────────────────────────────────────
+           FULLSCREEN
+        ───────────────────────────────────────────────────── */
         function initFullscreenButton() {
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            const viewerCard = document.getElementById('viewerCard');
-            fullscreenBtn.addEventListener('click', async () => {
+            const btn = document.getElementById('fullscreenBtn');
+            const target = document.getElementById('secVrTour');
+            if (!btn || !target) return;
+            btn.addEventListener('click', async () => {
                 try {
-                    if (!document.fullscreenElement) {
-                        await viewerCard.requestFullscreen();
-                    } else {
-                        await document.exitFullscreen();
-                    }
-                } catch (error) {
-                    console.error('Fullscreen error:', error);
-                }
+                    if (!document.fullscreenElement) await target.requestFullscreen();
+                    else await document.exitFullscreen();
+                } catch (err) { console.error('Fullscreen:', err); }
             });
         }
 
-        function askMore() {
-            const message = encodeURIComponent('Tôi muốn tìm hiểu thêm về phòng này');
-            window.location.href = `/maintenance-requests?topic=${message}`;
+        /* ─────────────────────────────────────────────────────
+           LOCAL NAV
+        ───────────────────────────────────────────────────── */
+        function initLocalNav() {
+            const lnb   = document.getElementById('lnb');
+            const hero  = document.getElementById('heroMedia');
+            if (!lnb || !hero) return;
+
+            const observer = new IntersectionObserver(([entry]) => {
+                lnb.classList.toggle('visible', !entry.isIntersecting);
+            }, { rootMargin: '-70px 0px 0px 0px' });
+            observer.observe(hero);
+
+            const sections = ['secDistance','secInfo','secAmenities','secVrTour','secGallery','secMap','secReviews'];
+            window.addEventListener('scroll', () => {
+                let active = sections[0];
+                sections.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el && el.getBoundingClientRect().top < 180) active = id;
+                });
+                lnb.querySelectorAll('.lnb-link').forEach(a => {
+                    a.classList.toggle('active', a.getAttribute('href') === `#${active}`);
+                });
+            }, { passive: true });
+        }
+
+        function navClick(el, sectionId) {
+            scrollToSection(sectionId);
+            document.querySelectorAll('.lnb-link').forEach(a => a.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        /* ─────────────────────────────────────────────────────
+           SCROLL UTILITY
+        ───────────────────────────────────────────────────── */
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                const top = el.getBoundingClientRect().top + window.scrollY - 130;
+                window.scrollTo({ top, behavior: 'smooth' });
+            }
+        }
+
+        /* ─────────────────────────────────────────────────────
+           VIDEO MODAL
+        ───────────────────────────────────────────────────── */
+        function openVideoModal(item) {
+            const modal   = document.getElementById('videoModal');
+            const content = document.getElementById('vmContent');
+            if (item.mediaType === 'youtube' && item.ytId) {
+                content.innerHTML = `<iframe src="https://www.youtube.com/embed/${item.ytId}?autoplay=1" frameborder="0" allowfullscreen allow="autoplay"></iframe>`;
+            } else if (item.videoUrl) {
+                content.innerHTML = `<video src="${item.videoUrl}" controls autoplay style="width:100%;aspect-ratio:16/9;background:#000"></video>`;
+            }
+            modal.classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideoModal() {
+            document.getElementById('vmContent').innerHTML = '';
+            document.getElementById('videoModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        (function wireModal() {
+            function init() {
+                const vmClose  = document.getElementById('vmClose');
+                const modal    = document.getElementById('videoModal');
+                if (vmClose) vmClose.addEventListener('click', closeVideoModal);
+                if (modal)   modal.addEventListener('click', e => { if (e.target === modal) closeVideoModal(); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVideoModal(); });
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
+
+        /* ─────────────────────────────────────────────────────
+           MISC UTILITIES
+        ───────────────────────────────────────────────────── */
+        function haversineDistance(lat1, lng1, lat2, lng2) {
+            const R = 6371e3, toRad = d => d * Math.PI / 180;
+            const φ1 = toRad(lat1), φ2 = toRad(lat2);
+            const Δφ = toRad(lat2 - lat1), Δλ = toRad(lng2 - lng1);
+            const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+            return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
         }
 
         function escapeHtml(text) {
-            return String(text)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
+            return String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+        }
+
+        function shareProperty() {
+            if (navigator.share) {
+                navigator.share({ title: document.title, url: location.href });
+            } else {
+                navigator.clipboard?.writeText(location.href).then(() => alert('Đã sao chép liên kết!'));
+            }
         }
 
         function toggleDropdown() {
@@ -1401,48 +1846,44 @@
         }
 
         function toggleMenu() {
-            document.querySelector('.nav-container').classList.toggle('active');
+            document.getElementById('navContainer').classList.toggle('active');
         }
 
-        document.addEventListener('click', function(event) {
-            const userProfile = document.querySelector('.user-profile');
-            const dropdown = document.getElementById('dropdownMenu');
-            if (userProfile && dropdown && !userProfile.contains(event.target) && !dropdown.contains(event.target)) {
-                dropdown.classList.remove('show');
-            }
+        document.addEventListener('click', e => {
+            const up = document.querySelector('.user-profile');
+            const dd = document.getElementById('dropdownMenu');
+            if (up && dd && !up.contains(e.target) && !dd.contains(e.target)) dd.classList.remove('show');
         });
+
+        function askMore() {
+            window.location.href = `/maintenance-requests?topic=${encodeURIComponent('Tôi muốn tìm hiểu thêm về phòng này')}`;
+        }
 
         async function loadStudentInfo() {
             try {
-                const response = await fetch('/api/student/profile');
-                const data = await response.json();
+                const res  = await fetch('/api/student/profile');
+                const data = await res.json();
                 if (data.success && data.student) {
-                    const student = data.student;
-                    const label = student.fullName || student.name || 'U';
+                    const label = data.student.fullName || data.student.name || 'U';
                     document.getElementById('userAvatar').textContent = label.charAt(0).toUpperCase();
-                    document.getElementById('userName').textContent = label;
+                    document.getElementById('userName').textContent   = label;
                 }
-            } catch (error) {
-                console.error('Error loading student info:', error);
-            }
+            } catch (err) { /* non-critical */ }
         }
 
         function logout() {
-            if (confirm('Bạn có chắc muốn đăng xuất?')) {
-                window.location.href = '/logout';
-            }
+            if (confirm('Bạn có chắc muốn đăng xuất?')) window.location.href = '/logout';
         }
 
         function wireReviewForm() {
             const form = document.getElementById('reviewForm');
-            form.addEventListener('submit', (event) => {
-                event.preventDefault();
-                const name = document.getElementById('reviewerName').value.trim();
+            if (!form) return;
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                const name   = document.getElementById('reviewerName').value.trim();
                 const rating = Number(document.getElementById('reviewRating').value);
-                const text = document.getElementById('reviewText').value.trim();
-
+                const text   = document.getElementById('reviewText').value.trim();
                 if (!name || !rating || !text) return;
-
                 fallbackReviews.unshift({ name, stars: rating, text });
                 renderReviews(fallbackReviews);
                 renderReviewSummary();
@@ -1450,11 +1891,17 @@
             });
         }
 
+        /* ─────────────────────────────────────────────────────
+           BOOT
+        ───────────────────────────────────────────────────── */
         window.onload = function() {
+            refreshIcons();
             loadStudentInfo();
             wireReviewForm();
             loadDormitoryData();
         };
     </script>
+
+    <%- include('../shared/footer') %>
 </body>
 </html>

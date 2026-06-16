@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chuyển phòng - KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/student-premium-shell.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red:#C8102E; --red-l:#FFF1F3; --red-m:rgba(200,16,46,.1);
+      --green:#059669; --green-l:#ECFDF5;
+      --blue:#4F46E5; --blue-l:#EEF2FF;
+      --amber:#D97706; --amber-l:#FFFBEB;
+      --bg:#F4F6FB; --surface:#FFFFFF; --border:#EEF0F5;
+      --t1:#111827; --t2:#6B7280; --t3:#9CA3AF;
+      --r18:18px; --r12:12px; --sh1:0 2px 12px rgba(0,0,0,.06);
+    }
+    body { font-family:'Inter','Segoe UI',sans-serif; background:var(--bg); color:var(--t1); }
+
+    .page-container { max-width:900px; margin:0 auto; padding:1.5rem; }
+
+    /* Hero */
+    .hero { background:linear-gradient(135deg,#C8102E 0%,#9E0D25 100%); border-radius:var(--r18); padding:2rem; color:#fff; margin-bottom:1.5rem; }
+    .hero h1 { font-size:1.5rem; font-weight:800; margin-bottom:.35rem; }
+    .hero p { font-size:.9rem; opacity:.85; }
+    .hero-badge { display:inline-flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.15);border-radius:20px;padding:.2rem .6rem;font-size:.72rem;font-weight:700;margin-bottom:.75rem; }
+
+    /* Current room card */
+    .current-card { background:var(--surface);border-radius:var(--r18);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--sh1); }
+    .current-card .label { font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:.5rem; }
+    .room-info { display:flex;align-items:center;gap:1rem;flex-wrap:wrap; }
+    .room-icon { width:48px;height:48px;border-radius:14px;background:var(--red-l);display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .room-icon i { color:var(--red);font-size:1.2rem; }
+    .room-detail h3 { font-size:1rem;font-weight:700; }
+    .room-detail p { font-size:.83rem;color:var(--t2);margin-top:.15rem; }
+
+    /* Status card */
+    .status-card { border-radius:var(--r18);padding:1.5rem;margin-bottom:1.5rem;border:2px solid; }
+    .status-pending  { background:#FFFBEB;border-color:#F59E0B; }
+    .status-approved { background:var(--green-l);border-color:var(--green); }
+    .status-rejected { background:#FEF2F2;border-color:#EF4444; }
+    .status-completed { background:var(--green-l);border-color:var(--green); }
+    .status-header { display:flex;align-items:center;gap:.75rem;margin-bottom:1rem; }
+    .status-icon { width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+    .status-title { font-size:1rem;font-weight:700; }
+    .status-sub { font-size:.82rem;margin-top:.15rem; }
+    .status-detail { background:rgba(255,255,255,.7);border-radius:12px;padding:1rem;font-size:.85rem;line-height:1.6; }
+    .status-detail dt { font-weight:600;color:var(--t2);font-size:.78rem; }
+    .status-detail dd { margin:0 0 .5rem; }
+    .cancel-btn { margin-top:1rem;display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:8px;background:#fff;border:1px solid #EF4444;color:#EF4444;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .2s; }
+    .cancel-btn:hover { background:#FEF2F2; }
+
+    /* Form */
+    .form-card { background:var(--surface);border-radius:var(--r18);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem;box-shadow:var(--sh1); }
+    .form-card h2 { font-size:1rem;font-weight:700;margin-bottom:1.25rem; }
+    .form-row { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group.full { grid-column:1/-1; }
+    .form-label { font-size:.8rem;font-weight:600;display:block;margin-bottom:.4rem;color:var(--t1); }
+    .form-control { width:100%;padding:.65rem 1rem;border:1.5px solid var(--border);border-radius:12px;font-size:.88rem;color:var(--t1);font-family:inherit;transition:border-color .2s; }
+    .form-control:focus { outline:none;border-color:var(--red); }
+    textarea.form-control { resize:vertical;min-height:100px; }
+    .char-count { font-size:.72rem;color:var(--t3);text-align:right;margin-top:.2rem; }
+
+    .submit-btn { width:100%;padding:.75rem;border-radius:14px;background:linear-gradient(135deg,#C8102E,#9E0D25);color:#fff;font-size:.92rem;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.5rem;transition:opacity .2s; }
+    .submit-btn:hover { opacity:.92; }
+    .submit-btn:disabled { opacity:.5;cursor:not-allowed; }
+
+    /* History */
+    .history-card { background:var(--surface);border-radius:var(--r18);border:1px solid var(--border);padding:1.5rem;box-shadow:var(--sh1); }
+    .history-card h2 { font-size:1rem;font-weight:700;margin-bottom:1rem; }
+    .hist-item { display:flex;gap:.75rem;padding:.75rem 0;border-bottom:1px solid var(--border);align-items:flex-start; }
+    .hist-item:last-child { border-bottom:none; }
+    .hist-dot { width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.75rem; }
+    .dot-completed { background:var(--green-l);color:var(--green); }
+    .dot-rejected  { background:#FEF2F2;color:#EF4444; }
+    .dot-cancelled { background:#F3F4F6;color:var(--t3); }
+    .hist-body { flex:1; }
+    .hist-title { font-size:.88rem;font-weight:600; }
+    .hist-meta  { font-size:.77rem;color:var(--t2);margin-top:.15rem; }
+    .hist-reason { font-size:.8rem;color:var(--t2);font-style:italic;margin-top:.2rem; }
+
+    .no-room-msg { background:var(--amber-l);border:1px solid #FDE68A;border-radius:var(--r12);padding:1rem 1.25rem;font-size:.88rem;color:#92400E;margin-bottom:1.5rem; }
+    @media(max-width:640px){ .form-row { grid-template-columns:1fr; } .form-group.full{grid-column:auto;} }
+  </style>
+</head>
+<body class="student-shell-page">
+<%- include('navbar', { user, currentPage: 'room-transfer' }) %>
+
+<div class="page-container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge"><i class="fas fa-exchange-alt"></i> Chuyển phòng KTX</div>
+    <h1>Yêu cầu chuyển phòng</h1>
+    <p>Gửi yêu cầu chuyển đến phòng/khu khác trong hệ thống KTX HUST</p>
+  </div>
+
+  <!-- Current room -->
+  <% if (currentRoom) { %>
+  <div class="current-card">
+    <div class="label">Phòng hiện tại của bạn</div>
+    <div class="room-info">
+      <div class="room-icon"><i class="fas fa-door-open"></i></div>
+      <div class="room-detail">
+        <h3>Phòng <%= currentRoom.roomNumber %> — <%= currentRoom.dormName %></h3>
+        <p>Tầng <%= currentRoom.floor %> · <%= currentRoom.roomType %> · <%= currentRoom.occupancy %>/<%= currentRoom.maxCapacity %> người</p>
+      </div>
+    </div>
+  </div>
+  <% } else { %>
+  <div class="no-room-msg">
+    <i class="fas fa-exclamation-triangle"></i>
+    Bạn chưa được phân phòng hoặc không đang ở KTX. Yêu cầu chuyển phòng chỉ dành cho sinh viên đang cư trú.
+  </div>
+  <% } %>
+
+  <!-- Active request status -->
+  <% if (activeRequest) { %>
+    <% const statusCfg = {
+      pending:   { cls:'status-pending',  icon:'fas fa-clock',         iconBg:'#FEF3C7', iconColor:'#D97706', title:'Đang chờ xử lý',    sub:'Quản trị viên sẽ xem xét yêu cầu của bạn sớm nhất có thể.' },
+      approved:  { cls:'status-approved', icon:'fas fa-check-circle',  iconBg:green_l,   iconColor:'#059669', title:'Yêu cầu đã được duyệt', sub:'Admin đang tìm phòng phù hợp cho bạn.' },
+      completed: { cls:'status-completed',icon:'fas fa-home',          iconBg:green_l,   iconColor:'#059669', title:'Chuyển phòng thành công', sub:'Bạn đã được chuyển đến phòng mới.' }
+    }; %>
+    <% const cfg = {
+      pending:   { cls:'status-pending',  icon:'fas fa-clock',         title:'Đang chờ xử lý',    sub:'Quản trị viên sẽ xem xét yêu cầu của bạn sớm nhất có thể.' },
+      approved:  { cls:'status-approved', icon:'fas fa-check-circle',  title:'Yêu cầu đã được duyệt', sub:'Admin đang tìm phòng phù hợp cho bạn.' }
+    }[activeRequest.status]; %>
+    <div class="status-card <%= {pending:'status-pending',approved:'status-approved'}[activeRequest.status] || 'status-pending' %>">
+      <div class="status-header">
+        <div class="status-icon" style="background:<%= activeRequest.status==='approved'?'#D1FAE5':'#FEF3C7' %>">
+          <i class="<%= activeRequest.status==='approved'?'fas fa-check':'fas fa-clock' %>"
+             style="color:<%= activeRequest.status==='approved'?'#059669':'#D97706' %>"></i>
+        </div>
+        <div>
+          <div class="status-title"><%= activeRequest.status==='approved'?'Yêu cầu đã được duyệt':'Đang chờ xử lý' %></div>
+          <div class="status-sub">Gửi ngày <%= new Date(activeRequest.createdAt).toLocaleDateString('vi-VN') %></div>
+        </div>
+      </div>
+      <dl class="status-detail">
+        <dt>KTX mong muốn</dt>
+        <dd><%= activeRequest.preferredBuilding || 'Không yêu cầu cụ thể' %></dd>
+        <dt>Loại phòng</dt>
+        <dd><%= activeRequest.preferredRoomType === 'any' ? 'Bất kỳ' : (activeRequest.preferredRoomType || '—') %></dd>
+        <dt>Lý do</dt>
+        <dd><%= activeRequest.reason %></dd>
+        <% if (activeRequest.adminNote) { %>
+          <dt>Ghi chú từ admin</dt>
+          <dd style="color:#059669"><%= activeRequest.adminNote %></dd>
+        <% } %>
+      </dl>
+      <% if (activeRequest.status === 'pending') { %>
+        <button class="cancel-btn" onclick="cancelRequest('<%= activeRequest._id %>')">
+          <i class="fas fa-times"></i> Huỷ yêu cầu
+        </button>
+      <% } %>
+    </div>
+
+  <% } else if (currentRoom) { %>
+  <!-- Submit form -->
+  <div class="form-card">
+    <h2><i class="fas fa-paper-plane" style="color:var(--red);margin-right:.4rem"></i>Gửi yêu cầu chuyển phòng</h2>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">KTX mong muốn</label>
+        <select id="preferredBuilding" class="form-control">
+          <option value="">Không yêu cầu cụ thể</option>
+          <% (dormitories || []).forEach(d => { %>
+            <option value="<%= d.name %>"><%= d.name %></option>
+          <% }) %>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Loại phòng</label>
+        <select id="preferredRoomType" class="form-control">
+          <option value="any">Bất kỳ</option>
+          <option value="8-person">8 người</option>
+          <option value="4-person-service">4 người (dịch vụ)</option>
+          <option value="5-person">5 người</option>
+          <option value="10-person">10 người</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ngày dự kiến chuyển</label>
+        <input type="date" id="expectedMoveDate" class="form-control">
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Lý do chuyển phòng <span style="color:var(--red)">*</span></label>
+        <textarea id="reason" class="form-control" placeholder="Mô tả lý do bạn muốn chuyển phòng (tối thiểu 10 ký tự)..." maxlength="1000" oninput="updateChar()"></textarea>
+        <div class="char-count"><span id="charCount">0</span>/1000</div>
+      </div>
+    </div>
+    <div id="formError" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:.75rem 1rem;font-size:.84rem;color:#991B1B;margin-bottom:1rem"></div>
+    <button class="submit-btn" onclick="submitRequest()" id="submitBtn">
+      <i class="fas fa-paper-plane"></i> Gửi yêu cầu chuyển phòng
+    </button>
+  </div>
+  <% } %>
+
+  <!-- History -->
+  <% if (history && history.length > 0) { %>
+  <div class="history-card">
+    <h2><i class="fas fa-history" style="color:var(--t3);margin-right:.4rem"></i>Lịch sử yêu cầu</h2>
+    <% history.forEach(h => { %>
+      <div class="hist-item">
+        <div class="hist-dot dot-<%= h.status %>">
+          <i class="fas fa-<%= h.status==='completed'?'check':h.status==='rejected'?'times':'ban' %>"></i>
+        </div>
+        <div class="hist-body">
+          <div class="hist-title">
+            <%= h.fromRoomNumber ? `Phòng ${h.fromRoomNumber}` : '—' %>
+            <% if (h.toRoomNumber) { %> → Phòng <%= h.toRoomNumber %> (<%= h.toDormitoryName %>)<% } %>
+          </div>
+          <div class="hist-meta">
+            <%= new Date(h.createdAt).toLocaleDateString('vi-VN') %> ·
+            <span style="font-weight:700;color:<%= h.status==='completed'?'var(--green)':'#EF4444' %>">
+              <%= h.status==='completed'?'Hoàn thành':h.status==='rejected'?'Từ chối':'Đã huỷ' %>
+            </span>
+          </div>
+          <% if (h.adminNote) { %><div class="hist-reason"><%= h.adminNote %></div><% } %>
+        </div>
+      </div>
+    <% }) %>
+  </div>
+  <% } %>
+
+</div>
+
+<script>
+function updateChar() {
+  const val = document.getElementById('reason').value;
+  document.getElementById('charCount').textContent = val.length;
+}
+
+function showError(msg) {
+  const el = document.getElementById('formError');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+async function submitRequest() {
+  const reason = document.getElementById('reason').value.trim();
+  if (!reason || reason.length < 10) return showError('Lý do phải có ít nhất 10 ký tự.');
+  document.getElementById('formError').style.display = 'none';
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+  try {
+    const r = await fetch('/student/room-transfer/submit', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        preferredBuilding: document.getElementById('preferredBuilding').value,
+        preferredRoomType: document.getElementById('preferredRoomType').value,
+        reason,
+        expectedMoveDate: document.getElementById('expectedMoveDate').value
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      location.reload();
+    } else {
+      showError(d.error || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu chuyển phòng';
+    }
+  } catch (e) {
+    showError('Không thể kết nối máy chủ. Vui lòng thử lại.');
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu chuyển phòng';
+  }
+}
+
+async function cancelRequest(id) {
+  if (!confirm('Bạn có chắc muốn huỷ yêu cầu này không?')) return;
+  const r = await fetch(`/student/room-transfer/${id}/cancel`, { method:'POST', headers:{'Content-Type':'application/json'} });
+  const d = await r.json();
+  if (d.success) location.reload();
+  else alert('Lỗi: ' + d.error);
+}
+</script>
+</body>
+</html>

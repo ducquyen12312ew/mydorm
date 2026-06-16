@@ -1,155 +1,379 @@
-﻿<% const navActive = typeof activeNav !== 'undefined' ? activeNav : ''; %>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
+<%
+  const navActive = typeof activeNav !== 'undefined' ? activeNav : '';
+  const navUser = typeof user !== 'undefined' && user ? user : (typeof locals !== 'undefined' && locals.user ? locals.user : null);
+  const navUserName = navUser && navUser.name ? navUser.name : 'Admin';
+  const navUsername = (navUser && navUser.username) || (typeof locals !== 'undefined' && locals.sessionUsername) || '';
+  const navInitials = navUserName.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+  const PAGE_TITLES = {
+    dashboard:'Dashboard', dormitories:'Ký túc xá', students:'Sinh viên',
+    applications:'Hồ sơ đăng ký', violations:'Vi phạm', maintenance:'Bảo trì',
+    allocation:'Phân bổ', logs:'Nhật ký', quotas:'Quota', academic:'Học vụ', analytics:'Analytics',
+  };
+  const pageTitle = PAGE_TITLES[navActive] || '';
+%>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<link rel="stylesheet" href="/css/admin.css"/>
 <style>
-    .admin-navbar {
-        background: #ffffff;
-        padding: 20px 0;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-        margin-bottom: 24px;
-        border-bottom: 1px solid #e5e7eb;
-        position: relative;
-    }
+*,*::before,*::after{box-sizing:border-box;}
+html,body{margin:0;padding:0;min-height:100vh;background:#F7F7F7;font-family:'Inter',system-ui,sans-serif;color:#111827;}
 
-    .admin-navbar-container {
-        width: 100%;
-        max-width: 1480px;
-        margin: 0 auto;
-        padding: 0 26px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 20px;
-        position: relative;
-    }
+/* ─── Sidebar ──────────────────────────────────────────────────── */
+.adm-sidebar{
+  position:fixed;top:0;left:0;height:100vh;width:220px;
+  background:#fff;border-right:1px solid #E5E7EB;
+  display:flex;flex-direction:column;z-index:200;
+  transition:width .2s ease;overflow:hidden;
+}
+.adm-sidebar.sb-collapsed{width:56px;}
 
-    .admin-navbar-menu {
-        display: flex;
-        gap: 8px;
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        flex-wrap: wrap;
-        justify-content: center;
-    }
+.sb-hd{
+  height:56px;display:flex;align-items:center;
+  padding:0 12px;border-bottom:1px solid #F3F4F6;flex-shrink:0;gap:8px;
+}
+.sb-logo-link{display:flex;align-items:center;text-decoration:none;flex-shrink:0;overflow:hidden;transition:opacity .15s;}
+.sb-logo-link:hover{opacity:.8;}
+.sb-logo-img{height:30px;width:auto;object-fit:contain;image-rendering:-webkit-optimize-contrast;}
+.adm-sidebar.sb-collapsed .sb-logo-link{width:0;opacity:0;pointer-events:none;}
+.sb-toggle{
+  width:32px;height:32px;border:none;background:none;cursor:pointer;
+  color:#6B7280;border-radius:6px;display:flex;align-items:center;
+  justify-content:center;font-size:15px;transition:background .15s,color .15s;flex-shrink:0;
+}
+.sb-toggle:hover{background:#F3F4F6;color:#111827;}
 
-    .admin-navbar-link {
-        padding: 13px 18px;
-        color: #1e293b;
-        text-decoration: none;
-        border-radius: 10px;
-        transition: all 0.2s;
-        font-weight: 600;
-        font-size: 17px;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-    }
+.sb-nav{flex:1;overflow-y:auto;overflow-x:hidden;padding:10px 8px;scrollbar-width:none;}
+.sb-nav::-webkit-scrollbar{display:none;}
 
-    .admin-navbar-link:hover {
-        background: #f1f5f9;
-    }
+.sb-group{margin-bottom:2px;}
+.sb-label{
+  font-size:10px;font-weight:700;color:#9CA3AF;letter-spacing:.08em;
+  text-transform:uppercase;padding:8px 10px 4px;white-space:nowrap;
+  transition:opacity .15s,height .15s,padding .15s;overflow:hidden;
+}
+.adm-sidebar.sb-collapsed .sb-label{opacity:0;height:0;padding:0;}
 
-    .admin-navbar-link.active {
-        background: #fee2e2;
-        color: #111827;
-    }
+.sb-item{
+  display:flex;align-items:center;gap:10px;padding:7px 10px;
+  border-radius:7px;color:#374151;text-decoration:none;
+  font-size:13px;font-weight:500;white-space:nowrap;
+  transition:background .12s,color .12s;position:relative;margin-bottom:1px;
+}
+.sb-item:hover{background:#F9FAFB;color:#111827;}
+.sb-item.active{background:#FFF0F2;color:#C8102E;font-weight:600;}
+.sb-item.active::before{
+  content:'';position:absolute;left:0;top:6px;bottom:6px;
+  width:3px;background:#C8102E;border-radius:0 3px 3px 0;
+}
+.sb-item i{font-size:14px;width:18px;text-align:center;flex-shrink:0;opacity:.7;}
+.sb-item.active i{opacity:1;}
+.sb-item .sb-text{transition:opacity .15s;white-space:nowrap;overflow:hidden;}
+.adm-sidebar.sb-collapsed .sb-text{opacity:0;width:0;overflow:hidden;}
+.adm-sidebar.sb-collapsed .sb-item{padding:7px;justify-content:center;}
+.adm-sidebar.sb-collapsed .sb-item::before{top:4px;bottom:4px;}
 
-    .admin-navbar-link i {
-        color: #111111;
-        font-size: 13px;
-        width: 13px;
-        text-align: center;
-    }
+.sb-div{height:1px;background:#F3F4F6;margin:6px 4px;}
 
-    .admin-avatar-wrap {
-        position: absolute;
-        right: 26px;
-        top: 50%;
-        transform: translateY(-50%);
-        margin-left: 0;
-    }
+/* Tooltip on collapse */
+.adm-sidebar.sb-collapsed .sb-item:hover::after{
+  content:attr(data-tip);
+  position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
+  background:#1F2937;color:#fff;font-size:12px;font-weight:500;
+  padding:5px 10px;border-radius:6px;white-space:nowrap;pointer-events:none;z-index:400;
+}
 
-    .admin-avatar-btn {
-        width: 46px;
-        height: 46px;
-        border-radius: 999px;
-        border: 1px solid #d1d5db;
-        background: #f8fafc;
-        color: #1f2937;
-        font-weight: 600;
-        font-size: 15px;
-        cursor: pointer;
-    }
+.sb-ft{padding:10px 8px;border-top:1px solid #F3F4F6;flex-shrink:0;position:relative;}
+.sb-user{
+  display:flex;align-items:center;gap:10px;padding:7px 10px;
+  border-radius:7px;cursor:pointer;transition:background .12s;color:#374151;
+}
+.sb-user:hover{background:#F9FAFB;}
+.sb-avatar{
+  width:28px;height:28px;border-radius:50%;background:#FFF0F2;color:#C8102E;
+  font-size:11px;font-weight:700;display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;border:1.5px solid #FECDD3;
+}
+.sb-uname{font-size:13px;font-weight:600;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-urole{font-size:11px;color:#9CA3AF;}
+.adm-sidebar.sb-collapsed .sb-user{padding:7px;justify-content:center;}
+.adm-sidebar.sb-collapsed .sb-uinfo{display:none;}
 
-    .admin-avatar-menu {
-        position: absolute;
-        right: 0;
-        top: 54px;
-        min-width: 190px;
-        background: white;
-        border: 1px solid #e5e7eb;
-        border-radius: 10px;
-        box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-        display: none;
-        overflow: hidden;
-        z-index: 20;
-    }
+.sb-usermenu{
+  position:absolute;bottom:calc(100% + 4px);left:8px;right:8px;
+  background:#fff;border:1px solid #E5E7EB;border-radius:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,.10);display:none;z-index:300;overflow:hidden;
+}
+.sb-usermenu.open{display:block;}
+.sb-usermenu-hd{padding:10px 14px 8px;border-bottom:1px solid #F3F4F6;}
+.sb-usermenu a{
+  display:flex;align-items:center;gap:10px;text-decoration:none;
+  color:#374151;padding:8px 14px;font-size:13px;transition:background .1s;
+}
+.sb-usermenu a:hover{background:#F9FAFB;}
+.sb-usermenu a i{width:16px;text-align:center;font-size:12px;color:#9CA3AF;}
+.sb-usermenu a.danger{color:#DC2626;}
+.sb-usermenu a.danger i{color:#DC2626;}
+.sb-usermenu hr{border:none;border-top:1px solid #F3F4F6;margin:3px 0;}
 
-    .admin-avatar-menu.open {
-        display: block;
-    }
+/* ─── Topbar ───────────────────────────────────────────────────── */
+.adm-topbar{
+  position:fixed;top:0;left:220px;right:0;height:56px;
+  background:#fff;border-bottom:1px solid #E5E7EB;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;z-index:100;gap:16px;
+  transition:left .2s ease;
+}
+body.sb-collapsed .adm-topbar{left:56px;}
 
-    .admin-avatar-menu a {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-decoration: none;
-        color: #1f2937;
-        padding: 11px 12px;
-        font-size: 15px;
-    }
+.tb-title{font-size:15px;font-weight:700;color:#111827;margin:0;}
 
-    .admin-avatar-menu a:hover {
-        background: #f9fafb;
-    }
+.tb-right{display:flex;align-items:center;gap:8px;}
+
+.tb-search{
+  display:flex;align-items:center;gap:8px;
+  background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;
+  padding:6px 12px;font-size:13px;color:#9CA3AF;cursor:pointer;
+  transition:border-color .15s;
+}
+.tb-search:hover{border-color:#C8102E;}
+.tb-search i{font-size:12px;}
+
+.tb-iconbtn{
+  width:34px;height:34px;border-radius:8px;border:1px solid #E5E7EB;
+  background:#fff;color:#6B7280;cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:14px;transition:background .15s,color .15s;
+  text-decoration:none;position:relative;
+}
+.tb-iconbtn:hover{background:#F9FAFB;color:#111827;}
+.notif-dot{
+  position:absolute;top:-3px;right:-3px;width:14px;height:14px;
+  background:#C8102E;color:#fff;border-radius:50%;font-size:8px;
+  font-weight:700;display:flex;align-items:center;justify-content:center;
+  border:2px solid #fff;
+}
+
+/* ─── Body offset ──────────────────────────────────────────────── */
+body{padding-left:220px;padding-top:56px;transition:padding-left .2s ease;}
+body.sb-collapsed{padding-left:56px;}
+
+@media(max-width:768px){
+  .adm-sidebar{width:56px;}
+  .adm-sidebar .sb-text{opacity:0;width:0;overflow:hidden;}
+  .adm-sidebar .sb-label{opacity:0;height:0;padding:0;}
+  .adm-sidebar .sb-item{padding:7px;justify-content:center;}
+  .adm-sidebar .sb-user{padding:7px;justify-content:center;}
+  .adm-sidebar .sb-uinfo{display:none;}
+  body{padding-left:56px;}
+  .adm-topbar{left:56px;}
+  .tb-search span{display:none;}
+}
 </style>
 
-<nav class="admin-navbar">
-    <div class="admin-navbar-container">
-        <ul class="admin-navbar-menu">
-            <li><a href="/admin/dashboard" class="admin-navbar-link <%= navActive === 'dashboard' ? 'active' : '' %>"><i class="fas fa-chart-line"></i>Tổng quan</a></li>
-            <li><a href="/admin/dormitories" class="admin-navbar-link <%= navActive === 'dormitories' ? 'active' : '' %>"><i class="fas fa-building"></i>Ký túc xá</a></li>
-            <li><a href="/admin/application" class="admin-navbar-link <%= navActive === 'applications' ? 'active' : '' %>"><i class="fas fa-file-alt"></i>Hồ sơ</a></li>
-            <li><a href="/admin/violations" class="admin-navbar-link <%= navActive === 'violations' ? 'active' : '' %>"><i class="fas fa-shield-alt"></i>Vi phạm</a></li>
-            <li><a href="/admin/allocation/policies" class="admin-navbar-link <%= navActive === 'allocation' ? 'active' : '' %>"><i class="fas fa-sitemap"></i>Phân bổ</a></li>
-            <li><a href="/admin/logs" class="admin-navbar-link <%= navActive === 'logs' ? 'active' : '' %>"><i class="fas fa-history"></i>Nhật ký</a></li>
-        </ul>
+<!-- ══ SIDEBAR ══════════════════════════════════════════════════ -->
+<aside class="adm-sidebar" id="admSidebar" aria-label="Navigation">
 
-        <div class="admin-avatar-wrap">
-            <button id="avatarBtn" class="admin-avatar-btn" type="button">AD</button>
-            <div id="avatarMenu" class="admin-avatar-menu">
-                <a href="/admin/quotas">Quota</a>
-                <a href="/logout">Đăng xuất</a>
-            </div>
-        </div>
+  <div class="sb-hd">
+    <button class="sb-toggle" id="sbToggle" aria-label="Đóng/mở sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+    <a href="/admin/dashboard" class="sb-logo-link" title="eDorm">
+      <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png"
+           alt="eDorm" class="sb-logo-img" />
+    </a>
+  </div>
+
+  <nav class="sb-nav">
+
+    <div class="sb-group">
+      <div class="sb-label">Tổng quan</div>
+      <a href="/admin/dashboard"
+         class="sb-item <%=navActive==='dashboard'?'active':''%>"
+         data-tip="Dashboard">
+        <i class="fas fa-chart-line"></i><span class="sb-text">Dashboard</span>
+      </a>
+      <a href="/admin/master-dashboard"
+         class="sb-item <%=navActive==='analytics'?'active':''%>"
+         data-tip="Analytics">
+        <i class="fas fa-layer-group"></i><span class="sb-text">Analytics</span>
+      </a>
     </div>
-</nav>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-group">
+      <div class="sb-label">Quản lý KTX</div>
+      <a href="/admin/dormitories"
+         class="sb-item <%=navActive==='dormitories'?'active':''%>"
+         data-tip="Ký túc xá">
+        <i class="fas fa-building"></i><span class="sb-text">Ký túc xá</span>
+      </a>
+      <a href="/admin/students"
+         class="sb-item <%=navActive==='students'?'active':''%>"
+         data-tip="Sinh viên">
+        <i class="fas fa-users"></i><span class="sb-text">Sinh viên</span>
+      </a>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-group">
+      <div class="sb-label">Vận hành</div>
+      <a href="/admin/application"
+         class="sb-item <%=navActive==='applications'?'active':''%>"
+         data-tip="Hồ sơ">
+        <i class="fas fa-file-alt"></i><span class="sb-text">Hồ sơ</span>
+      </a>
+      <a href="/admin/requests"
+         class="sb-item <%=(navActive==='requests'||navActive==='maintenance'||navActive==='roomtransfer')?'active':''%>"
+         data-tip="Yêu cầu">
+        <i class="fas fa-inbox"></i><span class="sb-text">Yêu cầu</span>
+      </a>
+      <a href="/admin/violations"
+         class="sb-item <%=navActive==='violations'?'active':''%>"
+         data-tip="Vi phạm">
+        <i class="fas fa-shield-alt"></i><span class="sb-text">Vi phạm</span>
+      </a>
+      <a href="/admin/allocation/policies"
+         class="sb-item <%=navActive==='allocation'?'active':''%>"
+         data-tip="Phân bổ">
+        <i class="fas fa-sitemap"></i><span class="sb-text">Phân bổ</span>
+      </a>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-group">
+      <div class="sb-label">Kế hoạch & Dự báo</div>
+      <a href="/admin/enrollment-planning"
+         class="sb-item <%=navActive==='enrollmentplanning'?'active':''%>"
+         data-tip="Kế hoạch tuyển sinh">
+        <i class="fas fa-graduation-cap"></i><span class="sb-text">Kế hoạch tuyển sinh</span>
+      </a>
+      <a href="/admin/demand-forecast"
+         class="sb-item <%=navActive==='demandforecast'?'active':''%>"
+         data-tip="Dự báo nhu cầu KTX">
+        <i class="fas fa-chart-line"></i><span class="sb-text">Dự báo nhu cầu</span>
+      </a>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <div class="sb-group">
+      <div class="sb-label">Thông báo</div>
+      <a href="/admin/notifications"
+         class="sb-item <%=navActive==='notifications'?'active':''%>"
+         data-tip="Thông báo">
+        <i class="fas fa-bullhorn"></i><span class="sb-text">Gửi thông báo</span>
+      </a>
+    </div>
+
+    <div class="sb-div"></div>
+
+    <% if (navUsername === 'admintest') { %>
+    <div class="sb-div"></div>
+    <div class="sb-group">
+      <div class="sb-label">Sandbox</div>
+      <a href="/admin/simulation"
+         class="sb-item <%=navActive==='simulation'?'active':''%>"
+         data-tip="Allocation Simulation"
+         style="<%=navActive==='simulation'?'':'color:#7C3AED;'%>">
+        <i class="fas fa-flask"></i><span class="sb-text">Allocation Simulation</span>
+      </a>
+    </div>
+    <% } %>
+
+    <div class="sb-group">
+      <div class="sb-label">Hệ thống</div>
+      <a href="/admin/quotas"
+         class="sb-item <%=navActive==='quotas'?'active':''%>"
+         data-tip="Quota">
+        <i class="fas fa-chart-pie"></i><span class="sb-text">Quota</span>
+      </a>
+      <a href="/admin/academic-windows"
+         class="sb-item <%=navActive==='academic'?'active':''%>"
+         data-tip="Học vụ">
+        <i class="fas fa-calendar-alt"></i><span class="sb-text">Học vụ</span>
+      </a>
+      <a href="/admin/logs"
+         class="sb-item <%=navActive==='logs'?'active':''%>"
+         data-tip="Nhật ký">
+        <i class="fas fa-history"></i><span class="sb-text">Nhật ký</span>
+      </a>
+    </div>
+
+  </nav>
+
+  <div class="sb-ft">
+    <div class="sb-usermenu" id="sbUserMenu" role="menu">
+      <div class="sb-usermenu-hd">
+        <div style="font-weight:600;font-size:13px;color:#111827;"><%= navUserName %></div>
+        <% if (navUser && navUser.isSuperAdmin) { %>
+          <div style="font-size:11px;color:#9CA3AF;">Giám đốc Ký túc xá</div>
+          <div style="font-size:10px;color:#b0b7c3;margin-top:1px;max-width:190px;line-height:1.35;">Người phê duyệt cuối cùng đối với chỉ tiêu và phân bổ ký túc xá.</div>
+        <% } else { %>
+          <div style="font-size:11px;color:#9CA3AF;">Quản trị viên</div>
+        <% } %>
+      </div>
+      <a href="/admin/priority-claims-review"><i class="fas fa-star"></i>Ưu tiên</a>
+      <hr>
+      <a href="/logout" class="danger"><i class="fas fa-sign-out-alt"></i>Đăng xuất</a>
+    </div>
+    <div class="sb-user" id="sbUserBtn" role="button" tabindex="0" aria-haspopup="true">
+      <div class="sb-avatar"><%= navInitials %></div>
+      <div class="sb-uinfo">
+        <div class="sb-uname"><%= navUserName %></div>
+        <div class="sb-urole"><%= (navUser && navUser.isSuperAdmin) ? 'Giám đốc Ký túc xá' : 'Quản trị viên' %></div>
+      </div>
+    </div>
+  </div>
+
+</aside>
+
+<!-- ══ TOPBAR ════════════════════════════════════════════════════ -->
+<header class="adm-topbar">
+  <div>
+    <% if (pageTitle) { %><h1 class="tb-title"><%= pageTitle %></h1><% } %>
+  </div>
+  <div class="tb-right">
+    <div class="tb-search">
+      <i class="fas fa-search"></i><span>Tìm kiếm...</span>
+    </div>
+    <a href="/admin/logs" class="tb-iconbtn" title="Nhật ký hệ thống">
+      <i class="fas fa-bell"></i>
+      <span class="notif-dot" id="notifDot" style="display:none;"></span>
+    </a>
+  </div>
+</header>
 
 <script>
-    (function attachAvatarMenu() {
-        const button = document.getElementById('avatarBtn');
-        const menu = document.getElementById('avatarMenu');
-        if (!button || !menu) return;
+(function(){
+  var sidebar = document.getElementById('admSidebar');
+  var toggle  = document.getElementById('sbToggle');
+  var userBtn = document.getElementById('sbUserBtn');
+  var userMenu= document.getElementById('sbUserMenu');
 
-        button.addEventListener('click', function toggleMenu(event) {
-            event.stopPropagation();
-            menu.classList.toggle('open');
-        });
+  if(localStorage.getItem('sbCollapsed')==='1'){
+    sidebar.classList.add('sb-collapsed');
+    document.body.classList.add('sb-collapsed');
+  }
 
-        document.addEventListener('click', function closeMenu() {
-            menu.classList.remove('open');
-        });
-    })();
+  toggle.addEventListener('click',function(){
+    var c = sidebar.classList.toggle('sb-collapsed');
+    document.body.classList.toggle('sb-collapsed',c);
+    localStorage.setItem('sbCollapsed',c?'1':'0');
+  });
+
+  if(userBtn && userMenu){
+    userBtn.addEventListener('click',function(e){e.stopPropagation();userMenu.classList.toggle('open');});
+    userBtn.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();userMenu.classList.toggle('open');}});
+    document.addEventListener('click',function(){userMenu.classList.remove('open');});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')userMenu.classList.remove('open');});
+  }
+
+  fetch('/admin/applications/stats').then(r=>r.json()).then(r=>{
+    if(r.success&&r.stats&&r.stats.pending>0){
+      var d=document.getElementById('notifDot');
+      if(d){d.style.display='flex';d.textContent=r.stats.pending>9?'9+':r.stats.pending;}
+    }
+  }).catch(function(){});
+})();
 </script>
-

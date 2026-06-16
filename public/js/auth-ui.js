@@ -61,7 +61,21 @@
 
             input.addEventListener('input', updateState);
             input.addEventListener('blur', updateState);
+            input.addEventListener('change', updateState);
+
+            // Detect browser autofill via CSS animation trick
+            input.addEventListener('animationstart', function (e) {
+                if (e.animationName === 'onAutoFillStart') {
+                    input.classList.add('has-value');
+                } else if (e.animationName === 'onAutoFillCancel') {
+                    updateState();
+                }
+            });
+
             updateState();
+
+            // Fallback: poll once after short delay to catch late autofill
+            setTimeout(updateState, 600);
         });
     }
 
@@ -85,13 +99,13 @@
 
     function validateEmailOrId(value) {
         var raw = value.trim();
-        if (!raw) return 'Vui long nhap email hoac MSSV';
+        if (!raw) return 'Vui lòng nhập email hoặc MSSV';
 
         var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         var idRegex = /^[0-9A-Za-z._-]{5,20}$/;
 
         if (emailRegex.test(raw) || idRegex.test(raw)) return '';
-        return 'Dinh dang chua hop le';
+        return 'Định dạng chưa hợp lệ';
     }
 
     function bindLoginValidation() {
@@ -106,9 +120,9 @@
         });
 
         passwordInput.addEventListener('input', function () {
-            var message = passwordInput.value.trim() ? '' : 'Vui long nhap mat khau';
+            var message = passwordInput.value.trim() ? '' : 'Vui lòng nhập mật khẩu';
             if (!message && passwordInput.value.length < 6) {
-                message = 'Mat khau toi thieu 6 ky tu';
+                message = 'Mật khẩu tối thiểu 6 ký tự';
             }
             setInlineError(passwordInput.closest('.input-group'), message);
         });
@@ -116,11 +130,11 @@
         form.addEventListener('submit', function (event) {
             var errors = [
                 validateEmailOrId(idInput.value),
-                passwordInput.value.trim() ? '' : 'Vui long nhap mat khau'
+                passwordInput.value.trim() ? '' : 'Vui lòng nhập mật khẩu'
             ];
 
             if (!errors[1] && passwordInput.value.length < 6) {
-                errors[1] = 'Mat khau toi thieu 6 ky tu';
+                errors[1] = 'Mật khẩu tối thiểu 6 ký tự';
             }
 
             setInlineError(idInput.closest('.input-group'), errors[0]);
@@ -147,22 +161,22 @@
         if (/[^A-Za-z0-9]/.test(value)) score += 1;
 
         if (!value) {
-            return { score: 0, label: 'Nhap mat khau de kiem tra do manh', color: '#d7ccc5' };
+            return { score: 0, label: 'Nhập mật khẩu để kiểm tra độ mạnh', color: '#d7ccc5' };
         }
 
         if (score <= 1) {
-            return { score: score, label: 'Mat khau yeu', color: '#c63434' };
+            return { score: score, label: 'Mật khẩu yếu', color: '#c63434' };
         }
 
         if (score <= 2) {
-            return { score: score, label: 'Mat khau trung binh', color: '#e79a12' };
+            return { score: score, label: 'Mật khẩu trung bình', color: '#e79a12' };
         }
 
         if (score === 3) {
-            return { score: score, label: 'Mat khau kha tot', color: '#3f9a6d' };
+            return { score: score, label: 'Mật khẩu khá tốt', color: '#3f9a6d' };
         }
 
-        return { score: score, label: 'Mat khau manh', color: '#18885c' };
+        return { score: score, label: 'Mật khẩu mạnh', color: '#18885c' };
     }
 
     function bindRegisterValidation() {
@@ -191,7 +205,7 @@
         }
 
         function validateName() {
-            var message = fullName.value.trim().length >= 2 ? '' : 'Nhap ho ten day du';
+            var message = fullName.value.trim().length >= 2 ? '' : 'Nhập họ tên đầy đủ';
             setInlineError(fullName.closest('.input-group'), message);
             return !message;
         }
@@ -206,8 +220,8 @@
         function validatePassword() {
             var value = password.value;
             var message = '';
-            if (!value.trim()) message = 'Vui long nhap mat khau';
-            else if (value.length < 8) message = 'Mat khau toi thieu 8 ky tu';
+            if (!value.trim()) message = 'Vui lòng nhập mật khẩu';
+            else if (value.length < 8) message = 'Mật khẩu tối thiểu 8 ký tự';
 
             var result = evaluatePassword(value);
             meter.style.width = String(Math.max(10, result.score * 25)) + '%';
@@ -223,9 +237,9 @@
         function validateConfirmPassword() {
             var message = '';
             if (!confirmPassword.value.trim()) {
-                message = 'Vui long nhap lai mat khau';
+                message = 'Vui lòng nhập lại mật khẩu';
             } else if (confirmPassword.value !== password.value) {
-                message = 'Mat khau xac nhan khong khop';
+                message = 'Mật khẩu xác nhận không khớp';
             }
 
             setInlineError(confirmPassword.closest('.input-group'), message);
@@ -239,7 +253,7 @@
                 if (errorEl) errorEl.textContent = '';
                 return true;
             }
-            if (errorEl) errorEl.textContent = 'Ban can dong y dieu khoan de tiep tuc';
+            if (errorEl) errorEl.textContent = 'Bạn cần đồng ý điều khoản để tiếp tục';
             return false;
         }
 
@@ -271,27 +285,68 @@
         });
     }
 
-    function bindSocialButtons() {
-        document.querySelectorAll('.social-btn').forEach(function (button) {
-            button.addEventListener('click', function () {
-                button.classList.add('loading');
-                setTimeout(function () {
-                    button.classList.remove('loading');
-                    var existing = document.querySelector('[data-social-notice]');
-                    if (existing) existing.remove();
+    function bindMicrosoftModal() {
+        var msBtn = document.querySelector('[data-ms-login]');
+        var modal = document.getElementById('msModal');
+        var cancelBtn = document.getElementById('msCancelBtn');
+        var nextBtn = document.getElementById('msNextBtn');
+        var emailInput = document.getElementById('msEmailInput');
+        var errorEl = document.getElementById('msError');
 
-                    var notice = document.createElement('p');
-                    notice.setAttribute('data-social-notice', '1');
-                    notice.className = 'field-hint';
-                    notice.textContent = 'Tinh nang social login dang trong qua trinh phat trien.';
+        if (!msBtn || !modal) return;
 
-                    var container = button.closest('.auth-form');
-                    if (container) {
-                        container.appendChild(notice);
-                    }
-                }, 240);
-            });
+        function openModal() {
+            modal.removeAttribute('hidden');
+            if (emailInput) emailInput.focus();
+        }
+
+        function closeModal() {
+            modal.setAttribute('hidden', '');
+            if (emailInput) emailInput.value = '';
+            if (errorEl) errorEl.setAttribute('hidden', '');
+        }
+
+        function showError(msg) {
+            if (!errorEl) return;
+            errorEl.textContent = msg;
+            errorEl.removeAttribute('hidden');
+        }
+
+        msBtn.addEventListener('click', openModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+
+        modal.addEventListener('click', function (e) {
+            if (e.target === modal) closeModal();
         });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !modal.hasAttribute('hidden')) closeModal();
+        });
+
+        if (nextBtn) {
+            nextBtn.addEventListener('click', function () {
+                var email = emailInput ? emailInput.value.trim() : '';
+                if (!email) {
+                    showError('Vui lòng nhập địa chỉ email.');
+                    return;
+                }
+                if (!email.toLowerCase().endsWith('@sis.hust.edu.vn')) {
+                    showError('Chỉ chấp nhận email @sis.hust.edu.vn. Ví dụ: quyen.pd225916@sis.hust.edu.vn');
+                    return;
+                }
+                window.location.href = '/auth/microsoft?hint=' + encodeURIComponent(email);
+            });
+        }
+
+        if (emailInput) {
+            emailInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') nextBtn && nextBtn.click();
+            });
+        }
+    }
+
+    function bindSocialButtons() {
+        // Legacy no-op — real OAuth buttons are <a> tags or handled by bindMicrosoftModal
     }
 
     document.addEventListener('DOMContentLoaded', function () {
@@ -302,5 +357,6 @@
         bindLoginValidation();
         bindRegisterValidation();
         bindSocialButtons();
+        bindMicrosoftModal();
     });
 })();

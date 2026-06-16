@@ -1,0 +1,843 @@
+\documentclass[a4paper,12pt,openany,oneside]{report}
+
+% =====================
+% Packages
+% =====================
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[T5]{fontenc}
+\usepackage[vietnamese]{babel}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{geometry}
+\usepackage{setspace}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{enumitem}
+\usepackage{indentfirst}
+\usepackage{microtype}
+
+% =====================
+% Spacing & Indent
+% =====================
+\setlength{\parindent}{1.25em}
+\setlength{\parskip}{6pt}
+\onehalfspacing
+
+\geometry{
+  a4paper,
+  top=2.5cm, bottom=2.5cm,
+  left=3cm, right=2cm
+}
+
+% =====================
+% Header / Footer
+% =====================
+\pagestyle{plain}
+\fancyhf{}
+\setlength{\headheight}{0pt}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0.6pt}
+
+\fancypagestyle{plain}{%
+    \fancyhf{}%
+    \renewcommand{\headrulewidth}{0pt}%
+    \renewcommand{\footrulewidth}{0.6pt}%
+    \fancyfoot[C]{\thepage}%
+}
+
+% =====================
+% Chapter / Section format
+% =====================
+\renewcommand{\chaptername}{CHƯƠNG}
+\titleformat{\chapter}[display]
+  {\bfseries\Large\raggedright}
+  {\chaptername\ \thechapter.}{0.5ex}{\LARGE}
+\titlespacing*{\chapter}{0pt}{-10pt}{24pt}
+
+\titleformat{\section}
+  {\bfseries\large}{\thesection}{1em}{}
+\titlespacing*{\section}{0pt}{18pt}{6pt}
+
+\titleformat{\subsection}
+  {\bfseries\normalsize}{\thesubsection}{1em}{}
+\titlespacing*{\subsection}{0pt}{14pt}{4pt}
+
+% =====================
+% List style
+% =====================
+\setlist[enumerate]{itemsep=2pt, topsep=4pt, parsep=0pt}
+\setlist[itemize]{itemsep=2pt, topsep=4pt, parsep=0pt}
+
+% =====================
+% Hyperref
+% =====================
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=black,
+  citecolor=black,
+  pdfencoding=auto
+}
+
+\begin{document}
+
+% =====================
+% Title page
+% =====================
+\begin{titlepage}
+    \thispagestyle{empty}
+
+    \begin{tikzpicture}[remember picture, overlay]
+        \draw[line width=1pt]
+            ($(current page.north west)+(0.9cm,-0.9cm)$)
+            rectangle
+            ($(current page.south east)+(-0.9cm,0.9cm)$);
+    \end{tikzpicture}
+
+    \centering
+    \vspace*{0.4cm}
+
+    {\fontsize{15pt}{19pt}\selectfont\bfseries
+        ĐẠI HỌC BÁCH KHOA HÀ NỘI\par}
+
+    \vspace{0.2cm}
+
+    {\fontsize{14pt}{17pt}\selectfont\bfseries
+        TRƯỜNG CÔNG NGHỆ THÔNG TIN VÀ TRUYỀN THÔNG\par}
+
+    \vspace{0.9cm}
+
+    \includegraphics[width=2.7cm]{image/hust.png}
+
+    \vspace{1.0cm}
+
+    {\fontsize{25pt}{30pt}\selectfont\bfseries
+        ĐỒ ÁN TỐT NGHIỆP\par}
+
+    \vspace{0.9cm}
+
+    {\fontsize{16pt}{20pt}\selectfont\bfseries
+        \parbox{15cm}{\centering
+            Hệ thống quản lý và tiện ích ký túc xá cho sinh viên\\
+            tích hợp phân bổ phòng tự động và trực quan hóa không gian
+        }
+    \par}
+
+    \vspace{0.95cm}
+
+    {\fontsize{16pt}{20pt}\selectfont\bfseries
+        PHAN ĐỨC QUYỀN\par}
+
+    \vspace{0.1cm}
+
+    {\fontsize{12pt}{15pt}\selectfont
+        quyenn.pd225916@sis.hust.edu.vn\par}
+
+    \vspace{0.28cm}
+
+    {\fontsize{13pt}{16pt}\selectfont
+        Chương trình đào tạo: Công nghệ thông tin Việt -- Nhật\par}
+
+    \vspace{1.0cm}
+
+    \begin{flushleft}
+        \fontsize{12pt}{15pt}\selectfont
+        \begin{tabular}{p{5.7cm}p{8.5cm}}
+            \textbf{Giảng viên hướng dẫn:} & PGS.~TS. Cao Tuấn Dũng \\[4pt]
+            \textbf{Khoa:}                  & Khoa học máy tính \\[4pt]
+            \textbf{Trường:}                & Trường Công nghệ thông tin và Truyền thông \\
+        \end{tabular}
+    \end{flushleft}
+
+    \vfill
+
+    {\fontsize{13pt}{16pt}\selectfont
+        HÀ NỘI, 05/2026\par}
+
+\end{titlepage}
+
+% =====================
+% LỜI CẢM ƠN
+% =====================
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+    {\bfseries\fontsize{18pt}{22pt}\selectfont LỜI CẢM ƠN}
+\end{center}
+\vspace{1.5cm}
+
+% (Sinh viên điền nội dung lời cảm ơn tại đây)
+
+% =====================
+% TÓM TẮT ĐỒ ÁN
+% =====================
+\clearpage
+\thispagestyle{empty}
+\begin{center}
+    {\bfseries\fontsize{18pt}{22pt}\selectfont TÓM TẮT NỘI DUNG ĐỒ ÁN}
+\end{center}
+\vspace{1.5cm}
+
+Sinh viên viết tóm tắt nội dung đồ án của mình trong khoảng 200 đến 350 từ.
+Theo trình tự, các nội dung tóm tắt cần có:
+(i)~Giới thiệu vấn đề;
+(ii)~Mục tiêu và phạm vi đề tài;
+(iii)~Phương pháp tiếp cận và hướng giải quyết;
+(iv)~Kết quả đạt được;
+(v)~Ý nghĩa và khả năng ứng dụng của hệ thống.
+
+Sinh viên nên viết thành đoạn văn hoàn chỉnh, không sử dụng gạch đầu dòng.
+
+\vspace{2cm}
+\begin{flushright}
+    Sinh viên thực hiện\\[4pt]
+    {\itshape (Ký và ghi rõ họ tên)}
+\end{flushright}
+
+% =====================
+% MỤC LỤC
+% =====================
+\clearpage
+\tableofcontents
+
+% =====================
+% DANH MỤC KÝ HIỆU VÀ CHỮ VIẾT TẮT
+% =====================
+\clearpage
+\begin{center}
+    {\bfseries\fontsize{18pt}{22pt}\selectfont
+        DANH MỤC KÝ HIỆU VÀ CHỮ VIẾT TẮT}
+\end{center}
+\vspace{1cm}
+
+\begin{longtable}{p{3cm} p{5cm} p{6cm}}
+    \toprule
+    \textbf{Ký hiệu} & \textbf{Tên tiếng Anh} & \textbf{Ý nghĩa tiếng Việt} \\
+    \midrule
+    \endhead
+    AI   & Artificial Intelligence           & Trí tuệ nhân tạo \\[3pt]
+    API  & Application Programming Interface & Giao diện lập trình ứng dụng \\[3pt]
+    CNTT & Information Technology            & Công nghệ thông tin \\[3pt]
+    JWT  & JSON Web Token                    & Token xác thực dạng JSON \\[3pt]
+    KTX  & ---                               & Ký túc xá \\[3pt]
+    UI   & User Interface                    & Giao diện người dùng \\
+    \bottomrule
+\end{longtable}
+
+% =====================
+% DANH MỤC HÌNH VẼ
+% =====================
+\clearpage
+\renewcommand{\listfigurename}{%
+    \bfseries\fontsize{18pt}{22pt}\selectfont DANH MỤC HÌNH VẼ%
+}
+\listoffigures
+
+% =====================
+% DANH MỤC BẢNG
+% =====================
+\clearpage
+\renewcommand{\listtablename}{%
+    \bfseries\fontsize{18pt}{22pt}\selectfont DANH MỤC BẢNG%
+}
+\listoftables
+
+% =====================================================================
+% CHƯƠNG 1. GIỚI THIỆU ĐỀ TÀI
+% =====================================================================
+\clearpage
+\chapter{GIỚI THIỆU ĐỀ TÀI}
+
+Sự phát triển mạnh mẽ của Công nghệ Thông tin (CNTT) trong hai thập kỷ qua đã
+và đang làm thay đổi sâu rộng phương thức vận hành của hầu hết các lĩnh vực
+trong đời sống xã hội, từ kinh tế, y tế, công nghiệp cho đến giáo dục và quản
+lý công. Việc ứng dụng các giải pháp tin học không chỉ dừng lại ở mức tự động
+hoá các tác vụ thủ công lặp lại, mà còn mở ra khả năng phân tích, dự báo và hỗ
+trợ ra quyết định trong các hệ thống phức tạp vốn đòi hỏi sự cân bằng giữa
+nhiều ràng buộc đối lập nhau. Trong bối cảnh đào tạo đại học, xu hướng số hoá
+đang dần chuyển hoá không chỉ hoạt động dạy và học mà còn cả các quy trình hành
+chính và dịch vụ sinh viên, trong đó quản lý ký túc xá là một trong những mảng
+đang đòi hỏi sự cải tiến rõ rệt nhất.
+
+Ký túc xá đại học không đơn thuần là nơi cung cấp chỗ ở; đây là một phần quan
+trọng trong hệ sinh thái hỗ trợ học tập, ảnh hưởng trực tiếp đến chất lượng
+cuộc sống, năng lực tập trung học tập và sự hài lòng của sinh viên trong suốt
+quá trình học tập tại trường. Một hệ thống quản lý ký túc xá hoạt động tốt cần
+đảm bảo tính công bằng trong phân bổ phòng, tính minh bạch trong chính sách ưu
+tiên, tính kịp thời trong thông báo kết quả, và tính linh hoạt khi chính sách
+nhà trường thay đổi. Những yêu cầu này, khi được giải quyết bằng phương pháp
+thủ công truyền thống, thường dẫn đến sai sót, chậm trễ và thiếu nhất quán,
+đặc biệt trong bối cảnh quy mô sinh viên ngày càng tăng và cấu trúc chính sách
+ngày càng phức tạp.
+
+Xuất phát từ thực tiễn trên, đề tài này tập trung nghiên cứu và phát triển một
+hệ thống phần mềm tích hợp phục vụ quản lý và phân bổ ký túc xá, kết hợp giữa
+một Allocation Engine có khả năng cấu hình chính sách linh hoạt với giao diện
+người dùng hiện đại được tối ưu hoá cho thiết bị di động. Hệ thống hướng tới
+việc giải quyết đồng thời ba nhóm vấn đề cốt lõi: tự động hoá và tối ưu hoá
+quy trình phân bổ; đảm bảo tính minh bạch và khả năng kiểm chứng của mọi quyết
+định; và nâng cao trải nghiệm người dùng thông qua giao tiếp thời gian thực và
+trực quan hoá không gian.
+
+% =====================================================================
+\section{Đặt vấn đề}
+% =====================================================================
+
+Bài toán phân bổ phòng ở ký túc xá mang đặc trưng của một bài toán tối ưu hoá
+có ràng buộc đa chiều, trong đó mỗi quyết định gán phòng phải đồng thời thoả
+mãn nhiều điều kiện: chính sách ưu tiên của nhà trường, các ràng buộc về sức
+chứa và an toàn, tính công bằng giữa các nhóm sinh viên khác nhau, và yêu cầu
+minh bạch để người dùng có thể kiểm tra và khiếu nại khi cần. Độ phức tạp của
+bài toán tăng lên đáng kể khi số lượng ứng viên lớn, khi chính sách có nhiều
+tầng ưu tiên chồng nhau, hoặc khi cần xử lý các trường hợp đặc biệt như sinh
+viên có hoàn cảnh khó khăn, sinh viên trao đổi quốc tế, hay sinh viên có nhu
+cầu đặc thù về sức khoẻ.
+
+Thực trạng hiện nay tại Đại học Bách Khoa Hà Nội cũng như tại nhiều trường đại
+học quy mô lớn trong nước cho thấy quy trình phân bổ phòng ký túc xá vẫn chủ
+yếu dựa vào bảng tính điện tử hoặc xử lý thủ công qua nhiều bước nối tiếp: thu
+thập hồ sơ đăng ký, tổng hợp thông tin ưu tiên, tính điểm theo quy định, xếp
+hạng ứng viên, gán phòng theo thứ tự và kiểm tra lại để đảm bảo không vi phạm
+ràng buộc. Quy trình này không chỉ tiêu tốn nhiều công sức của cán bộ mà còn
+tiềm ẩn nhiều rủi ro: tính toán nhầm do thao tác tay, sơ sót dữ liệu khi hợp
+nhất từ nhiều nguồn, và hiểu sai chính sách khi quy định được diễn giải khác
+nhau bởi những người thực hiện khác nhau. Hậu quả là kết quả phân bổ đôi khi
+không nhất quán, khó truy nguyên, và mất nhiều thời gian để xử lý khi có khiếu
+nại.
+
+Thiếu minh bạch là một trong những hạn chế nghiêm trọng nhất của hệ thống hiện
+tại. Sinh viên không có cách nào kiểm chứng cách điểm ưu tiên của mình được
+tính toán, vì sao một sinh viên khác lại được ưu tiên hơn, hay liệu kết quả phân
+bổ có tuân thủ đúng chính sách đã được công bố hay không. Sự thiếu minh bạch
+này dẫn đến mất lòng tin, gia tăng số lượng khiếu nại và buộc cán bộ phải dành
+đáng kể thời gian để giải thích và xử lý tranh chấp thay vì tập trung vào công
+tác chuyên môn.
+
+Bên cạnh đó, hạ tầng dữ liệu còn nhiều bất cập: thông tin sinh viên và thông
+tin phòng thường lưu trữ ở các hệ thống rời rạc với định dạng không chuẩn hoá,
+khiến việc đồng bộ và đối chiếu tốn công sức. Khi chính sách thay đổi, cán bộ
+phải thực hiện lại toàn bộ quy trình thủ công trên tập dữ liệu mới, không có
+cách nào mô phỏng trước tác động của chính sách mới để so sánh các phương án.
+Việc thiếu nhật ký thao tác (audit log) có cấu trúc cũng làm cho quá trình truy
+nguyên nguyên nhân sai sót trở nên cực kỳ khó khăn.
+
+Cuối cùng, kỳ vọng của sinh viên về trải nghiệm số ngày càng cao. Họ muốn đăng
+ký và theo dõi trạng thái hồ sơ từ điện thoại di động, xem trước ảnh 360° hoặc
+sơ đồ không gian phòng trước khi đưa ra quyết định, nộp minh chứng điện tử và
+nhận thông báo tức thì khi có kết quả. Những nhu cầu này hoàn toàn nằm ngoài
+khả năng đáp ứng của quy trình thủ công hiện tại.
+
+Tóm lại, bài toán cần giải quyết bao gồm sáu nhóm vấn đề có liên quan chặt chẽ
+với nhau: (1)~quy trình phân bổ thủ công, tiêu tốn thời gian và tiềm ẩn sai sót;
+(2)~thiếu minh bạch và khả năng kiểm chứng trong toàn bộ quy trình; (3)~dữ liệu
+phân tán, thiếu chuẩn hoá và khó bảo trì theo thời gian; (4)~không có khả năng
+mô phỏng và đánh giá tác động trước khi áp dụng chính sách; (5)~giao diện chưa
+tối ưu cho thiết bị di động và nhu cầu trải nghiệm số của sinh viên; và
+(6)~thiếu cơ chế phản hồi kịp thời, minh bạch giữa hệ thống và người dùng cuối.
+
+% =====================================================================
+\section{Mục tiêu và phạm vi đề tài}
+% =====================================================================
+
+\subsection{Mục tiêu nghiên cứu}
+
+Mục tiêu tổng quát của đề tài là nghiên cứu, thiết kế và triển khai một hệ
+thống phần mềm quản lý ký túc xá tích hợp, trong đó cốt lõi là một Allocation
+Engine có khả năng thực thi chính sách phân bổ linh hoạt, kết hợp với các giao
+diện người dùng hiện đại và cơ chế đảm bảo minh bạch. Hệ thống hướng đến việc
+thay thế hoàn toàn quy trình thủ công hiện tại, đồng thời cung cấp nền tảng kỹ
+thuật có thể mở rộng và bảo trì lâu dài.
+
+Về phía \textit{Allocation Engine}, hệ thống cần thiết kế một thành phần lõi
+cho phép mô tả chính sách phân bổ dưới dạng dữ liệu có cấu trúc, hỗ trợ hai
+chế độ hoạt động là mô phỏng (preview) và thực thi (commit), đồng thời tự động
+sinh nhật ký giải thích cơ sở quyết định cho từng sinh viên để đảm bảo tính
+auditability. Về phía \textit{backend và API}, cần xây dựng một tầng dịch vụ
+an toàn và có khả năng mở rộng, cung cấp API theo chuẩn RESTful được bảo vệ
+bằng xác thực và phân quyền, lưu trữ lịch sử phân bổ theo phiên và ghi đầy đủ
+audit log cho các thao tác quan trọng.
+
+Về phía \textit{giao diện quản trị}, cần phát triển giao diện cho cán bộ quản
+lý nhằm cấu hình chính sách, khởi chạy và giám sát phiên phân bổ, điều chỉnh
+kết quả thủ công khi cần và xuất báo cáo thống kê. Về phía \textit{giao diện
+sinh viên}, cần thiết kế trải nghiệm mobile-first cho phép sinh viên đăng ký,
+nộp minh chứng điện tử, tra cứu điểm ưu tiên với lời giải thích có thể kiểm
+chứng, và nhận thông báo kết quả kịp thời. Ngoài ra, hệ thống cần tích hợp cơ
+chế thông báo thời gian thực thông qua WebSocket, cùng với bộ kiểm thử bao gồm
+kiểm thử đơn vị, tích hợp và tải nhằm đảm bảo độ chính xác và hiệu năng trong
+điều kiện vận hành thực tế.
+
+\subsection{Phạm vi đề tài}
+
+Phạm vi triển khai bao gồm toàn bộ các thành phần tạo nên một hệ thống hoàn
+chỉnh có thể vận hành độc lập: tầng backend và API được xây dựng trên nền
+Node.js/Express với MongoDB làm cơ sở dữ liệu; Allocation Engine phía máy chủ
+với đầy đủ chế độ mô phỏng và thực thi; giao diện quản trị render phía máy chủ
+sử dụng EJS; giao diện sinh viên web mobile-first với React và Tailwind CSS; ứng
+dụng di động đa nền tảng với Expo/React Native; hệ thống thông báo thời gian
+thực với Socket.IO; cơ chế xác thực và phân quyền dựa trên JWT và RBAC; cùng
+bộ kiểm thử và tài liệu hướng dẫn triển khai đầy đủ.
+
+Một số nội dung được xác định là nằm ngoài phạm vi của đề tài này: tích hợp
+sâu với các hệ thống nội bộ của trường như hệ thống quản lý điểm hay tuyển sinh
+(chỉ tích hợp qua API mẫu); phát triển các mô-đun phân tích dữ liệu nâng cao
+hay mô hình dự báo bằng học máy; và triển khai hạ tầng vận hành theo tiêu chí
+sản xuất toàn diện với cân bằng tải đa vùng, sao lưu địa lý và khôi phục thảm
+họa. Những nội dung này có thể được phát triển trong các giai đoạn tiếp theo khi
+hệ thống được đưa vào vận hành thực tế.
+
+% =====================================================================
+\section{Định hướng giải pháp}
+% =====================================================================
+
+Giải pháp được thiết kế xung quanh bốn nguyên tắc cốt lõi: phân tách trách
+nhiệm rõ ràng giữa các tầng; khả năng cấu hình chính sách mà không cần thay
+đổi mã nguồn; ưu tiên trải nghiệm người dùng trên thiết bị di động; và đảm bảo
+khả năng mô phỏng, kiểm thử trước khi áp dụng chính sách vào thực tế.
+
+\textbf{Kiến trúc hệ thống.} Hệ thống được tổ chức theo mô hình ba tầng kinh
+điển nhưng với phân tách rõ ràng về trách nhiệm: tầng trình bày xử lý mọi tương
+tác người dùng; tầng dịch vụ chứa logic nghiệp vụ bao gồm Allocation Engine; và
+tầng dữ liệu quản lý lưu trữ và truy vấn. Allocation Engine tiếp nhận đầu vào
+là danh sách ứng viên, danh sách phòng và cấu hình chính sách, sau đó tính toán
+điểm ưu tiên theo các tiêu chí đã thiết lập, xếp hạng và tiến hành gán phòng
+theo thứ tự ưu tiên trong khi tôn trọng các ràng buộc cứng về sức chứa và an
+toàn. Sự phân tách giữa chế độ mô phỏng và chế độ thực thi cho phép cán bộ
+đánh giá toàn diện tác động của mỗi kịch bản chính sách trước khi ra quyết định
+chính thức.
+
+\textbf{Lựa chọn công nghệ.} Tập hợp công nghệ được lựa chọn nhằm cân bằng
+giữa tốc độ phát triển, hiệu năng vận hành và tính ổn định của hệ sinh thái thư
+viện. Node.js với Express được chọn cho backend bởi khả năng xử lý bất đồng bộ
+tự nhiên và hệ sinh thái npm phong phú. MongoDB được sử dụng như cơ sở dữ liệu
+chính nhờ mô hình document linh hoạt, phù hợp với cấu trúc chính sách đa dạng
+và có thể thay đổi. Socket.IO đảm nhiệm kênh thông báo thời gian thực. Phía
+giao diện sinh viên sử dụng React kết hợp Tailwind CSS để đạt được thiết kế
+responsive chất lượng cao; giao diện quản trị sử dụng EJS để render phía máy
+chủ; ứng dụng di động được phát triển với Expo và React Native để tái sử dụng
+mã nguồn trên cả iOS và Android.
+
+\textbf{Bảo mật và phân quyền.} Toàn bộ API được bảo vệ bằng xác thực JWT kết
+hợp với cơ chế kiểm soát truy cập theo vai trò (RBAC), phân quyền chi tiết giữa
+ba nhóm người dùng chính: cán bộ quản lý toàn quyền, cán bộ chỉ xem, và sinh
+viên. Dữ liệu nhạy cảm bao gồm thông tin cá nhân và tài liệu minh chứng được
+mã hoá khi lưu trữ. Xác thực hai yếu tố được áp dụng cho tài khoản quản trị.
+Mọi thao tác có tác động đến kết quả phân bổ đều được ghi audit log đầy đủ với
+thời gian, người thực hiện và nội dung thay đổi.
+
+\textbf{Kiểm thử và đảm bảo chất lượng.} Chiến lược kiểm thử được thiết kế
+theo nhiều tầng: kiểm thử đơn vị cho Allocation Engine và các service lõi đảm
+bảo tính đúng đắn của logic tính điểm và gán phòng; kiểm thử tích hợp cho các
+API chính xác minh sự phối hợp chính xác giữa các thành phần; kiểm thử giao
+diện người dùng đảm bảo luồng tương tác hoạt động đúng trên các thiết bị khác
+nhau; và kiểm thử tải đánh giá khả năng đáp ứng của hệ thống trong các kịch bản
+có số lượng sinh viên lớn, phản ánh điều kiện vận hành thực tế.
+
+% =====================================================================
+\section{Bố cục đồ án}
+% =====================================================================
+
+Phần còn lại của báo cáo đồ án tốt nghiệp được tổ chức thành năm chương, mỗi
+chương có nhiệm vụ rõ ràng và liên kết logic với nhau, tạo thành một chuỗi lập
+luận nhất quán từ cơ sở lý thuyết đến triển khai và đánh giá.
+
+\textbf{Chương 2 --- Cơ sở lý thuyết và công trình liên quan} khảo sát và phân
+tích các nền tảng lý thuyết liên quan đến bài toán phân bổ tài nguyên, các
+thuật toán xếp hạng và ghép cặp được sử dụng phổ biến trong nghiên cứu, cùng
+với tổng quan các hệ thống quản lý ký túc xá đang tồn tại để xác định khoảng
+trống mà đề tài hướng tới lấp đầy.
+
+\textbf{Chương 3 --- Công nghệ và kiến trúc hệ thống} trình bày đầy đủ các yêu cầu chức năng và phi chức năng được rút ra từ khảo sát thực tiễn, phân
+tích các trường hợp sử dụng theo khuôn mẫu học thuật, thiết kế kiến trúc hệ
+thống tổng thể và mô hình dữ liệu, kết thúc bằng thiết kế chi tiết Allocation
+Engine bao gồm thuật toán và cấu trúc dữ liệu.
+
+\textbf{Chương 4 --- Triển khai hệ thống} mô tả quá trình hiện thực hoá thiết
+kế thành mã nguồn, bao gồm cấu trúc dự án, các quyết định kỹ thuật quan trọng,
+các khó khăn gặp phải và phương án giải quyết, cùng hướng dẫn triển khai môi
+trường backend, frontend và cơ sở dữ liệu.
+
+\textbf{Chương 5 --- Kiểm thử và đánh giá} trình bày chiến lược kiểm thử toàn
+diện, mô tả các kịch bản kiểm thử chức năng, tích hợp và hiệu năng, phân tích
+kết quả thu được và đánh giá mức độ đáp ứng yêu cầu đề ra ở Chương~3.
+
+\textbf{Chương 6 --- Kết luận và hướng phát triển tương lai} tổng kết các kết
+quả đạt được, nêu rõ đóng góp chính của đồ án, nhận diện các hạn chế còn tồn
+tại và đề xuất hướng phát triển tiếp theo trong các giai đoạn sau khi hệ thống
+được đưa vào vận hành thực tế.
+
+Ngoài sáu chương chính, báo cáo bao gồm phần \textit{Tài liệu tham khảo} liệt
+kê các bài báo khoa học, sách chuyên khảo, thông số kỹ thuật chính thức và tài
+liệu từ các dự án mã nguồn mở có liên quan. Phần \textit{Phụ lục} cung cấp các
+thông tin bổ sung kỹ thuật bao gồm tài liệu API đầy đủ, sơ đồ cơ sở dữ liệu,
+hướng dẫn cài đặt và triển khai, script kiểm thử và các kịch bản thử nghiệm,
+nhằm hỗ trợ các nhà phát triển muốn hiểu sâu, tái triển khai hoặc mở rộng hệ
+thống trong tương lai.
+
+% =====================================================================
+% CHƯƠNG 2. CƠ SỞ LÝ THUYẾT VÀ CÔNG TRÌNH LIÊN QUAN
+% =====================================================================
+\clearpage
+\chapter{CƠ SỞ LÝ THUYẾT VÀ CÔNG TRÌNH LIÊN QUAN}
+
+Chương này trình bày nền tảng lý thuyết và tình hình thực tiễn liên quan tới
+vấn đề phân bổ phòng ký túc xá, làm rõ những hạn chế của giải pháp hiện có và
+những yêu cầu chức năng, phi chức năng dẫn tới thiết kế của đề tài.
+
+% =====================================================================
+\section{Khảo sát hiện trạng}
+\label{sec:survey}
+% =====================================================================
+
+\subsection{Thực trạng bài toán phân bổ ký túc xá}
+
+Phân bổ phòng là bài toán tổ hợp có ràng buộc đa chiều. Nhiều cơ sở giáo dục
+vẫn dựa vào bảng tính hoặc quy trình thủ công, dẫn đến khó mở rộng, sai số và
+khó truy vết kết quả. Một số đơn vị dùng phần mềm thương mại hoặc script nội
+bộ, nhưng thường thiếu khả năng mô phỏng, tính minh bạch và audit log cần thiết
+cho môi trường giáo dục. Vấn đề dữ liệu không chuẩn hoá và tích hợp thủ công từ
+nhiều nguồn làm tăng nguy cơ lỗi và chi phí vận hành.
+
+\subsection{Khó khăn và hạn chế từ góc độ người dùng}
+
+Sinh viên thường không rõ cách tính điểm và vì sao kết quả như vậy, dẫn tới khiếu
+nại và giảm niềm tin. Cán bộ thiếu công cụ mô phỏng để đánh giá tác động thay
+đổi chính sách trước khi áp dụng. Đồng thời, yêu cầu về trải nghiệm mobile và
+thông báo tức thì chưa được đáp ứng đầy đủ.
+
+\subsection{Ý nghĩa nổi bật: trực quan hoá không gian và phân bổ tự động}
+
+Trực quan hoá phòng (ảnh 360°, sơ đồ tầng, vị trí giường) giúp sinh viên quyết
+định tốt hơn và giảm khiếu nại sau phân bổ. Khi kết hợp với chế độ mô phỏng,
+trực quan hoá còn hỗ trợ đánh giá tác động chính sách trên không gian thực tế.
+
+\subsection{Hạn chế của các hệ thống hiện có và các nền tảng liên quan}
+
+Phần mềm thương mại thường thiếu cơ chế mô phỏng, cấu hình chính sách có cấu
+trúc và auditability cần thiết cho môi trường giáo dục. Mặt khác, nghiên cứu lý
+thuyết cung cấp thuật toán nhưng ít quan tâm đến explainability và tích hợp giao
+diện người dùng; do đó giải pháp đề xuất là kết hợp một engine có nền tảng lý
+thuyết với giao diện và cơ chế audit phù hợp.
+
+\subsection{So sánh ưu nhược điểm các giải pháp}
+
+\begin{table}[htbp]
+\centering
+\caption{So sánh các giải pháp trong bài toán quản lý phân bổ ký túc xá}
+\label{tab:comparison}
+\renewcommand{\arraystretch}{1.5}
+\begin{tabular}{p{4.0cm} p{4.8cm} p{4.8cm}}
+\toprule
+\textbf{Giải pháp} & \textbf{Ưu điểm} & \textbf{Nhược điểm} \\
+\midrule
+Bảng tính điện tử
+  & Triển khai nhanh, chi phí thấp, phù hợp thử nghiệm nhỏ.
+  & Khó mở rộng, dễ sai sót, thiếu khả năng audit và mô phỏng. \\
+Phần mềm quản lý KTX thương mại
+  & Ổn định, nhiều tính năng quản trị, hỗ trợ báo cáo.
+  & Chi phí cao, hạn chế tùy biến chính sách, tích hợp phức tạp. \\
+Giải pháp nghiên cứu (matching/ILP)
+  & Cơ sở lý thuyết vững, tối ưu mục tiêu cụ thể.
+  & Khó chuyển sang sản phẩm, lời giải khó diễn giải cho người dùng. \\
+Hệ thống tích hợp (Engine + UI)
+  & Tùy biến chính sách, mô phỏng, realtime, trải nghiệm tốt.
+  & Cần đầu tư phát triển, yêu cầu tích hợp dữ liệu từ nhiều nguồn. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Bảng~\ref{tab:comparison} tổng hợp sự đánh đổi giữa các hướng tiếp cận và làm
+rõ lý do tại sao không có giải pháp đơn lẻ nào đáp ứng đồng thời toàn bộ yêu
+cầu về chất lượng thuật toán, khả năng vận hành và trải nghiệm người dùng. Do đó,
+giải pháp trong đề tài này là kết hợp có chọn lọc: một engine với nền tảng lý
+thuyết đủ vững để đảm bảo chất lượng phân bổ, tích hợp trong một hệ thống có
+đầy đủ cơ chế audit, mô phỏng và giao diện thân thiện.
+
+\begin{center}
+    \includegraphics[width=0.74\linewidth]{image/Scape.png}
+    \\[6pt]
+    {\footnotesize Hình: Giao diện tham khảo từ nền tảng Scape \& Uni}
+\end{center}
+
+% =====================================================================
+\section{Tổng quan chức năng}
+
+Hệ thống phục vụ bốn nhóm tác nhân chính: sinh viên (đăng ký, nộp minh chứng,
+tra cứu kết quả), cán bộ quản lý (cấu hình chính sách, vận hành phiên phân bổ),
+hệ thống tự động (Allocation Engine, API, audit) và nhóm kiểm duyệt (tra cứu
+báo cáo).
+
+Quy trình xử lý của hệ thống gồm các bước: thu thập và chuẩn hoá hồ sơ sinh viên, cấu hình chính sách phân bổ, chạy mô phỏng để đánh giá các kịch bản trước khi commit kết quả chính thức, sau đó gửi thông báo đến sinh viên và hỗ trợ xử lý khiếu nại; việc tách biệt giữa mô phỏng và commit giúp kiểm soát chất lượng và hạn chế sai sót trong quá trình phân phòng.
+
+
+% =====================================================================
+% BIỂU ĐỒ USE CASE VÀ PHÂN TÍCH CHỨC NĂNG
+% Phần này được trình bày theo chuẩn luận văn, sử dụng \section* và \subsection*
+% =====================================================================
+
+\addcontentsline{toc}{section}{Biểu đồ các trường hợp sử dụng}
+
+\subsection*{2.2.1 Biểu đồ use case tổng quát}
+\addcontentsline{toc}{subsection}{2.2.1 Biểu đồ use case tổng quát}
+
+Biểu đồ use case tổng quát cung cấp cái nhìn hệ thống về các chức năng cốt lõi và mối quan hệ giữa các tác nhân chính trong hệ thống quản lý ký túc xá. Biểu đồ này có vai trò xác lập ranh giới nghiệp vụ của hệ thống, đồng thời chỉ ra những nhóm chức năng mức cao sẽ được phân rã ở các mục tiếp theo. Về mặt phương pháp, đây là bước nền để chuyển từ mô tả yêu cầu tổng thể sang đặc tả chức năng có thể kiểm chứng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.66\linewidth]{diagrams/usecase_overview.png}
+\caption{Biểu đồ use case tổng quát của hệ thống quản lý ký túc xá}
+\label{fig:usecase_overview}
+\end{figure}
+
+Biểu đồ tổng quát xác định bốn tác nhân chính gồm sinh viên, cán bộ quản lý, hệ thống tự động và nhóm kiểm duyệt/kiểm toán. Sinh viên thực hiện các hành động liên quan tới đăng ký, nộp minh chứng và tra cứu kết quả; cán bộ quản lý chịu trách nhiệm cấu hình chính sách, vận hành phiên phân bổ và xử lý khiếu nại; hệ thống tự động thực hiện mô phỏng, phân bổ, ghi nhận audit log và phát thông báo thời gian thực; nhóm kiểm duyệt thực hiện kiểm tra tuân thủ và truy xuất báo cáo. Ở cấp độ tổng quan, chu trình vận hành chính bao gồm thu thập hồ sơ, kiểm duyệt dữ liệu, cấu hình chính sách, mô phỏng, thực thi phân bổ, thông báo và xử lý khiếu nại. Về mặt kỹ thuật, biểu đồ này định hướng các ràng buộc tích hợp API, phạm vi trách nhiệm của các service và các điểm cần ghi log để đảm bảo tính giải thích cho kết quả phân bổ.
+
+\subsection*{2.2.2 Biểu đồ use case phân rã}
+\addcontentsline{toc}{subsection}{2.2.2 Biểu đồ use case phân rã}
+Nhóm biểu đồ phân rã được trình bày tập trung trong một sơ đồ duy nhất nhằm minh hoạ mối quan hệ phân tầng giữa các chức năng mức cao và các chức năng con. Sơ đồ này thể hiện bảy nhóm chức năng mức cao cùng các thành phần phân rã tương ứng. Dưới đây là phần phân tích ngắn gọn cho từng nhóm chức năng, mỗi đoạn mô tả các chức năng con chính sau khi phân rã.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{diagrams/phanra.png}
+\caption{Biểu đồ phân rã chức năng (toàn cảnh)}
+\label{fig:phanra}
+\end{figure}
+
+Phân tích phân rã chức năng (tóm tắt):
+
+Đăng ký và hồ sơ: phân rã thành các chức năng con chính bao gồm đăng nhập, khai báo thông tin, nộp minh chứng và kiểm duyệt hồ sơ; các chức năng con này đảm bảo tính chuẩn hoá dữ liệu đầu vào và tạo điều kiện cho bước xét ưu tiên tiếp theo.
+
+Tra cứu và hỗ trợ: phân rã thành tra cứu trạng thái, hiển thị kết quả phân bổ kèm lời giải thích rút gọn và kênh gửi phản hồi, khiếu nại; nhóm này tối ưu cho tính minh bạch và tương tác người dùng.
+
+Cấu hình chính sách: phân rã thành quản lý mẫu chính sách, chỉnh sửa trọng số và ràng buộc, và quản lý phiên bản/audit; đây là vùng chịu trách nhiệm chính về cách thức tính toán điểm ưu tiên và ràng buộc phân bổ.
+
+Mô phỏng và phân bổ: phân rã thành chạy mô phỏng, so sánh phương án và xác nhận commit; chức năng này tách rõ hai chế độ preview và commit, đồng thời sinh báo cáo và chỉ ra các xung đột ràng buộc cần xử lý.
+
+Quản lý phòng: phân rã thành các chức năng CRUD phòng, cập nhật sức chứa và liên kết ảnh/sơ đồ phục vụ trực quan hoá; đảm bảo dữ liệu không gian chuẩn để engine phân bổ sử dụng.
+
+Thông báo và realtime: phân rã thành đẩy thông báo, hàng đợi retry và ghi nhật ký sự kiện; đảm bảo tính kịp thời và tin cậy trong giao tiếp với người dùng.
+
+Báo cáo và thống kê: phân rã thành báo cáo phân bổ và thống kê KPI nhằm hỗ trợ phân tích kết quả và ra quyết định chính sách.
+
+Lưu ý: tên các chức năng mức cao trong sơ đồ phân rã phải trùng khớp với tên chức năng ở biểu đồ use case tổng quát; mỗi chức năng mức cao có thể được mở thành một mục phân rã riêng (ví dụ: 2.2.2.1, 2.2.2.2…) nếu cần trình bày chi tiết từng nhóm chức năng con.
+
+\subsection*{2.2.3 Quy trình nghiệp vụ}
+\addcontentsline{toc}{subsection}{2.2.3 Quy trình nghiệp vụ}
+
+Quy trình nghiệp vụ tổng thể của hệ thống được thiết kế theo chuỗi xử lý liên tục, bắt đầu từ tiếp nhận hồ sơ đăng ký và kết thúc ở giai đoạn thông báo, phản hồi và xử lý các phát sinh sau phân bổ. Trước hết, sinh viên thực hiện đăng ký và nộp minh chứng; sau đó hệ thống kiểm tra dữ liệu đầu vào và chuyển hồ sơ hợp lệ sang trạng thái sẵn sàng xét duyệt. Trên cơ sở dữ liệu đã chuẩn hóa, cán bộ quản lý cấu hình chính sách và tham số phân bổ, từ đó khởi chạy mô phỏng để đánh giá tác động của cấu hình hiện hành. Khi kết quả mô phỏng phù hợp, hệ thống được chuyển sang chế độ thực thi để ghi nhận kết quả chính thức.
+
+Sau khi kết quả phân bổ được công bố, sinh viên tra cứu kết quả, đọc phần giải thích và phản hồi nếu phát sinh khiếu nại. Đồng thời, hệ thống phát thông báo thời gian thực tới các bên liên quan và ghi lại audit log cho toàn bộ thao tác quan trọng. Chu trình này thể hiện rõ mối liên hệ nhân quả giữa các khối chức năng: dữ liệu đầu vào tốt làm nền cho mô phỏng chính xác, mô phỏng đúng giúp giảm rủi ro khi commit, còn thông báo và nhật ký giúp bảo đảm tính minh bạch và khả năng kiểm chứng trong vận hành thực tế. Về định hướng mở rộng, quy trình này có thể tích hợp thêm các bước hỗ trợ ra quyết định, kiểm tra thông minh hồ sơ và phân tích tác động chính sách ở các phiên phân bổ tiếp theo.
+
+% Rewritten detailed use cases following user's template and with diagrams per use case
+\section{Đặc tả chức năng}
+% =====================================================================
+
+Phần này trình bày sáu use case trọng yếu đại diện cho các luồng nghiệp vụ chính của hệ thống. Mỗi use case được mô tả theo khuôn mẫu chuẩn bao gồm tác nhân, điều kiện tiên quyết, điều kiện hậu kết và luồng thực hiện chính. Hình minh hoạ tương ứng cho mỗi use case được chèn ngay sau phần mô tả.
+
+\subsection{Use Case 1: Đăng ký ở và nộp minh chứng}
+
+Sinh viên có nhu cầu ở ký túc xá đăng nhập vào hệ thống, khai báo thông tin cá nhân theo biểu mẫu quy định và tải lên các tài liệu minh chứng ưu tiên nếu có, bao gồm giấy xác nhận hoàn cảnh khó khăn, giấy chứng nhận thành tích học tập, hoặc các loại giấy tờ đặc thù khác. Hệ thống thực hiện kiểm tra sơ bộ tính hợp lệ của dữ liệu và tệp tải lên, lưu hồ sơ vào cơ sở dữ liệu và phản hồi mã xác nhận cho sinh viên.
+
+\textit{Tiền điều kiện:} sinh viên đã có tài khoản hợp lệ được cấp bởi nhà trường. \textit{Hậu điều kiện:} hồ sơ đăng ký ở trạng thái ``đã tiếp nhận'', sẵn sàng cho bước xét duyệt và phân bổ. Luồng phát sinh bao gồm trường hợp tệp tải lên không đúng định dạng hoặc vượt giới hạn dung lượng (hệ thống từ chối và yêu cầu tải lại) và trường hợp thông tin bắt buộc còn thiếu (hệ thống thông báo cụ thể và dừng quy trình).
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.94\textwidth]{diagrams/usecase_registration.png}
+\caption{Đăng ký ở và nộp minh chứng}
+\label{fig:uc_registration}
+\end{figure}
+
+\subsection{Use Case 2: Cấu hình chính sách và tham số phân bổ}
+
+Cán bộ quản lý đã được phân quyền vào trang cấu hình chính sách, lựa chọn mẫu chính sách có sẵn hoặc tạo mới, sau đó nhập các tham số bao gồm trọng số của từng tiêu chí ưu tiên, các ràng buộc cứng về sức chứa và phân nhóm, cùng các quy tắc xử lý trường hợp đặc biệt. Sau khi lưu cấu hình, cán bộ có thể chuyển ngay sang chế độ mô phỏng để xem trước tác động của cấu hình này trên tập dữ liệu hiện tại.
+
+\textit{Tiền điều kiện:} tài khoản có vai trò cán bộ quản lý chính. \textit{Hậu điều kiện:} cấu hình chính sách được lưu vào cơ sở dữ liệu và sẵn sàng để kích hoạt cho phiên phân bổ. Luồng phát sinh: nếu các tham số nhập vào vi phạm ràng buộc logic, chẳng hạn tổng trọng số không bằng 100\% hoặc sức chứa thiết lập âm, hệ thống báo lỗi chi tiết và yêu cầu điều chỉnh trước khi lưu.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.86\textwidth]{diagrams/usecase_config.png}
+\caption{Cấu hình chính sách và tham số phân bổ}
+\label{fig:uc_config}
+\end{figure}
+
+\subsection{Use Case 3: Chạy mô phỏng \& thực thi phân bổ}
+
+Đây là use case trung tâm của hệ thống. Cán bộ chọn chế độ mô phỏng (preview) để Allocation Engine thực thi trên tập dữ liệu thực nhưng không ghi kết quả vào cơ sở dữ liệu chính thức. Hệ thống sinh ra báo cáo tổng quan về kết quả phân bổ dự kiến bao gồm tỷ lệ lấp đầy phòng, phân bổ điểm ưu tiên và danh sách các trường hợp không thể phân bổ do thiếu phòng hoặc vi phạm ràng buộc. Cán bộ có thể so sánh nhiều kịch bản mô phỏng với tham số khác nhau trước khi quyết định. Khi đã hài lòng với một kịch bản, cán bộ xác nhận chuyển sang chế độ thực thi (commit): hệ thống cập nhật trạng thái phòng, ghi nhận kết quả vào hồ sơ sinh viên, ghi audit log đầy đủ và kích hoạt thông báo đến sinh viên.
+
+\textit{Tiền điều kiện:} dữ liệu ứng viên và cấu hình chính sách đã sẵn sàng. \textit{Hậu điều kiện:} kết quả phân bổ chính thức được lưu trữ, có thể tra cứu và xuất báo cáo. Luồng phát sinh: nếu engine phát hiện vi phạm ràng buộc cứng không thể giải quyết, hệ thống liệt kê chi tiết các trường hợp và đề xuất điều chỉnh tham số.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{diagrams/usecase_simulation.png}
+\caption{Mô phỏng và thực thi phân bổ}
+\label{fig:uc_simulation}
+\end{figure}
+
+\subsection{Use Case 4: Tra cứu kết quả, khiếu nại và tương tác}
+
+Sau khi phiên phân bổ hoàn tất, sinh viên đăng nhập để xem kết quả phân bổ của mình cùng với bản tóm tắt lời giải thích: phòng nào được phân bổ, điểm ưu tiên của mình là bao nhiêu và được tính từ các tiêu chí nào. Nếu sinh viên không đồng ý với kết quả, hệ thống cung cấp kênh nộp khiếu nại kèm tài liệu bổ sung. Cán bộ nhận khiếu nại qua giao diện quản trị, xem xét và cập nhật trạng thái xử lý.
+
+\textit{Tiền điều kiện:} phiên phân bổ chính thức đã được commit. \textit{Hậu điều kiện:} khiếu nại được ghi nhận và vào hàng đợi xử lý với trạng thái theo dõi rõ ràng.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{diagrams/usecase_lookup.png}
+\caption{Tra cứu kết quả, khiếu nại và tương tác}
+\label{fig:uc_lookup}
+\end{figure}
+
+\subsection{Use Case 5: Quản lý danh sách phòng và kiểm duyệt dữ liệu}
+
+Cán bộ quản trị thực hiện nhập mới, cập nhật hoặc vô hiệu hoá thông tin phòng bao gồm sức chứa, loại phòng, trang thiết bị và trạng thái hoạt động. Hệ thống kiểm tra tính hợp lệ của dữ liệu trước khi cho phép lưu, đảm bảo không có phòng nào có sức chứa âm hoặc thiếu thông tin bắt buộc.
+
+\textit{Tiền điều kiện:} tài khoản có vai trò quản trị. \textit{Hậu điều kiện:} danh sách phòng được cập nhật nhất quán và sẵn sàng cho phiên phân bổ tiếp theo.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.88\textwidth]{diagrams/usecase_rooms.png}
+\caption{Quản lý danh sách phòng và kiểm duyệt dữ liệu}
+\label{fig:uc_rooms}
+\end{figure}
+
+\subsection{Use Case 6: Thông báo thời gian thực và audit log}
+
+Hệ thống tự động phát thông báo đến người dùng liên quan khi có sự kiện quan trọng: kết thúc phiên phân bổ, thay đổi trạng thái hồ sơ, hoặc có phản hồi từ cán bộ cho khiếu nại. Đồng thời, mọi thao tác có tác động đến dữ liệu phân bổ đều được ghi audit log đầy đủ với thông tin về thời gian, người thực hiện, đối tượng bị ảnh hưởng và nội dung thay đổi.
+
+\textit{Tiền điều kiện:} dịch vụ WebSocket hoạt động bình thường. \textit{Hậu điều kiện:} thông báo đã được gửi đến thiết bị của người dùng; audit log được ghi vào bộ lưu trữ riêng không thể chỉnh sửa.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.60\textwidth]{diagrams/usecase_notifications.png}
+\caption{Thông báo thời gian thực và audit log}
+\label{fig:uc_notifications}
+\end{figure}
+
+
+
+
+% =====================================================================
+\section{Yêu cầu phi chức năng}
+\label{sec:nonfunctional}
+% =====================================================================
+
+Yêu cầu phi chức năng xác định các tiêu chuẩn chất lượng mà hệ thống phải đạt
+được trong điều kiện vận hành thực tế, bổ sung cho các yêu cầu chức năng và có
+vai trò quyết định đến độ tin cậy và khả năng chấp nhận của hệ thống trong dài
+hạn.
+
+\textbf{Hiệu năng.} Hệ thống phải xử lý được tối thiểu 5.000 yêu cầu đọc đồng
+thời, bao gồm tra cứu trạng thái và hiển thị kết quả, với độ trễ P95 dưới 300 ms
+trong điều kiện tải bình thường. Đối với các tác vụ ghi phức tạp như chạy phiên
+phân bổ hay cập nhật đồng loạt, hệ thống hỗ trợ ít nhất 200 yêu cầu đồng thời.
+Các tác vụ nặng như chạy Allocation Engine trên tập dữ liệu lớn được thực hiện
+theo mô hình bất đồng bộ với thông báo khi hoàn thành, tránh block giao diện
+người dùng.
+
+\textbf{Bảo mật.} Toàn bộ API được bảo vệ bằng JWT kết hợp RBAC với ba vai trò
+chính: cán bộ quản lý toàn quyền, cán bộ chỉ xem và sinh viên. Thông tin cá
+nhân và tài liệu minh chứng được mã hoá khi lưu trữ (at-rest encryption). Mọi
+giao tiếp giữa client và server sử dụng TLS/HTTPS. Audit log cho các thao tác
+quan trọng được lưu trong bộ lưu trữ riêng với quyền ghi một lần, đảm bảo tính
+bất biến.
+
+\textbf{Độ tin cậy và sẵn sàng.} Mục tiêu availability là 99,9\% cho các chức
+năng cốt lõi trong giờ vận hành bình thường. Dữ liệu được sao lưu tự động theo
+lịch và quy trình khôi phục được kiểm thử định kỳ. Hệ thống được thiết kế để
+khởi động lại gracefully mà không mất dữ liệu giao dịch đang xử lý.
+
+\textbf{Khả năng mở rộng.} Kiến trúc được thiết kế để hỗ trợ mở rộng theo chiều
+ngang (horizontal scaling) cho tầng API khi lưu lượng tăng. Cơ sở dữ liệu
+MongoDB hỗ trợ sharding khi kích thước collection vượt ngưỡng hiệu năng. Các
+thành phần được đóng gói bằng Docker để triển khai nhất quán trên mọi môi trường.
+
+\textbf{Tính dễ sử dụng và truy cập.} Giao diện sinh viên tuân theo nguyên tắc
+mobile-first, đảm bảo trải nghiệm tốt trên màn hình nhỏ với băng thông giới hạn.
+Giao diện hỗ trợ đầy đủ các trình duyệt phổ biến và không yêu cầu cài đặt plugin
+hay phần mềm bổ sung.
+
+\textbf{Tính dễ bảo trì.} Allocation Engine và các service lõi phải đạt coverage
+kiểm thử đơn vị tối thiểu 80\%. Log hệ thống có cấu trúc JSON để dễ tích hợp
+với các công cụ phân tích log. Mã nguồn tuân theo các quy ước đặt tên và tổ chức
+thư mục nhất quán, kèm tài liệu API theo chuẩn OpenAPI 3.0.
+
+\textbf{Tương thích và công nghệ đề xuất.} Stack công nghệ được lựa chọn gồm:
+Node.js/Express cho backend triển khai dạng container; MongoDB hoặc PostgreSQL
+cho cơ sở dữ liệu tuỳ yêu cầu giao dịch; Socket.IO hoặc WebPush cho thông báo
+thời gian thực; React kết hợp Tailwind CSS cho giao diện web mobile-first; và
+Jest/Mocha cho kiểm thử đơn vị, Playwright/Cypress cho kiểm thử E2E. Thiết kế
+collection cơ sở dữ liệu bao gồm Student, Room, Application, AllocationSession,
+AuditLog, PolicyTemplate với chỉ mục phù hợp cho tra cứu theo mã sinh viên,
+trạng thái và thời gian. API tuân thủ RESTful, có versioning theo phiên bản và
+hỗ trợ pagination, filtering, sorting cho các endpoint tra cứu lớn.
+
+\chapter*{CHƯƠNG 3. CÔNG NGHỆ VÀ KIẾN TRÚC HỆ THỐNG}
+\addcontentsline{toc}{chapter}{CHƯƠNG 3. CÔNG NGHỆ VÀ KIẾN TRÚC HỆ THỐNG}
+
+\section*{3.1 Kiến trúc hệ thống}
+Hệ thống quản lý phân bổ phòng ký túc xá được thiết kế theo kiến trúc phân lớp với backend chịu trách nhiệm xử lý nghiệp vụ và truy xuất dữ liệu, frontend thực hiện hiển thị động theo mẫu server-side rendering, cùng các tác vụ ngoại vi đảm nhiệm sinh dữ liệu, kiểm thử và thao tác hàng loạt. Việc lựa chọn kiến trúc này xuất phát từ yêu cầu về tính nhất quán dữ liệu khi thực hiện các toán tử phân bổ theo chu kỳ (allocation cycle), tính mở rộng cho chính sách kế thừa (policy inheritance), và khả năng tự động hóa các kịch bản xử lý vi phạm (violation workflow). Kiến trúc ưu tiên phân tách rõ ràng giữa tầng truy vấn dữ liệu (MongoDB qua Mongoose), tầng API REST (Node.js + Express), và tầng trình bày (EJS), nhằm giảm độ phức tạp đồng thời tạo điều kiện cho nhóm tác vụ sinh dữ liệu mô phỏng và nhóm tác vụ phân phòng tự động vận hành độc lập nhưng vẫn tương tác an toàn với API lõi.
+
+Mô hình luồng xử lý chính bao gồm: client gửi yêu cầu qua trình duyệt, server xác thực và cấp token/session, service thực hiện tính toán điểm ưu tiên (\texttt{priority\_score} allocation) và ghi nhận vào cơ sở dữ liệu, sau đó hệ thống cập nhật trạng thái phân bổ và phản hồi client. Thiết kế này cho phép tách biệt các quy trình dài (batch seeding, migration) khỏi các yêu cầu thời gian thực, đồng thời vẫn bảo đảm nhất quán bằng cách sử dụng các transaction logic ở mức ứng dụng và kiểm tra bất đồng bộ ở các script tác nghiệp.
+
+Để giảm thiểu xung đột khi nhiều tiến trình cùng thao tác trên cùng một tập dữ liệu (ví dụ khi chạy tác vụ phân phòng tự động đồng thời với migration), hệ thống áp dụng các biện pháp đồng bộ hóa ở tầng ứng dụng: sử dụng cơ chế optimistic locking cho các document quan trọng, kiểm tra phiên bản trước khi ghi và thiết kế các job hàng loạt chạy theo hàng đợi. Cách tiếp cận này hạn chế nhu cầu lock cơ sở dữ liệu nặng, giúp duy trì thông lượng cho các truy vấn đọc/ghi trong các đợt phân bổ lớn.
+
+Một điểm then chốt của kiến trúc là khả năng mô hình hóa đầy đủ chu trình nghiệp vụ theo năm học, thay vì chỉ xử lý các thao tác CRUD độc lập. Cụ thể, chức năng tạo cửa sổ học kỳ không chỉ tạo mốc thời gian tiếp nhận hồ sơ, mà còn đóng vai trò mốc điều phối cho toàn bộ pipeline phân bổ: khi học kỳ mới được kích hoạt, hệ thống đồng thời kiểm tra trạng thái policy inheritance, hiệu lực tiêu chí ưu tiên, và khả năng tiếp nhận của từng phòng theo khu vực. Cách tổ chức này giúp tránh tình trạng mỗi module tự diễn giải thời gian theo cách khác nhau, vốn dễ dẫn đến sai lệch kết quả room assignment khi hệ thống vận hành trong thời gian dài.
+
+Bên cạnh đó, kiến trúc còn cần xử lý các tình huống điều chỉnh chính sách sau khi đã có dữ liệu phát sinh. Trên thực tế, khi ban quản lý thay đổi cách tính ưu tiên hoặc điều kiện xét vi phạm, các hồ sơ đã nộp có thể chịu ảnh hưởng dây chuyền. Vì vậy, hệ thống sử dụng kết hợp giữa lưu lịch sử policy tại thời điểm nộp đơn và cơ chế tái tính điểm có kiểm soát, nhằm bảo đảm tính truy vết giữa quyết định phân bổ và căn cứ chính sách. Hướng tiếp cận này làm tăng khối lượng dữ liệu lưu trữ nhưng đổi lại giảm rủi ro tranh chấp, đồng thời tạo nền tảng cho các báo cáo kiểm định nội bộ.
+
+\section*{3.2 Công nghệ backend}
+Backend được triển khai trên nền tảng Node.js với framework Express.js, sử dụng MongoDB làm kho lưu trữ tài liệu và Mongoose làm ODM để biểu diễn schema và ràng buộc ở tầng ứng dụng. Node.js cung cấp môi trường thực thi JavaScript trên server phù hợp với hệ thống hiện có trong repository, cho phép tận dụng các tác vụ dựng chính sách, khởi tạo học kỳ và khôi phục xác thực hai lớp. Express.js đơn giản hóa việc tổ chức route và middleware cho các RESTful API cần thiết phục vụ các chức năng: allocation cycle, room assignment, policy inheritance và violation workflow. Các tuyến API tuân thủ phong cách REST, phân rạch rõ tài nguyên (users, rooms, applications, allocations) và trạng thái, thuận tiện cho việc kiểm thử tự động bằng Playwright và tích hợp với các tác vụ kiểm tra/tạo dữ liệu.
+
+Ở mức thiết kế API, hệ thống tuân theo các nguyên tắc RESTful để đơn giản hóa hợp đồng giữa client và server: tài nguyên được xác định rõ ràng, sử dụng các phương thức HTTP phù hợp, và trả mã trạng thái hợp lệ cùng payload có cấu trúc chuẩn. Điều này giúp các script tự động và công cụ kiểm thử có thể tương tác trực tiếp bằng HTTP mà không cần phụ thuộc vào rendering layer. Bên cạnh đó, các lỗi nghiệp vụ được chuẩn hóa theo dạng JSON với mã lỗi có thể lược đồ hóa, hỗ trợ việc logging và phân loại lỗi khi chạy các allocation cycle lớn.
+
+Về ghi log và giám sát, backend tích hợp logging có cấu trúc cho các hành động quan trọng (allocation, policy change, violation handling), kèm theo metadata để phục vụ truy vết. Thiết kế này giúp phân tích nguyên nhân khi phát sinh lỗi trong tác vụ phân phòng tự động hoặc khi migration làm lệch dữ liệu phân bổ.
+
+Việc chọn MongoDB là phù hợp do mô hình dữ liệu có tính biến đổi và quan hệ một-nhiều không phức tạp: hồ sơ sinh viên, đơn đăng ký, và chính sách phân bổ có cấu trúc khác nhau giữa các học kỳ; mô hình document cho phép mở rộng trường mà không phá vỡ schema hiện hành. Mongoose hỗ trợ khai báo schema, các middleware kiểm tra tính hợp lệ khi save, và các phương thức truy vấn biểu diễn rõ ràng, từ đó tạo thuận lợi cho các cơ chế scoring và inheritance logic. Các thay thế cân nhắc gồm PostgreSQL hoặc hệ quản trị quan hệ khác; tuy nhiên lựa chọn đó sẽ làm tăng chi phí chuyển đổi mô hình dữ liệu và phức tạp khi xử lý tài liệu đa dạng (ví dụ các policy có trường động), đồng thời đòi hỏi phát triển ORM/DAO phức tạp hơn.
+
+Về bảo mật và xác thực, backend sử dụng: lưu mật khẩu bằng bcrypt, xác thực bằng JWT cho API không trạng thái, và hỗ trợ TOTP/2FA cho các thao tác nhạy cảm như reset 2FA hoặc thay đổi thiết lập người dùng. Cơ chế này cân bằng giữa trải nghiệm người dùng và yêu cầu an toàn cho các thao tác quản trị. Nhóm tác vụ quản trị cho phép xử lý hàng loạt các trường hợp cần khôi phục 2FA theo quy trình kiểm soát quyền chặt chẽ.
+
+\section*{3.3 Công nghệ frontend}
+Frontend của hệ thống được triển khai theo kiến trúc đa trang (multi-page) sử dụng EJS làm template engine server-side, kết hợp HTML5, CSS3, JavaScript và Bootstrap để đảm bảo bố cục và tương tác người dùng cần thiết. Lựa chọn EJS xuất phát từ việc hệ thống cần các trang động phía server cho hai nhóm nghiệp vụ chính: khám phá phòng theo không gian và biểu mẫu đăng ký nâng cao, từ đó cho phép render dữ liệu phân bổ và trạng thái phòng ngay tại server, giảm phức tạp client và đơn giản hóa quy trình SEO/SSR cho trang quản trị.
+
+Server-side rendering với EJS giúp duy trì tính nhất quán hiển thị cho các biểu mẫu nâng cao (enhanced application form), đồng thời giảm lượng logic cần chạy trên client khi thực hiện các thao tác liên quan đến policy inheritance hoặc tính toán điểm ưu tiên. Kiến trúc này phù hợp khi cần kiểm soát chặt chẽ luồng dữ liệu giữa server và client, tránh chi phí phát triển và vận hành của SPA, đồng thời tích hợp trực tiếp với middleware xác thực và các route RESTful. Một số công nghệ thay thế như React hoặc Vue (SPA) có lợi ở mặt trải nghiệm tương tác, nhưng sẽ yêu cầu thay đổi kiến trúc backend để phục vụ API nhiều hơn, tăng độ phức tạp đồng bộ trạng thái và không phù hợp với mục tiêu giữ đơn giản cho quy trình phân bổ và seeding hiện tại.
+
+Trên lớp trình bày, hệ thống áp dụng nguyên tắc progressive enhancement: các trang cơ bản vẫn hoạt động khi JavaScript bị tắt, trong khi các tương tác nâng cao được bổ sung thông qua các module JavaScript nhỏ. Điều này cải thiện khả năng tương thích và giảm rủi ro lỗi trên các trình duyệt cũ, đồng thời giữ trải nghiệm mượt cho người dùng phổ thông. Hệ thống cũng chú ý đến khả năng truy cập (accessibility) và validation phía server để đảm bảo dữ liệu gửi lên luôn được kiểm tra trước khi xử lý.
+
+\section*{3.4 Cơ sở dữ liệu}
+Cơ sở dữ liệu chính của hệ thống là MongoDB; mô hình dữ liệu hướng document phù hợp với tính chất thay đổi của các thực thể: sinh viên, phòng, chính sách và đợt học (academic window). Một ví dụ mô tả cấu trúc tài liệu: collection \texttt{students} chứa các trường nhận dạng, \texttt{applications} lưu các đơn theo học kỳ kèm điểm ưu tiên (\texttt{priority\_score}), \texttt{rooms} lưu thông tin thuộc tính phòng và trạng thái, \texttt{policies} lưu cây kế thừa các quy tắc phân bổ. Việc biểu diễn priority score và lịch sử phân bổ dưới dạng tài liệu nhúng hoặc tham chiếu được cân nhắc tùy theo nhu cầu truy vấn: các truy vấn phân bổ chu kỳ thường cần truy cập nhanh tới dữ liệu đơn và policy, do đó một số trường tóm tắt được lưu trực tiếp trong document \texttt{applications} để giảm số lượng join.
+
+Ở các truy vấn phân tích, hệ thống thường tính toán theo hai bước: thu thập dữ liệu thô và tạo các trường tóm tắt (precomputed fields) phục vụ thuật toán scoring, sau đó thực hiện sắp xếp và phân bổ. Cách tiếp cận này giúp giảm chi phí truy vấn phức tạp trong thời gian chạy allocation cycle và cho phép lưu lại lịch sử tính toán để phục vụ tra cứu và kiểm chứng sau khi phân bổ.
+
+Ở tầng ứng dụng, Mongoose cung cấp schema validation và virtuals để xây dựng các thuộc tính tính toán (ví dụ \texttt{normalized\_score}), đồng thời hỗ trợ migration scripts khi cần tái cấu trúc dữ liệu. Các tác vụ seed dữ liệu phòng và dữ liệu hồ sơ mẫu thể hiện quy trình dựng dữ liệu test; tác vụ sinh dữ liệu mô phỏng quy mô lớn được dùng để thử nghiệm thuật toán phân bổ và kiểm thử tải.
+
+Việc duy trì tập script seed và mock là một phần thiết yếu của quy trình phát triển: chúng cho phép tái tạo môi trường kiểm thử với các kịch bản biên (edge cases) như xung đột preference, thiếu thông tin sinh viên, hoặc thay đổi policy đột ngột. Điều này giúp giảm thiểu rủi ro khi triển khai thay đổi logic phân bổ lên môi trường thực tế.
+
+Đối với bài toán policy inheritance, mô hình dữ liệu cần biểu diễn rõ quan hệ kế thừa theo cấp: quy định chung cấp trường, quy định theo khu nhà, và quy định theo loại phòng. Khi triển khai bằng MongoDB, cấu trúc document cho phép lưu cả tập luật kế thừa và tập luật ghi đè trong cùng một thực thể policy, từ đó giảm số vòng truy vấn khi cần tính kết quả cuối cùng cho từng hồ sơ. Tuy nhiên, nếu lạm dụng nhúng sâu, document sẽ khó bảo trì và khó kiểm tra nhất quán; do đó hệ thống chọn chiến lược kết hợp: phần cấu hình lõi được tham chiếu độc lập, phần snapshot phục vụ phân bổ được ghi lại theo học kỳ. Cách làm này cân bằng giữa hiệu quả truy vấn và khả năng kiểm soát thay đổi chính sách.
+
+Một yêu cầu quan trọng khác là bảo đảm tính toàn vẹn khi chạy tác vụ xử lý vi phạm ở quy mô lớn. Các tác vụ loại này có thể cập nhật số lượng lớn hồ sơ trong thời gian ngắn; nếu không có cơ chế ghi nhận trạng thái trung gian, hệ thống dễ rơi vào tình huống dữ liệu hợp lệ một phần. Vì vậy, mỗi lần chạy tác vụ cần được ràng buộc bởi quy trình ba bước: sao lưu snapshot trước khi cập nhật, thực thi cập nhật theo lô với điều kiện rõ ràng, và đối soát hậu kiểm theo tập chỉ số (số hồ sơ chuyển trạng thái, số hồ sơ bị loại, số hồ sơ cần xem xét thủ công). Đây là điều kiện cần để dữ liệu phân bổ có thể dùng cho báo cáo quản trị.
+
+\section*{3.5 Xác thực và bảo mật}
+Chiến lược xác thực kết hợp sessionless token (JWT) cho API và cơ chế TOTP/2FA cho các thao tác nhạy cảm. Mật khẩu được băm bằng bcrypt với tham số salt phù hợp; các endpoint thay đổi dữ liệu nhạy cảm yêu cầu token có thời hạn ngắn và kiểm tra lại 2FA khi cần. Việc dùng JWT giúp đơn giản trong kịch bản phân tán và gọi API từ các script tự động, song cần lưu ý các rủi ro như token theft và replay — hệ thống bổ sung cơ chế refresh token và blacklist token khi rút quyền.
+Thêm vào đó, về lưu trữ token ở phía client, hệ thống khuyến nghị sử dụng cookie có thuộc tính HttpOnly và SameSite phù hợp cho access token/ngắn hạn, kết hợp refresh token được lưu an toàn trên server hoặc sử dụng cơ chế rotation để giảm nguy cơ bị đánh cắp. Hệ thống cũng triển khai kiểm tra hành vi bất thường (anomaly detection) trên các token đăng nhập để phát hiện hoạt động khả nghi.
+
+Ở mức quyền truy cập, hệ thống áp dụng phân quyền theo vai trò (RBAC) cho các thao tác quản trị và kiểm soát truy cập theo tài nguyên (resource-level authorization) để đảm bảo nguyên tắc ít đặc quyền (least privilege). Mọi thao tác can thiệp dữ liệu nhạy cảm đều được audit và ghi log chi tiết.
+
+Thêm vào đó, backend cần thực hiện các biện pháp phòng chống tấn công phổ biến: xác thực đầu vào (input validation), giới hạn tốc độ (rate limiting) trên các route quan trọng, và kiểm tra quyền truy cập ở nhiều mức (route-level và resource-level). Các tác vụ xử lý vi phạm sau điều tra cần vận hành dưới quyền hạn giới hạn cùng logging đầy đủ để phục vụ truy vết.
+
+\section*{3.6 Công nghệ trực quan hóa và bản đồ}
+Hệ thống sử dụng Leaflet.js để cung cấp bản đồ tương tác và hiển thị phân bố phòng theo không gian địa lý (ví dụ bản đồ khuôn viên hoặc sơ đồ tầng). Leaflet thích hợp cho các hiển thị lớp raster/vector nhẹ, cho phép tích hợp dễ dàng với dữ liệu phòng từ backend và tương tác để thực hiện live filtering hoặc chọn phòng. Việc sử dụng Leaflet được kết hợp với Bootstrap để duy trì trải nghiệm responsive trên nhiều thiết bị.
+
+Trong thực tế tích hợp, dữ liệu phòng được cung cấp qua các dịch vụ REST dưới dạng GeoJSON hoặc các cấu trúc nhẹ khác; frontend tải các lớp (layers) theo yêu cầu và áp dụng clustering/tiling để tối ưu hiển thị khi có nhiều điểm. Các chiến lược tối ưu hóa gồm lazy loading cho các vùng bản đồ không hiển thị và caching các tile/vector đã tải để giảm băng thông.
+
+Với module room explorer 360, tích hợp giữa tập ảnh/phông nền và siêu dữ liệu phòng cho phép xây dựng trải nghiệm tham quan. Khi mở rộng sang Three.js, cần xây dựng pipeline chuyển đổi mô hình từ Blender sang định dạng glTF phù hợp cho web, cùng các bước giảm độ phức tạp (mesh decimation) và nén tài sản để đảm bảo hiệu năng client.
+
+Ngoài ra, hệ thống hiện có module room explorer dạng 360 để khám phá mô hình phòng; đây là phần trực quan hóa nâng cao cho phép người dùng duyệt nội thất phòng trước khi duyệt đơn. Là định hướng mở rộng, hệ thống đề xuất bổ sung module dựng hình bằng Blender theo quy trình: thu thập ảnh thực tế từng phòng, hiệu chỉnh tỉ lệ trong Blender, dựng mô hình nội thất chuẩn hóa, xuất tài sản 3D định dạng glTF và gắn mã định danh phòng tương ứng. Sau đó, module hiển thị 3D bằng Three.js nhận dữ liệu glTF để render tương tác trên trình duyệt. Cách làm này tăng khả năng trình bày không gian nhưng đồng thời phát sinh chi phí chuyển đổi dữ liệu và tối ưu hóa biểu diễn đối tượng. Ba lợi ích chính của hướng mở rộng này là: cải thiện tính trực quan cho người dùng, hỗ trợ kiểm tra vật lý không gian trước khi phân bổ, và tạo dữ liệu phong phú cho các công cụ phân tích; nhược điểm là yêu cầu bổ sung pipeline cho conversion, hosting tài sản 3D, và tối ưu hiệu suất phía trình duyệt.
+
+
+
+\end{document}

@@ -1,0 +1,65 @@
+{
+  "expo": {
+    "name": "Ký túc xá HUST",
+    "slug": "dormitory-student",
+    "version": "1.0.0",
+    "scheme": "dormitory-student",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#d63031"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "vn.edu.hust.dormitory.student"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#d63031"
+      },
+      "package": "vn.edu.hust.dormitory.student",
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.USE_FULL_SCREEN_INTENT",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#d63031",
+          "defaultChannel": "edorm-alerts"
+        }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": []
+        }
+      ],
+      "@sentry/react-native"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiBaseUrl": "http://10.0.2.2:5000",
+      "apiBaseUrlIos": "http://localhost:5000",
+      "apiBaseUrlProd": "https://api.hust-dormitory.edu.vn",
+      "sentryDsn": "https://e3b13223e6cf2f5e4a864a775b4f835e@o4511468038586368.ingest.de.sentry.io/4511468065587280",
+      "appEnv": "development"
+    }
+  }
+}

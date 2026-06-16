@@ -1,0 +1,94 @@
+{
+  "_query": "db.students.find({}).limit(5)",
+  "connection": "mongodb+srv://dormitory.0fvsx8b.mongodb.net/dormitory",
+  "count": 11,
+  "records": [
+    {
+      "_id": "6a185ce7a60d5c7decbc60d5",
+      "name": "Administrator",
+      "username": "admin",
+      "role": "admin",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba230c1321790c289d18",
+      "name": "Nguyễn Văn Minh",
+      "username": "sinhvien_demo",
+      "studentId": "20220001",
+      "role": "user",
+      "roomNumber": "202"
+    },
+    {
+      "_id": "6a19ba230c1321790c289d1a",
+      "name": "Trần Hữu Đức",
+      "username": "rm_duc",
+      "studentId": "20220045",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba230c1321790c289d1c",
+      "name": "Lê Quang Huy",
+      "username": "rm_huy",
+      "studentId": "20220089",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba230c1321790c289d1e",
+      "name": "Phạm Thế Anh",
+      "username": "rm_anh",
+      "studentId": "20210033",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba240c1321790c289d38",
+      "name": "Sinh viên 01",
+      "username": "student_extra_1",
+      "studentId": "20230001",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba240c1321790c289d3a",
+      "name": "Sinh viên 02",
+      "username": "student_extra_2",
+      "studentId": "20230002",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba240c1321790c289d3c",
+      "name": "Sinh viên 03",
+      "username": "student_extra_3",
+      "studentId": "20230003",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba240c1321790c289d3e",
+      "name": "Sinh viên 04",
+      "username": "student_extra_4",
+      "studentId": "20230004",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba240c1321790c289d40",
+      "name": "Sinh viên 05",
+      "username": "student_extra_5",
+      "studentId": "20230005",
+      "role": "user",
+      "roomNumber": null
+    },
+    {
+      "_id": "6a19ba240c1321790c289d42",
+      "name": "Sinh viên 06",
+      "username": "student_extra_6",
+      "studentId": "20230006",
+      "role": "user",
+      "roomNumber": null
+    }
+  ]
+}

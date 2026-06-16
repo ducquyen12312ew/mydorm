@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gửi yêu cầu | KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/student-premium-shell.css">
+  <link rel="stylesheet" href="/css/premium-home.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      /* Brand đồng — màu chủ đạo của web (primary actions, hero, tab active) */
+      --brand:#c08157; --brand-strong:#9d5f38; --brand-soft:#f6ece2; --brand-tint:rgba(192,129,87,.12);
+      /* Đỏ HUST — chỉ dùng cho semantic khẩn cấp / huỷ / lỗi */
+      --red:#C8102E; --red-l:#FFF1F3; --red-m:rgba(200,16,46,.1);
+      --green:#059669; --green-l:#ECFDF5;
+      --blue:#4F46E5; --blue-l:#EEF2FF;
+      --amber:#D97706; --amber-l:#FFFBEB;
+      --bg:#F5F3EF; --surface:#FFFFFF; --border:#ECE6DE;
+      --t1:#1f232a; --t2:#6B7280; --t3:#9CA3AF;
+      --r18:18px; --r12:12px; --sh1:0 2px 12px rgba(0,0,0,.06);
+    }
+    body { font-family:'Inter','Segoe UI',sans-serif; background:var(--bg); color:var(--t1); }
+    .page-container { max-width:900px; margin:0 auto; padding:1.5rem; }
+
+    /* Hero */
+    .hero { position:relative; overflow:hidden; background:
+              radial-gradient(circle at 16% 18%, rgba(255,255,255,.20), transparent 42%),
+              radial-gradient(circle at 88% 0%, rgba(33,61,84,.32), transparent 46%),
+              linear-gradient(135deg,var(--brand) 0%,var(--brand-strong) 100%);
+            border-radius:var(--r18); padding:2rem; color:#fff; margin-bottom:1.5rem; box-shadow:0 14px 32px rgba(157,95,56,.22); }
+    .hero::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px); background-size:18px 18px; opacity:.5; }
+    .hero > * { position:relative; z-index:1; }
+    .hero h1 { font-size:1.5rem; font-weight:800; margin-bottom:.35rem; }
+    .hero p  { font-size:.9rem; opacity:.9; }
+    .hero-badge { display:inline-flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.18);border-radius:20px;padding:.25rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.75rem; }
+
+    /* Tab toggle */
+    .tab-toggle { display:flex; gap:.3rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--r12); padding:.3rem; margin-bottom:1.5rem; box-shadow:var(--sh1); }
+    .tab-btn { flex:1; padding:.65rem 1rem; border:none; background:none; border-radius:10px; font-size:.9rem; font-weight:700; color:var(--t2); cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:.5rem; min-height:44px; }
+    .tab-btn.active { background:linear-gradient(135deg,var(--brand),var(--brand-strong)); color:#fff; box-shadow:0 6px 14px rgba(157,95,56,.28); }
+    .tab-btn:not(.active):hover { background:var(--brand-soft); color:var(--brand-strong); }
+    .tab-btn .tab-count { background:rgba(255,255,255,.28); border-radius:10px; padding:0 .45rem; font-size:.72rem; font-weight:700; display:none; }
+    .tab-btn.active .tab-count { display:inline; }
+
+    /* Panel */
+    .tab-panel { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* Cards */
+    .surface-card { background:var(--surface); border-radius:var(--r18); border:1px solid var(--border); padding:1.5rem; margin-bottom:1.5rem; box-shadow:var(--sh1); }
+
+    /* Current room */
+    .room-info { display:flex; align-items:center; gap:1rem; flex-wrap:wrap; }
+    .room-icon { width:48px; height:48px; border-radius:14px; background:var(--brand-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .room-icon i { color:var(--brand-strong); font-size:1.2rem; }
+    .room-detail h3 { font-size:1rem; font-weight:700; }
+    .room-detail p  { font-size:.83rem; color:var(--t2); margin-top:.15rem; }
+
+    /* Action button */
+    .action-btn { display:inline-flex; align-items:center; gap:.45rem; padding:.7rem 1.4rem; min-height:44px; border-radius:12px; background:linear-gradient(135deg,var(--brand),var(--brand-strong)); color:#fff; font-size:.88rem; font-weight:700; border:none; cursor:pointer; transition:transform .15s, box-shadow .15s, filter .15s; box-shadow:0 6px 14px rgba(157,95,56,.26); }
+    .action-btn:hover:not(:disabled) { filter:brightness(1.05); transform:translateY(-1px); box-shadow:0 9px 20px rgba(157,95,56,.32); }
+    /* Disabled = intentional grey (not a faded brand colour) */
+    .action-btn:disabled { background:#E7E2DA; color:#A39C90; cursor:not-allowed; box-shadow:none; }
+
+    /* Maintenance request cards */
+    .req-list { display:flex; flex-direction:column; gap:.75rem; }
+    .req-card { background:var(--surface); border-radius:var(--r12); border:1px solid var(--border); border-left:4px solid var(--red); padding:1rem 1.25rem; cursor:pointer; transition:box-shadow .2s, transform .2s; }
+    .req-card:hover { box-shadow:var(--sh1); transform:translateY(-1px); }
+    .req-card.s-submitted  { border-left-color:#E74C3C; }
+    .req-card.s-assigned   { border-left-color:#9AA3AD; }
+    .req-card.s-in_progress { border-left-color:#5B21B6; }
+    .req-card.s-completed  { border-left-color:#059669; }
+    .req-card.s-cancelled  { border-left-color:#D1D5DB; }
+    .req-card-head { display:flex; justify-content:space-between; align-items:flex-start; gap:.5rem; }
+    .req-card-title { font-weight:700; font-size:.92rem; }
+    .req-card-sub   { font-size:.77rem; color:var(--t2); margin-top:.15rem; }
+    .req-card-desc  { font-size:.83rem; color:var(--t2); margin:.5rem 0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .req-card-foot  { display:flex; justify-content:space-between; align-items:center; margin-top:.5rem; }
+    .req-card-date  { font-size:.75rem; color:var(--t3); }
+
+    /* Badges */
+    .badge { display:inline-flex; align-items:center; gap:.25rem; padding:.22rem .65rem; border-radius:20px; font-size:.73rem; font-weight:700; white-space:nowrap; }
+    .b-submitted  { background:#FEF3C7; color:#92400E; }
+    .b-assigned   { background:#DBEAFE; color:#1E40AF; }
+    .b-in_progress { background:#EDE9FE; color:#5B21B6; }
+    .b-completed  { background:#D1FAE5; color:#065F46; }
+    .b-cancelled  { background:#F3F4F6; color:#6B7280; }
+    .b-priority-urgent { background:var(--red); color:#fff; }
+    .b-priority-high   { background:#F3F4F6; color:#374151; }
+    .b-priority-medium { background:#F3F4F6; color:#374151; }
+    .b-priority-low    { background:#F3F4F6; color:#374151; }
+
+    /* Transfer: status card */
+    .status-card { border-radius:var(--r18); padding:1.5rem; margin-bottom:1.5rem; border:2px solid; }
+    .sc-pending  { background:#FFFBEB; border-color:#F59E0B; }
+    .sc-approved { background:var(--green-l); border-color:var(--green); }
+    .sc-header { display:flex; align-items:center; gap:.75rem; margin-bottom:1rem; }
+    .sc-icon { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .sc-title { font-size:1rem; font-weight:700; }
+    .sc-sub   { font-size:.82rem; margin-top:.15rem; }
+    .sc-detail { background:rgba(255,255,255,.7); border-radius:12px; padding:1rem; font-size:.85rem; line-height:1.6; }
+    .sc-detail dt { font-weight:600; color:var(--t2); font-size:.78rem; }
+    .sc-detail dd { margin:0 0 .5rem; }
+    .cancel-btn { margin-top:1rem; display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .9rem; border-radius:8px; background:#fff; border:1px solid #EF4444; color:#EF4444; font-size:.82rem; font-weight:600; cursor:pointer; transition:all .2s; }
+    .cancel-btn:hover { background:#FEF2F2; }
+
+    /* Transfer form */
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    .form-group { margin-bottom:1rem; }
+    .form-group.full { grid-column:1/-1; }
+    .form-label { font-size:.8rem; font-weight:600; display:block; margin-bottom:.4rem; color:var(--t1); }
+    .form-control { width:100%; padding:.65rem 1rem; border:1.5px solid var(--border); border-radius:12px; font-size:.88rem; color:var(--t1); font-family:inherit; transition:border-color .2s; background:#fff; }
+    .form-control:focus { outline:none; border-color:var(--brand); box-shadow:0 0 0 3px var(--brand-tint); }
+    textarea.form-control { resize:vertical; min-height:100px; }
+    .char-count { font-size:.72rem; color:var(--t3); text-align:right; margin-top:.2rem; }
+    .submit-btn { width:100%; padding:.8rem; min-height:48px; border-radius:14px; background:linear-gradient(135deg,var(--brand),var(--brand-strong)); color:#fff; font-size:.92rem; font-weight:700; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.5rem; transition:filter .2s, box-shadow .2s; box-shadow:0 8px 18px rgba(157,95,56,.26); }
+    .submit-btn:hover:not(:disabled) { filter:brightness(1.05); box-shadow:0 11px 22px rgba(157,95,56,.32); }
+    .submit-btn:disabled { background:#E7E2DA; color:#A39C90; cursor:not-allowed; box-shadow:none; }
+    .form-error { display:none; background:#FEF2F2; border:1px solid #FECACA; border-radius:10px; padding:.75rem 1rem; font-size:.84rem; color:#991B1B; margin-bottom:1rem; }
+
+    /* History */
+    .hist-item { display:flex; gap:.75rem; padding:.75rem 0; border-bottom:1px solid var(--border); align-items:flex-start; }
+    .hist-item:last-child { border-bottom:none; }
+    .hist-dot { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.75rem; }
+    .dot-completed { background:var(--green-l); color:var(--green); }
+    .dot-rejected  { background:#FEF2F2; color:#EF4444; }
+    .dot-cancelled { background:#F3F4F6; color:var(--t3); }
+    .hist-title { font-size:.88rem; font-weight:600; }
+    .hist-meta  { font-size:.77rem; color:var(--t2); margin-top:.15rem; }
+    .hist-reason { font-size:.8rem; color:var(--t2); font-style:italic; margin-top:.2rem; }
+
+    .no-room-msg { background:var(--amber-l); border:1px solid #FDE68A; border-radius:var(--r12); padding:1rem 1.25rem; font-size:.88rem; color:#92400E; margin-bottom:1.5rem; }
+
+    /* Filter row */
+    .list-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem; gap:.75rem; flex-wrap:wrap; }
+    .status-select { padding:.45rem .9rem; border:1.5px solid var(--border); border-radius:10px; font-size:.83rem; color:var(--t1); background:#fff; font-family:inherit; cursor:pointer; }
+    .status-select:focus { outline:none; border-color:var(--brand); }
+
+    /* Spinner */
+    .spinner { text-align:center; padding:2.5rem; color:var(--t3); font-size:.9rem; }
+    .spinner i { font-size:1.4rem; display:block; margin-bottom:.5rem; animation:spin .8s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Empty */
+    .empty-state { text-align:center; padding:2.5rem 1rem; color:var(--t3); }
+    .empty-state i { font-size:2.5rem; display:block; margin-bottom:.75rem; }
+    .empty-state p { font-size:.88rem; }
+
+    /* Modal overlay */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000; align-items:center; justify-content:center; padding:1rem; }
+    .modal-overlay.open { display:flex; }
+    .modal-box { background:#fff; border-radius:var(--r18); width:100%; max-width:540px; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+    .modal-head { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .modal-head h3 { font-size:1rem; font-weight:700; }
+    .modal-close { background:none; border:none; font-size:1.1rem; cursor:pointer; color:var(--t3); padding:.25rem .4rem; border-radius:6px; }
+    .modal-close:hover { background:var(--bg); color:var(--t1); }
+    .modal-body { padding:1.5rem; }
+    .modal-foot { padding:1rem 1.5rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:.5rem; }
+    .btn-ghost { padding:.5rem 1rem; border-radius:10px; border:1.5px solid var(--border); background:none; font-size:.86rem; font-weight:600; cursor:pointer; color:var(--t1); transition:all .15s; }
+    .btn-ghost:hover { border-color:var(--t1); }
+    .btn-red { padding:.55rem 1.25rem; min-height:42px; border-radius:10px; border:none; background:linear-gradient(135deg,var(--brand),var(--brand-strong)); color:#fff; font-size:.86rem; font-weight:700; cursor:pointer; transition:filter .15s; }
+    .btn-red:hover:not(:disabled) { filter:brightness(1.05); }
+    .btn-red:disabled { background:#E7E2DA; color:#A39C90; cursor:not-allowed; }
+
+    /* Detail modal content */
+    .detail-section { margin-bottom:1.25rem; }
+    .detail-section h4 { font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--t3); margin-bottom:.5rem; }
+    .timeline { padding:.5rem 0; }
+    .tl-item { display:flex; gap:.75rem; padding:.4rem 0; align-items:flex-start; }
+    .tl-dot { width:24px; height:24px; border-radius:50%; border:2px solid var(--border); background:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:.1rem; font-size:.65rem; }
+    .tl-dot.done { background:var(--green); border-color:var(--green); color:#fff; }
+    .tl-label { font-size:.85rem; font-weight:500; }
+
+    @media(max-width:640px) {
+      .form-row { grid-template-columns:1fr; }
+      .form-group.full { grid-column:auto; }
+    }
+  </style>
+</head>
+<body class="student-shell-page">
+<%- include('navbar', { user, currentPage: 'service-requests' }) %>
+
+<div class="page-container">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge"><i class="fas fa-paper-plane"></i> Yêu cầu dịch vụ KTX</div>
+    <h1>Gửi yêu cầu hỗ trợ</h1>
+    <p>Báo cáo sự cố bảo trì hoặc gửi yêu cầu chuyển phòng — tất cả trong một nơi</p>
+  </div>
+
+  <!-- Tab toggle -->
+  <div class="tab-toggle">
+    <button class="tab-btn <%= tab === 'maintenance' ? 'active' : '' %>" data-tab="maintenance" onclick="switchTab('maintenance')">
+      <i class="fas fa-tools"></i> Bảo trì
+      <span class="tab-count" id="mCount">0</span>
+    </button>
+    <button class="tab-btn <%= tab === 'room_transfer' ? 'active' : '' %>" data-tab="room_transfer" onclick="switchTab('room_transfer')">
+      <i class="fas fa-exchange-alt"></i> Chuyển phòng
+    </button>
+  </div>
+
+  <!-- ═══════════ MAINTENANCE TAB ═══════════ -->
+  <div class="tab-panel <%= tab === 'maintenance' ? 'active' : '' %>" id="panel-maintenance">
+
+    <% if (!student || !student.dormitoryId || !student.roomNumber) { %>
+    <div class="no-room-msg">
+      <i class="fas fa-exclamation-triangle"></i>
+      Bạn chưa được phân phòng. Vui lòng đăng ký phòng trước khi gửi yêu cầu bảo trì.
+    </div>
+    <% } %>
+
+    <div class="surface-card">
+      <div class="list-toolbar">
+        <div>
+          <strong style="font-size:.95rem">Yêu cầu bảo trì của tôi</strong>
+        </div>
+        <div style="display:flex;gap:.6rem;align-items:center">
+          <select class="status-select" id="mStatusFilter" onchange="loadMaintenance()">
+            <option value="">Tất cả</option>
+            <option value="submitted">Chờ xử lý</option>
+            <option value="assigned">Đã phân công</option>
+            <option value="in_progress">Đang xử lý</option>
+            <option value="completed">Hoàn thành</option>
+            <option value="cancelled">Đã huỷ</option>
+          </select>
+          <button class="action-btn" onclick="openCreateMaintModal()" <%= (!student || !student.dormitoryId) ? 'disabled' : '' %>>
+            <i class="fas fa-plus"></i> Tạo yêu cầu
+          </button>
+        </div>
+      </div>
+      <div id="mList"><div class="spinner"><i class="fas fa-circle-notch"></i>Đang tải...</div></div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════ ROOM TRANSFER TAB ═══════════ -->
+  <div class="tab-panel <%= tab === 'room_transfer' ? 'active' : '' %>" id="panel-room_transfer">
+
+    <!-- Current room -->
+    <% if (currentRoom) { %>
+    <div class="surface-card">
+      <div style="font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--t3);margin-bottom:.5rem">Phòng hiện tại</div>
+      <div class="room-info">
+        <div class="room-icon"><i class="fas fa-door-open"></i></div>
+        <div class="room-detail">
+          <h3>Phòng <%= currentRoom.roomNumber %> — <%= currentRoom.dormName %></h3>
+          <p>Tầng <%= currentRoom.floor %> · <%= currentRoom.roomType %> · <%= currentRoom.occupancy %>/<%= currentRoom.maxCapacity %> người</p>
+        </div>
+      </div>
+    </div>
+    <% } else { %>
+    <div class="no-room-msg">
+      <i class="fas fa-exclamation-triangle"></i>
+      Bạn chưa được phân phòng hoặc không đang ở KTX. Yêu cầu chuyển phòng chỉ dành cho sinh viên đang cư trú.
+    </div>
+    <% } %>
+
+    <!-- Active request -->
+    <% if (activeRequest) { %>
+    <div class="status-card <%= activeRequest.status === 'approved' ? 'sc-approved' : 'sc-pending' %>">
+      <div class="sc-header">
+        <div class="sc-icon" style="background:<%= activeRequest.status === 'approved' ? '#D1FAE5' : '#FEF3C7' %>">
+          <i class="<%= activeRequest.status === 'approved' ? 'fas fa-check' : 'fas fa-clock' %>"
+             style="color:<%= activeRequest.status === 'approved' ? '#059669' : '#D97706' %>"></i>
+        </div>
+        <div>
+          <div class="sc-title"><%= activeRequest.status === 'approved' ? 'Yêu cầu đã được duyệt' : 'Đang chờ xử lý' %></div>
+          <div class="sc-sub">Gửi ngày <%= new Date(activeRequest.createdAt).toLocaleDateString('vi-VN') %></div>
+        </div>
+      </div>
+      <dl class="sc-detail">
+        <dt>KTX mong muốn</dt>
+        <dd><%= activeRequest.preferredBuilding || 'Không yêu cầu cụ thể' %></dd>
+        <dt>Loại phòng</dt>
+        <dd><%= activeRequest.preferredRoomType === 'any' ? 'Bất kỳ' : (activeRequest.preferredRoomType || '—') %></dd>
+        <dt>Lý do</dt>
+        <dd><%= activeRequest.reason %></dd>
+        <% if (activeRequest.adminNote) { %>
+          <dt>Ghi chú từ admin</dt>
+          <dd style="color:#059669"><%= activeRequest.adminNote %></dd>
+        <% } %>
+      </dl>
+      <% if (activeRequest.status === 'pending') { %>
+      <button class="cancel-btn" onclick="cancelTransfer('<%= activeRequest._id %>')">
+        <i class="fas fa-times"></i> Huỷ yêu cầu
+      </button>
+      <% } %>
+    </div>
+
+    <% } else if (currentRoom) { %>
+    <!-- Submit form -->
+    <div class="surface-card">
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:1.25rem">
+        <i class="fas fa-paper-plane" style="color:var(--brand-strong);margin-right:.4rem"></i>Gửi yêu cầu chuyển phòng
+      </h2>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">KTX mong muốn</label>
+          <select id="preferredBuilding" class="form-control">
+            <option value="">Không yêu cầu cụ thể</option>
+            <% (dormitories || []).forEach(d => { %>
+            <option value="<%= d.name %>"><%= d.name %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Loại phòng</label>
+          <select id="preferredRoomType" class="form-control">
+            <option value="any">Bất kỳ</option>
+            <option value="8-person">8 người</option>
+            <option value="4-person-service">4 người (dịch vụ)</option>
+            <option value="5-person">5 người</option>
+            <option value="10-person">10 người</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ngày dự kiến chuyển</label>
+          <input type="date" id="expectedMoveDate" class="form-control">
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Lý do chuyển phòng <span style="color:var(--red)">*</span></label>
+          <textarea id="rtReason" class="form-control" placeholder="Mô tả lý do bạn muốn chuyển phòng (tối thiểu 10 ký tự)..." maxlength="1000" oninput="document.getElementById('rtCharCount').textContent=this.value.length"></textarea>
+          <div class="char-count"><span id="rtCharCount">0</span>/1000</div>
+        </div>
+      </div>
+      <div class="form-error" id="rtError"></div>
+      <button class="submit-btn" id="rtSubmitBtn" onclick="submitTransfer()">
+        <i class="fas fa-paper-plane"></i> Gửi yêu cầu chuyển phòng
+      </button>
+    </div>
+    <% } %>
+
+    <!-- Transfer history -->
+    <% if (transferHistory && transferHistory.length > 0) { %>
+    <div class="surface-card">
+      <h2 style="font-size:1rem;font-weight:700;margin-bottom:1rem">
+        <i class="fas fa-history" style="color:var(--t3);margin-right:.4rem"></i>Lịch sử yêu cầu chuyển phòng
+      </h2>
+      <% transferHistory.forEach(h => { %>
+      <div class="hist-item">
+        <div class="hist-dot dot-<%= h.status %>">
+          <i class="fas fa-<%= h.status === 'completed' ? 'check' : h.status === 'rejected' ? 'times' : 'ban' %>"></i>
+        </div>
+        <div>
+          <div class="hist-title">
+            <%= h.fromRoomNumber ? `Phòng ${h.fromRoomNumber}` : '—' %>
+            <% if (h.toRoomNumber) { %> → Phòng <%= h.toRoomNumber %> (<%= h.toDormitoryName %>)<% } %>
+          </div>
+          <div class="hist-meta">
+            <%= new Date(h.createdAt).toLocaleDateString('vi-VN') %> ·
+            <span style="font-weight:700;color:<%= h.status === 'completed' ? 'var(--green)' : '#EF4444' %>">
+              <%= h.status === 'completed' ? 'Hoàn thành' : h.status === 'rejected' ? 'Từ chối' : 'Đã huỷ' %>
+            </span>
+          </div>
+          <% if (h.adminNote) { %><div class="hist-reason"><%= h.adminNote %></div><% } %>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+
+  </div>
+</div>
+
+<!-- ═══ Maintenance: Create Modal ═══ -->
+<div class="modal-overlay" id="createMaintModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3><i class="fas fa-tools" style="color:var(--brand-strong);margin-right:.4rem"></i>Tạo yêu cầu bảo trì</h3>
+      <button class="modal-close" onclick="closeModal('createMaintModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <form id="maintForm">
+        <div class="form-group">
+          <label class="form-label">Loại sự cố *</label>
+          <select class="form-control" name="type" required>
+            <option value="">-- Chọn loại sự cố --</option>
+            <option value="electrical">Điện (đèn, ổ cắm, công tắc...)</option>
+            <option value="plumbing">Nước (vòi, bồn rửa, toilet...)</option>
+            <option value="hvac">Điều hòa nhiệt độ</option>
+            <option value="furniture">Nội thất (giường, tủ, bàn ghế...)</option>
+            <option value="door_lock">Cửa và khóa</option>
+            <option value="window">Cửa sổ</option>
+            <option value="internet">Mạng internet</option>
+            <option value="cleaning">Vấn đề vệ sinh</option>
+            <option value="pest_control">Côn trùng</option>
+            <option value="other">Khác</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Độ ưu tiên *</label>
+          <select class="form-control" name="priority" required>
+            <option value="low">Thấp — Không ảnh hưởng nhiều</option>
+            <option value="medium" selected>Trung bình — Cần sửa sớm</option>
+            <option value="high">Cao — Ảnh hưởng sinh hoạt</option>
+            <option value="urgent">Khẩn cấp — Cần xử lý ngay</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tiêu đề ngắn gọn *</label>
+          <input type="text" class="form-control" name="title" placeholder="VD: Đèn phòng không sáng" minlength="5" maxlength="200" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mô tả chi tiết *</label>
+          <textarea class="form-control" name="description" rows="4" placeholder="Mô tả chi tiết: khi nào xảy ra, triệu chứng, vị trí cụ thể..." minlength="10" maxlength="2000" required></textarea>
+        </div>
+        <div class="form-error" id="maintFormError"></div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal('createMaintModal')">Huỷ</button>
+      <button class="btn-red" id="maintSubmitBtn" onclick="submitMaintenance()">
+        <i class="fas fa-paper-plane"></i> Gửi yêu cầu
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Maintenance: Detail Modal ═══ -->
+<div class="modal-overlay" id="maintDetailModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>Chi tiết yêu cầu bảo trì</h3>
+      <button class="modal-close" onclick="closeModal('maintDetailModal')"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body" id="maintDetailBody"></div>
+    <div class="modal-foot" id="maintDetailFoot" style="display:none">
+      <button class="btn-ghost" onclick="closeModal('maintDetailModal')">Đóng</button>
+      <button class="btn-red" id="feedbackSubmitBtn" onclick="submitFeedback()">
+        <i class="fas fa-star"></i> Gửi đánh giá
+      </button>
+    </div>
+  </div>
+</div>
+
+<%- include('../shared/footer') %>
+
+<script src="/js/student-common.js"></script>
+<script>
+const PHONE = '<%= (student && student.phone) ? student.phone : "" %>';
+let selectedRating = 0;
+let currentFeedbackId = null;
+
+// ──────────────── Tabs ────────────────
+function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
+    history.replaceState(null, '', '/student/service-requests?tab=' + tab);
+    if (tab === 'maintenance') loadMaintenance();
+}
+
+// ──────────────── Maintenance ────────────────
+async function loadMaintenance() {
+    const status = document.getElementById('mStatusFilter').value;
+    const list = document.getElementById('mList');
+    list.innerHTML = '<div class="spinner"><i class="fas fa-circle-notch"></i>Đang tải...</div>';
+    try {
+        const r = await fetch('/api/student/maintenance-requests' + (status ? '?status=' + status : ''));
+        const d = await r.json();
+        if (d.success) renderMaintList(d.requests);
+        else list.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Không thể tải dữ liệu</p></div>';
+    } catch {
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-wifi-slash"></i><p>Lỗi kết nối</p></div>';
+    }
+}
+
+function renderMaintList(reqs) {
+    const list = document.getElementById('mList');
+    const btn = document.querySelector('.tab-btn[data-tab="maintenance"] .tab-count');
+    if (btn) { btn.textContent = reqs.length; }
+
+    if (!reqs.length) {
+        list.innerHTML = '<div class="empty-state"><i class="fas fa-tools"></i><p>Chưa có yêu cầu bảo trì nào</p></div>';
+        return;
+    }
+
+    const typeMap = { electrical:'Điện', plumbing:'Nước', hvac:'Điều hòa', furniture:'Nội thất', door_lock:'Cửa & khóa', window:'Cửa sổ', internet:'Mạng internet', cleaning:'Vệ sinh', pest_control:'Côn trùng', other:'Khác' };
+    const statusLabel = { submitted:'Chờ xử lý', assigned:'Đã phân công', in_progress:'Đang xử lý', completed:'Hoàn thành', cancelled:'Đã huỷ' };
+
+    list.innerHTML = '<div class="req-list">' + reqs.map(r => `
+        <div class="req-card s-${r.status}" onclick="viewMaintDetail('${r._id}', ${JSON.stringify(r).replace(/'/g,"&#39;")})">
+            <div class="req-card-head">
+                <div>
+                    <div class="req-card-title">${esc(r.title)}</div>
+                    <div class="req-card-sub">${typeMap[r.type] || r.type} · ${r.requestNumber}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.3rem">
+                    <span class="badge b-${r.status}">${statusLabel[r.status] || r.status}</span>
+                    ${r.priority === 'urgent' ? '<span class="badge b-priority-urgent">Khẩn cấp</span>' : ''}
+                </div>
+            </div>
+            <div class="req-card-desc">${esc(r.description)}</div>
+            <div class="req-card-foot">
+                <span class="req-card-date"><i class="fas fa-clock" style="margin-right:.25rem"></i>${new Date(r.reportedAt||r.createdAt).toLocaleDateString('vi-VN')}</span>
+                ${r.status === 'completed' && !r.feedbackRating ? '<span style="font-size:.75rem;color:var(--red);font-weight:600">Đánh giá dịch vụ →</span>' : ''}
+            </div>
+        </div>
+    `).join('') + '</div>';
+}
+
+function viewMaintDetail(id, req) {
+    const statusLabel = { submitted:'Đã gửi yêu cầu', assigned:'Đã phân công', in_progress:'Đang xử lý', completed:'Hoàn thành', cancelled:'Đã huỷ' };
+    const statusOrder = ['submitted','assigned','in_progress','completed'];
+    const cur = statusOrder.indexOf(req.status);
+
+    const timeline = statusOrder.map((s, i) => `
+        <div class="tl-item">
+            <div class="tl-dot ${i <= cur ? 'done' : ''}">
+                ${i <= cur ? '<i class="fas fa-check"></i>' : (i + 1)}
+            </div>
+            <div class="tl-label">${statusLabel[s]}</div>
+        </div>
+    `).join('');
+
+    const body = document.getElementById('maintDetailBody');
+    body.innerHTML = `
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:.5rem;margin-bottom:1rem">
+            <div>
+                <h4 style="font-weight:700;font-size:1rem">${esc(req.title)}</h4>
+                <div style="font-size:.8rem;color:var(--t2);margin-top:.2rem">Mã: ${esc(req.requestNumber)}</div>
+            </div>
+            <span class="badge b-${req.status}">${statusLabel[req.status] || req.status}</span>
+        </div>
+        <div class="detail-section">
+            <h4>Mô tả</h4>
+            <p style="font-size:.88rem;line-height:1.6">${esc(req.description)}</p>
+        </div>
+        <div class="detail-section">
+            <h4>Tiến trình</h4>
+            <div class="timeline">${timeline}</div>
+        </div>
+        ${req.completionNotes ? `<div style="background:var(--green-l);border-radius:10px;padding:.85rem 1rem;font-size:.85rem;margin-bottom:1rem"><strong>Ghi chú hoàn thành:</strong><br>${esc(req.completionNotes)}</div>` : ''}
+        ${req.feedbackRating ? `
+        <div style="background:#EFF6FF;border-radius:10px;padding:.85rem 1rem;font-size:.85rem">
+            <strong>Đánh giá của bạn:</strong><br>
+            ${'<i class="fas fa-star" style="color:#F59E0B"></i>'.repeat(req.feedbackRating)}
+            ${req.feedbackComment ? `<br><small>${esc(req.feedbackComment)}</small>` : ''}
+        </div>` : ''}
+        ${req.status === 'completed' && !req.feedbackRating ? `
+        <div style="margin-top:1rem">
+            <p style="font-size:.85rem;font-weight:600;margin-bottom:.6rem">Đánh giá dịch vụ</p>
+            <div id="ratingStars" style="display:flex;gap:.3rem;margin-bottom:.75rem">
+                ${[1,2,3,4,5].map(n => `<i class="fas fa-star" data-r="${n}" onclick="setRating(${n})" style="font-size:1.5rem;color:#E5E7EB;cursor:pointer;transition:color .15s"></i>`).join('')}
+            </div>
+            <textarea id="fbComment" class="form-control" rows="2" placeholder="Nhận xét (tuỳ chọn)..."></textarea>
+        </div>` : ''}
+    `;
+
+    currentFeedbackId = (req.status === 'completed' && !req.feedbackRating) ? id : null;
+    const foot = document.getElementById('maintDetailFoot');
+    foot.style.display = currentFeedbackId ? 'flex' : 'none';
+    document.getElementById('feedbackSubmitBtn').textContent = 'Gửi đánh giá';
+
+    openModal('maintDetailModal');
+}
+
+function setRating(n) {
+    selectedRating = n;
+    document.querySelectorAll('#ratingStars i').forEach(s => {
+        s.style.color = parseInt(s.dataset.r) <= n ? '#F59E0B' : '#E5E7EB';
+    });
+}
+
+async function submitFeedback() {
+    if (!selectedRating) return alert('Vui lòng chọn số sao');
+    const comment = document.getElementById('fbComment') ? document.getElementById('fbComment').value : '';
+    const btn = document.getElementById('feedbackSubmitBtn');
+    btn.disabled = true; btn.textContent = 'Đang gửi...';
+    try {
+        const r = await fetch(`/api/student/maintenance-requests/${currentFeedbackId}/feedback`, {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({ rating: selectedRating, comment })
+        });
+        const d = await r.json();
+        if (d.success) {
+            closeModal('maintDetailModal');
+            loadMaintenance();
+            alert('Cảm ơn bạn đã đánh giá!');
+        } else {
+            alert(d.error || 'Lỗi gửi đánh giá');
+            btn.disabled = false; btn.textContent = 'Gửi đánh giá';
+        }
+    } catch {
+        alert('Lỗi kết nối');
+        btn.disabled = false; btn.textContent = 'Gửi đánh giá';
+    }
+}
+
+function openCreateMaintModal() {
+    document.getElementById('maintForm').reset();
+    document.getElementById('maintFormError').style.display = 'none';
+    document.getElementById('maintSubmitBtn').disabled = false;
+    document.getElementById('maintSubmitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu';
+    openModal('createMaintModal');
+}
+
+async function submitMaintenance() {
+    const form = document.getElementById('maintForm');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    const errEl = document.getElementById('maintFormError');
+    errEl.style.display = 'none';
+    const btn = document.getElementById('maintSubmitBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+
+    const data = Object.fromEntries(new FormData(form));
+    try {
+        const r = await fetch('/api/student/maintenance-requests', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify(data)
+        });
+        const d = await r.json();
+        if (d.success) {
+            closeModal('createMaintModal');
+            loadMaintenance();
+            alert('Đã gửi yêu cầu bảo trì thành công!');
+        } else {
+            errEl.textContent = d.error || 'Đã xảy ra lỗi';
+            errEl.style.display = 'block';
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu';
+        }
+    } catch {
+        errEl.textContent = 'Không thể kết nối máy chủ. Vui lòng thử lại.';
+        errEl.style.display = 'block';
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu';
+    }
+}
+
+// ──────────────── Room Transfer ────────────────
+async function submitTransfer() {
+    const reason = document.getElementById('rtReason').value.trim();
+    if (!reason || reason.length < 10) return showRtError('Lý do phải có ít nhất 10 ký tự.');
+    showRtError('');
+    const btn = document.getElementById('rtSubmitBtn');
+    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang gửi...';
+    try {
+        const r = await fetch('/student/room-transfer/submit', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({
+                preferredBuilding: document.getElementById('preferredBuilding').value,
+                preferredRoomType: document.getElementById('preferredRoomType').value,
+                reason,
+                expectedMoveDate: document.getElementById('expectedMoveDate').value
+            })
+        });
+        const d = await r.json();
+        if (d.success) { location.reload(); }
+        else {
+            showRtError(d.error || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+            btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu chuyển phòng';
+        }
+    } catch {
+        showRtError('Không thể kết nối máy chủ. Vui lòng thử lại.');
+        btn.disabled = false; btn.innerHTML = '<i class="fas fa-paper-plane"></i> Gửi yêu cầu chuyển phòng';
+    }
+}
+
+function showRtError(msg) {
+    const el = document.getElementById('rtError');
+    if (!el) return;
+    if (msg) { el.textContent = msg; el.style.display = 'block'; }
+    else el.style.display = 'none';
+}
+
+async function cancelTransfer(id) {
+    if (!confirm('Bạn có chắc muốn huỷ yêu cầu này không?')) return;
+    const r = await fetch(`/student/room-transfer/${id}/cancel`, { method:'POST', headers:{'Content-Type':'application/json'} });
+    const d = await r.json();
+    if (d.success) location.reload();
+    else alert(d.error || 'Không thể huỷ yêu cầu');
+}
+
+// ──────────────── Modal helpers ────────────────
+function openModal(id)  { document.getElementById(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); document.body.style.overflow=''; }
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) closeModal(m.id); });
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id)); });
+
+// ──────────────── Utilities ────────────────
+function esc(s) {
+    return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]);
+}
+
+// ──────────────── Init ────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    if (document.getElementById('panel-maintenance').classList.contains('active')) loadMaintenance();
+});
+</script>
+</body>
+</html>

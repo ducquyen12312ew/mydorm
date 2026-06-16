@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi Tiết Đơn Đăng Ký - KTX HUST</title>
+    <title>Chi Tiết Đơn Đăng Ký — Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
@@ -14,22 +13,22 @@
         }
 
         :root {
-            --primary: #f87171;
-            --primary-dark: #fb7185;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --text-dark: #1f2937;
-            --text-light: #6b7280;
-            --bg-light: #f9fafb;
-            --border: #e5e7eb;
-            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --primary: #d63031;
+            --primary-dark: #b71c1c;
+            --success: #374151;
+            --warning: #d97706;
+            --danger: #dc2626;
+            --text-dark: #1a2332;
+            --text-light: #566070;
+            --bg-light: #f8f9fb;
+            --border: #e3e7ef;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-lg: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: white;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--adm-bg, #f4f6f9);
             min-height: 100vh;
             padding: 0;
         }
@@ -37,279 +36,187 @@
         .container-wrapper {
             max-width: 1200px;
             margin: 0 auto;
-        }
-
-        .navbar-top {
-            background: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 5px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .navbar-menu a {
-            padding: 10px 20px;
-            color: #2c3e50;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .navbar-menu a:hover {
-            background: #f8f9fa;
-        }
-
-        .navbar-menu a.active {
-            background: #e74c3c;
-            color: white;
-        }
-
-        .container-wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
+            padding: 0 1.5rem 2rem;
         }
 
         .page-header {
             background: white;
-            border-radius: 16px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--adm-radius, 10px);
+            padding: 1.1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            border-left: 4px solid var(--primary);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 0.75rem;
         }
 
         .page-title {
             display: flex;
             align-items: center;
-            gap: 1rem;
-            font-size: 1.75rem;
+            gap: 0.6rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: var(--text-dark);
             margin: 0;
         }
 
         .page-title i {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
+            color: var(--primary);
+            font-size: 1.1rem;
         }
 
         .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 10px;
+            padding: 0.5rem 1.1rem;
+            border-radius: 6px;
             border: none;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.875rem;
+            white-space: nowrap;
         }
 
         .btn-back {
             background: var(--bg-light);
             color: var(--text-dark);
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
         }
 
         .btn-back:hover {
             background: white;
-            border-color: var(--primary);
-            color: var(--primary);
-            transform: translateY(-2px);
+            border-color: #b8bece;
+            color: var(--text-dark);
         }
 
         .btn-approve {
-            background: linear-gradient(135deg, var(--success), #059669);
+            background: var(--success);
             color: white;
         }
 
         .btn-approve:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+            background: #047857;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.28);
         }
 
         .btn-reject {
-            background: linear-gradient(135deg, var(--danger), #dc2626);
+            background: var(--danger);
             color: white;
         }
 
         .btn-reject:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+            background: #b91c1c;
+            box-shadow: 0 2px 8px rgba(220, 38, 38, 0.28);
         }
 
         .btn-secondary {
             background: white;
             color: var(--text-dark);
-            border: 2px solid var(--border);
+            border: 1px solid var(--border);
         }
 
         .btn-secondary:hover {
-            border-color: var(--text-dark);
-            transform: translateY(-2px);
+            border-color: #b8bece;
+            background: var(--bg-light);
         }
 
         .alert-card {
             background: white;
-            border-radius: 12px;
-            padding: 1.25rem 1.5rem;
-            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.25rem;
             display: flex;
-            gap: 1rem;
+            gap: 0.875rem;
             align-items: flex-start;
-            border-left: 4px solid;
+            border-left: 3px solid;
             box-shadow: var(--shadow);
         }
 
-        .alert-danger {
-            border-left-color: var(--danger);
-            background: linear-gradient(to right, #fef2f2, white);
-        }
+        .alert-danger  { border-left-color: var(--danger);  background: #fef2f2; }
+        .alert-warning { border-left-color: var(--warning); background: #fffbeb; }
 
-        .alert-warning {
-            border-left-color: var(--warning);
-            background: linear-gradient(to right, #fffbeb, white);
-        }
-
-        .alert-card i {
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .alert-danger i {
-            color: var(--danger);
-        }
-
-        .alert-warning i {
-            color: var(--warning);
-        }
+        .alert-card i { font-size: 1.25rem; flex-shrink: 0; margin-top: 1px; }
+        .alert-danger i  { color: var(--danger); }
+        .alert-warning i { color: var(--warning); }
 
         .card {
             background: white;
-            border-radius: 16px;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-lg);
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--shadow);
             overflow: hidden;
-            border: 1px solid rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
         }
 
         .card-header {
-            background: linear-gradient(135deg, var(--bg-light), white);
-            border-bottom: 2px solid var(--border);
-            padding: 1.5rem;
+            background: var(--bg-light);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
         }
 
         .card-header-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             color: var(--text-dark);
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.6rem;
             margin: 0;
         }
 
         .card-header-title i {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border-radius: 8px;
+            width: 30px;
+            height: 30px;
+            background: var(--adm-primary-light, #fef2f2);
+            color: var(--primary);
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
+            font-size: 0.875rem;
         }
 
         .card-body {
-            padding: 2rem;
+            padding: 1.5rem;
         }
 
         .info-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
-        .info-row:last-child {
-            margin-bottom: 0;
-        }
+        .info-row:last-child { margin-bottom: 0; }
 
         .info-item {
-            position: relative;
-            padding: 1rem;
+            padding: 0.875rem 1rem;
             background: var(--bg-light);
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid var(--border);
-            transition: all 0.3s;
-        }
-
-        .info-item:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-            border-color: var(--primary);
         }
 
         .info-label {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.72rem;
+            font-weight: 600;
             color: var(--text-light);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.35rem;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.4rem;
         }
 
         .info-value {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             color: var(--text-dark);
             font-weight: 600;
             word-break: break-word;
@@ -318,125 +225,106 @@
         .badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
+            gap: 0.3rem;
+            padding: 0.28rem 0.72rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border: 1px solid transparent;
         }
 
-        .badge-pending {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            color: #92400e;
-        }
-
-        .badge-approved {
-            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-            color: #065f46;
-        }
-
-        .badge-rejected {
-            background: linear-gradient(135deg, #fecaca, #fca5a5);
-            color: #7f1d1d;
-        }
+        .badge-pending  { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+        .badge-approved { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
+        .badge-rejected { background: #fef2f2; color: #991b1b; border-color: #fca5a5; }
 
         .priority-box {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            background: var(--primary);
             color: white;
-            border-radius: 12px;
-            padding: 2rem;
+            border-radius: 10px;
+            padding: 1.5rem;
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.25rem;
         }
 
         .priority-score {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: 900;
             line-height: 1;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            margin-bottom: 0.4rem;
         }
 
         .priority-label {
-            font-size: 1rem;
+            font-size: 0.9rem;
             opacity: 0.9;
-            font-weight: 600;
+            font-weight: 500;
         }
 
         .policy-list {
             display: flex;
             flex-direction: column;
-            gap: 0.75rem;
+            gap: 0.6rem;
         }
 
         .policy-item {
             background: var(--bg-light);
-            border-left: 4px solid var(--primary);
-            padding: 1rem 1.25rem;
-            border-radius: 8px;
-            font-weight: 600;
+            border-left: 3px solid var(--primary);
+            padding: 0.875rem 1.1rem;
+            border-radius: 6px;
+            font-weight: 500;
             color: var(--text-dark);
-            transition: all 0.3s;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .policy-item:hover {
-            background: white;
-            box-shadow: var(--shadow);
-            transform: translateX(4px);
-        }
+        .policy-item:hover { background: white; box-shadow: var(--shadow); }
 
-        .policy-name {
-            flex: 1;
-        }
+        .policy-name { flex: 1; }
 
         .policy-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            border-radius: 6px;
-            font-size: 0.85rem;
+            gap: 0.4rem;
+            padding: 0.35rem 0.8rem;
+            background: var(--adm-primary-light, #fef2f2);
+            color: var(--primary);
+            border: 1px solid rgba(214,48,49,0.2);
+            border-radius: 5px;
+            font-size: 0.82rem;
             font-weight: 600;
             text-decoration: none;
-            transition: all 0.2s;
+            transition: background 0.15s;
             flex-shrink: 0;
-            margin-left: 1rem;
+            margin-left: 0.75rem;
         }
 
         .policy-link:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(230, 26, 26, 0.3);
+            background: var(--primary);
             color: white;
+            border-color: var(--primary);
         }
 
         .no-data {
             text-align: center;
-            padding: 3rem;
+            padding: 2.5rem;
             color: var(--text-light);
         }
 
         .no-data i {
-            font-size: 3rem;
-            color: var(--border);
-            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            color: #d1d5db;
+            margin-bottom: 0.75rem;
             display: block;
         }
 
         .action-bar {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             flex-wrap: wrap;
             justify-content: flex-end;
-            padding: 1.5rem 2rem;
+            padding: 1.1rem 1.5rem;
             background: var(--bg-light);
-            border-top: 2px solid var(--border);
+            border-top: 1px solid var(--border);
         }
 
         @media (max-width: 768px) {
@@ -504,37 +392,7 @@
     </style>
 </head>
 <body>
-    <!-- Navbar -->
-    <nav class="navbar-top">
-        <div class="navbar-container">
-            <a href="/admin/dashboard" class="navbar-brand">
-                <i class="fas fa-building"></i> KTX HUST
-            </a>
-            <ul class="navbar-menu">
-                <li><a href="/admin/dashboard">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-                <li><a href="/admin/dormitories">
-                    <i class="fas fa-building"></i> Ký túc xá
-                </a></li>
-                <li><a href="/admin/application" class="active">
-                    <i class="fas fa-file-alt"></i> Đơn đăng ký
-                </a></li>
-                <li><a href="/admin/academic-windows">
-                    <i class="fas fa-calendar-alt"></i> Đợt đăng ký
-                </a></li>
-                <li><a href="/admin/violations">
-                    <i class="fas fa-shield-alt"></i> Vi phạm
-                </a></li>
-                <li><a href="/admin/logs">
-                    <i class="fas fa-history"></i> Nhật ký
-                </a></li>
-                <li><a href="/logout">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a></li>
-            </ul>
-        </div>
-    </nav>
+    <%- include('../navbar', { activeNav: 'applications' }) %>
 
     <div class="container-wrapper">
         <!-- Header -->
@@ -645,10 +503,10 @@
                     <div class="info-item">
                         <div class="info-label"><i class="fas fa-info-circle"></i> Trạng Thái</div>
                         <div class="info-value">
-                            <% 
+                            <%
                             let badgeClass = 'badge-pending';
                             let statusText = 'Chờ Duyệt';
-                            if (application.status === 'approved_waiting_payment' || application.status === 'approved') {
+                            if (application.status === 'approved' || application.status === 'assigned_room') {
                                 badgeClass = 'badge-approved';
                                 statusText = 'Đã Duyệt';
                             } else if (application.status === 'rejected') {
@@ -666,17 +524,6 @@
                         <div class="info-label"><i class="fas fa-clock"></i> Ngày Nộp</div>
                         <div class="info-value"><%= new Date(application.createdAt).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></div>
                     </div>
-                    <% if (application.payment && application.payment.paid) { %>
-                    <div class="info-item">
-                        <div class="info-label"><i class="fas fa-credit-card"></i> Thanh Toán</div>
-                        <div class="info-value">
-                            <span class="badge badge-approved">
-                                <i class="fas fa-check-circle"></i>
-                                Đã Thanh Toán
-                            </span>
-                        </div>
-                    </div>
-                    <% } %>
                 </div>
             </div>
         </div>

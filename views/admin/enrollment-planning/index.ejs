@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kế hoạch tuyển sinh — Admin KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red:#C8102E; --red-dark:#9E0D25;
+      --bg:#F5F6F8; --card:#FFFFFF; --border:#EAECF0;
+      --text:#2D3748; --muted:#9AA3AD;
+      --success:#6BAF95; --warning:#C8AA60; --info:#6B9FC8;
+      --radius:12px;
+    }
+    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); }
+    .admin-content { min-height:100vh; }
+    .page-wrap { max-width:1400px; margin:0 auto; padding:1.5rem; }
+    .page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:.75rem; }
+    .page-header h1 { font-size:1.3rem; font-weight:700; }
+    .page-header h1 span { color:var(--red); }
+
+    .btn { display:inline-flex; align-items:center; gap:.4rem; padding:.5rem 1rem; border-radius:8px; font-size:.84rem; font-weight:600; cursor:pointer; border:none; transition:all .2s; text-decoration:none; }
+    .btn-red { background:var(--red); color:#fff; } .btn-red:hover { background:var(--red-dark); }
+    .btn-outline { background:transparent; border:1px solid var(--border); color:var(--text); }
+    .btn-outline:hover { border-color:var(--red); color:var(--red); }
+    .btn-sm { padding:.35rem .75rem; font-size:.78rem; }
+
+    .plans-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(360px,1fr)); gap:1.25rem; }
+    .plan-card { background:var(--card); border-radius:var(--radius); border:1px solid var(--border); padding:1.5rem; transition:box-shadow .2s; }
+    .plan-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.08); }
+    .plan-year { font-size:.78rem; font-weight:700; color:var(--red); text-transform:uppercase; letter-spacing:.06em; }
+    .plan-name { font-size:1.05rem; font-weight:700; margin:.3rem 0 .75rem; }
+    .plan-meta { display:flex; gap:.75rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .meta-chip { display:inline-flex; align-items:center; gap:.3rem; background:#F8F9FB; border:1px solid var(--border); border-radius:20px; padding:.2rem .6rem; font-size:.75rem; color:var(--muted); }
+    .progress-bar { height:6px; background:#EEF0F5; border-radius:3px; overflow:hidden; margin:.5rem 0; }
+    .progress-fill { height:100%; background:var(--red); border-radius:3px; transition:width .3s; }
+    .progress-label { display:flex; justify-content:space-between; font-size:.75rem; color:var(--muted); }
+    .plan-footer { display:flex; justify-content:space-between; align-items:center; margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); }
+
+    .badge { display:inline-flex; align-items:center; padding:.2rem .6rem; border-radius:20px; font-size:.72rem; font-weight:700; }
+    .badge-draft    { background:#F3F4F6; color:#6B7280; }
+    .badge-review   { background:#FEF3C7; color:#92400E; }
+    .badge-approved { background:#D1FAE5; color:#065F46; }
+    .badge-locked   { background:#EDE9FE; color:#5B21B6; }
+
+    .empty-state { text-align:center; padding:4rem 2rem; color:var(--muted); }
+    .empty-state i { font-size:3rem; display:block; margin-bottom:1rem; }
+
+    .capacity-gauge { display:flex; align-items:center; gap:.5rem; font-size:.8rem; }
+    .gauge-bar { flex:1; height:8px; background:#EEF0F5; border-radius:4px; overflow:hidden; }
+    .gauge-fill { height:100%; border-radius:4px; }
+    .gauge-ok  { background:var(--success); }
+    .gauge-warn { background:var(--warning); }
+    .gauge-danger { background:var(--danger, #E05252); }
+  </style>
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'enrollmentplanning' }) %>
+<div class="admin-content">
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div>
+      <h1>Kế hoạch <span>Tuyển sinh</span></h1>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Quản lý chỉ tiêu tuyển sinh và dự báo nhu cầu KTX theo năm học</p>
+    </div>
+    <div style="display:flex;gap:.5rem">
+      <a href="/admin/demand-forecast" class="btn btn-outline">
+        <i class="fas fa-chart-line"></i> Dự báo nhu cầu
+      </a>
+      <a href="/admin/enrollment-planning/new" class="btn btn-red">
+        <i class="fas fa-plus"></i> Tạo kế hoạch mới
+      </a>
+    </div>
+  </div>
+
+  <!-- Task 4: Thống kê đơn đổi phòng trong kế hoạch -->
+  <% if (typeof transferStats !== 'undefined' && transferStats) { %>
+    <div class="plan-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem">
+        <div style="font-size:.95rem;font-weight:700"><i class="fas fa-right-left" style="color:var(--red)"></i> Đơn đổi phòng</div>
+        <a href="/admin/room-transfer" class="btn btn-outline btn-sm"><i class="fas fa-arrow-right"></i> Xem module đổi phòng</a>
+      </div>
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end">
+        <div>
+          <div style="font-size:1.8rem;font-weight:800;color:var(--red)"><%= transferStats.projectedNextYear.toLocaleString('vi-VN') %></div>
+          <div style="font-size:.75rem;color:var(--muted)">Dự kiến năm mới (TB các năm trước)</div>
+        </div>
+        <div>
+          <div style="font-size:1.2rem;font-weight:700"><%= transferStats.totalAll.toLocaleString('vi-VN') %></div>
+          <div style="font-size:.75rem;color:var(--muted)">Tổng đơn (<%= transferStats.yearsCount %> năm có dữ liệu)</div>
+        </div>
+        <% (transferStats.byYear || []).slice(0,4).forEach(y => { %>
+          <div>
+            <div style="font-size:1.05rem;font-weight:700"><%= y.total %> <span style="font-size:.72rem;color:var(--success);font-weight:600">(<%= y.approved %> duyệt)</span></div>
+            <div style="font-size:.75rem;color:var(--muted)"><%= y._id %></div>
+          </div>
+        <% }) %>
+      </div>
+      <% if (transferStats.lowConfidence) { %>
+        <p style="font-size:.75rem;color:#92400E;background:#FEF3C7;padding:.4rem .6rem;border-radius:6px;margin-top:.75rem">
+          <i class="fas fa-info-circle"></i> Dữ liệu đổi phòng còn ít (&lt; 2 năm) — con số dự kiến chỉ mang tính tham khảo.
+        </p>
+      <% } %>
+    </div>
+  <% } %>
+
+  <% if (plans.length === 0) { %>
+    <div class="empty-state">
+      <i class="fas fa-calendar-alt"></i>
+      <p style="font-size:1rem;font-weight:600;margin-bottom:.5rem">Chưa có kế hoạch tuyển sinh nào</p>
+      <p style="font-size:.88rem;margin-bottom:1.5rem">Tạo kế hoạch đầu tiên để bắt đầu quản lý chỉ tiêu</p>
+      <a href="/admin/enrollment-planning/new" class="btn btn-red"><i class="fas fa-plus"></i> Tạo kế hoạch</a>
+    </div>
+  <% } else { %>
+    <div class="plans-grid">
+      <% plans.forEach(plan => { %>
+        <div class="plan-card">
+          <div class="plan-year"><%= plan.academicYear %></div>
+          <div class="plan-name"><%= plan.planName %></div>
+          <div class="plan-meta">
+            <span class="meta-chip"><i class="fas fa-users"></i> <%= (plan.totalPlannedQuota || 0).toLocaleString('vi-VN') %> SV</span>
+            <span class="meta-chip"><i class="fas fa-home"></i> <%= (plan.totalExpectedDorm || 0).toLocaleString('vi-VN') %> KTX</span>
+            <span class="meta-chip"><i class="fas fa-layer-group"></i> <%= (plan.programs || []).length %> ngành</span>
+          </div>
+
+          <!-- Occupancy gauge -->
+          <div style="margin-bottom:.75rem">
+            <div class="capacity-gauge" style="margin-bottom:.25rem">
+              <span style="color:var(--muted);font-size:.75rem">Lấp đầy dự kiến</span>
+              <span style="font-weight:700;font-size:.85rem"><%= plan.projectedOccupancy || 0 %>%</span>
+            </div>
+            <div class="gauge-bar">
+              <div class="gauge-fill <%=
+                (plan.projectedOccupancy||0) > 95 ? 'gauge-danger' :
+                (plan.projectedOccupancy||0) > 80 ? 'gauge-warn' : 'gauge-ok'
+              %>" style="width:<%= Math.min(plan.projectedOccupancy||0, 100) %>%"></div>
+            </div>
+            <% if ((plan.capacityGap||0) > 0) { %>
+              <p style="font-size:.75rem;color:#E05252;margin-top:.25rem">
+                <i class="fas fa-exclamation-triangle"></i> Thiếu <%= plan.capacityGap.toLocaleString('vi-VN') %> chỗ
+              </p>
+            <% } %>
+          </div>
+
+          <!-- Completion progress -->
+          <div class="progress-label">
+            <span>Tiến độ điền chỉ tiêu</span>
+            <span><%= plan.completionPercent || 0 %>%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:<%= plan.completionPercent || 0 %>%"></div>
+          </div>
+
+          <div class="plan-footer">
+            <span class="badge badge-<%= plan.status %>">
+              <% const sl={draft:'Nháp',review:'Chờ duyệt',approved:'Đã duyệt',locked:'Đã khoá'} %>
+              <%= sl[plan.status] || plan.status %>
+            </span>
+            <div style="display:flex;gap:.4rem">
+              <% if (plan.status === 'draft' || plan.status === 'review') { %>
+                <a href="/admin/enrollment-planning/<%= plan._id %>" class="btn btn-outline btn-sm">
+                  <i class="fas fa-edit"></i> Chỉnh sửa
+                </a>
+              <% } else { %>
+                <a href="/admin/enrollment-planning/<%= plan._id %>" class="btn btn-outline btn-sm">
+                  <i class="fas fa-eye"></i> Xem
+                </a>
+              <% } %>
+              <button class="btn btn-outline btn-sm" onclick="copyPlan('<%= plan._id %>','<%= plan.academicYear %>')">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  <% } %>
+
+</div>
+</div>
+
+<!-- Copy modal -->
+<div id="copyModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:12px;padding:1.5rem;width:min(420px,90vw)">
+    <h3 style="margin-bottom:1rem">Sao chép kế hoạch</h3>
+    <div style="margin-bottom:.75rem">
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:.35rem">Năm học mới</label>
+      <input type="text" id="copyYear" placeholder="YYYY-YYYY" style="width:100%;padding:.6rem .9rem;border:1px solid #EAECF0;border-radius:8px;font-size:.88rem">
+    </div>
+    <div style="margin-bottom:1rem">
+      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:.35rem">Tên kế hoạch</label>
+      <input type="text" id="copyName" placeholder="Tên kế hoạch..." style="width:100%;padding:.6rem .9rem;border:1px solid #EAECF0;border-radius:8px;font-size:.88rem">
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:.5rem">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('copyModal').style.display='none'">Huỷ</button>
+      <button class="btn btn-red btn-sm" onclick="submitCopy()"><i class="fas fa-copy"></i> Sao chép</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let copySourceId = '';
+function copyPlan(id, year) {
+  copySourceId = id;
+  const nextYear = year.split('-').map((y,i) => parseInt(y) + 1).join('-');
+  document.getElementById('copyYear').value = nextYear;
+  document.getElementById('copyName').value = '';
+  const m = document.getElementById('copyModal');
+  m.style.display = 'flex';
+}
+async function submitCopy() {
+  const year = document.getElementById('copyYear').value;
+  const name = document.getElementById('copyName').value;
+  if (!year.match(/^\d{4}-\d{4}$/)) return alert('Định dạng năm học: YYYY-YYYY');
+  const r = await fetch(`/admin/enrollment-planning/${copySourceId}/copy`, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ newAcademicYear: year, newPlanName: name })
+  });
+  const d = await r.json();
+  if (d.success) window.location.href = `/admin/enrollment-planning/${d.id}`;
+  else alert('Lỗi: ' + d.error);
+}
+</script>
+</body>
+</html>

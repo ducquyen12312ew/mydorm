@@ -1,0 +1,87 @@
+{
+  "cluster": "dormitory.0fvsx8b.mongodb.net",
+  "database": "dormitory",
+  "collections": {
+    "students": {
+      "count": 11,
+      "sample": {
+        "_id": "6a19ba230c1321790c289d18",
+        "name": "Nguyễn Văn Minh",
+        "studentId": "20220001",
+        "email": "minh.nv220001@sis.hust.edu.vn",
+        "faculty": "Công nghệ Thông tin",
+        "roomNumber": "202",
+        "priorityScore": 82
+      }
+    },
+    "dormitories": {
+      "count": 2,
+      "rooms_total": 14,
+      "names": [
+        "KTX A1 - Bách Khoa",
+        "KTX B2 - Bách Khoa"
+      ]
+    },
+    "roomallocations": {
+      "count": 1,
+      "sample": {
+        "_id": "6a19c606cf4c283968fd6ac5",
+        "studentId": "6a19ba230c1321790c289d18",
+        "roomNumber": "202",
+        "status": "ACTIVE",
+        "academicYear": "2026-2027"
+      }
+    },
+    "pendingapplications": {
+      "count": 1,
+      "sample": {
+        "_id": "6a19ce6c09976c883165551b",
+        "studentId": "20220001",
+        "status": "approved"
+      }
+    },
+    "maintenancerequests": {
+      "count": 3,
+      "samples": [
+        {
+          "_id": "6a19ce6c09976c8831655511",
+          "requestNumber": "MR-2026-00001",
+          "title": "Ổ điện cạnh cửa sổ bị hỏng",
+          "status": "in_progress",
+          "reportedBy.userId": "6a19ba230c1321790c289d18"
+        },
+        {
+          "_id": "6a19ce6c09976c8831655512",
+          "requestNumber": "MR-2026-00002",
+          "title": "Vòi nước trong phòng tắm bị rò rỉ",
+          "status": "completed",
+          "reportedBy.userId": "6a19ba230c1321790c289d18"
+        },
+        {
+          "_id": "6a19ce6c09976c8831655513",
+          "requestNumber": "MR-2026-00003",
+          "title": "WiFi phòng 202 chập chờn tốc độ thấp",
+          "status": "submitted",
+          "reportedBy.userId": "6a19ba230c1321790c289d18"
+        }
+      ]
+    },
+    "notifications": {
+      "count": 2,
+      "samples": [
+        {
+          "_id": "6a19ba230c1321790c289d33",
+          "title": "Yêu cầu bảo trì được tiếp nhận",
+          "type": "info",
+          "category": "maintenance"
+        },
+        {
+          "_id": "6a19ba230c1321790c289d32",
+          "title": "Xếp phòng thành công",
+          "type": "success",
+          "category": "allocation"
+        }
+      ]
+    }
+  }
+}

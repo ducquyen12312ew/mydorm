@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1280">
+<title>Wireframe — Màn hình đăng ký ký túc xá</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { width: 1100px; height: 760px; background: #fff; font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; overflow: hidden; }
+  .titlebar { background: #f0f0f0; border-bottom: 1px solid #ccc; padding: 5px 14px; display: flex; align-items: center; gap: 8px; font-size: 11px; color: #666; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: #ccc; display: inline-block; }
+  .url-bar { flex: 1; background: #fff; border: 1px solid #ccc; border-radius: 3px; padding: 2px 8px; font-size: 11px; color: #888; }
+  .note-bar { background: #fff9e6; border-bottom: 1px solid #e8d96a; padding: 4px 16px; font-size: 10px; color: #7a6000; font-style: italic; }
+  /* Navbar */
+  .navbar { height: 42px; background: #222; display: flex; align-items: center; padding: 0 20px; gap: 20px; }
+  .nav-logo { color: #fff; font-weight: 700; font-size: 14px; margin-right: 20px; }
+  .nav-link { color: #bbb; font-size: 11px; padding: 4px 10px; border-radius: 3px; }
+  .nav-link.active { color: #fff; background: #444; }
+  .nav-user { margin-left: auto; color: #bbb; font-size: 11px; }
+  /* Content */
+  .content { display: flex; height: calc(100% - 80px); overflow: hidden; }
+  /* Sidebar steps */
+  .sidebar { width: 200px; background: #f7f7f7; border-right: 1px solid #ddd; padding: 20px 14px; }
+  .sidebar-title { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 12px; }
+  .step { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 14px; }
+  .step-circle { width: 22px; height: 22px; border-radius: 50%; background: #ddd; color: #666; font-size: 10px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .step-circle.done { background: #555; color: #fff; }
+  .step-circle.active { background: #222; color: #fff; border: 2px solid #888; }
+  .step-text { font-size: 10px; color: #666; padding-top: 3px; }
+  .step-text.active { color: #222; font-weight: 600; }
+  /* Main form */
+  .main { flex: 1; padding: 20px 24px; overflow: hidden; display: flex; flex-direction: column; gap: 14px; position: relative; }
+  .page-title { font-size: 16px; font-weight: 700; color: #222; position: relative; }
+  .section-box { border: 1.5px dashed #ccc; border-radius: 4px; padding: 12px; position: relative; }
+  .section-title { font-size: 11px; font-weight: 700; color: #555; border-bottom: 1px solid #e0e0e0; padding-bottom: 5px; margin-bottom: 10px; }
+  .field-row { display: flex; gap: 12px; margin-bottom: 8px; }
+  .field { flex: 1; }
+  .field-label { font-size: 10px; color: #777; margin-bottom: 3px; }
+  .field-box { height: 30px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 3px; display: flex; align-items: center; padding: 0 8px; color: #bbb; font-size: 11px; }
+  .field-select { height: 30px; background: #f5f5f5; border: 1px solid #ccc; border-radius: 3px; display: flex; align-items: center; padding: 0 8px; color: #bbb; font-size: 11px; justify-content: space-between; }
+  /* Score panel */
+  .score-panel { width: 180px; background: #f5f5f5; border: 2px dashed #bbb; border-radius: 4px; padding: 12px; flex-shrink: 0; position: relative; }
+  .score-title { font-size: 10px; font-weight: 700; color: #555; margin-bottom: 8px; }
+  .score-value { font-size: 32px; font-weight: 900; color: #333; text-align: center; }
+  .score-sub { font-size: 9px; color: #888; text-align: center; }
+  .score-row { display: flex; justify-content: space-between; font-size: 9px; color: #666; margin-top: 4px; border-top: 1px solid #ddd; padding-top: 4px; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-secondary { height: 34px; border: 1.5px solid #ccc; border-radius: 4px; padding: 0 16px; background: #f5f5f5; color: #666; font-size: 12px; display: flex; align-items: center; cursor: default; }
+  .btn-primary { height: 34px; background: #333; border-radius: 4px; padding: 0 20px; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; cursor: default; }
+  .section-label { position: absolute; top: -1px; left: -1px; background: #333; color: #fff; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 2px 0 2px 0; }
+  /* Legend */
+  .legend { border: 1px solid #ddd; border-radius: 4px; padding: 6px 12px; background: #fafafa; display: flex; flex-wrap: wrap; gap: 8px; }
+  .legend-item { display: flex; align-items: center; gap: 3px; font-size: 9px; color: #555; }
+  .legend-num { width: 14px; height: 14px; border-radius: 50%; background: #555; color: #fff; font-size: 8px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="titlebar">
+  <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  <div class="url-bar">http://localhost:5000/register</div>
+</div>
+<div class="note-bar">Wireframe — Phương án thiết kế màn hình đăng ký ký túc xá &nbsp;|&nbsp; ① – ⑨ = vùng chức năng</div>
+
+<!-- Navbar -->
+<div class="navbar" style="position:relative;">
+  <span class="section-label">①</span>
+  <span class="nav-logo">KTX HUST</span>
+  <span class="nav-link">Trang chủ</span>
+  <span class="nav-link">Danh sách</span>
+  <span class="nav-link active">Đăng ký phòng</span>
+  <span class="nav-link">Trang thái phòng</span>
+  <span class="nav-link">Báo trì</span>
+  <span class="nav-user">👤 Nguyễn Văn A &nbsp; 🔔</span>
+</div>
+
+<div class="content">
+  <!-- Sidebar -->
+  <div class="sidebar" style="position:relative;">
+    <span class="section-label">②</span>
+    <div class="sidebar-title">Các bước đăng ký</div>
+    <div class="step">
+      <div class="step-circle active">1</div>
+      <div class="step-text active">Kiểm tra hồ sơ sinh viên</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">2</div>
+      <div class="step-text">Chọn ký túc xá phù hợp</div>
+    </div>
+    <div class="step">
+      <div class="step-circle">3</div>
+      <div class="step-text">Theo dõi trạng thái phòng</div>
+    </div>
+    <div style="margin-top:16px;font-size:9px;color:#aaa;border-top:1px solid #ddd;padding-top:10px;">
+      Hướng dẫn:<br>Điền đầy đủ thông tin để tăng điểm ưu tiên xét duyệt
+    </div>
+  </div>
+
+  <!-- Main -->
+  <div class="main">
+    <div class="page-title" style="position:relative;">
+      <span class="section-label">③</span>
+      Đăng ký phòng ký túc xá
+      <span style="font-size:11px;font-weight:400;color:#888;margin-left:10px;">Năm học 2025–2026</span>
+    </div>
+
+    <!-- Form + score side by side -->
+    <div style="display:flex;gap:14px;flex:1;">
+      <!-- Form column -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:12px;">
+
+        <!-- KTX selection -->
+        <div class="section-box" style="position:relative;">
+          <span class="section-label">④</span>
+          <div class="section-title">Chọn ký túc xá và loại phòng</div>
+          <div class="field-row">
+            <div class="field">
+              <div class="field-label">Ký túc xá</div>
+              <div class="field-select">— Chọn ký túc xá — <span>▼</span></div>
+            </div>
+            <div class="field">
+              <div class="field-label">Loại phòng</div>
+              <div class="field-select">— Loại phòng — <span>▼</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student info -->
+        <div class="section-box" style="position:relative;">
+          <span class="section-label">⑤</span>
+          <div class="section-title">Thông tin sinh viên (tự động điền từ hồ sơ)</div>
+          <div class="field-row">
+            <div class="field">
+              <div class="field-label">Mã sinh viên</div>
+              <div class="field-box" style="background:#f0f0f0;">20220001 &nbsp;<span style="color:#aaa;font-size:9px;">[chỉ đọc]</span></div>
+            </div>
+            <div class="field">
+              <div class="field-label">Khoa / Ngành</div>
+              <div class="field-box" style="background:#f0f0f0;">Công nghệ thông tin &nbsp;<span style="color:#aaa;font-size:9px;">[chỉ đọc]</span></div>
+            </div>
+            <div class="field">
+              <div class="field-label">Nhóm năm học</div>
+              <div class="field-box" style="background:#f0f0f0;">Năm 1 &nbsp;<span style="color:#aaa;font-size:9px;">[chỉ đọc]</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Priority criteria -->
+        <div class="section-box" style="position:relative;">
+          <span class="section-label">⑥</span>
+          <div class="section-title">Tiêu chí xét ưu tiên &nbsp;<span style="font-weight:400;color:#aaa;">(ảnh hưởng trực tiếp đến điểm xét duyệt)</span></div>
+          <div class="field-row">
+            <div class="field">
+              <div class="field-label">Khoảng cách từ nhà đến trường</div>
+              <div class="field-select">— Chọn khoảng cách — <span>▼</span></div>
+            </div>
+            <div class="field">
+              <div class="field-label">Tình trạng tài chính</div>
+              <div class="field-select">— Chọn mức độ — <span>▼</span></div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <div class="field-label">Học bổng đang nhận</div>
+              <div class="field-select">— Loại học bổng — <span>▼</span></div>
+            </div>
+            <div class="field">
+              <div class="field-label">Vi phạm nội quy (lịch sử)</div>
+              <div class="field-select">— Mức độ vi phạm — <span>▼</span></div>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field" style="flex:2;">
+              <div class="field-label">Ghi chú / Yêu cầu đặc biệt (không bắt buộc)</div>
+              <div class="field-box" style="height:48px;align-items:flex-start;padding-top:8px;">Nhập ghi chú...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="btn-row" style="position:relative;">
+          <span class="section-label">⑧</span>
+          <div class="btn-secondary">← Quay lại</div>
+          <div class="btn-primary">Nộp đăng ký →</div>
+        </div>
+      </div>
+
+      <!-- Score panel -->
+      <div class="score-panel" style="position:relative;">
+        <span class="section-label">⑦</span>
+        <div class="score-title">Điểm ưu tiên ước tính</div>
+        <div style="width:70px;height:70px;border-radius:50%;background:#e0e0e0;border:4px solid #bbb;margin:6px auto;display:flex;align-items:center;justify-content:center;">
+          <div style="text-align:center;">
+            <div style="font-size:18px;font-weight:900;color:#333;">--</div>
+            <div style="font-size:8px;color:#888;">/100</div>
+          </div>
+        </div>
+        <div class="score-sub">Cập nhật khi thay đổi tiêu chí</div>
+        <div style="margin-top:8px;border-top:1px solid #ddd;padding-top:6px;">
+          <div style="font-size:9px;color:#666;margin-bottom:3px;font-weight:700;">Chi tiết điểm:</div>
+          <div class="score-row"><span>Khoảng cách</span><span style="background:#ddd;padding:0 4px;border-radius:2px;">+??</span></div>
+          <div class="score-row"><span>Tài chính</span><span style="background:#ddd;padding:0 4px;border-radius:2px;">+??</span></div>
+          <div class="score-row"><span>Học bổng</span><span style="background:#ddd;padding:0 4px;border-radius:2px;">+??</span></div>
+          <div class="score-row"><span>Vi phạm</span><span style="background:#ddd;padding:0 4px;border-radius:2px;">±??</span></div>
+        </div>
+        <div style="margin-top:8px;font-size:9px;color:#aaa;font-style:italic;line-height:1.4;">
+          Điểm cuối cùng sẽ được tính chính thức khi hệ thống xét duyệt
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="legend-item"><div class="legend-num">①</div> Thanh điều hướng chính</div>
+      <div class="legend-item"><div class="legend-num">②</div> Thanh bước đăng ký</div>
+      <div class="legend-item"><div class="legend-num">③</div> Tiêu đề trang + năm học</div>
+      <div class="legend-item"><div class="legend-num">④</div> Chọn KTX và loại phòng</div>
+      <div class="legend-item"><div class="legend-num">⑤</div> Thông tin sinh viên (đọc từ hồ sơ)</div>
+      <div class="legend-item"><div class="legend-num">⑥</div> Tiêu chí xét ưu tiên</div>
+      <div class="legend-item"><div class="legend-num">⑦</div> Điểm ưu tiên ước tính (real-time)</div>
+      <div class="legend-item"><div class="legend-num">⑧</div> Nút nộp / quay lại</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

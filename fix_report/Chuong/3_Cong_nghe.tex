@@ -1,0 +1,205 @@
+\documentclass[../DoAn.tex]{subfiles}
+
+\begin{document}
+
+Trên cơ sở các yêu cầu chức năng và phi chức năng đã được xác lập trong chương 2,
+chương 3 trình bày các lựa chọn công nghệ và kiến trúc hệ thống --- hai yếu tố
+quyết định đến tính khả thi, khả năng mở rộng và chất lượng vận hành của giải
+pháp. Mỗi lựa chọn trong chương này đều được đặt trong bối cảnh của các yêu
+cầu cụ thể: kiến trúc phân tầng đáp ứng yêu cầu nhất quán dữ liệu trong các
+đợt phân bổ theo chu kỳ; Node.js kết hợp MongoDB Atlas phù hợp với mô hình dữ
+liệu có tính biến đổi và các nghiệp vụ xử lý bất đồng bộ; cơ chế xác thực kép
+(session cho web, JWT cho mobile) đáp ứng yêu cầu bảo mật khác nhau giữa hai
+loại client.
+
+
+% =====================================================================
+\section{Kiến trúc hệ thống}
+\label{sec:architecture}
+% =====================================================================
+
+Hệ thống quản lý phân bổ phòng ký túc xá được thiết kế theo kiến trúc phân lớp~\cite{fowler2002patterns} với backend chịu trách nhiệm xử lý nghiệp vụ và truy xuất dữ liệu, frontend thực hiện hiển thị động theo mẫu server-side rendering, cùng các tác vụ ngoại vi đảm nhiệm sinh dữ liệu, kiểm thử và thao tác hàng loạt. Việc lựa chọn kiến trúc này xuất phát từ yêu cầu về tính nhất quán dữ liệu khi thực hiện các chu kỳ phân bổ, tính mở rộng cho cơ chế kế thừa chính sách phân bổ, và khả năng tự động hóa các quy trình xử lý vi phạm nội quy. Kiến trúc ưu tiên phân tách rõ ràng giữa tầng truy vấn dữ liệu (MongoDB Atlas qua Mongoose), tầng API REST (Node.js + Express), và tầng trình bày (EJS), nhằm giảm độ phức tạp đồng thời tạo điều kiện cho nhóm tác vụ sinh dữ liệu mô phỏng và nhóm tác vụ phân phòng tự động vận hành độc lập nhưng vẫn tương tác an toàn với API lõi.
+
+Mô hình luồng xử lý chính bao gồm: client gửi yêu cầu qua trình duyệt hoặc ứng dụng di động, server xác thực và cấp token/session, service thực hiện tính toán điểm ưu tiên (\texttt{priority\_score} allocation) và ghi nhận vào cơ sở dữ liệu, sau đó hệ thống cập nhật trạng thái phân bổ và phản hồi client. Thiết kế này cho phép tách biệt các quy trình dài (batch seeding, migration) khỏi các yêu cầu thời gian thực, đồng thời vẫn bảo đảm nhất quán thông qua cơ chế kiểm soát trạng thái ở tầng ứng dụng và kiểm tra tuần tự trong các script tác nghiệp.
+
+Để hạn chế xung đột dữ liệu, hệ thống thiết kế các tác vụ phân bổ theo trình tự tuyến tính: mỗi đợt phân bổ đi qua các bước kiểm tra điều kiện, tính điểm ưu tiên và ghi nhận kết quả theo thứ tự xác định, không thực thi song song trên cùng tập dữ liệu. Các script tác nghiệp hàng loạt như khởi tạo dữ liệu và di chuyển cơ sở dữ liệu được tách riêng khỏi luồng API chính, giúp hạn chế tranh chấp ghi trong các đợt xử lý lớn.
+
+Một điểm then chốt của kiến trúc là khả năng mô hình hóa đầy đủ chu trình nghiệp vụ theo năm học. Khi học kỳ mới được kích hoạt, hệ thống đồng thời kiểm tra trạng thái kế thừa chính sách phân bổ, hiệu lực các tiêu chí ưu tiên, và khả năng tiếp nhận của từng phòng theo khu vực. Bên cạnh đó, khi ban quản lý thay đổi cách tính điểm ưu tiên, hệ thống lưu lại chính sách tại thời điểm nộp đơn kết hợp với cơ chế tái tính điểm có kiểm soát, nhằm bảo đảm tính truy vết giữa quyết định phân bổ và căn cứ chính sách áp dụng.
+
+% =====================================================================
+\section{Công nghệ backend}
+\label{sec:backend}
+% =====================================================================
+
+Backend được triển khai trên nền tảng Node.js với framework Express.js, sử dụng MongoDB Atlas làm kho lưu trữ tài liệu đám mây và Mongoose làm ODM để biểu diễn schema và ràng buộc ở tầng ứng dụng. Node.js cung cấp môi trường thực thi JavaScript trên server phù hợp với hệ thống hiện có, cho phép tận dụng các tác vụ dựng chính sách, khởi tạo học kỳ và khôi phục xác thực hai lớp. Express.js đơn giản hóa việc tổ chức route và middleware cho các RESTful API phục vụ các nhóm chức năng chính: chu kỳ phân bổ phòng, gán phòng cho sinh viên, cơ chế kế thừa chính sách và quy trình xử lý vi phạm nội quy.
+
+Ở mức thiết kế API, hệ thống tuân theo các nguyên tắc RESTful: tài nguyên được xác định rõ ràng, sử dụng các phương thức HTTP phù hợp, và trả mã trạng thái hợp lệ cùng payload có cấu trúc chuẩn. Các lỗi nghiệp vụ được chuẩn hóa theo dạng JSON với mã lỗi có thể lược đồ hóa, hỗ trợ việc ghi nhật ký và phân loại lỗi khi xử lý các đợt phân bổ lớn.
+
+Hệ thống tích hợp Winston làm thư viện logging có cấu trúc với output dạng
+JSON, ghi lại toàn bộ hành động quan trọng (allocation, policy change, violation
+handling) kèm metadata phục vụ truy vết. Sentry (\texttt{@sentry/node}) được
+khởi tạo ngay từ đầu quá trình khởi động ứng dụng để instrument tự động các
+thư viện như Mongoose và HTTP module, qua đó thu thập error events và performance
+traces về Sentry cloud.
+
+Về bảo mật lớp trung gian, hệ thống sử dụng Helmet để thiết lập các HTTP
+security headers phù hợp, express-rate-limit để giới hạn tốc độ yêu cầu trên
+toàn bộ API, express-mongo-sanitize để chống tấn công NoSQL injection, và một
+middleware XSS protection tùy chỉnh. Toàn bộ biến môi trường quan trọng được
+kiểm tra tự động qua module \texttt{validateEnv.js} trước khi ứng dụng khởi
+động; trong môi trường production, thiếu secret nào sẽ dẫn đến thoát ngay lập
+tức với exit code 1.
+
+Việc chọn MongoDB Atlas là phù hợp do mô hình dữ liệu có tính biến đổi và quan hệ một-nhiều không phức tạp. Mongoose hỗ trợ khai báo schema, các middleware kiểm tra tính hợp lệ khi save, và các phương thức truy vấn biểu diễn rõ ràng, từ đó tạo thuận lợi cho các cơ chế scoring và inheritance logic.
+
+Về bảo mật và xác thực, backend sử dụng lưu mật khẩu bằng bcrypt, xác thực
+bằng JWT cho API không trạng thái (mobile), session-based authentication bằng
+express-session cho web portal với cookie HttpOnly và SameSite=strict, và hỗ
+trợ TOTP/2FA cho các thao tác nhạy cảm.
+
+% =====================================================================
+\section{Công nghệ frontend}
+\label{sec:frontend}
+% =====================================================================
+
+Frontend của hệ thống được triển khai theo kiến trúc đa trang (multi-page) sử
+dụng EJS làm template engine server-side, kết hợp HTML5, CSS3, JavaScript và
+Bootstrap để đảm bảo bố cục và tương tác người dùng cần thiết. Cả hai giao diện
+--- admin portal và student portal --- đều được render tại máy chủ theo mô hình
+này, không sử dụng framework frontend phức tạp như React hay Vue cho phần web.
+
+Lựa chọn EJS xuất phát từ việc hệ thống cần các trang động phía server cho hai nhóm nghiệp vụ chính: khám phá phòng theo không gian và biểu mẫu đăng ký nâng cao, từ đó cho phép render dữ liệu phân bổ và trạng thái phòng ngay tại server, giảm phức tạp client và đơn giản hóa quy trình SSR cho trang quản trị. Server-side rendering với EJS giúp duy trì tính nhất quán hiển thị cho các biểu mẫu nâng cao, đồng thời giảm lượng logic cần chạy trên client.
+
+Trên lớp trình bày, hệ thống áp dụng nguyên tắc progressive enhancement: các trang cơ bản vẫn hoạt động khi JavaScript bị tắt, trong khi các tương tác nâng cao được bổ sung thông qua các module JavaScript nhỏ. Hệ thống cũng chú ý đến validation phía server để đảm bảo dữ liệu gửi lên luôn được kiểm tra trước khi xử lý.
+
+% =====================================================================
+\section{Cơ sở dữ liệu}
+\label{sec:database}
+% =====================================================================
+
+Cơ sở dữ liệu chính của hệ thống là MongoDB Atlas --- nền tảng MongoDB đám mây
+được quản lý hoàn toàn, kết nối qua biến môi trường \texttt{MONGODB\_URI}. Mô hình dữ liệu hướng document~\cite{mongodb2024datamodel} phù hợp với tính chất thay đổi của các thực thể: sinh viên, phòng, chính sách và đợt học (academic window). Collection \texttt{students} chứa các trường nhận dạng, \texttt{allocationregistrations} lưu các đơn theo học kỳ kèm điểm ưu tiên (\texttt{priority\_score}), \texttt{rooms} lưu thông tin thuộc tính phòng và trạng thái, \texttt{allocationpolicies} lưu cây kế thừa các quy tắc phân bổ.
+
+Hệ thống định nghĩa trên 19 Mongoose schema, bao gồm: \texttt{AllocationCycleSchema}, \texttt{AllocationAuditLogSchema}, \texttt{ViolationSchema}, \texttt{MaintenanceRequestSchema}, \texttt{NotificationSchema}, \texttt{PriorityClaimSchema}, \texttt{MobileRefreshTokenSchema}, \texttt{DomainEventOutboxSchema} và nhiều schema khác. Mỗi schema được tách thành file riêng trong thư mục \texttt{src/schemas/}, đảm bảo separation of concerns và dễ bảo trì.
+
+Ở tầng ứng dụng, Mongoose cung cấp schema validation và virtuals để xây dựng các thuộc tính tính toán. Đối với cơ chế kế thừa chính sách phân bổ, mô hình dữ liệu biểu diễn rõ quan hệ phân cấp: quy định chung cấp trường, quy định theo khu nhà, và quy định theo loại phòng. Hệ thống chọn chiến lược kết hợp: phần cấu hình lõi được tham chiếu độc lập, phần snapshot phục vụ phân bổ được ghi lại theo học kỳ, cân bằng giữa hiệu quả truy vấn và khả năng kiểm soát thay đổi chính sách.
+
+% =====================================================================
+\section{Xác thực và bảo mật}
+\label{sec:security}
+% =====================================================================
+
+Chiến lược xác thực của hệ thống áp dụng hai cơ chế song song tùy theo loại
+client. Web portal (admin và student) sử dụng session-based authentication qua
+express-session, lưu session ID trong cookie với thuộc tính HttpOnly,
+SameSite=strict và maxAge 24 giờ. Mobile API sử dụng JWT~\cite{rfc7519} stateless authentication với hai loại
+token riêng biệt: access token có TTL 15 phút và refresh token có TTL 30 ngày,
+ký bằng hai secret riêng biệt \texttt{MOBILE\_JWT\_ACCESS\_SECRET} và
+\texttt{MOBILE\_JWT\_REFRESH\_SECRET}.
+
+Cơ chế QR thẻ cư trú sử dụng HMAC-SHA256 với secret \texttt{QR\_SECRET} để ký
+payload chứa thông tin sinh viên và timestamp. Token QR có TTL 24 giờ và được
+rotate mỗi lần gọi API. Toàn bộ logic ký số nằm phía server, ứng dụng mobile
+chỉ nhận chuỗi token opaque và hiển thị dưới dạng QR code, không thực hiện bất
+kỳ thao tác mật mã nào ở phía client.
+
+Hệ thống kiểm tra anomaly token: khi một refresh token bị sử dụng bất thường
+(trùng jti hoặc reuse từ thiết bị khác), cơ chế risk score được kích hoạt và
+có thể tự động vô hiệu hóa toàn bộ phiên. Mọi thao tác can thiệp dữ liệu nhạy
+cảm đều được audit và ghi log chi tiết.
+
+Ở mức quyền truy cập, hệ thống áp dụng RBAC cho các thao tác quản trị và kiểm
+soát truy cập theo tài nguyên để đảm bảo nguyên tắc ít đặc quyền. Xác thực hai
+yếu tố TOTP (qua thư viện Speakeasy) được áp dụng bắt buộc cho tài khoản quản
+trị và các thao tác nhạy cảm.
+
+% =====================================================================
+\section{Ứng dụng di động}
+\label{sec:mobile}
+% =====================================================================
+
+Ứng dụng di động được phát triển bằng React Native~\cite{reactnative2024} 0.76
+kết hợp Expo SDK 52~\cite{expo2024router}, cho phép tái sử dụng mã nguồn
+TypeScript trên cả iOS và Android. Toàn bộ mã
+nguồn mobile được viết bằng TypeScript để đảm bảo type safety và dễ bảo trì.
+
+Expo Router v4 được sử dụng làm hệ thống điều hướng theo cấu trúc thư mục
+(file-based routing), tương tự cách hoạt động của Next.js nhưng cho môi trường
+native. Cấu trúc thư mục \texttt{app/} phản ánh trực tiếp cấu trúc route:
+\texttt{(tabs)/} cho các màn hình tab chính, \texttt{(auth)/} cho luồng đăng
+nhập, và các thư mục riêng cho allocation, maintenance, room detail và
+violations.
+
+Về state management, ứng dụng áp dụng chiến lược tách biệt server state và
+client state. TanStack Query v5 đảm nhiệm toàn bộ server state bao gồm fetch,
+cache, background refetch và optimistic updates cho dữ liệu từ API. Zustand v5
+quản lý global client state như thông tin người dùng đã đăng nhập và cấu hình
+giao diện. HTTP communication được thực hiện qua Axios với interceptors tự động
+gắn JWT access token vào header và xử lý tự động refresh token khi nhận phản
+hồi 401.
+
+Kết nối realtime từ mobile đến backend được thiết lập qua \texttt{socket.io-client}, cho
+phép nhận thông báo phân bổ và cập nhật trạng thái tức thì không cần polling.
+Token được lưu an toàn qua expo-secure-store, sử dụng Keychain trên iOS và
+Keystore trên Android. QR thẻ cư trú được hiển thị bằng react-native-qrcode-svg.
+Sentry React Native được tích hợp để thu thập crash reports và performance traces
+từ phía mobile.
+
+% =====================================================================
+\section{Hạ tầng và vận hành}
+\label{sec:infrastructure}
+% =====================================================================
+
+Toàn bộ backend được đóng gói trong một Docker container sử dụng multi-stage
+build với base image \texttt{node:20-alpine}. Stage đầu tiên cài đặt
+dependencies với \texttt{npm ci -{}-omit=dev}, stage thứ hai sao chép
+node\_modules và source code, xóa các thư mục không cần thiết trong production
+(\texttt{mobile}, \texttt{tests}, \texttt{scripts}), và chạy dưới non-root user
+\texttt{appuser} để tăng cường bảo mật.
+
+Docker Compose được cung cấp để triển khai local với hai service: \texttt{app}
+(backend Node.js trên port 5000) và \texttt{redis} (Redis 7-alpine). Service
+\texttt{app} phụ thuộc vào \texttt{redis} với điều kiện \texttt{service\_healthy};
+cả hai service đều có healthcheck được cấu hình sẵn. MongoDB Atlas được sử dụng
+như cơ sở dữ liệu đám mây ngoài Docker Compose, kết nối qua \texttt{MONGODB\_URI}.
+
+GitHub Actions CI pipeline được cấu hình với hai job song song: job
+\texttt{backend} thực hiện \texttt{npm install} và kiểm tra syntax toàn bộ file
+JavaScript trong \texttt{src/} bằng \texttt{node -{}-check}; job \texttt{mobile}
+thực hiện \texttt{npm install} và TypeScript type check bằng \texttt{npx tsc
+-{}-noEmit}. Pipeline chạy trên mọi push và pull request đến mọi branch.
+
+Redis~\cite{redis2024pubsub} đóng vai trò tầng hỗ trợ cho Socket.IO~\cite{socketio2024docs}
+cluster adapter (\texttt{@socket.io/redis-adapter}). Khi biến môi trường
+\texttt{REDIS\_URL} được cấu hình, adapter tự động kết nối và gắn vào Socket.IO
+instance, cho phép events được broadcast nhất quán qua nhiều instance backend. Khi Redis không khả
+dụng, hệ thống gracefully fallback về chế độ local Socket.IO broadcast mà không
+crash. Sentry cloud nhận toàn bộ error events và performance traces từ cả
+backend và mobile app, với tracesSampleRate được cấu hình 100\% trong
+development và 10\% trong production để kiểm soát volume. Endpoint
+\texttt{GET /health} được triển khai để Docker và load balancer có thể probing
+trạng thái ứng dụng.
+
+% =====================================================================
+\section{Công nghệ trực quan hóa và bản đồ}
+\label{sec:visualization}
+% =====================================================================
+
+Hệ thống sử dụng Leaflet.js để cung cấp bản đồ tương tác và hiển thị phân bố
+phòng theo không gian địa lý. Leaflet thích hợp cho các hiển thị lớp
+raster/vector nhẹ, cho phép tích hợp dễ dàng với dữ liệu phòng từ backend và
+tương tác để thực hiện live filtering hoặc chọn phòng. Việc sử dụng Leaflet
+được kết hợp với Bootstrap để duy trì trải nghiệm responsive trên nhiều thiết
+bị.
+
+Trong thực tế tích hợp, dữ liệu phòng được cung cấp qua các dịch vụ REST dưới dạng GeoJSON hoặc các cấu trúc nhẹ khác; frontend tải các lớp (layers) theo yêu cầu và áp dụng clustering để tối ưu hiển thị khi có nhiều điểm.
+
+Với module room explorer 360, tích hợp giữa tập ảnh/phông nền và siêu dữ liệu phòng cho phép xây dựng trải nghiệm tham quan ảo. Là định hướng mở rộng, hệ thống đề xuất bổ sung module dựng hình bằng Blender theo quy trình: thu thập ảnh thực tế từng phòng, dựng mô hình nội thất chuẩn hóa, xuất tài sản 3D định dạng glTF và render bằng Three.js trên trình duyệt.
+
+Chương 3 đã trình bày đầy đủ các lựa chọn công nghệ và kiến trúc tổng thể của
+hệ thống, từ nền tảng backend, giao diện web và ứng dụng di động, đến hạ tầng
+vận hành và bảo mật. Sự lựa chọn có chủ đích ở mỗi thành phần công nghệ đặt
+nền tảng vững chắc cho chương 4, nơi các quyết định thiết kế chi tiết và cấu
+trúc tổ chức mã nguồn sẽ được phân tích cụ thể.
+
+\end{document}

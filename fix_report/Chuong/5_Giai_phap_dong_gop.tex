@@ -1,0 +1,793 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+
+% ===== ĐỊNH NGHĨA TỪ KHÓA THUẬT TOÁN CHO CHƯƠNG 5 =====
+\SetKwIF{If}{ElseIf}{Else}{IF}{THEN}{ELSE IF}{ELSE}{END IF}
+\SetKwFor{For}{FOR}{DO}{END FOR}
+\SetKwFor{While}{WHILE}{DO}{END WHILE}
+\SetKwSwitch{Switch}{Case}{Other}{CASE}{OF}{}{}{END CASE}{}
+\SetKw{Begin}{BEGIN}
+\SetKw{End}{END}
+\SetKw{KwReturn}{RETURN}
+\SetKw{KwBreak}{BREAK}
+\SetKw{KwCall}{CALL}
+\SetKw{KwException}{EXCEPTION}
+\SetAlgoNoLine  % Bỏ đường kẻ ngang trong tất cả thuật toán
+% =======================================================
+
+Bốn chương trước đã xác lập bài toán, khảo sát yêu cầu, lựa chọn công nghệ
+và trình bày thiết kế hệ thống eDorm. Chương này chuyển hoàn toàn sang góc
+nhìn người thực hiện, tập trung trả lời bốn câu hỏi cốt lõi cho từng đóng
+góp: \textit{(i)} tính năng giải quyết vấn đề gì; \textit{(ii)} đối tượng nào
+được hưởng lợi; \textit{(iii)} điểm khác biệt so với giải pháp hiện có là gì;
+\textit{(iv)} giá trị mang lại cho hệ thống và người dùng ra sao.
+
+Ba đóng góp được trình bày theo cấu trúc thống nhất: dẫn dắt vấn đề, giải
+pháp thiết kế, và kết quả đạt được. Chương được tổ chức thành bốn mục: giải
+pháp trực quan hóa không gian phòng ký túc xá~(5.1), giải pháp phân bổ phòng
+tự động dựa trên quota~(5.2), giải pháp kiến trúc phân bổ linh hoạt theo năm
+học~(5.3) và tổng kết chương~(5.4).
+
+% =====================================================================
+\section{Giải pháp trực quan hóa không gian phòng ký túc xá}
+\label{sec:contrib_visualization}
+% =====================================================================
+
+\subsection{Dẫn dắt và bài toán}
+\label{subsec:viz_problem}
+
+\subsubsection{Vấn đề cần giải quyết}
+
+Phần lớn sinh viên nhập học tại HUST đến từ các tỉnh thành ngoài Hà Nội và
+chưa từng đặt chân đến ký túc xá trước khi đăng ký. Hệ thống hiện tại chỉ
+cung cấp ảnh tĩnh và mô tả văn bản --- không đủ để hình thành nhận thức không
+gian thực tế, vì mắt người cần tự do chuyển hướng nhìn mới cảm nhận được
+chiều sâu và tỷ lệ. Hệ quả là một tỷ lệ đáng kể sinh viên phát hiện phòng
+không khớp kỳ vọng sau khi nhận, dẫn đến yêu cầu đổi phòng và tăng tải công
+việc cho cán bộ quản lý.
+
+Bài toán đặt ra là: \textit{thiết kế module trực quan hóa không gian đủ chân
+thực để sinh viên ra quyết định đăng ký từ xa, đảm bảo hiệu suất tải hợp lý
+trên web và khả dụng trên cả thiết bị di động.}
+
+\subsubsection{Đối tượng hưởng lợi}
+
+\textit{Sinh viên đăng ký} có thể ``đi vào'' phòng, nhìn quanh 360°, di
+chuyển tự do trong không gian 3D trước khi nhấn nút đăng ký --- quyết định
+dựa trên trải nghiệm thực tế thay vì suy đoán. \textit{Cán bộ quản lý} giảm
+số yêu cầu đổi phòng sau đăng ký và có công cụ tự cập nhật nội dung trực quan
+mà không cần lập trình viên. \textit{Hệ thống eDorm} hưởng lợi qua chất lượng
+dữ liệu: lựa chọn phòng của sinh viên phản ánh đúng sở thích hơn, giảm nhiễu
+cho thuật toán phân bổ.
+
+\subsubsection{Điểm khác biệt so với giải pháp hiện có}
+
+Hầu hết ký túc xá đại học tại Việt Nam dừng lại ở ảnh tĩnh hoặc video tour
+tuyến tính --- cả hai đều chỉ cho phép xem thụ động. Điểm khác biệt then chốt
+của giải pháp đề xuất là \textit{chuyển dịch từ xem thụ động sang trải nghiệm
+chủ động}: người dùng tự quyết định nhìn vào đâu và đứng ở đâu trong phòng.
+Bảng~\ref{tab:viz_comparison} tổng hợp so sánh ba phương án.
+
+\begin{table}[H]
+\centering
+\caption{So sánh các phương án trực quan hóa không gian phòng}
+\label{tab:viz_comparison}
+\small
+\begin{tabular}{|p{2.8cm}|p{2.6cm}|p{2.6cm}|p{5.2cm}|}
+\hline
+\textbf{Tiêu chí} & \textbf{Ảnh tĩnh} & \textbf{Video tour} & \textbf{Giải pháp đề xuất (360° + 3D)} \\
+\hline
+Nhận thức không gian & Rất hạn chế & Trung bình & Cao --- cảm nhận chiều sâu và tỷ lệ thực \\
+\hline
+Tính tương tác & Không có & Thụ động & Chủ động --- người dùng tự chọn góc nhìn \\
+\hline
+Di chuyển tự do & Không & Không & Có (chế độ Free Explore trên desktop) \\
+\hline
+Tương thích thiết bị & Mọi thiết bị & Mọi thiết bị & 360° mọi thiết bị; 3D trên desktop \\
+\hline
+Cập nhật nội dung & Cần kỹ thuật & Cần kỹ thuật & Cán bộ tự cập nhật qua giao diện \\
+\hline
+Thời gian sẵn sàng & Ngay lập tức & Phụ thuộc băng thông & < 0,8 giây đến tương tác đầu tiên \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Giải pháp}
+\label{subsec:viz_solution}
+
+\subsubsection{Hành trình thử nghiệm --- từ ảnh tĩnh đến mô hình 3D}
+
+Đây là đóng góp mà tôi phải thừa nhận đã tốn nhiều công sức và vòng lặp
+thử-sai nhất trong toàn bộ quá trình làm đồ án. Không có một giải pháp nào
+hiện ra ngay từ đầu --- mỗi lần tưởng chừng đã tìm được hướng đi đúng, lại
+gặp một hạn chế mới buộc phải điều chỉnh. Hành trình đó trải qua bốn giai
+đoạn, mỗi giai đoạn giải quyết một hạn chế của giai đoạn trước, được minh
+họa trong Hình~\ref{fig:viz_journey}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.98\textwidth]{Hinhve/quy_trinh_xay_dung_3d.png}
+\caption{Hành trình bốn giai đoạn xây dựng giải pháp trực quan hóa}
+\label{fig:viz_journey}
+\end{figure}
+
+\textbf{Giai đoạn 1 --- Ảnh tĩnh nhiều góc độ.}
+Hướng tiếp cận đầu tiên là tự nhiên nhất: chụp thêm nhiều ảnh từ các góc độ
+khác nhau trong phòng, kèm chú thích kích thước từng khu vực. Ý tưởng là nếu
+có đủ ảnh bao phủ mọi góc, người dùng sẽ có đủ thông tin để hình dung. Tuy
+nhiên, sau khi triển khai và thử nghiệm thực tế, kết quả không như kỳ vọng.
+Vấn đề không phải là thiếu ảnh mà là bản chất của ảnh tĩnh: mắt người nhận
+thức chiều sâu thông qua chuyển động và góc nhìn liên tục thay đổi --- điều
+mà tập hợp ảnh rời rạc không thể cung cấp. Giai đoạn này cho thấy vấn đề
+không phải là số lượng thông tin mà là \textit{loại} thông tin cần cung cấp.
+
+\textbf{Giai đoạn 2 --- Ảnh equirectangular 360° và hệ thống hotspot.}
+Nhận ra rằng cần cho người dùng khả năng tự chuyển hướng nhìn, hướng tiếp cận
+thứ hai là chụp ảnh equirectangular 360° tại các vị trí đại diện trong phòng
+(cạnh cửa vào, giữa phòng, góc gần cửa sổ) và triển khai thư viện Photo Sphere
+Viewer~\cite{psv2023}. Đây là bước đột phá thực sự đầu tiên: lần đầu tiên
+người dùng có thể kéo chuột và nhìn quanh toàn bộ không gian từ một điểm đứng
+cố định. Cảm giác chiều sâu và tỷ lệ không gian bắt đầu hình thành rõ ràng
+hơn nhiều so với ảnh tĩnh.
+
+Tuy nhiên, hạn chế nhanh chóng bộc lộ: người dùng bị ``giam cầm'' tại một
+điểm quan sát, không thể di chuyển sang vị trí khác. Một phòng ký túc xá có
+nhiều khu vực cần quan sát (khu giường, khu học, khu để đồ, khu vệ sinh) ---
+mỗi khu cần một vị trí quan sát riêng. Giải pháp là xây dựng hệ thống
+\textit{hotspot điều hướng}: các điểm tương tác nổi lên trong ảnh 360°, cho
+phép người dùng nhấn vào để dịch chuyển sang góc quan sát tiếp theo.
+
+Việc đặt hotspot đúng vị trí trong không gian ảnh cầu là thách thức kỹ thuật
+không nhỏ. Mỗi hotspot phải được biểu diễn bằng tọa độ góc $(\theta, \phi)$
+trong hệ tọa độ cầu, trong khi vị trí vật lý của điểm đích lại được lưu trong
+hệ tọa độ Descartes $(x, y, z)$ của Three.js. Công thức chuyển đổi:
+\begin{equation}
+\theta = \arctan\!\left(\frac{x}{-z}\right), \quad
+\phi   = \arctan\!\left(\frac{y}{\sqrt{x^2+z^2}}\right)
+\label{eq:cart_to_sphere}
+\end{equation}
+Khi triển khai thực tế, phát sinh thêm một vấn đề thứ cấp: làm sao để cán bộ
+kỹ thuật (không phải lập trình viên) có thể tự định vị hotspot cho từng phòng
+mới mà không cần can thiệp vào mã nguồn? Giải pháp là xây dựng một công cụ ghi
+tọa độ tích hợp trực tiếp trong giao diện quản trị: cán bộ di chuyển con trỏ
+đến vị trí mong muốn trong ảnh 360°, nhấn ``Lấy tọa độ'', và hệ thống tự động
+áp dụng công thức~\eqref{eq:cart_to_sphere} rồi lưu $(\theta, \phi)$ vào cơ
+sở dữ liệu. Đây là quyết định thiết kế quan trọng: giải quyết không chỉ bài
+toán kỹ thuật mà còn bài toán vận hành dài hạn.
+
+\textbf{Giai đoạn 3 --- Mô hình 3D tương tác và cuộc khủng hoảng kích thước file.}
+Chế độ 360° với hotspot đã cải thiện đáng kể trải nghiệm, nhưng vẫn còn một
+hạn chế nền tảng: người dùng chỉ có thể quan sát từ các vị trí đã được cán bộ
+định nghĩa trước. Mục tiêu kế tiếp là cho phép di chuyển hoàn toàn tự do ---
+người dùng tự chọn đứng ở đâu, nhìn vào đâu, giống như thực sự bước vào phòng.
+
+Không có sẵn mô hình 3D nào cho các phòng ký túc xá HUST, không có file CAD,
+không có bản vẽ kỹ thuật dạng số --- chỉ có bản vẽ giấy và thước dây. Tôi
+phải tự học Blender~\cite{blender2024} từ đầu trong khi vẫn song song thực
+hiện các phần khác của đồ án. Quá trình dựng mô hình bao gồm: đo đạc thực tế
+từng kích thước trong phòng, dựng hình học cơ bản (tường, sàn, trần, cửa sổ,
+cửa ra vào), mô hình hóa từng món đồ nội thất (giường tầng, bàn học, tủ cá
+nhân, kệ sách), và thiết lập vật liệu cho từng bề mặt.
+
+Sau vài tuần làm việc, mô hình đầu tiên hoàn thành. Và rồi vấn đề thực sự
+xuất hiện: file GLB xuất ra từ Blender có kích thước hơn \textbf{200~MB}. Đây
+là con số không tưởng cho một ứng dụng web --- với kết nối thông thường, người
+dùng phải chờ hàng phút chỉ để tải về mô hình phòng, chưa kể bộ nhớ GPU cần
+để render. Toàn bộ hướng tiếp cận tưởng chừng như phải từ bỏ.
+
+\textbf{Giai đoạn 4 --- Hành trình tối ưu hóa từ 200~MB về dưới 8~MB.}
+Thay vì từ bỏ, tôi quyết định tìm hiểu tại sao file lại nặng đến vậy và có
+thể làm gì để giảm. Quá trình phân tích cho thấy ba nguồn gốc chính: \textit{(i)}
+số lượng đa giác quá lớn (mô hình ban đầu có hơn 400.000 đa giác vì các bề
+mặt phẳng như sàn và tường được chia thành quá nhiều tam giác nhỏ);
+\textit{(ii)} vật liệu PBR (Physically Based Rendering) với nhiều texture map
+độ phân giải cao cho mỗi bề mặt; \textit{(iii)} dữ liệu hình học không được nén.
+
+\textit{Decimate geometry:} Blender cung cấp modifier Decimate cho phép tự
+động hợp nhất các đa giác trên bề mặt phẳng. Áp dụng Decimate aggressively
+cho các bề mặt lớn (sàn, tường, trần) nhưng giữ nguyên cho đồ nội thất có
+chi tiết, số đa giác giảm từ hơn 400.000 xuống khoảng 120.000 --- bước tiến
+đáng kể nhưng chưa đủ.
+
+\textit{Texture baking:} Thay vì giữ nhiều texture map riêng lẻ (albedo,
+roughness, metallic, normal map) cho mỗi vật liệu, toàn bộ thông tin vật liệu
+được ``nướng'' (bake) vào một texture map duy nhất kích thước 1024×1024~px cho
+mỗi nhóm đối tượng. Kỹ thuật này giảm mạnh số lượng draw call trong quá trình
+render và tổng kích thước dữ liệu texture. Sau bước này, kích thước file giảm
+xuống còn khoảng 30--40~MB.
+
+\textit{Nén Draco:} Thư viện Draco~\cite{google2023draco} của Google cung cấp
+thuật toán nén hình học 3D chuyên dụng, giảm 40--60\% kích thước dữ liệu
+vertex và face mà không làm thay đổi hình dạng mô hình. Sau khi áp dụng Draco
+với mức nén cân bằng (để giữ chất lượng hình ảnh), file GLB cuối cùng đạt dưới
+8~MB --- giảm hơn 25 lần so với mô hình ban đầu.
+
+Hành trình tối ưu hóa được tổng kết trong Bảng~\ref{tab:glb_optimization}.
+
+\begin{table}[H]
+\centering
+\caption{Tiến trình tối ưu hóa kích thước file GLB}
+\label{tab:glb_optimization}
+\small
+\begin{tabular}{|p{4.2cm}|p{2.2cm}|p{2.5cm}|p{4.3cm}|}
+\hline
+\textbf{Giai đoạn} & \textbf{Kích thước} & \textbf{Số đa giác} & \textbf{Kỹ thuật áp dụng} \\
+\hline
+Mô hình gốc (chưa tối ưu) & $\sim$200~MB & $>$400.000 & --- \\
+\hline
+Sau Decimate & $\sim$35~MB & 120.000 & Hợp nhất đa giác bề mặt phẳng \\
+\hline
+Sau Texture Baking & $\sim$30~MB & 120.000 & Gộp vật liệu thành texture map \\
+\hline
+Sau nén Draco & < 8~MB & 22.000--25.000 & Nén hình học + geometry index \\
+\hline
+\end{tabular}
+\end{table}
+
+Ngoài vấn đề kích thước file, còn một thách thức phát sinh khi kiểm thử trên
+thiết bị di động: GPU di động hỗ trợ WebGL nhưng thiếu phần mở rộng
+\texttt{OES\_\allowbreak element\_\allowbreak index\_\allowbreak uint} mà
+Three.js cần cho index buffer 32-bit khi render mô hình lớn. Thay vì cố vượt
+qua giới hạn phần cứng, quyết định thiết kế được đưa ra: ẩn hoàn toàn chế độ
+Free Explore trên thiết bị di động và chỉ cung cấp Quick Tour (360°). Đây là
+đánh đổi có chủ ý --- tốt hơn là cung cấp trải nghiệm hạn chế nhưng ổn định,
+hơn là cố render mô hình và gây crash trình duyệt.
+
+\subsubsection{Kiến trúc hai chế độ song song}
+
+Toàn bộ hành trình bốn giai đoạn hội tụ vào kiến trúc cuối cùng: hai chế độ
+song song chia sẻ cùng một tầng dữ liệu, được trình bày trong
+Hình~\ref{fig:visualization_architecture}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{Hinhve/kien_truc_truc_quan_hoa_phong.png}
+\caption{Kiến trúc giải pháp trực quan hóa không gian phòng ký túc xá}
+\label{fig:visualization_architecture}
+\end{figure}
+
+Module tổ chức thành hai nhánh chạy song song. Nhánh \textit{Quick Tour} xử
+lý ảnh equirectangular 360° qua Photo Sphere Viewer, khởi tạo ngay lập tức
+khi trang tải và khả dụng trên mọi thiết bị. Nhánh \textit{Free Explore} tải
+mô hình GLB qua Three.js và chỉ được kích hoạt trên desktop khi mạng đủ nhanh.
+Cả hai nhánh chia sẻ tầng siêu dữ liệu phòng và hệ thống hotspot, đảm bảo
+tính nhất quán dữ liệu giữa hai chế độ.
+
+Chiến lược tải song song là điểm quan trọng về hiệu suất: thay vì chờ GLB
+tải xong mới hiển thị gì đó, Quick Tour được khởi tạo ngay lập tức trong khi
+GLB tải ngầm --- giảm thời gian đến tương tác đầu tiên từ hàng giây xuống
+dưới 0,8 giây. Bảng~\ref{tab:viz_modes} tóm tắt đặc điểm từng chế độ.
+
+\begin{table}[H]
+\centering
+\caption{So sánh hai chế độ trực quan hóa}
+\label{tab:viz_modes}
+\small
+\begin{tabular}{|p{2.8cm}|p{5.4cm}|p{5.0cm}|}
+\hline
+\textbf{Tiêu chí} & \textbf{Quick Tour (360°)} & \textbf{Free Explore (3D)} \\
+\hline
+Công nghệ & Photo Sphere Viewer + Three.js & Three.js WebGL + GLB \\
+\hline
+Điều hướng & Hotspot tọa độ cầu xác định trước & Di chuyển tự do WASD + chuột \\
+\hline
+Tải trọng & Thấp (JPEG tối ưu) & < 8~MB (GLB nén Draco) \\
+\hline
+Thiết bị hỗ trợ & Desktop + mobile + tablet & Desktop (WebGL đầy đủ) \\
+\hline
+Thời gian sẵn sàng & Ngay lập tức & Sau 1,2--1,8 giây (tải ngầm) \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Thuật toán tối ưu hóa mô hình 3D}
+
+\paragraph{Mục tiêu.}
+Giảm kích thước file GLB từ mô hình gốc (hàng trăm MB) xuống mức chấp nhận
+được cho ứng dụng web (dưới 10~MB) mà không làm mất chất lượng hình ảnh cảm
+nhận được bởi người dùng, thông qua ba kỹ thuật áp dụng tuần tự.
+
+\medskip
+\noindent\textbf{Thuật toán 1:} \textit{GLBModelOptimizationPipeline}
+
+\noindent\textbf{Đầu vào:} $RawModel$: mô hình Blender gốc; $TargetSize$: kích thước mục tiêu (MB); $QualityThreshold$: ngưỡng chất lượng chấp nhận được
+
+\noindent\textbf{Đầu ra:} $OptimizedGLB$: file GLB đã tối ưu; $Metrics$: báo cáo kích thước và chất lượng
+
+\begin{flushleft}
+\small\ttfamily
+\begin{tabbing}
+\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\kill
+BEGIN\\
+\>// Bước 1: Decimate\\
+\>FOR $obj \in RawModel.objects$ DO\\
+\>\>IF $obj.type \in \{$FLOOR, WALL, CEILING$\}$ THEN\\
+\>\>\>$obj.decimateRatio \leftarrow 0.05$ \hspace{1em}// Giảm mạnh --- bề mặt phẳng\\
+\>\>ELSE\\
+\>\>\>$obj.decimateRatio \leftarrow 0.4$ \hspace{1.5em}// Giữ chi tiết --- đồ nội thất\\
+\>\>END IF\\
+\>\>ApplyDecimate($obj$, $obj.decimateRatio$)\\
+\>END FOR\\
+\\
+\>// Bước 2: Texture Baking\\
+\>FOR $group \in$ GroupByMaterial($RawModel.objects$) DO\\
+\>\>$texMap \leftarrow$ BakeToTexture($group$, resolution: $1024 \times 1024$)\\
+\>\>ReplaceMaterials($group$, $texMap$)\\
+\>END FOR\\
+\\
+\>// Bước 3: Nén Draco --- tìm mức nén tối ưu\\
+\>$rawGLB \leftarrow$ ExportGLB($RawModel$)\\
+\>$level \leftarrow 7$\\
+\>WHILE $rawGLB.size > TargetSize$ AND $level \leq 10$ DO\\
+\>\>$candidate \leftarrow$ ApplyDraco($rawGLB$, compressionLevel: $level$)\\
+\>\>IF VisualQuality($candidate$) $\geq QualityThreshold$ THEN\\
+\>\>\>$OptimizedGLB \leftarrow candidate$\\
+\>\>\>$level \leftarrow level + 1$\\
+\>\>ELSE\\
+\>\>\>BREAK \hspace{2em}// Vượt ngưỡng chất lượng --- dừng tăng nén\\
+\>\>END IF\\
+\>END WHILE\\
+\>$Metrics \leftarrow \{size: OptimizedGLB.size,\ polygons: CountPolygons(OptimizedGLB)\}$\\
+\>RETURN $OptimizedGLB$, $Metrics$\\
+END
+\end{tabbing}
+\end{flushleft}
+
+\subsubsection{Thuật toán khởi tạo và điều phối module}
+
+\paragraph{Mục tiêu.}
+Điều phối quá trình tải tài nguyên song song và phân nhánh theo phần cứng
+thiết bị, đảm bảo người dùng luôn có tương tác đầu tiên trong dưới 0,8 giây
+và không xảy ra crash trên GPU di động.
+
+\medskip
+\noindent\textbf{Thuật toán 2:} \textit{InteractiveDormitoryVisualization}
+
+\noindent\textbf{Đầu vào:} $RoomID$: mã phòng; $DeviceType$: loại thiết bị; $NetworkSpeed$: tốc độ mạng
+
+\noindent\textbf{Đầu ra:} $Scene$: scene tương tác sẵn sàng; $Status$: trạng thái tải
+
+\begin{flushleft}
+\small\ttfamily
+\begin{tabbing}
+\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\kill
+BEGIN\\
+\>$metadata \leftarrow$ LoadRoomMetadata($RoomID$)\\
+\>IF $metadata = \varnothing$ THEN\\
+\>\>EXCEPTION ``Phòng không tồn tại hoặc không có dữ liệu''\\
+\>END IF\\
+\\
+\>// Ưu tiên 1: Khởi tạo Quick Tour ngay lập tức cho mọi thiết bị\\
+\>InitQuickTour($metadata.sphericalImages$, $metadata.hotspots$)\\
+\\
+\>IF $DeviceType \neq$ MOBILE THEN\\
+\>\>// Ưu tiên 2: Tải GLB ngầm song song, không chặn Quick Tour\\
+\>\>IF $NetworkSpeed \geq$ THRESHOLD\_FAST THEN\\
+\>\>\>LoadGLBAsync($metadata.glbPath$, onReady: EnableFreeExplore)\\
+\>\>END IF\\
+\>// Else: Mobile --- GPU không đủ hỗ trợ, chỉ giữ Quick Tour\\
+\>END IF\\
+\\
+\>WHILE $user$ đang tương tác DO\\
+\>\>IF $action =$ ROTATE THEN UpdateCamera($delta$)\\
+\>\>ELSE IF $action =$ HOTSPOT\_CLICK THEN NavigateTo($hotspotId$)\\
+\>\>ELSE IF $action =$ SWITCH\_MODE THEN ToggleMode()\\
+\>\>END IF\\
+\>END WHILE\\
+\>RETURN $Scene$, $Status \leftarrow$ READY\\
+END
+\end{tabbing}
+\end{flushleft}
+
+\paragraph{Phân tích độ phức tạp.}
+Giai đoạn khởi tạo có độ phức tạp $O(h)$ với $h$ là số hotspot cần đăng ký;
+vòng lặp tương tác xử lý mỗi sự kiện trong $O(1)$. Chiến lược tải song song
+giảm thời gian đến tương tác đầu tiên 3--5 lần so với tải tuần tự.
+
+\subsection{Kết quả đạt được}
+\label{subsec:viz_result}
+
+\begin{table}[H]
+\centering
+\caption{Chỉ số kỹ thuật sau toàn bộ quá trình tối ưu hóa}
+\label{tab:viz_metrics}
+\small
+\begin{tabular}{|p{5.8cm}|p{2.6cm}|p{4.4cm}|}
+\hline
+\textbf{Chỉ số} & \textbf{Giá trị} & \textbf{Ghi chú} \\
+\hline
+Kích thước GLB ban đầu & $\sim$200~MB & Mô hình Blender gốc, chưa tối ưu \\
+\hline
+Kích thước GLB sau tối ưu & < 8~MB & Sau Decimate + Baking + Draco \\
+\hline
+Hệ số nén tổng thể & $>$25$\times$ & Không mất chất lượng cảm nhận \\
+\hline
+Số đa giác sau tối ưu & 22.000--25.000 & Giảm $>$94\% so với mô hình gốc \\
+\hline
+Thời gian tải GLB (WiFi 50~Mbps) & 1,2--1,8 giây & Chrome 120, desktop \\
+\hline
+Thời gian đến tương tác đầu tiên & < 0,8 giây & Quick Tour sẵn sàng trước GLB \\
+\hline
+Tương thích trình duyệt & Chrome 90+, Firefox 88+, Safari 14+ & Kiểm tra theo bộ kết hợp \\
+\hline
+\end{tabular}
+\end{table}
+
+Giá trị mang lại ở ba chiều. \textit{Với sinh viên:} lần đầu tiên có thể
+thực sự ``vào trong'' phòng ký túc xá trước khi đăng ký, nhìn quanh, quan sát
+từng chi tiết, cảm nhận tỷ lệ không gian --- thay vì đoán mò qua ảnh tĩnh.
+\textit{Với cán bộ quản lý:} công cụ ghi tọa độ hotspot tích hợp trong giao
+diện quản trị cho phép cập nhật và mở rộng nội dung trực quan hóa mà không cần
+lập trình viên can thiệp. \textit{Về mặt kỹ thuật:} hành trình từ 200~MB về
+dưới 8~MB là minh chứng cho thấy các kỹ thuật tối ưu hóa hình học 3D có thể
+đạt tỷ lệ nén rất cao khi được áp dụng đúng thứ tự và đúng mức độ cho từng
+loại đối tượng trong mô hình.
+
+% =====================================================================
+\section{Giải pháp phân bổ phòng tự động dựa trên quota}
+\label{sec:contrib_allocation}
+% =====================================================================
+
+\subsection{Dẫn dắt và bài toán}
+\label{subsec:alloc_problem}
+
+\subsubsection{Vấn đề cần giải quyết}
+
+Bài toán phân bổ phòng ký túc xá mang tính ràng buộc đa chiều: mỗi quyết định
+gán phòng phải đồng thời thỏa mãn bốn nhóm ràng buộc --- sức chứa phòng, đồng
+nhất giới tính, chỉ tiêu theo nhóm năm học (quota), và thứ tự ưu tiên theo
+chính sách nhà trường. Đặc biệt, số lượng đơn đăng ký thường vượt số chỗ ở
+khả dụng, đòi hỏi một cơ chế xếp hạng minh bạch và có thể giải trình.
+
+Thực trạng trước khi có hệ thống: quy trình phân bổ được thực hiện thủ công
+trên bảng tính điện tử, tiêu tốn nhiều ngày công tác và tiềm ẩn sai sót khi
+hợp nhất dữ liệu từ nhiều nguồn. Sinh viên không thể kiểm chứng tại sao mình
+được ưu tiên hơn hay kém hơn người khác, dẫn đến mất lòng tin và gia tăng
+khiếu nại.
+
+\subsubsection{Đối tượng hưởng lợi}
+
+\textit{Sinh viên đăng ký:} có thể tra cứu lý do cụ thể tại sao mình được
+phân phòng hay đưa vào danh sách chờ, thay vì nhận kết quả mà không hiểu cơ
+sở. \textit{Cán bộ quản lý:} quy trình phân bổ từ nhiều ngày rút xuống dưới
+2 giây, loại bỏ hoàn toàn khả năng sai sót tính điểm thủ công. \textit{Ban
+lãnh đạo ký túc xá:} có nhật ký kiểm toán đầy đủ cho mỗi đợt phân bổ, phục
+vụ báo cáo và giải trình khi có khiếu nại.
+
+\subsubsection{Điểm khác biệt so với giải pháp hiện có}
+
+\begin{table}[H]
+\centering
+\caption{So sánh giải pháp phân bổ phòng}
+\label{tab:alloc_comparison}
+\small
+\begin{tabular}{|p{3.5cm}|p{4.5cm}|p{4.8cm}|}
+\hline
+\textbf{Tiêu chí} & \textbf{Giải pháp thủ công hiện có} & \textbf{Giải pháp đề xuất} \\
+\hline
+Thời gian xử lý & Nhiều ngày công tác & Dưới 2 giây \\
+\hline
+Kiểm tra ràng buộc & Dễ bỏ sót khi làm thủ công & Tự động, tường minh, thứ tự cố định \\
+\hline
+Tính minh bạch & Sinh viên không biết lý do & Mỗi quyết định có AuditLog riêng \\
+\hline
+Quản lý danh sách chờ & Thủ công, dễ nhầm thứ tự & Tự động, có thứ tự theo điểm \\
+\hline
+Khả năng kiểm toán & Không có & Ghi đầy đủ căn cứ từng quyết định \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Giải pháp}
+\label{subsec:alloc_model}
+
+\subsubsection{Mô hình hai lớp quyết định}
+
+Mô hình phân bổ hoạt động trên hai lớp quyết định độc lập. \textit{Lớp ngoài}
+kiểm tra các ràng buộc cứng theo thứ tự cố định: (1)~quota nhóm năm còn chỗ
+không; (2)~phòng còn giường trống không; (3)~giới tính phòng có khớp không.
+Chỉ khi thỏa mãn cả ba ràng buộc này, ứng viên mới tiếp tục sang lớp trong.
+\textit{Lớp trong} sử dụng điểm ưu tiên để xếp hạng các ứng viên cạnh tranh
+trong cùng nhóm:
+\begin{equation}
+Score_i = W_d \cdot D_i + W_f \cdot F_i + W_y \cdot Y_i + W_p \cdot P_i - W_v \cdot V_i
+\label{eq:priority_score}
+\end{equation}
+trong đó $D_i$, $F_i$, $Y_i$, $P_i$, $V_i$ lần lượt là điểm khoảng cách từ
+nhà, tài chính khó khăn, nhóm năm học, học bổng và điểm trừ vi phạm nội quy.
+Các trọng số $W_\ast$ được lưu trong cấu hình, có thể điều chỉnh mỗi năm mà
+không cần sửa mã nguồn. Điểm ưu tiên là \textit{cơ chế xếp hạng}, không phải
+cơ chế quyết định: sinh viên phải vượt qua lớp ngoài trước.
+
+Số chỗ ở dành cho từng nhóm năm được tính theo:
+\begin{equation}
+Quota_g = Capacity \times Ratio_g
+\label{eq:quota}
+\end{equation}
+với $Ratio_g$ là tỷ lệ được cấu hình trong \texttt{QuotaConfig}. Sau mỗi đợt
+phân bổ, tỷ lệ lấp đầy được cập nhật trên bảng điều khiển:
+\begin{equation}
+OccupancyRate = \frac{OccupiedBeds}{TotalBeds} \times 100\%
+\label{eq:occupancy}
+\end{equation}
+Dữ liệu thực tế ghi nhận 82,1\% trên 265 phòng và 1.450 sinh viên.
+
+\subsubsection{Thuật toán phân bổ phòng}
+
+\paragraph{Mục tiêu.}
+Phân bổ toàn bộ danh sách đơn đăng ký vào các phòng khả dụng theo đúng thứ
+tự ưu tiên, đảm bảo ba ràng buộc cứng không bao giờ bị vi phạm và mọi quyết
+định đều có căn cứ ghi lại trong AuditLog.
+
+\medskip
+\noindent\textbf{Thuật toán 3:} \textit{QuotaBasedRoomAllocation}
+
+\noindent\textbf{Đầu vào:} $StudentList$: danh sách đơn; $RoomList$: danh sách phòng; $QuotaConfig$: cấu hình quota
+
+\noindent\textbf{Đầu ra:} $AssignmentList$: danh sách phân phòng; $WaitingList$: danh sách chờ
+
+\begin{flushleft}
+\small\ttfamily
+\begin{tabbing}
+\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\kill
+BEGIN\\
+\>// Bước 1: Tính điểm và sắp xếp\\
+\>FOR $s \in StudentList$ DO\\
+\>\>$s.score \leftarrow$ CalculatePriorityScore($s$)\\
+\>END FOR\\
+\>$StudentList \leftarrow$ SORT($StudentList$, key: score, DESC)\\
+\\
+\>// Bước 2: Phân bổ tuần tự --- kiểm tra 3 ràng buộc cứng\\
+\>FOR $s \in StudentList$ DO\\
+\>\>IF $QuotaConfig.slots[s.yearGroup] \leq 0$ THEN\\
+\>\>\>WaitingList.append($s$, reason: QUOTA\_FULL); BREAK\\
+\>\>END IF\\
+\>\>$room \leftarrow$ FindRoom($RoomList$, gender: $s.gender$, group: $s.yearGroup$)\\
+\>\>IF $room \neq \varnothing$ THEN\\
+\>\>\>Assign($s$, $room$); $QuotaConfig.slots[s.yearGroup] -= 1$\\
+\>\>\>WriteAuditLog($s$, $room$, ALLOCATED)\\
+\>\>ELSE\\
+\>\>\>WaitingList.append($s$, reason: NO\_ROOM)\\
+\>\>\>WriteAuditLog($s$, WAITLIST)\\
+\>\>END IF\\
+\>END FOR\\
+\>RETURN $AssignmentList$, $WaitingList$\\
+END
+\end{tabbing}
+\end{flushleft}
+
+\paragraph{Phân tích độ phức tạp.}
+Bước tính điểm là $O(n)$; sắp xếp là $O(n \log n)$; phân bổ là $O(n \cdot m)$
+trong trường hợp xấu nhất, giảm về $O(n \cdot m/k)$ khi danh sách phòng được
+lập chỉ mục theo nhóm năm và giới tính. Với 1.500 đơn và 265 phòng, thuật toán
+hoàn thành dưới 2 giây. Tính đúng đắn được đảm bảo bởi $capacitySnapshot$ bất
+biến: bản chụp sức chứa ghi lại trước khi phân bổ bắt đầu, tránh race condition
+khi cán bộ thao tác phòng đồng thời.
+
+\subsection{Kết quả đạt được}
+\label{subsec:alloc_result}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả kiểm thử xác minh tính đúng đắn thuật toán phân bổ}
+\label{tab:alloc_verification}
+\small
+\begin{tabular}{|p{3.0cm}|p{3.6cm}|p{3.8cm}|p{1.8cm}|}
+\hline
+\textbf{Kịch bản} & \textbf{Điều kiện đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả} \\
+\hline
+Đủ sức chứa & 10 đơn, 15 giường trống & Tất cả 10 đơn ALLOCATED & Đạt \\
+\hline
+Vượt sức chứa & 20 đơn, 10 giường & 10 điểm cao nhất ALLOCATED, 10 WAITLIST & Đạt \\
+\hline
+Xếp hạng đúng & 5 đơn điểm khác nhau, 3 giường & 3 đơn điểm cao nhất theo thứ tự giảm dần & Đạt \\
+\hline
+Hết quota nhóm & 10 đơn năm 1, quota = 5 & 5 ALLOCATED, 5 QUOTA\_FULL & Đạt \\
+\hline
+Không có giường & Bất kỳ số đơn, 0 giường & Tất cả NO\_ROOM & Đạt \\
+\hline
+\end{tabular}
+\end{table}
+
+So với quy trình thủ công, hệ thống rút ngắn thời gian phân bổ từ vài ngày
+xuống dưới 2 giây, loại bỏ sai số tính điểm tay, và đảm bảo mọi sinh viên
+đều có thể tra cứu căn cứ quyết định của mình trong \texttt{AllocationAuditLog}.
+Ba ràng buộc cứng được kiểm tra tuần tự và tường minh trong mã nguồn, không
+thể bị bỏ qua dù có lỗi ở bước khác.
+
+% =====================================================================
+\section{Giải pháp kiến trúc phân bổ linh hoạt theo năm học}
+\label{sec:contrib_policy}
+% =====================================================================
+
+\subsection{Dẫn dắt và bài toán}
+\label{subsec:policy_problem}
+
+\subsubsection{Vấn đề cần giải quyết}
+
+Chính sách phân bổ ký túc xá không cố định mà thay đổi mỗi năm học: tỷ lệ
+ưu tiên theo nhóm năm có thể điều chỉnh, tiêu chí xét duyệt có thể mở rộng,
+ngưỡng khoảng cách có thể thay đổi. Trong hệ thống với logic viết cứng trong
+mã nguồn, mỗi thay đổi chính sách đòi hỏi một chu kỳ phát triển phần mềm mới
+--- độ trễ hoàn toàn không phù hợp với nhịp thay đổi năm học.
+
+Bên cạnh đó, cơ cấu sinh viên theo nhóm năm dịch chuyển mỗi năm (cohort
+shift): khi K69 lên năm 2, K70 vào thay vị trí năm 1. Nếu không có công cụ
+dự báo, cán bộ buộc phải phân bổ chỉ tiêu dựa trên kinh nghiệm chủ quan thay
+vì dữ liệu thực tế. Đây là bài toán lập kế hoạch chủ động, không phải phản
+ứng sau khi vấn đề đã xảy ra.
+
+\subsubsection{Đối tượng hưởng lợi}
+
+\textit{Cán bộ quản lý:} có thể tự cập nhật chính sách phân bổ hàng năm qua
+giao diện cấu hình mà không cần yêu cầu phát triển phần mềm mới. \textit{Ban
+lãnh đạo ký túc xá:} có lịch sử chính sách đầy đủ theo từng năm học để đối
+chiếu và kiểm toán. \textit{Toàn bộ sinh viên:} được hưởng lợi từ chính sách
+phân bổ luôn phản ánh đúng thực tế cơ cấu năm học hiện tại.
+
+\subsubsection{Điểm khác biệt so với giải pháp hiện có}
+
+\begin{table}[H]
+\centering
+\caption{So sánh giải pháp quản lý chính sách phân bổ}
+\label{tab:policy_comparison}
+\small
+\begin{tabular}{|p{3.5cm}|p{4.5cm}|p{4.8cm}|}
+\hline
+\textbf{Tiêu chí} & \textbf{Logic hard-coded hiện có} & \textbf{Policy-Driven Framework} \\
+\hline
+Thay đổi chính sách & Cần chu kỳ phát triển phần mềm & Cấu hình qua giao diện, vài phút \\
+\hline
+Kế thừa năm trước & Không có, cấu hình lại từ đầu & Tự động kế thừa, admin chỉ điều chỉnh \\
+\hline
+Lịch sử chính sách & Không được lưu trữ & Lưu đầy đủ theo phiên bản và năm học \\
+\hline
+Dự báo cohort shift & Không có & Module tự động dựa trên dữ liệu lịch sử \\
+\hline
+Tách biệt quota và điểm & Không (lẫn lộn trong code) & Tách thành hai thực thể độc lập \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Giải pháp}
+\label{subsec:policy_arch}
+
+\subsubsection{Kiến trúc bốn lớp}
+
+Hình~\ref{fig:policy_driven_allocation} trình bày kiến trúc Policy-Driven
+Allocation Framework: chính sách phân bổ được lưu trữ dưới dạng tài liệu có
+cấu trúc trong cơ sở dữ liệu, hoàn toàn tách khỏi mã nguồn.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{Hinhve/policy_driven_allocation.png}
+\caption{Kiến trúc quản lý chính sách phân bổ động}
+\label{fig:policy_driven_allocation}
+\end{figure}
+
+Kiến trúc gồm bốn lớp tương tác theo chiều dọc. \texttt{QuotaConfig} định
+nghĩa tỷ lệ chỉ tiêu theo nhóm năm --- thực thể thay đổi hàng năm theo biến
+động cơ cấu sinh viên. \texttt{AllocationPolicy} định nghĩa trọng số tính
+điểm ưu tiên và tham chiếu về \texttt{QuotaConfig} --- thực thể ổn định hơn,
+có thể dùng qua nhiều năm. \texttt{AllocationCycle} xác định khoảng thời gian
+đăng ký và liên kết với một chính sách cụ thể. \texttt{AllocationService} đọc
+cấu hình từ ba lớp trên và thực thi phân bổ mà không chứa bất kỳ giá trị
+hard-coded nào.
+
+Quyết định thiết kế then chốt là tách \texttt{QuotaConfig} khỏi
+\texttt{AllocationPolicy}: hai khái niệm nghiệp vụ có vòng đời thay đổi khác
+nhau không nên lưu trong cùng một cấu trúc dữ liệu. Nhờ tách biệt này, cán bộ
+có thể điều chỉnh tỷ lệ chỉ tiêu mà không ảnh hưởng đến công thức tính điểm
+ưu tiên, và ngược lại.
+
+Công thức theo dõi mức độ tuân thủ quota sau mỗi đợt phân bổ:
+\begin{equation}
+\Delta_g = n_g^{\mathrm{thực\ tế}} - \lfloor Q_g \cdot C_{\mathrm{tổng}} \rfloor
+\label{eq:quota_deviation}
+\end{equation}
+Khi $\Delta_g > 0$, nhóm $g$ đang vượt chỉ tiêu; $\Delta_g < 0$ là chưa đạt.
+Hệ thống hiển thị chỉ số này theo thời gian thực để cán bộ điều chỉnh cho các
+đợt đăng ký tiếp theo.
+
+\subsubsection{Thuật toán kế thừa chính sách}
+
+\paragraph{Mục tiêu.}
+Đảm bảo chu kỳ đăng ký mới luôn có chính sách hợp lệ mà cán bộ không phải
+cấu hình lại từ đầu mỗi năm, đồng thời bảo toàn toàn bộ lịch sử chính sách
+theo phiên bản.
+
+\medskip
+\noindent\textbf{Thuật toán 4:} \textit{PolicyInheritanceAndActivation}
+
+\noindent\textbf{Đầu vào:} $academicYear$: năm học mới; $adminRequest$: yêu cầu tạo chu kỳ
+
+\noindent\textbf{Đầu ra:} $newPolicy$: chính sách hợp lệ; $cycle$: chu kỳ đăng ký đã liên kết
+
+\begin{flushleft}
+\small\ttfamily
+\begin{tabbing}
+\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\hspace{0.5cm}\=\kill
+BEGIN\\
+\>// Ưu tiên 1: Tìm chính sách đang hiệu lực\\
+\>$activePolicy \leftarrow$ FindActivePolicy($academicYear$)\\
+\>IF $activePolicy \neq \varnothing$ THEN\\
+\>\>$newPolicy \leftarrow activePolicy$\\
+\>ELSE\\
+\>\>// Ưu tiên 2: Kế thừa từ năm trước, chờ admin xét duyệt\\
+\>\>$prevPolicy \leftarrow$ FindActivePolicy(PreviousYear($academicYear$))\\
+\>\>IF $prevPolicy \neq \varnothing$ THEN\\
+\>\>\>$newPolicy \leftarrow$ ClonePolicy($prevPolicy$, $academicYear$)\\
+\>\>\>$newPolicy.active \leftarrow$ FALSE\\
+\>\>ELSE\\
+\>\>\>// Ưu tiên 3: Tạo chính sách mặc định nếu không có tiền lệ\\
+\>\>\>$newPolicy \leftarrow$ CreateDefaultPolicy($academicYear$)\\
+\>\>END IF\\
+\>\>SavePolicy($newPolicy$)\\
+\>END IF\\
+\\
+\>// Liên kết chu kỳ với chính sách\\
+\>$cycle \leftarrow$ CreateCycle($adminRequest$, policyId: $newPolicy.\_id$)\\
+\>$cycle.capacitySnapshot \leftarrow$ CaptureRoomCapacity()\\
+\>RETURN $newPolicy$, $cycle$\\
+END
+\end{tabbing}
+\end{flushleft}
+
+\paragraph{Phân tích độ phức tạp.}
+Thuật toán có độ phức tạp $O(r)$ với $r$ là số phòng (bước CaptureRoomCapacity);
+ClonePolicy là $O(1)$ với cấu trúc policy kích thước cố định. Với 265 phòng,
+toàn bộ thuật toán hoàn thành trong vài trăm mili giây. Phân cấp ưu tiên ba
+bậc đảm bảo luôn có đầu ra hợp lệ trong mọi tình huống, kể cả năm học đầu
+tiên chưa có tiền lệ.
+
+\subsection{Kết quả đạt được}
+\label{subsec:policy_result}
+
+Kiến trúc Policy-Driven Allocation mang lại ba giá trị định lượng được.
+\textit{Thứ nhất}, thời gian cập nhật chính sách mỗi năm giảm từ vài ngày
+(phát triển phần mềm mới) xuống còn vài phút (điền form cấu hình). \textit{Thứ
+hai}, lịch sử chính sách được bảo toàn đầy đủ theo năm học thông qua trường
+\texttt{version} và \texttt{sourceQuotaId}, hỗ trợ kiểm toán và đối chiếu.
+\textit{Thứ ba}, module dự báo cohort shift đề xuất quota tự động dựa trên
+xu hướng $k$ năm gần nhất:
+\begin{equation}
+\hat{Q}_g^{\mathrm{đề\ xuất}} = \frac{1}{k} \sum_{i=1}^{k}
+    \frac{n_{g,i}^{\mathrm{thực\ tế}}}{\displaystyle\sum_{g'} n_{g',i}^{\mathrm{thực\ tế}}}
+\label{eq:quota_recommendation}
+\end{equation}
+cho phép cán bộ lập kế hoạch chủ động trước khi năm học mới bắt đầu thay vì
+phản ứng sau khi vấn đề đã xảy ra.
+
+% =====================================================================
+\section{Tổng kết chương}
+\label{sec:contrib_summary}
+% =====================================================================
+
+Chương 5 trình bày ba đóng góp kỹ thuật của hệ thống eDorm từ góc nhìn tư duy
+thiết kế và giải quyết vấn đề. Mỗi đóng góp được đặt trong bối cảnh vấn đề
+thực tế quan sát được, phân tích điểm khác biệt so với giải pháp hiện có, và
+đánh giá giá trị mang lại cho từng nhóm đối tượng.
+
+\textbf{Đóng góp 1} --- trực quan hóa không gian phòng
+(mục~\ref{sec:contrib_visualization}) --- giải quyết bài toán sinh viên không
+thể đánh giá phòng ở trước khi đăng ký. Hành trình bốn giai đoạn từ ảnh tĩnh
+đến kiến trúc hai chế độ song song (Quick Tour 360° và Free Explore 3D), đặc
+biệt là quá trình tối ưu hóa mô hình 3D từ 200~MB về dưới 8~MB, phản ánh quá
+trình tinh chỉnh liên tục dựa trên những giới hạn thực tế gặp phải. Điểm đặc
+trưng là kết hợp có chủ ý hai công nghệ theo điểm mạnh của từng loại thiết bị,
+thay vì áp dụng một giải pháp đồng nhất.
+
+\textbf{Đóng góp 2} --- phân bổ phòng tự động dựa trên quota
+(mục~\ref{sec:contrib_allocation}) --- chuyển hóa quy trình nhiều ngày thủ
+công thành tự động dưới 2 giây. Điểm cốt lõi là mô hình hai lớp quyết định
+tách biệt ràng buộc cứng (quota, giới tính, sức chứa) khỏi cơ chế xếp hạng
+(điểm ưu tiên), kết hợp với AuditLog đảm bảo tính minh bạch và khả năng giải
+trình cho từng sinh viên.
+
+\textbf{Đóng góp 3} --- kiến trúc phân bổ linh hoạt theo năm học
+(mục~\ref{sec:contrib_policy}) --- giải quyết bài toán dài hạn: làm sao chính
+sách phân bổ có thể thay đổi mỗi năm mà không cần sửa mã nguồn. Kiến trúc
+bốn lớp tách hoàn toàn cấu hình khỏi logic thực thi, kết hợp cơ chế kế thừa
+chính sách và module dự báo cohort shift để hỗ trợ lập kế hoạch chủ động.
+
+\end{document}

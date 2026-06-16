@@ -1,0 +1,160 @@
+{
+  "_query": "db.dormitories.find({})",
+  "connection": "mongodb+srv://dormitory.0fvsx8b.mongodb.net/dormitory",
+  "count": 2,
+  "records": [
+    {
+      "_id": "6a19ba220c1321790c289cff",
+      "name": "KTX A1 - Bách Khoa",
+      "address": "Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội",
+      "totalRooms": 9,
+      "floors": [
+        {
+          "floorNumber": 1,
+          "rooms": [
+            {
+              "_id": "6a19ba220c1321790c289d01",
+              "roomNumber": "101",
+              "roomType": "8-person",
+              "maxCapacity": 8,
+              "occupants": 5,
+              "pricePerMonth": 400000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d02",
+              "roomNumber": "102",
+              "roomType": "8-person",
+              "maxCapacity": 8,
+              "occupants": 0,
+              "pricePerMonth": 400000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d03",
+              "roomNumber": "103",
+              "roomType": "5-person",
+              "maxCapacity": 5,
+              "occupants": 0,
+              "pricePerMonth": 550000
+            }
+          ]
+        },
+        {
+          "floorNumber": 2,
+          "rooms": [
+            {
+              "_id": "6a19ba220c1321790c289d05",
+              "roomNumber": "201",
+              "roomType": "8-person",
+              "maxCapacity": 8,
+              "occupants": 0,
+              "pricePerMonth": 400000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d06",
+              "roomNumber": "202",
+              "roomType": "4-person-service",
+              "maxCapacity": 4,
+              "occupants": 4,
+              "pricePerMonth": 700000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d07",
+              "roomNumber": "203",
+              "roomType": "5-person",
+              "maxCapacity": 5,
+              "occupants": 0,
+              "pricePerMonth": 550000
+            }
+          ]
+        },
+        {
+          "floorNumber": 3,
+          "rooms": [
+            {
+              "_id": "6a19ba220c1321790c289d09",
+              "roomNumber": "301",
+              "roomType": "8-person",
+              "maxCapacity": 8,
+              "occupants": 0,
+              "pricePerMonth": 400000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d0a",
+              "roomNumber": "302",
+              "roomType": "8-person",
+              "maxCapacity": 8,
+              "occupants": 0,
+              "pricePerMonth": 400000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d0b",
+              "roomNumber": "303",
+              "roomType": "4-person-service",
+              "maxCapacity": 4,
+              "occupants": 0,
+              "pricePerMonth": 700000
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "_id": "6a19ba220c1321790c289d0c",
+      "name": "KTX B2 - Bách Khoa",
+      "address": "Số 17 Tạ Quang Bửu, Hai Bà Trưng, Hà Nội",
+      "totalRooms": 5,
+      "floors": [
+        {
+          "floorNumber": 1,
+          "rooms": [
+            {
+              "_id": "6a19ba220c1321790c289d0e",
+              "roomNumber": "101",
+              "roomType": "5-person",
+              "maxCapacity": 5,
+              "occupants": 0,
+              "pricePerMonth": 550000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d0f",
+              "roomNumber": "102",
+              "roomType": "4-person-service",
+              "maxCapacity": 4,
+              "occupants": 0,
+              "pricePerMonth": 750000
+            }
+          ]
+        },
+        {
+          "floorNumber": 2,
+          "rooms": [
+            {
+              "_id": "6a19ba220c1321790c289d11",
+              "roomNumber": "201",
+              "roomType": "5-person",
+              "maxCapacity": 5,
+              "occupants": 0,
+              "pricePerMonth": 550000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d12",
+              "roomNumber": "202",
+              "roomType": "4-person-service",
+              "maxCapacity": 4,
+              "occupants": 0,
+              "pricePerMonth": 750000
+            },
+            {
+              "_id": "6a19ba220c1321790c289d13",
+              "roomNumber": "203",
+              "roomType": "10-person",
+              "maxCapacity": 10,
+              "occupants": 0,
+              "pricePerMonth": 350000
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

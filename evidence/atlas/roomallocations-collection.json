@@ -1,0 +1,16 @@
+{
+  "_query": "db.roomallocations.find({studentId: ObjectId(student._id), status:'ACTIVE'})",
+  "connection": "mongodb+srv://dormitory.0fvsx8b.mongodb.net/dormitory",
+  "count": 1,
+  "records": [
+    {
+      "_id": "6a19c606cf4c283968fd6ac5",
+      "studentId": "6a19ba230c1321790c289d18",
+      "dormitoryId": "6a19ba220c1321790c289cff",
+      "roomNumber": "202",
+      "status": "ACTIVE",
+      "academicYear": "2026-2027",
+      "allocationTimestamp": "2025-09-05T00:00:00.000Z"
+    }
+  ]
+}

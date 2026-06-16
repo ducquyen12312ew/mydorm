@@ -251,7 +251,7 @@ async function getPriorityQueue(academicYear, filters = {}) {
         // Xây dựng query
         let query = {
             registrationStatus: { 
-                $in: ['pending_review', 'approved_waiting_payment', 'waitlist'] 
+                $in: ['pending_review', 'approved', 'waitlist']
             }
         };
         

@@ -40,12 +40,18 @@ router.get('/admin/violations', isAdmin, async (req, res) => {
         if (studentId) query.studentId = studentId;
         if (dormitoryId) query.dormitoryId = dormitoryId;
         
+        // Sanitize pagination and sort params
+        const safeSortFields = ['reportedAt', 'severity', 'status', 'type', 'updatedAt'];
+        const safeSort = safeSortFields.includes(sortBy) ? sortBy : 'reportedAt';
+        const safeLimit = Math.min(Math.max(parseInt(limit) || 20, 1), 100);
+        const safePage = Math.max(parseInt(page) || 1, 1);
+
         // Execute query with pagination
         const violations = await ViolationModel
             .find(query)
-            .sort({ [sortBy]: sortOrder === 'desc' ? -1 : 1 })
-            .limit(limit * 1)
-            .skip((page - 1) * limit)
+            .sort({ [safeSort]: sortOrder === 'desc' ? -1 : 1 })
+            .limit(safeLimit)
+            .skip((safePage - 1) * safeLimit)
             .lean();
         
         const total = await ViolationModel.countDocuments(query);

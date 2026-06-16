@@ -3,46 +3,69 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KTX HUST - Trang chủ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <title>eDorm – Ký túc xá Bách Khoa</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css" />
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
     <link rel="stylesheet" href="/css/premium-home.css" />
+    <script src="/js/i18n.js"></script>
+    <%- include('../shared/pwa-head') %>
 </head>
 <body>
+    <!-- ── NAVBAR ── -->
     <header class="header">
         <div class="header-logo">
-            <img src="/image/logo.png" alt="HUST Logo" />
+            <a href="/" style="display:flex;align-items:center;text-decoration:none;">
+                <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png"
+                     alt="eDorm Logo"
+                     style="max-height:38px;width:auto;object-fit:contain;image-rendering:-webkit-optimize-contrast;" />
+            </a>
         </div>
         <div class="menu-toggle" id="menuToggle">
             <span></span><span></span><span></span>
         </div>
         <div class="nav-container" id="navContainer">
             <nav class="nav-links">
-                <a href="/" class="nav-link active-link">TRANG CHỦ</a>
-                <a href="/map" class="nav-link">BẢN ĐỒ</a>
-                <a href="/register" class="nav-link">ĐĂNG KÝ PHÒNG</a>
-                <a href="/room-status" class="nav-link">TRẠNG THÁI PHÒNG</a>
+                <a href="/" class="nav-link active-link" data-i18n="nav.home">TRANG CHỦ</a>
+                <a href="/register" class="nav-link" data-i18n="nav.register">ĐĂNG KÝ PHÒNG</a>
+                <a href="/room-status" class="nav-link" data-i18n="nav.roomStatus">TRẠNG THÁI PHÒNG</a>
             </nav>
-            <a href="/login" class="login-btn">ĐĂNG NHẬP</a>
+            <div class="nav-lang-wrap" style="display:flex;align-items:center;gap:.5rem;">
+                <div class="nav-lang-btn" id="pubLangToggle" style="position:relative;cursor:pointer;padding:.3rem .55rem;border-radius:8px;font-size:.78rem;color:inherit;border:1.5px solid rgba(255,255,255,.3);transition:background .15s" title="Chọn ngôn ngữ">
+                    <i class="fas fa-globe" style="margin-right:.3rem"></i><span data-i18n="nav.language">Ngôn ngữ</span>
+                    <div class="pub-lang-submenu" id="pubLangSubmenu" style="display:none;position:absolute;right:0;top:100%;padding-top:6px;background:transparent;z-index:9999;"><div style="background:#fff;border:1px solid #E2E8F0;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.14);min-width:158px;padding:6px 0;">
+                        <button class="lang-opt" data-lang-opt="vi" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇻🇳 Tiếng Việt</button>
+                        <button class="lang-opt" data-lang-opt="en" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇺🇸 English</button>
+                        <button class="lang-opt" data-lang-opt="zh" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇨🇳 中文</button>
+                        <button class="lang-opt" data-lang-opt="ko" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇰🇷 한국어</button>
+                        <button class="lang-opt" data-lang-opt="ru" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇷🇺 Русский</button>
+                        <button class="lang-opt" data-lang-opt="th" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇹🇭 ไทย</button>
+                        <button class="lang-opt" data-lang-opt="lo" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇱🇦 ລາວ</button>
+                        <button class="lang-opt" data-lang-opt="km" style="display:block;width:100%;padding:.5rem 1rem;background:none;border:none;text-align:left;font-size:.84rem;cursor:pointer;white-space:nowrap;font-family:inherit;color:#374151;transition:background .12s">🇰🇭 ខ្មែរ</button>
+                    </div></div>
+                </div>
+                <a href="/login" class="login-btn" data-i18n="nav.login">ĐĂNG NHẬP</a>
+            </div>
         </div>
     </header>
 
+    <!-- ── HERO ── -->
     <section class="hero" id="hero">
         <div class="hero-content">
-            <h1 class="hero-title">Ký túc xá Đại học Bách Khoa</h1>
-            <p class="hero-subtitle">Không gian sống hiện đại dành cho sinh viên</p>
+            <h1 class="hero-title" data-i18n="home.heroTitle">Ký túc xá Đại học Bách Khoa</h1>
+            <p class="hero-subtitle" data-i18n="home.heroSubtitle">Không gian sống hiện đại dành cho sinh viên</p>
         </div>
         <div class="hero-interactive-zone" aria-label="Open 3D room viewer">
-            <button class="hero-3d-btn" id="open3DViewer" type="button">Xem phòng 3D</button>
+            <button class="hero-3d-btn" id="open3DViewer" type="button" data-i18n="home.view3D">Xem phòng 3D</button>
         </div>
         <div class="hero-viewer-panel" id="heroViewerPanel">
             <div class="viewer-toolbar">
                 <select class="viewer-control" id="roomSwitch" aria-label="Chuyển không gian phòng"></select>
-                <button class="viewer-control button-control" id="viewerFocus" type="button">Bắt chuột</button>
-                <button class="viewer-control button-control" id="viewerReset" type="button">Reset góc nhìn</button>
+                <button class="viewer-control button-control" id="viewerFocus" type="button" data-i18n="home.focus3D">Bắt chuột</button>
+                <button class="viewer-control button-control" id="viewerReset" type="button" data-i18n="home.reset3D">Reset góc nhìn</button>
                 <button class="viewer-control button-control" id="roomLeft" type="button"><i class="fas fa-arrow-left"></i> Trái</button>
                 <button class="viewer-control button-control" id="roomRight" type="button">Phải <i class="fas fa-arrow-right"></i></button>
                 <button class="viewer-control button-control" id="roomForward" type="button"><i class="fas fa-arrow-up"></i> Tiến</button>
@@ -58,10 +81,11 @@
         <div class="hero-image-layer"></div>
     </section>
 
+    <!-- ── DANH MỤC KTX ── -->
     <section class="rooms-section">
         <div class="container">
-            <h2 class="section-title">Danh mục ký túc xá</h2>
-            <p class="section-subtitle">Xem nhanh toàn bộ khu ký túc xá và chọn nơi ở phù hợp.</p>
+            <h2 class="section-title" data-i18n="home.dormCatalog">Danh mục ký túc xá</h2>
+            <p class="section-subtitle" data-i18n="home.dormCatalogSub">Xem nhanh toàn bộ khu ký túc xá và chọn nơi ở phù hợp.</p>
             <div class="dorm-slider-container">
                 <div class="dorm-slider-track" id="roomGrid">
                     <div class="rooms-loading">
@@ -70,29 +94,104 @@
                         <div class="skeleton-card"><div class="skeleton-media"></div><div class="skeleton-body"></div></div>
                     </div>
                 </div>
-                <button class="dorm-slider-btn dorm-slider-prev" id="roomPrev" type="button" aria-label="Ổ trước">
+                <button class="dorm-slider-btn dorm-slider-prev" id="roomPrev" type="button" aria-label="Trước">
                     <i class="fas fa-chevron-left"></i>
                 </button>
-                <button class="dorm-slider-btn dorm-slider-next" id="roomNext" type="button" aria-label="Ổ sau">
+                <button class="dorm-slider-btn dorm-slider-next" id="roomNext" type="button" aria-label="Sau">
                     <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
         </div>
     </section>
 
+    <!-- ── BẢN ĐỒ (moved: after rooms, before benefits) ── -->
+    <section class="map-section" id="map-section">
+        <div class="container">
+            <p class="map-eyebrow" data-i18n="home.mapLabel">KHÁM PHÁ KHUÔN VIÊN</p>
+            <div class="map-title-row">
+                <div>
+                    <h2 class="section-title map-title-left" data-i18n="home.mapTitle">Bản đồ ký túc xá</h2>
+                    <p class="section-subtitle map-sub-left" data-i18n="home.mapSub">Click vào marker để xem chi tiết ký túc xá.</p>
+                </div>
+                <button class="btn-explore-3d" id="open3DExplore" type="button">
+                    <i class="fas fa-globe-asia"></i> Khám phá 3D
+                </button>
+            </div>
+
+            <div class="map-frame">
+                <!-- Search bar -->
+                <div class="map-searchbar">
+                    <i class="fas fa-search map-search-icon"></i>
+                    <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Tìm ký túc xá theo tên..." data-i18n-placeholder="home.mapSearchPlaceholder" autocomplete="off" />
+                    <div class="map-search-results" id="mapSearchResults"></div>
+                </div>
+
+                <!-- Floating controls -->
+                <div class="map-controls-panel">
+                    <button class="mc-btn" id="mapLocateMe" title="Vị trí của tôi"><i class="fas fa-location-arrow"></i></button>
+                    <div class="mc-divider"></div>
+                    <button class="mc-btn" id="mapZoomIn" title="Phóng to"><i class="fas fa-plus"></i></button>
+                    <button class="mc-btn" id="mapZoomOut" title="Thu nhỏ"><i class="fas fa-minus"></i></button>
+                    <div class="mc-divider"></div>
+                    <button class="mc-btn" id="mapResetView" title="Về toàn cảnh"><i class="fas fa-compress-arrows-alt"></i></button>
+                    <button class="mc-btn" id="mapSatellite" title="Chuyển chế độ bản đồ"><i class="fas fa-layer-group"></i></button>
+                </div>
+
+                <div id="dormitory-map"></div>
+            </div>
+        </div>
+
+        <!-- Dorm detail side panel -->
+        <aside class="dorm-panel" id="dormPanel">
+            <button class="dp-close-btn" id="dormPanelClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <div class="dp-cover">
+                <img class="dp-cover-img" id="dpCoverImg" src="" alt="" />
+                <div class="dp-cover-gradient"></div>
+                <div class="dp-cover-text">
+                    <h3 class="dp-cover-name" id="dpName">Đang tải...</h3>
+                    <p class="dp-cover-sub" id="dpSubtitle"></p>
+                    <div class="dp-cover-badges" id="dpCoverBadges"></div>
+                </div>
+            </div>
+            <div class="dp-scroll">
+                <div class="dp-contact" id="dpContact" style="display:none">
+                    <span class="dp-contact-val" id="dpPhone">—</span>
+                </div>
+                <div class="dp-section">
+                    <h4 class="dp-sec-title" data-i18n="home.amenities">Tiện ích</h4>
+                    <div class="dp-amenity-list" id="dpAmenities"></div>
+                </div>
+                <div class="dp-section">
+                    <h4 class="dp-sec-title" data-i18n="home.studentReviews">Đánh giá từ sinh viên</h4>
+                    <div id="dpReviews"><p class="dp-no-review" data-i18n="home.noReviews">Chưa có đánh giá</p></div>
+                </div>
+            </div>
+            <div class="dp-actions">
+                <a class="dp-btn dp-btn-primary" id="dpBtnRegister" href="/login">
+                    <i class="fas fa-edit"></i> <span data-i18n="home.registerRoom">Đăng ký phòng</span>
+                </a>
+                <a class="dp-btn dp-btn-sec" id="dpBtnView" href="#">
+                    <i class="fas fa-door-open"></i> <span data-i18n="home.viewRoom">Xem phòng</span>
+                </a>
+            </div>
+        </aside>
+        <div class="dorm-panel-backdrop" id="dormPanelBackdrop"></div>
+    </section>
+
+    <!-- ── TIỆN ÍCH (benefits – stays here) ── -->
     <section class="benefits-section">
         <div class="container benefits-layout">
             <div>
-                <p class="benefits-label">TIỆN ÍCH KÝ TÚC XÁ</p>
-                <h2 class="benefits-title">Không gian sống cho sinh viên</h2>
-                <p class="benefits-desc">Thiết kế dành riêng cho nhịp học tập và sinh hoạt của sinh viên: an toàn, tiện lợi, kết nối cộng đồng và tối ưu chi phí.</p>
+                <p class="benefits-label" data-i18n="home.benefitLabel">TIỆN ÍCH KÝ TÚC XÁ</p>
+                <h2 class="benefits-title" data-i18n="home.benefitTitle">Không gian sống cho sinh viên</h2>
+                <p class="benefits-desc" data-i18n="home.benefitDesc">Thiết kế dành riêng cho nhịp học tập và sinh hoạt của sinh viên: an toàn, tiện lợi, kết nối cộng đồng và tối ưu chi phí.</p>
                 <div class="benefits-grid">
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text">Wifi tốc độ cao</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text">An ninh 24/7</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text">Phòng tự học</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text">Khu giặt sấy</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text">Gần trường</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text">Không gian xanh</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text" data-i18n="home.wifiSpeed">Wifi tốc độ cao</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text" data-i18n="home.security247">An ninh 24/7</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text" data-i18n="home.studyRoom">Phòng tự học</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text" data-i18n="home.laundry">Khu giặt sấy</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text" data-i18n="home.nearSchool">Gần trường</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text" data-i18n="home.greenSpace">Không gian xanh</span></article>
                 </div>
             </div>
             <div class="benefits-image-wrap">
@@ -101,36 +200,88 @@
         </div>
     </section>
 
-    <section class="map-section">
-        <div class="container">
-            <h2 class="section-title">Bản đồ ký túc xá</h2>
-            <p class="section-subtitle">Tra cứu vị trí nhanh với popup chi tiết, cụm marker thông minh và danh sách tòa nhà liên kết trực tiếp với bản đồ.</p>
+    <%- include('../shared/footer') %>
 
-            <div class="map-shell">
-                <div class="map-top">
-                    <p>Nhấp vào marker để xem hình ảnh, địa chỉ, thông tin phòng và nút hành động. Bản đồ tự căn khung theo dữ liệu hiện có.</p>
-                </div>
-                <div class="map-wrapper">
-                    <aside class="map-sidebar" id="mapSidebar"></aside>
-                    <div id="dormitory-map"></div>
+    <!-- ── CESIUM 3D OVERLAY ── -->
+    <div class="cesium-overlay" id="cesiumOverlay" aria-hidden="true" role="dialog" aria-label="Bản đồ 3D KTX">
+        <div class="cesium-toolbar">
+            <span class="cesium-title">
+                <i class="fas fa-globe-asia"></i> <span data-i18n="home.cesiumTitle">Khám phá KTX 3D</span>
+            </span>
+            <div class="cesium-toolbar-right">
+                <span class="cesium-hint" data-i18n="home.cesiumHint">Click vào marker để xem chi tiết</span>
+                <button class="cesium-close-btn" id="cesiumClose" aria-label="Đóng bản đồ 3D">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="cesiumContainer"></div>
+        <div class="cesium-loading" id="cesiumLoading">
+            <div class="cesium-loading-inner">
+                <div class="cesium-spinner"></div>
+                <p data-i18n="home.cesiumLoading">Đang tải bản đồ 3D…</p>
+            </div>
+        </div>
+        <!-- Info card shown when clicking a KTX marker -->
+        <div class="cesium-info-card" id="cesiumInfoCard" style="display:none">
+            <button class="cesium-info-close" id="cesiumInfoClose" aria-label="Đóng"><i class="fas fa-times"></i></button>
+            <img class="cesium-info-img" id="cesiumInfoImg" src="" alt="" onerror="this.style.display='none'" />
+            <div class="cesium-info-body">
+                <h3 class="cesium-info-name" id="cesiumInfoName">KTX</h3>
+                <p class="cesium-info-meta" id="cesiumInfoMeta"></p>
+                <div class="cesium-info-actions">
+                    <a class="cesium-info-btn" id="cesiumInfoBtnDetail" href="#">Xem chi tiết</a>
+                    <a class="cesium-info-btn-sec" id="cesiumInfoBtnRegister" href="/login">Đăng ký</a>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div><h4 class="footer-title">Giới thiệu</h4><p>Ký túc xá Đại học Bách Khoa mang đến không gian sống an toàn, hiện đại và tiện nghi cho sinh viên.</p></div>
-                <div><h4 class="footer-title">Đặt chỗ</h4><p><a href="/login">Đăng ký phòng trực tuyến</a></p><p><a href="/login">Theo dõi trạng thái hồ sơ</a></p></div>
-                <div><h4 class="footer-title">Giờ mở cửa</h4><p>Thứ 2 - Thứ 6: 08:00 - 20:00</p><p>Thứ 7 - Chủ nhật: 08:00 - 17:00</p></div>
-                <div><h4 class="footer-title">Địa chỉ</h4><p>Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p><p>Email: ktx@hust.edu.vn</p><p>Hotline: 1900 6868</p></div>
-            </div>
-        </div>
-    </footer>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+    <script>
+    /* Intercept MapLibre worker Blob creation to inject console.warn suppression.
+       MapLibre's worker runs in a separate JS context — this is the only way to
+       silence the "Expected value to be of type number" warnings from OSM buildings
+       without height data, since main-thread console.warn overrides can't reach workers. */
+    (function () {
+        var _Blob = window.Blob;
+        window.Blob = function (parts, opts) {
+            if (opts && opts.type === 'text/javascript' && parts && parts.length > 0 && typeof parts[0] === 'string' && parts[0].indexOf('sharedModule') !== -1) {
+                var suppress = '(function(){var _cw=self.console.warn;self.console.warn=function(){var m=arguments[0];if(typeof m==="string"&&m.indexOf("Expected value to be of type number")!==-1)return;_cw.apply(self.console,arguments);};})();';
+                parts = [suppress + parts[0]].concat(Array.prototype.slice.call(parts, 1));
+            }
+            return new _Blob(parts, opts);
+        };
+        window.Blob.prototype = _Blob.prototype;
+    })();
+    </script>
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <script src="/js/premium-home.js"></script>
+    <script>
+    /* Language dropdown — hover group: keep open while cursor is on trigger OR submenu */
+    (function() {
+        var btn = document.getElementById('pubLangToggle');
+        var sub = document.getElementById('pubLangSubmenu');
+        if (!btn || !sub) return;
+
+        function open()  { sub.style.display = 'block'; }
+        function close() { sub.style.display = 'none'; }
+
+        // Open when entering the trigger button
+        btn.addEventListener('mouseenter', open);
+
+        // Close only when leaving trigger AND cursor is NOT entering the submenu
+        btn.addEventListener('mouseleave', function(e) {
+            if (sub === e.relatedTarget || sub.contains(e.relatedTarget)) return;
+            close();
+        });
+
+        // Close when leaving submenu AND cursor is NOT going back to trigger
+        sub.addEventListener('mouseleave', function(e) {
+            if (btn === e.relatedTarget || btn.contains(e.relatedTarget)) return;
+            close();
+        });
+    })();
+    </script>
+    <%- include('../shared/pwa-scripts') %>
 </body>
 </html>

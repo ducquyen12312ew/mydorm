@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đăng ký phòng - KTX HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/student-premium-shell.css">
     
     <style>
@@ -16,7 +17,7 @@
             box-sizing: border-box;
         }
         :root {
-            --primary-color: #e61a1a;
+            --primary-color: #d63031;
             --text-color: #333;
             --bg-color: #f8f3ef;
             --menu-bg: white;
@@ -692,7 +693,7 @@
             <h3 class="benefits-title" style="font-size: 1.45rem; margin-bottom: 0.35rem;">Cần xem lại trước khi gửi?</h3>
             <p>Danh sách ký túc xá đã được chuyển thành giao diện thẻ trực quan hơn. Bạn có thể quay lại để so sánh nhanh giữa các khu trước khi chốt.</p>
         </div>
-        <a href="/map"><i class="fas fa-list-ul"></i> Xem danh sách ký túc xá</a>
+        <a href="/"><i class="fas fa-list-ul"></i> Xem danh sách ký túc xá</a>
     </section>
 
     <!-- Scripts -->
@@ -755,9 +756,7 @@
             fetch('/api/student/profile')
                 .then(res => res.json())
                 .then(data => {
-                    console.log('[DEBUG] Student profile data:', data);
                     if (data.success && data.student) {
-                        console.log('[DEBUG] Setting student info:', data.student);
                         document.getElementById('studentId').value = data.student.studentId || 'N/A';
                         document.getElementById('fullName').value = data.student.name || 'N/A';
                         document.getElementById('email').value = data.student.email || '';
@@ -770,8 +769,6 @@
                         if (majorField && data.student.major) majorField.value = data.student.major;
                         if (cohortField && data.student.cohort) cohortField.value = data.student.cohort;
                         
-                        console.log('[DEBUG] Major set to:', majorField ? majorField.value : 'field not found');
-                        console.log('[DEBUG] Cohort set to:', cohortField ? cohortField.value : 'field not found');
                     } else {
                         showAlert('Lỗi: ' + (data.error || 'Không thể lấy thông tin sinh viên'), 'error');
                     }
@@ -786,12 +783,9 @@
             fetch('/api/dormitories')
                 .then(res => res.json())
                 .then(data => {
-                    console.log('[DEBUG] Dormitories data:', data);
                     if (data.success && data.dormitories) {
                         dormitories = data.dormitories;
-                        console.log(`[DEBUG] Found ${dormitories.length} dormitories`);
                         dormitories.forEach(d => {
-                            console.log(`[DEBUG] Dormitory: ${d.name} - Rooms: ${d.rooms ? d.rooms.length : 0}`);
                         });
                         
                         const select = document.getElementById('dormitory');
@@ -857,7 +851,6 @@
             fetch(`/api/dormitories/${selectedDormitory}/rooms`)
                 .then(res => res.json())
                 .then(data => {
-                    console.log('Room data:', data);
                     if (data.success && data.rooms) {
                         renderRooms(data.rooms);
                     } else {
@@ -1066,12 +1059,6 @@
             formData.append('priorityPolicies', JSON.stringify(priorityPoliciesArray));
 
             // Debug logging
-            console.log('[SUBMIT] Sending registration data:');
-            console.log('- Student ID:', studentId);
-            console.log('- Full Name:', fullName);
-            console.log('- Dormitory ID:', selectedDormitory);
-            console.log('- Room Number:', selectedRoom.number);
-            console.log('- Priority Policies:', priorityPoliciesArray);
 
             document.getElementById('submitBtn').disabled = true;
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xử lý...';
@@ -1081,11 +1068,9 @@
                 body: formData
             })
             .then(res => {
-                console.log('[SUBMIT] Response status:', res.status);
                 return res.json().then(data => ({ status: res.status, data }));
             })
             .then(({ status, data }) => {
-                console.log('[SUBMIT] Response data:', data);
                 document.getElementById('submitBtn').disabled = false;
                 document.getElementById('submitBtn').innerHTML = '<i class="fas fa-check"></i> Xác nhận đăng ký';
 

@@ -1,0 +1,446 @@
+# Simulation Test Report — eDorm
+> Tạo lúc: 01:26:02 15/6/2026
+> Run ID: `SIM-1781461477998-738`
+> Năm học mô phỏng: 2026-2027
+
+---
+
+## 1. Database Overview
+
+| Chỉ số | Giá trị |
+|--------|---------|
+| Tổng phòng | 265 |
+| Tổng giường | 1,742 |
+| Occupancy **trước** cohort shift | **68.4%** (1,191 / 1,742 giường) |
+| Năm 5+ rời KTX | **180** người → giải phóng **120** giường |
+| Occupancy **sau** cohort shift | **61.5%** (1,071 / 1,742 giường) |
+| Giường trống cho phân bổ | 671 |
+| Effective beds (buffer 3% dự phòng) | 650 |
+| Sinh viên trong Queue | 993 |
+
+---
+
+## 2. Kết quả Allocation
+
+> ⚠️ **Lưu ý:** 649 sinh viên được nhận trong simulation.
+> Khi Apply thực tế, chỉ sinh viên real được apply — sinh viên Năm 1 synthetic (2026xxx — isNewYear1=true) sẽ bị bỏ qua.
+
+| Kết quả          | Số lượng        |
+|------------------|-----------------|
+| **Được nhận**    | **649** |
+| Danh sách chờ    | 344 |
+| Fill Rate        | 96.7% |
+| Occupancy sau    | 98.8% |
+
+### Theo Khóa
+
+| Khóa   | Quota | Đăng ký | Được nhận | Fill quota | Waitlist |
+|--------|-------|---------|-----------|-----------|---------|
+| Năm 1 | 326 | 333 | 324 | 99% | 9 |
+| Năm 2 | 195 | 280 | 196 | 101% | 84 |
+| Năm 3 | 97 | 200 | 97 | 100% | 103 |
+| Năm 4+ | 32 | 180 | 32 | 100% | 148 |
+
+---
+
+## 3. Danh sách bị loại (50 đầu)
+
+| # | MSSV | Tên | Khóa | Điểm | Lý do |
+|---|------|-----|------|------|-------|
+| 1 | 2023_0240 | Tô Quốc Nam | Năm 4+ | 15 | Vượt quota Năm 4+ (32 suất) |
+| 2 | 2023_0416 | Hoàng Hà Mỹ | Năm 4+ | 15 | Vượt quota Năm 4+ (32 suất) |
+| 3 | 2023_0428 | Lưu Bích Linh | Năm 4+ | 15 | Vượt quota Năm 4+ (32 suất) |
+| 4 | 2023_0438 | Hồ Bích Trang | Năm 4+ | 15 | Vượt quota Năm 4+ (32 suất) |
+| 5 | 2023_0458 | Lưu Thanh Nhung | Năm 4+ | 15 | Vượt quota Năm 4+ (32 suất) |
+| 6 | 2023_0189 | Hồ Công Bảo | Năm 4+ | 20 | Vượt quota Năm 4+ (32 suất) |
+| 7 | 2023_0422 | Cao Khánh Hằng | Năm 4+ | 20 | Vượt quota Năm 4+ (32 suất) |
+| 8 | 2023_0435 | Lý Hương Thu | Năm 4+ | 20 | Vượt quota Năm 4+ (32 suất) |
+| 9 | 2023_0442 | Võ Khánh Ngọc | Năm 4+ | 20 | Vượt quota Năm 4+ (32 suất) |
+| 10 | 2024_0267 | Huỳnh Tuấn Tiến | Năm 3 | 25 | Vượt quota Năm 3 (97 suất) |
+| 11 | 2026_0331 | Lê Hoàng Khoa | Năm 1 | 30 | Vượt quota Năm 1 (326 suất) |
+| 12 | 2026_0332 | Cao Thanh Uyên | Năm 1 | 30 | Vượt quota Năm 1 (326 suất) |
+| 13 | 2026_0333 | Trần Thanh Sơn | Năm 1 | 30 | Vượt quota Năm 1 (326 suất) |
+| 14 | 2024_0291 | Đỗ Đình Trung | Năm 3 | 30 | Vượt quota Năm 3 (97 suất) |
+| 15 | 2024_0304 | Cao Gia Thành | Năm 3 | 30 | Vượt quota Năm 3 (97 suất) |
+| 16 | 2024_0529 | Huỳnh Bích Thu | Năm 3 | 30 | Vượt quota Năm 3 (97 suất) |
+| 17 | 2024_0549 | Lý Thanh Hiền | Năm 3 | 30 | Vượt quota Năm 3 (97 suất) |
+| 18 | 2024_0567 | Tống Tuyết Vân | Năm 3 | 30 | Vượt quota Năm 3 (97 suất) |
+| 19 | 2023_0187 | Dương Đình Quốc | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 20 | 2023_0195 | Phan Hoàng Dũng | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 21 | 2023_0225 | Phan Gia Khải | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 22 | 2023_0235 | Mạc Quốc Tiến | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 23 | 2023_0256 | Huỳnh Minh Khánh | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 24 | 2023_0430 | Trương Hương Hiền | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 25 | 2023_0470 | Bùi Phương Xuân | Năm 4+ | 30 | Vượt quota Năm 4+ (32 suất) |
+| 26 | 2023_0180 | Tô Hoàng Công | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 27 | 2023_0194 | Vũ Công Anh | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 28 | 2023_0213 | Đào Hải Thành | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 29 | 2023_0218 | Ngô Hải Tú | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 30 | 2023_0229 | Lê Hữu Hải | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 31 | 2023_0230 | Trần Gia Công | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 32 | 2023_0243 | Đào Tiến Tú | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 33 | 2023_0397 | Hà Thị Loan | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 34 | 2023_0453 | Tống Thanh Linh | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 35 | 2023_0455 | Thái Phương Hiền | Năm 4+ | 35 | Vượt quota Năm 4+ (32 suất) |
+| 36 | 2023_0168 | Phạm Tuấn Tú | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 37 | 2023_0179 | Lưu Công Hải | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 38 | 2023_0204 | Tống Hữu Hải | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 39 | 2023_0205 | Mạc Gia Công | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 40 | 2023_0211 | Trương Phước Quân | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 41 | 2023_0220 | Đỗ Gia Dũng | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 42 | 2023_0393 | Tống Kim Kim | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 43 | 2023_0427 | Hà Khánh Phương | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 44 | 2023_0434 | Đinh Mỹ Bích | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 45 | 2023_0464 | Đinh Lan Thúy | Năm 4+ | 39 | Vượt quota Năm 4+ (32 suất) |
+| 46 | 2025_0337 | Đỗ Công Anh | Năm 2 | 40 | Vượt quota Năm 2 (195 suất) |
+| 47 | 2025_0603 | Đỗ Phương Nhung | Năm 2 | 40 | Vượt quota Năm 2 (195 suất) |
+| 48 | 2025_0624 | Trương Tuyết Nhi | Năm 2 | 40 | Vượt quota Năm 2 (195 suất) |
+| 49 | 2024_0518 | Đinh Khánh Nhung | Năm 3 | 40 | Vượt quota Năm 3 (97 suất) |
+| 50 | 2024_0546 | Đào Phương Phương | Năm 3 | 40 | Vượt quota Năm 3 (97 suất) |
+
+---
+
+## 4. Occupancy theo Tòa / Tầng / Phòng
+
+### KTX A1 - Bách Khoa (Hỗn hợp)
+- Giường: 58/58 (100%)
+  - **Tầng 1**
+    - Phòng 101: 8/8 (100%) [full]
+    - Phòng 102: 8/8 (100%) [full]
+    - Phòng 103: 5/5 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 8/8 (100%) [full]
+    - Phòng 202: 4/4 (100%) [full]
+    - Phòng 203: 5/5 (100%) [full]
+  - **Tầng 3**
+    - Phòng 301: 8/8 (100%) [full]
+    - Phòng 302: 8/8 (100%) [full]
+    - Phòng 303: 4/4 (100%) [full]
+
+### KTX B2 - Bách Khoa (Hỗn hợp)
+- Giường: 28/28 (100%)
+  - **Tầng 1**
+    - Phòng 101: 5/5 (100%) [full]
+    - Phòng 102: 4/4 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 5/5 (100%) [full]
+    - Phòng 202: 4/4 (100%) [full]
+    - Phòng 203: 10/10 (100%) [full]
+
+### KTX C3 - Bách Khoa (Hỗn hợp)
+- Giường: 260/260 (100%)
+  - **Tầng 1**
+    - Phòng 101: 8/8 (100%) [full]
+    - Phòng 102: 8/8 (100%) [full]
+    - Phòng 103: 8/8 (100%) [full]
+    - Phòng 104: 5/5 (100%) [full]
+    - Phòng 105: 5/5 (100%) [full]
+    - Phòng 106: 4/4 (100%) [full]
+    - Phòng 107: 4/4 (100%) [full]
+    - Phòng 108: 10/10 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 8/8 (100%) [full]
+    - Phòng 202: 8/8 (100%) [full]
+    - Phòng 203: 8/8 (100%) [full]
+    - Phòng 204: 5/5 (100%) [full]
+    - Phòng 205: 5/5 (100%) [full]
+    - Phòng 206: 4/4 (100%) [full]
+    - Phòng 207: 4/4 (100%) [full]
+    - Phòng 208: 10/10 (100%) [full]
+  - **Tầng 3**
+    - Phòng 301: 8/8 (100%) [full]
+    - Phòng 302: 8/8 (100%) [full]
+    - Phòng 303: 8/8 (100%) [full]
+    - Phòng 304: 5/5 (100%) [full]
+    - Phòng 305: 5/5 (100%) [full]
+    - Phòng 306: 4/4 (100%) [full]
+    - Phòng 307: 4/4 (100%) [full]
+    - Phòng 308: 10/10 (100%) [full]
+  - **Tầng 4**
+    - Phòng 401: 8/8 (100%) [full]
+    - Phòng 402: 8/8 (100%) [full]
+    - Phòng 403: 8/8 (100%) [full]
+    - Phòng 404: 5/5 (100%) [full]
+    - Phòng 405: 5/5 (100%) [full]
+    - Phòng 406: 4/4 (100%) [full]
+    - Phòng 407: 4/4 (100%) [full]
+    - Phòng 408: 10/10 (100%) [full]
+  - **Tầng 5**
+    - Phòng 501: 8/8 (100%) [full]
+    - Phòng 502: 8/8 (100%) [full]
+    - Phòng 503: 8/8 (100%) [full]
+    - Phòng 504: 5/5 (100%) [full]
+    - Phòng 505: 5/5 (100%) [full]
+    - Phòng 506: 4/4 (100%) [full]
+    - Phòng 507: 4/4 (100%) [full]
+    - Phòng 508: 10/10 (100%) [full]
+
+### KTX D4 - Bách Khoa (Hỗn hợp)
+- Giường: 312/312 (100%)
+  - **Tầng 1**
+    - Phòng 101: 8/8 (100%) [full]
+    - Phòng 102: 8/8 (100%) [full]
+    - Phòng 103: 8/8 (100%) [full]
+    - Phòng 104: 5/5 (100%) [full]
+    - Phòng 105: 5/5 (100%) [full]
+    - Phòng 106: 4/4 (100%) [full]
+    - Phòng 107: 4/4 (100%) [full]
+    - Phòng 108: 10/10 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 8/8 (100%) [full]
+    - Phòng 202: 8/8 (100%) [full]
+    - Phòng 203: 8/8 (100%) [full]
+    - Phòng 204: 5/5 (100%) [full]
+    - Phòng 205: 5/5 (100%) [full]
+    - Phòng 206: 4/4 (100%) [full]
+    - Phòng 207: 4/4 (100%) [full]
+    - Phòng 208: 10/10 (100%) [full]
+  - **Tầng 3**
+    - Phòng 301: 8/8 (100%) [full]
+    - Phòng 302: 8/8 (100%) [full]
+    - Phòng 303: 8/8 (100%) [full]
+    - Phòng 304: 5/5 (100%) [full]
+    - Phòng 305: 5/5 (100%) [full]
+    - Phòng 306: 4/4 (100%) [full]
+    - Phòng 307: 4/4 (100%) [full]
+    - Phòng 308: 10/10 (100%) [full]
+  - **Tầng 4**
+    - Phòng 401: 8/8 (100%) [full]
+    - Phòng 402: 8/8 (100%) [full]
+    - Phòng 403: 8/8 (100%) [full]
+    - Phòng 404: 5/5 (100%) [full]
+    - Phòng 405: 5/5 (100%) [full]
+    - Phòng 406: 4/4 (100%) [full]
+    - Phòng 407: 4/4 (100%) [full]
+    - Phòng 408: 10/10 (100%) [full]
+  - **Tầng 5**
+    - Phòng 501: 8/8 (100%) [full]
+    - Phòng 502: 8/8 (100%) [full]
+    - Phòng 503: 8/8 (100%) [full]
+    - Phòng 504: 5/5 (100%) [full]
+    - Phòng 505: 5/5 (100%) [full]
+    - Phòng 506: 4/4 (100%) [full]
+    - Phòng 507: 4/4 (100%) [full]
+    - Phòng 508: 10/10 (100%) [full]
+  - **Tầng 6**
+    - Phòng 601: 8/8 (100%) [full]
+    - Phòng 602: 8/8 (100%) [full]
+    - Phòng 603: 8/8 (100%) [full]
+    - Phòng 604: 5/5 (100%) [full]
+    - Phòng 605: 5/5 (100%) [full]
+    - Phòng 606: 4/4 (100%) [full]
+    - Phòng 607: 4/4 (100%) [full]
+    - Phòng 608: 10/10 (100%) [full]
+
+### KTX E5 - Bách Khoa (Hỗn hợp)
+- Giường: 480/480 (100%)
+  - **Tầng 1**
+    - Phòng 101: 8/8 (100%) [full]
+    - Phòng 102: 8/8 (100%) [full]
+    - Phòng 103: 8/8 (100%) [full]
+    - Phòng 104: 8/8 (100%) [full]
+    - Phòng 105: 5/5 (100%) [full]
+    - Phòng 106: 5/5 (100%) [full]
+    - Phòng 107: 4/4 (100%) [full]
+    - Phòng 108: 4/4 (100%) [full]
+    - Phòng 109: 10/10 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 8/8 (100%) [full]
+    - Phòng 202: 8/8 (100%) [full]
+    - Phòng 203: 8/8 (100%) [full]
+    - Phòng 204: 8/8 (100%) [full]
+    - Phòng 205: 5/5 (100%) [full]
+    - Phòng 206: 5/5 (100%) [full]
+    - Phòng 207: 4/4 (100%) [full]
+    - Phòng 208: 4/4 (100%) [full]
+    - Phòng 209: 10/10 (100%) [full]
+  - **Tầng 3**
+    - Phòng 301: 8/8 (100%) [full]
+    - Phòng 302: 8/8 (100%) [full]
+    - Phòng 303: 8/8 (100%) [full]
+    - Phòng 304: 8/8 (100%) [full]
+    - Phòng 305: 5/5 (100%) [full]
+    - Phòng 306: 5/5 (100%) [full]
+    - Phòng 307: 4/4 (100%) [full]
+    - Phòng 308: 4/4 (100%) [full]
+    - Phòng 309: 10/10 (100%) [full]
+  - **Tầng 4**
+    - Phòng 401: 8/8 (100%) [full]
+    - Phòng 402: 8/8 (100%) [full]
+    - Phòng 403: 8/8 (100%) [full]
+    - Phòng 404: 8/8 (100%) [full]
+    - Phòng 405: 5/5 (100%) [full]
+    - Phòng 406: 5/5 (100%) [full]
+    - Phòng 407: 4/4 (100%) [full]
+    - Phòng 408: 4/4 (100%) [full]
+    - Phòng 409: 10/10 (100%) [full]
+  - **Tầng 5**
+    - Phòng 501: 8/8 (100%) [full]
+    - Phòng 502: 8/8 (100%) [full]
+    - Phòng 503: 8/8 (100%) [full]
+    - Phòng 504: 8/8 (100%) [full]
+    - Phòng 505: 5/5 (100%) [full]
+    - Phòng 506: 5/5 (100%) [full]
+    - Phòng 507: 4/4 (100%) [full]
+    - Phòng 508: 4/4 (100%) [full]
+    - Phòng 509: 10/10 (100%) [full]
+  - **Tầng 6**
+    - Phòng 601: 8/8 (100%) [full]
+    - Phòng 602: 8/8 (100%) [full]
+    - Phòng 603: 8/8 (100%) [full]
+    - Phòng 604: 8/8 (100%) [full]
+    - Phòng 605: 5/5 (100%) [full]
+    - Phòng 606: 5/5 (100%) [full]
+    - Phòng 607: 4/4 (100%) [full]
+    - Phòng 608: 4/4 (100%) [full]
+    - Phòng 609: 10/10 (100%) [full]
+  - **Tầng 7**
+    - Phòng 701: 8/8 (100%) [full]
+    - Phòng 702: 8/8 (100%) [full]
+    - Phòng 703: 8/8 (100%) [full]
+    - Phòng 704: 8/8 (100%) [full]
+    - Phòng 705: 5/5 (100%) [full]
+    - Phòng 706: 5/5 (100%) [full]
+    - Phòng 707: 4/4 (100%) [full]
+    - Phòng 708: 4/4 (100%) [full]
+    - Phòng 709: 10/10 (100%) [full]
+  - **Tầng 8**
+    - Phòng 801: 8/8 (100%) [full]
+    - Phòng 802: 8/8 (100%) [full]
+    - Phòng 803: 8/8 (100%) [full]
+    - Phòng 804: 8/8 (100%) [full]
+    - Phòng 805: 5/5 (100%) [full]
+    - Phòng 806: 5/5 (100%) [full]
+    - Phòng 807: 4/4 (100%) [full]
+    - Phòng 808: 4/4 (100%) [full]
+    - Phòng 809: 10/10 (100%) [full]
+
+### KTX F6 - Bách Khoa (Hỗn hợp)
+- Giường: 364/364 (100%)
+  - **Tầng 1**
+    - Phòng 101: 4/4 (100%) [full]
+    - Phòng 102: 4/4 (100%) [full]
+    - Phòng 103: 5/5 (100%) [full]
+    - Phòng 104: 5/5 (100%) [full]
+    - Phòng 105: 8/8 (100%) [full]
+    - Phòng 106: 8/8 (100%) [full]
+    - Phòng 107: 8/8 (100%) [full]
+    - Phòng 108: 10/10 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 4/4 (100%) [full]
+    - Phòng 202: 4/4 (100%) [full]
+    - Phòng 203: 5/5 (100%) [full]
+    - Phòng 204: 5/5 (100%) [full]
+    - Phòng 205: 8/8 (100%) [full]
+    - Phòng 206: 8/8 (100%) [full]
+    - Phòng 207: 8/8 (100%) [full]
+    - Phòng 208: 10/10 (100%) [full]
+  - **Tầng 3**
+    - Phòng 301: 4/4 (100%) [full]
+    - Phòng 302: 4/4 (100%) [full]
+    - Phòng 303: 5/5 (100%) [full]
+    - Phòng 304: 5/5 (100%) [full]
+    - Phòng 305: 8/8 (100%) [full]
+    - Phòng 306: 8/8 (100%) [full]
+    - Phòng 307: 8/8 (100%) [full]
+    - Phòng 308: 10/10 (100%) [full]
+  - **Tầng 4**
+    - Phòng 401: 4/4 (100%) [full]
+    - Phòng 402: 4/4 (100%) [full]
+    - Phòng 403: 5/5 (100%) [full]
+    - Phòng 404: 5/5 (100%) [full]
+    - Phòng 405: 8/8 (100%) [full]
+    - Phòng 406: 8/8 (100%) [full]
+    - Phòng 407: 8/8 (100%) [full]
+    - Phòng 408: 10/10 (100%) [full]
+  - **Tầng 5**
+    - Phòng 501: 4/4 (100%) [full]
+    - Phòng 502: 4/4 (100%) [full]
+    - Phòng 503: 5/5 (100%) [full]
+    - Phòng 504: 5/5 (100%) [full]
+    - Phòng 505: 8/8 (100%) [full]
+    - Phòng 506: 8/8 (100%) [full]
+    - Phòng 507: 8/8 (100%) [full]
+    - Phòng 508: 10/10 (100%) [full]
+  - **Tầng 6**
+    - Phòng 601: 4/4 (100%) [full]
+    - Phòng 602: 4/4 (100%) [full]
+    - Phòng 603: 5/5 (100%) [full]
+    - Phòng 604: 5/5 (100%) [full]
+    - Phòng 605: 8/8 (100%) [full]
+    - Phòng 606: 8/8 (100%) [full]
+    - Phòng 607: 8/8 (100%) [full]
+    - Phòng 608: 10/10 (100%) [full]
+  - **Tầng 7**
+    - Phòng 701: 4/4 (100%) [full]
+    - Phòng 702: 4/4 (100%) [full]
+    - Phòng 703: 5/5 (100%) [full]
+    - Phòng 704: 5/5 (100%) [full]
+    - Phòng 705: 8/8 (100%) [full]
+    - Phòng 706: 8/8 (100%) [full]
+    - Phòng 707: 8/8 (100%) [full]
+    - Phòng 708: 10/10 (100%) [full]
+
+### KTX G7 - Bách Khoa (Hỗn hợp)
+- Giường: 219/240 (91%)
+  - **Tầng 1**
+    - Phòng 101: 8/8 (100%) [full]
+    - Phòng 102: 8/8 (100%) [full]
+    - Phòng 103: 8/8 (100%) [full]
+    - Phòng 104: 5/5 (100%) [full]
+    - Phòng 105: 5/5 (100%) [full]
+    - Phòng 106: 4/4 (100%) [full]
+    - Phòng 107: 10/10 (100%) [full]
+  - **Tầng 2**
+    - Phòng 201: 8/8 (100%) [full]
+    - Phòng 202: 8/8 (100%) [full]
+    - Phòng 203: 8/8 (100%) [full]
+    - Phòng 204: 5/5 (100%) [full]
+    - Phòng 205: 5/5 (100%) [full]
+    - Phòng 206: 4/4 (100%) [full]
+    - Phòng 207: 10/10 (100%) [full]
+  - **Tầng 3**
+    - Phòng 301: 8/8 (100%) [full]
+    - Phòng 302: 8/8 (100%) [full]
+    - Phòng 303: 8/8 (100%) [full]
+    - Phòng 304: 5/5 (100%) [full]
+    - Phòng 305: 5/5 (100%) [full]
+    - Phòng 306: 4/4 (100%) [full]
+    - Phòng 307: 10/10 (100%) [full]
+  - **Tầng 4**
+    - Phòng 401: 8/8 (100%) [full]
+    - Phòng 402: 8/8 (100%) [full]
+    - Phòng 403: 8/8 (100%) [full]
+    - Phòng 404: 5/5 (100%) [full]
+    - Phòng 405: 5/5 (100%) [full]
+    - Phòng 406: 4/4 (100%) [full]
+    - Phòng 407: 10/10 (100%) [full]
+  - **Tầng 5**
+    - Phòng 501: 8/8 (100%) [full]
+    - Phòng 502: 8/8 (100%) [full]
+    - Phòng 503: 8/8 (100%) [full]
+    - Phòng 504: 3/5 (60%) [high]
+    - Phòng 505: 0/5 (0%) [empty]
+    - Phòng 506: 0/4 (0%) [empty]
+    - Phòng 507: 0/10 (0%) [empty]
+
+---
+
+## 5. Rollback / Undo
+
+
+| Thời điểm     | Tổng allocation | Ghi chú                          |
+|---------------|-----------------|----------------------------------|
+| Before Apply  | 0 | Trước khi apply simulation |
+| After Apply   | 325 | +325 sinh viên thực |
+| After Undo    | 0 | Đã restore về trạng thái ban đầu |
+
+**Snapshot ID:** `SNAP-1781461547301-QOCBD`
+**Trạng thái:** UNDONE
+**Sinh viên thực được apply:** 325
+**Sinh viên Năm 1 mô phỏng (bỏ qua):** 324
+
+
+---
+
+_Report được tạo tự động bởi eDorm Simulation Engine._

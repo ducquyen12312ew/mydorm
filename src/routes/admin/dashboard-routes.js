@@ -380,10 +380,8 @@ router.get('/admin/activity-logs', isAdmin, async (req, res) => {
 // Render trang maintenance requests
 router.get('/admin/maintenance-requests', isAdmin, (req, res) => {
     res.render('admin/maintenance/admin-maintenance-requests', {
-        user: { 
-            name: req.session.name, 
-            role: req.session.role 
-        }
+        user: { name: req.session.name, role: req.session.role },
+        navActive: 'requests'
     });
 });
 
@@ -975,6 +973,249 @@ router.get('/admin/master-dashboard/student/:studentId', isAdmin, async (req, re
         res.status(500).render('404', {
             message: 'Không thể tải hồ sơ sinh viên'
         });
+    }
+});
+
+// ============================================================
+// KPI endpoint — AllocationRegistration-based stats for new dashboard
+// ============================================================
+router.get('/admin/dashboard/kpi', isAdmin, async (req, res) => {
+    try {
+        const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
+
+        // Room stats from dormitories
+        const dormitories = await DormitoryCollection.find({
+            $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }]
+        }).lean();
+
+        let totalRooms = 0, totalCapacity = 0, occupiedSpots = 0;
+        const dormRoomStatus = [];
+
+        for (const dorm of dormitories) {
+            let dOccupied = 0, dCapacity = 0, dMaintenance = 0, dWaiting = 0;
+            for (const floor of dorm.floors || []) {
+                for (const room of floor.rooms || []) {
+                    totalRooms++;
+                    const cap = room.maxCapacity || 0;
+                    const active = (room.occupants || []).filter(o => o.active).length;
+                    dCapacity += cap;
+                    dOccupied += active;
+                    totalCapacity += cap;
+                    occupiedSpots += active;
+                    if (room.status === 'maintenance') dMaintenance++;
+                }
+            }
+            dormRoomStatus.push({
+                name: dorm.name,
+                occupied: dOccupied,
+                available: dCapacity - dOccupied,
+                maintenance: dMaintenance,
+                waiting: dWaiting,
+                total: dCapacity
+            });
+        }
+
+        const availableRooms = totalCapacity - occupiedSpots;
+        const occupancyRate = totalCapacity > 0 ? Math.round((occupiedSpots / totalCapacity) * 100) : 0;
+
+        // AllocationRegistration counts
+        const regStats = await AllocationRegistration.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+        const regSummary = { PENDING: 0, ALLOCATED: 0, WAITLIST: 0, REJECTED: 0, WITHDRAWN: 0, total: 0 };
+        regStats.forEach(s => {
+            if (s._id) { regSummary[s._id] = s.count; regSummary.total += s.count; }
+        });
+
+        // PendingApplication counts (legacy)
+        const appStats = await PendingApplicationCollection.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+        const appSummary = { pending: 0, approved: 0, rejected: 0, total: 0 };
+        appStats.forEach(s => {
+            if (s._id) { appSummary[s._id] = s.count; appSummary.total += s.count; }
+        });
+
+        const totalApplications = regSummary.total + appSummary.total;
+        const pendingTotal = regSummary.PENDING + (appSummary.pending || 0);
+
+        res.json({
+            success: true,
+            kpi: {
+                totalApplications,
+                availableRooms,
+                pendingApplications: pendingTotal,
+                occupancyRate,
+                totalCapacity,
+                occupiedSpots,
+                totalRooms
+            },
+            registrationStats: regSummary,
+            applicationStats: appSummary,
+            dormRoomStatus
+        });
+    } catch (error) {
+        console.error('Error fetching KPI:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Recent AllocationRegistrations for dashboard list
+router.get('/admin/dashboard/recent-registrations', isAdmin, async (req, res) => {
+    try {
+        const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
+        const limit = parseInt(req.query.limit) || 20;
+
+        const regs = await AllocationRegistration.find()
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean();
+
+        // Enrich with student photo/avatar if available
+        const studentIds = regs.map(r => r.studentId).filter(Boolean);
+        const students = await StudentCollection.find(
+            { _id: { $in: studentIds } },
+            { name: 1, studentId: 1, faculty: 1, avatar: 1, profilePicture: 1 }
+        ).lean();
+        const studentMap = {};
+        students.forEach(s => { studentMap[String(s._id)] = s; });
+
+        const enriched = regs.map(r => {
+            const s = studentMap[String(r.studentId)] || {};
+            return {
+                _id: r._id,
+                studentName: r.studentName || s.name || 'N/A',
+                studentId: s.studentId || '',
+                faculty: r.studentFaculty || s.faculty || '',
+                priority: r.priority || 0,
+                status: r.status,
+                yearGroup: r.yearGroup,
+                createdAt: r.createdAt,
+                avatar: s.profilePicture || s.avatar || null
+            };
+        });
+
+        res.json({ success: true, registrations: enriched });
+    } catch (error) {
+        console.error('Error fetching recent registrations:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============================================================
+// ALIAS ROUTES under /api/admin/ — these are clearly under /api/
+// so the 404 handler returns JSON (not HTML) on failure.
+// The dashboard.ejs fetches these paths.
+// ============================================================
+
+router.get('/api/admin/kpi', isAdmin, async (req, res) => {
+    try {
+        const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
+
+        const dormitories = await DormitoryCollection.find({
+            $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }]
+        }).lean();
+
+        let totalCapacity = 0, occupiedSpots = 0;
+        const dormRoomStatus = [];
+
+        for (const dorm of dormitories) {
+            let dOccupied = 0, dCapacity = 0, dMaintenance = 0;
+            for (const floor of dorm.floors || []) {
+                for (const room of floor.rooms || []) {
+                    const cap = room.maxCapacity || 0;
+                    const active = (room.occupants || []).filter(o => o.active).length;
+                    dCapacity += cap;
+                    dOccupied += active;
+                    totalCapacity += cap;
+                    occupiedSpots += active;
+                    if (room.status === 'maintenance') dMaintenance++;
+                }
+            }
+            dormRoomStatus.push({
+                name: dorm.name,
+                occupied: dOccupied,
+                available: dCapacity - dOccupied,
+                maintenance: dMaintenance,
+                waiting: 0,
+                total: dCapacity
+            });
+        }
+
+        const availableRooms = totalCapacity - occupiedSpots;
+        const occupancyRate = totalCapacity > 0 ? Math.round((occupiedSpots / totalCapacity) * 100) : 0;
+
+        const regStats = await AllocationRegistration.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+        const regSummary = { PENDING: 0, ALLOCATED: 0, WAITLIST: 0, REJECTED: 0, WITHDRAWN: 0, total: 0 };
+        regStats.forEach(s => {
+            if (s._id) { regSummary[s._id] = s.count; regSummary.total += s.count; }
+        });
+
+        const appStats = await PendingApplicationCollection.aggregate([
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+        const appSummary = { pending: 0, approved: 0, rejected: 0, total: 0 };
+        appStats.forEach(s => {
+            if (s._id) { appSummary[s._id] = s.count; appSummary.total += s.count; }
+        });
+
+        res.json({
+            success: true,
+            kpi: {
+                totalApplications: regSummary.total + appSummary.total,
+                availableRooms,
+                pendingApplications: regSummary.PENDING + (appSummary.pending || 0),
+                occupancyRate,
+                totalCapacity,
+                occupiedSpots
+            },
+            registrationStats: regSummary,
+            applicationStats: appSummary,
+            dormRoomStatus
+        });
+    } catch (error) {
+        console.error('Error fetching KPI (api/admin):', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+router.get('/api/admin/recent-registrations', isAdmin, async (req, res) => {
+    try {
+        const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
+        const limit = parseInt(req.query.limit) || 20;
+
+        const regs = await AllocationRegistration.find()
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean();
+
+        const studentIds = regs.map(r => r.studentId).filter(Boolean);
+        const students = await StudentCollection.find(
+            { _id: { $in: studentIds } },
+            { name: 1, studentId: 1, faculty: 1 }
+        ).lean();
+        const studentMap = {};
+        students.forEach(s => { studentMap[String(s._id)] = s; });
+
+        const registrations = regs.map(r => {
+            const s = studentMap[String(r.studentId)] || {};
+            return {
+                _id: r._id,
+                studentName: r.studentName || s.name || 'N/A',
+                studentId: s.studentId || '',
+                faculty: r.studentFaculty || s.faculty || '',
+                priority: r.priority || 0,
+                status: r.status,
+                createdAt: r.createdAt
+            };
+        });
+
+        res.json({ success: true, registrations });
+    } catch (error) {
+        console.error('Error fetching recent registrations (api/admin):', error);
+        res.status(500).json({ success: false, error: error.message });
     }
 });
 

@@ -92,13 +92,19 @@ async function createAdmin() {
         });
         
         if (existingAdmin) {
-            console.log('\nTai khoan admin da ton tai!');
+            // Ensure isSuperAdmin flag is set even for existing account
+            if (!existingAdmin.isSuperAdmin) {
+                await Student.updateOne({ _id: existingAdmin._id }, { isSuperAdmin: true });
+                console.log('\nisSuperAdmin flag updated for existing admin account.');
+            }
+            console.log('\nTai khoan Super Admin da ton tai!');
             console.log('Username: admin');
             console.log('Email: admin@gmail.com');
-            console.log('Password: admin123\n');
+            console.log('Password: admin123');
+            console.log('isSuperAdmin: true\n');
         } else {
             const hashedPassword = await bcrypt.hash('admin123', 10);
-            
+
             const admin = new Student({
                 name: 'Administrator',
                 username: 'admin',
@@ -108,15 +114,17 @@ async function createAdmin() {
                 password: hashedPassword,
                 gender: 'other',
                 academicYear: '2024',
-                role: 'admin'
+                role: 'admin',
+                isSuperAdmin: true
             });
-            
+
             await admin.save();
-            
-            console.log('\nTao tai khoan admin thanh cong!');
+
+            console.log('\nTao tai khoan Super Admin thanh cong!');
             console.log('Username: admin');
             console.log('Email: admin@gmail.com');
-            console.log('Password: admin123\n');
+            console.log('Password: admin123');
+            console.log('isSuperAdmin: true\n');
         }
         
         process.exit(0);

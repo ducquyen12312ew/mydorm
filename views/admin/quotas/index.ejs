@@ -18,7 +18,7 @@
     .btn-success { background: #7f4a4a; color: #fff; }
     .btn-soft { background: #f7f1f1; color: #7f4a4a; border: 1px solid #e8d5d5; }
     .message { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; }
-    .message.success { background: #ecfdf5; color: #065f46; border: 1px solid #6ee7b7; }
+    .message.success { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
     .message.error { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
     .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06); }
     table { width: 100%; border-collapse: collapse; }
@@ -49,6 +49,16 @@
       </div>
     </div>
 
+    <% if (!canManage) { %>
+      <div class="message" style="background:#fffbeb;border:1px solid #fcd34d;color:#92400e;margin-bottom:14px">
+        <i class="fas fa-shield-alt"></i> <strong>Chế độ xem:</strong> Bạn đang xem với quyền Admin thường. Để tạo, sửa hoặc ban hành quota, đăng nhập bằng tài khoản <strong>Giám đốc Ký túc xá</strong> (username: <code>admin</code>).
+      </div>
+    <% } else { %>
+      <div class="message" style="background:#f0fdf4;border:1px solid #86efac;color:#15803d;margin-bottom:14px">
+        <i class="fas fa-crown"></i> <strong>Giám đốc Ký túc xá:</strong> Bạn có toàn quyền tạo, sửa, ban hành và thu hồi quota.
+      </div>
+    <% } %>
+
     <% if (message) { %>
       <div class="message <%= message.type === 'error' ? 'error' : 'success' %>"><%= message.text %></div>
     <% } %>
@@ -77,9 +87,13 @@
               <td><strong><%= item.academicYear %></strong></td>
               <td>#<%= item.version %></td>
               <td>
-                <span class="status <%= item.isDraft ? 'draft' : 'published' %>">
-                  <%= item.isDraft ? 'Nháp' : 'Đã ban hành' %>
-                </span>
+                <% if (item.isDraft) { %>
+                  <span class="status draft">Nháp</span>
+                <% } else if (item.isPublished) { %>
+                  <span class="status" style="background:#dcfce7;color:#166534">&#x2605; Đang áp dụng</span>
+                <% } else { %>
+                  <span class="status published">Đã lưu trữ</span>
+                <% } %>
               </td>
               <td><%= item.totalCapacity %></td>
               <td>
@@ -111,7 +125,11 @@
                     <div class="small">Năm học này đã có bản quota ban hành, không thể ban hành thêm.</div>
                   <% } %>
                 <% } else { %>
-                  <div class="small">Tài khoản hiện tại chỉ có quyền xem.</div>
+                  <div class="actions">
+                    <a class="btn btn-secondary" href="/admin/quotas/<%= item._id %>/dashboard">Thực tế</a>
+                    <a class="btn btn-secondary" href="/admin/quotas/<%= item._id %>/preview">Mô phỏng</a>
+                  </div>
+                  <div class="small" style="margin-top:6px;color:#d97706"><i class="fas fa-lock"></i> Chỉ Giám đốc Ký túc xá mới có thể tạo, sửa hoặc ban hành quota.</div>
                 <% } %>
 
                 <details class="advanced">

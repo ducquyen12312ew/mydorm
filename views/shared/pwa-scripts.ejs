@@ -1,0 +1,293 @@
+<!-- pwa-scripts.ejs: SW registration, install prompt, iOS guide, update toast -->
+
+<!-- ══════════════════════════════════════════════════════════════
+     PWA MARKUP — Install banner + iOS guide + Update toast
+     ══════════════════════════════════════════════════════════════ -->
+
+<!-- Offline bar -->
+<div class="pwa-offline-bar" id="pwaOfflineBar" role="status" aria-live="polite">
+    📶 Không có kết nối mạng – Một số tính năng có thể không hoạt động
+</div>
+
+<!-- Android install banner -->
+<div class="pwa-install-banner" id="pwaInstallBanner" role="complementary" aria-label="Cài đặt ứng dụng eDorm">
+    <div class="pwa-install-banner__icon">
+        <img src="/icons/icon.svg" alt="eDorm" onerror="this.parentElement.textContent='e'" />
+    </div>
+    <div class="pwa-install-banner__text">
+        <div class="pwa-install-banner__title">eDorm</div>
+        <div class="pwa-install-banner__subtitle">Cài đặt để dùng nhanh hơn</div>
+    </div>
+    <div class="pwa-install-banner__actions">
+        <button class="pwa-install-banner__btn pwa-install-banner__btn--primary" id="pwaInstallBtn" aria-label="Cài đặt eDorm">
+            Cài đặt
+        </button>
+        <button class="pwa-install-banner__btn pwa-install-banner__btn--dismiss" id="pwaInstallDismiss" aria-label="Đóng">
+            ✕
+        </button>
+    </div>
+</div>
+
+<!-- iOS install guide overlay -->
+<div class="pwa-ios-overlay" id="pwaIosOverlay" aria-hidden="true"></div>
+
+<!-- iOS install guide sheet -->
+<div class="pwa-ios-guide" id="pwaIosGuide" role="dialog" aria-modal="true" aria-label="Hướng dẫn cài đặt eDorm trên iPhone">
+    <div class="pwa-ios-guide__handle" aria-hidden="true"></div>
+    <div class="pwa-ios-guide__header">
+        <div class="pwa-ios-guide__logo">
+            <img src="/icons/icon.svg" alt="eDorm" onerror="this.parentElement.textContent='e'" />
+        </div>
+        <div>
+            <div class="pwa-ios-guide__title">Cài eDorm lên iPhone</div>
+            <div class="pwa-ios-guide__desc">Trải nghiệm như ứng dụng thực sự</div>
+        </div>
+        <button class="pwa-ios-guide__close" id="pwaIosClose" aria-label="Đóng">✕</button>
+    </div>
+    <ol class="pwa-ios-steps" aria-label="Các bước cài đặt">
+        <li class="pwa-ios-step">
+            <div class="pwa-ios-step__num" aria-hidden="true">1</div>
+            <div class="pwa-ios-step__text">
+                Nhấn nút <strong>Chia sẻ</strong>
+                <span class="step-icon" aria-label="nút share">⬆️</span>
+                ở thanh công cụ Safari bên dưới
+            </div>
+        </li>
+        <li class="pwa-ios-step">
+            <div class="pwa-ios-step__num" aria-hidden="true">2</div>
+            <div class="pwa-ios-step__text">
+                Cuộn xuống và chọn<br />
+                <strong>"Thêm vào Màn hình chính"</strong>
+                <span class="step-icon" aria-label="nút thêm">➕</span>
+            </div>
+        </li>
+        <li class="pwa-ios-step">
+            <div class="pwa-ios-step__num" aria-hidden="true">3</div>
+            <div class="pwa-ios-step__text">
+                Nhấn <strong>"Thêm"</strong> ở góc phải trên.<br />
+                Icon <strong>eDorm</strong> sẽ xuất hiện trên màn hình chính.
+            </div>
+        </li>
+    </ol>
+    <p class="pwa-ios-guide__tip">
+        ⓘ Chỉ hoạt động trên Safari. Không dùng được trên Chrome iOS.
+    </p>
+</div>
+
+<!-- Update toast -->
+<div class="pwa-update-toast" id="pwaUpdateToast" role="status" aria-live="polite">
+    <span class="pwa-update-toast__icon" aria-hidden="true">🆕</span>
+    <span class="pwa-update-toast__text">Phiên bản mới đã sẵn sàng</span>
+    <button class="pwa-update-toast__btn" id="pwaUpdateBtn">Cập nhật</button>
+    <button class="pwa-update-toast__dismiss" id="pwaUpdateDismiss" aria-label="Đóng">✕</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PWA LOGIC
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+    'use strict';
+
+    // ── Utilities ─────────────────────────────────────────────────────
+    const INSTALL_DISMISS_KEY = 'pwa_install_dismissed_at';
+    const DISMISS_TTL_MS      = 3 * 24 * 60 * 60 * 1000; // 3 days
+
+    function isIOS() {
+        return /iphone|ipad|ipod/i.test(navigator.userAgent);
+    }
+
+    function isInStandaloneMode() {
+        return (
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone === true
+        );
+    }
+
+    function isSafari() {
+        return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+    }
+
+    function wasDismissedRecently() {
+        try {
+            const ts = parseInt(localStorage.getItem(INSTALL_DISMISS_KEY) || '0', 10);
+            return Date.now() - ts < DISMISS_TTL_MS;
+        } catch { return false; }
+    }
+
+    function setDismissed() {
+        try { localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now())); } catch {}
+    }
+
+    // ── Offline bar ───────────────────────────────────────────────────
+    var offlineBar = document.getElementById('pwaOfflineBar');
+
+    function syncOfflineBar() {
+        if (!navigator.onLine) {
+            offlineBar.classList.add('visible');
+        } else {
+            offlineBar.classList.remove('visible');
+        }
+    }
+
+    window.addEventListener('online',  syncOfflineBar);
+    window.addEventListener('offline', syncOfflineBar);
+    syncOfflineBar();
+
+    // ── Service Worker registration ────────────────────────────────────
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function () {
+            navigator.serviceWorker
+                .register('/sw.js', { scope: '/' })
+                .then(function (registration) {
+
+                    // ── Update detection ────────────────────────────
+                    registration.addEventListener('updatefound', function () {
+                        var newWorker = registration.installing;
+                        if (!newWorker) return;
+
+                        newWorker.addEventListener('statechange', function () {
+                            if (
+                                newWorker.state === 'installed' &&
+                                navigator.serviceWorker.controller
+                            ) {
+                                showUpdateToast(newWorker);
+                            }
+                        });
+                    });
+
+                    // Check for existing waiting worker on page load
+                    if (registration.waiting && navigator.serviceWorker.controller) {
+                        showUpdateToast(registration.waiting);
+                    }
+
+                    // Periodic update check (every 30 min while page is open)
+                    setInterval(function () {
+                        registration.update().catch(function () {});
+                    }, 30 * 60 * 1000);
+                })
+                .catch(function (err) {
+                    console.warn('[PWA] Service worker registration failed:', err.message);
+                });
+
+            // When a new SW takes control, reload to get fresh content
+            var refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function () {
+                if (!refreshing) {
+                    refreshing = true;
+                    window.location.reload();
+                }
+            });
+        });
+    }
+
+    // ── Update toast ──────────────────────────────────────────────────
+    var updateToast   = document.getElementById('pwaUpdateToast');
+    var updateBtn     = document.getElementById('pwaUpdateBtn');
+    var updateDismiss = document.getElementById('pwaUpdateDismiss');
+    var waitingWorker = null;
+
+    function showUpdateToast(worker) {
+        waitingWorker = worker;
+        updateToast.classList.add('visible');
+    }
+
+    if (updateBtn) {
+        updateBtn.addEventListener('click', function () {
+            if (waitingWorker) {
+                waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+            updateToast.classList.remove('visible');
+        });
+    }
+
+    if (updateDismiss) {
+        updateDismiss.addEventListener('click', function () {
+            updateToast.classList.remove('visible');
+        });
+    }
+
+    // ── Install prompt — Android Chrome ───────────────────────────────
+    var installBanner  = document.getElementById('pwaInstallBanner');
+    var installBtn     = document.getElementById('pwaInstallBtn');
+    var installDismiss = document.getElementById('pwaInstallDismiss');
+    var deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        if (!isInStandaloneMode() && !wasDismissedRecently()) {
+            // Small delay so the page finishes loading visually
+            setTimeout(function () {
+                installBanner.classList.add('visible');
+            }, 2500);
+        }
+    });
+
+    if (installBtn) {
+        installBtn.addEventListener('click', function () {
+            if (!deferredPrompt) return;
+            installBanner.classList.remove('visible');
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function (choice) {
+                deferredPrompt = null;
+                if (choice.outcome === 'dismissed') {
+                    setDismissed();
+                }
+            });
+        });
+    }
+
+    if (installDismiss) {
+        installDismiss.addEventListener('click', function () {
+            installBanner.classList.remove('visible');
+            setDismissed();
+        });
+    }
+
+    // App installed event
+    window.addEventListener('appinstalled', function () {
+        installBanner.classList.remove('visible');
+        deferredPrompt = null;
+        console.log('[PWA] App installed successfully');
+    });
+
+    // ── iOS guide ─────────────────────────────────────────────────────
+    var iosOverlay = document.getElementById('pwaIosOverlay');
+    var iosGuide   = document.getElementById('pwaIosGuide');
+    var iosClose   = document.getElementById('pwaIosClose');
+
+    function showIosGuide() {
+        iosOverlay.classList.add('visible');
+        iosGuide.classList.add('visible');
+        iosOverlay.setAttribute('aria-hidden', 'false');
+        iosGuide.setAttribute('aria-hidden', 'false');
+    }
+
+    function hideIosGuide() {
+        iosOverlay.classList.remove('visible');
+        iosGuide.classList.remove('visible');
+        iosOverlay.setAttribute('aria-hidden', 'true');
+        iosGuide.setAttribute('aria-hidden', 'true');
+        setDismissed();
+    }
+
+    // Show iOS guide only on iPhone/iPad Safari, not in standalone mode
+    if (isIOS() && isSafari() && !isInStandaloneMode() && !wasDismissedRecently()) {
+        setTimeout(showIosGuide, 3500);
+    }
+
+    if (iosClose)   iosClose.addEventListener('click', hideIosGuide);
+    if (iosOverlay) iosOverlay.addEventListener('click', hideIosGuide);
+
+    // Keyboard close (Escape)
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            hideIosGuide();
+            updateToast.classList.remove('visible');
+        }
+    });
+
+})();
+</script>

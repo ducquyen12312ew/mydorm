@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Đợt Đăng Ký - Admin KTX</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #e61a1a;
-            --primary-hover: #c01515;
-            --success-color: #28a745;
+            --primary-color: #d63031;
+            --primary-hover: #b71c1c;
+            --success-color: #166534;
             --warning-color: #ffc107;
             --danger-color: #dc3545;
             --text-dark: #2c3e50;
@@ -32,60 +31,6 @@
             color: var(--text-dark);
         }
 
-        /* Navigation */
-        .navbar {
-            background: white;
-            padding: 15px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 30px;
-        }
-
-        .navbar-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .navbar-brand {
-            font-size: 20px;
-            font-weight: 700;
-            color: #2c3e50;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-menu {
-            display: flex;
-            gap: 5px;
-            list-style: none;
-        }
-
-        .navbar-menu a {
-            padding: 10px 20px;
-            color: #2c3e50;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: all 0.3s;
-            font-weight: 500;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .navbar-menu a:hover {
-            background: #f8f9fa;
-        }
-
-        .navbar-menu a.active {
-            background: #e74c3c;
-            color: white;
-        }
 
         /* Container */
         .container {
@@ -108,7 +53,7 @@
 
         .page-header h1 {
             color: var(--text-dark);
-            font-size: 2rem;
+            1.3rem;
         }
 
         .btn {
@@ -131,8 +76,7 @@
 
         .btn-primary:hover {
             background: var(--primary-hover);
-            transform: translateY(-2px);
-        }
+            }
 
         /* Windows grid */
         .windows-grid {
@@ -150,8 +94,7 @@
 
         .window-card:hover {
             box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-        }
+            }
 
         .window-header {
             display: flex;
@@ -174,8 +117,9 @@
         }
 
         .status-active {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
+            border: 1px solid #86EFAC;
         }
 
         .status-upcoming {
@@ -323,8 +267,8 @@
         }
 
         .alert-success {
-            background: #d4edda;
-            color: #155724;
+            background: #DCFCE7;
+            color: #166534;
         }
 
         .alert-warning {
@@ -346,37 +290,7 @@
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="/admin/dashboard" class="navbar-brand">
-                <i class="fas fa-building"></i> KTX HUST
-            </a>
-            <ul class="navbar-menu">
-                <li><a href="/admin/dashboard">
-                    <i class="fas fa-chart-line"></i> Dashboard
-                </a></li>
-                <li><a href="/admin/dormitories">
-                    <i class="fas fa-building"></i> Ký túc xá
-                </a></li>
-                <li><a href="/admin/application">
-                    <i class="fas fa-file-alt"></i> Đơn đăng ký
-                </a></li>
-                <li><a href="/admin/academic-windows" class="active">
-                    <i class="fas fa-calendar-alt"></i> Đợt đăng ký
-                </a></li>
-                <li><a href="/admin/violations">
-                    <i class="fas fa-shield-alt"></i> Vi phạm
-                </a></li>
-                <li><a href="/admin/logs">
-                    <i class="fas fa-history"></i> Nhật ký
-                </a></li>
-                <li><a href="/logout">
-                    <i class="fas fa-sign-out-alt"></i> Đăng xuất
-                </a></li>
-            </ul>
-        </div>
-    </nav>
+    <%- include('navbar', { activeNav: 'allocation' }) %>
 
     <!-- Main content -->
     <div class="container">
@@ -406,8 +320,18 @@
                 <form id="windowForm">
                     <div class="form-group">
                         <label class="form-label">Năm học <span style="color: red;">*</span></label>
-                        <input type="text" class="form-control" id="academicYear" 
+                        <input type="text" class="form-control" id="academicYear"
                                placeholder="VD: 2025-2026" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Chính sách phân bổ</label>
+                        <div id="activePolicyInfo" style="padding:10px 14px;background:#f0f9ff;border:1px solid #bae6fd;border-radius:8px;font-size:.9rem;color:#0369a1;">
+                            <i class="fas fa-spinner fa-spin"></i> Đang tải chính sách hiện hành...
+                        </div>
+                        <small style="color:#6b7280;display:block;margin-top:6px;">
+                            <i class="fas fa-info-circle"></i> Chính sách phân bổ được tự động lấy từ Quota đang ban hành. Để thay đổi, hãy ban hành Quota mới tại <a href="/admin/quotas">Quản lý Quota</a>.
+                        </small>
                     </div>
 
                     <div class="form-group">
@@ -423,15 +347,16 @@
                     <div class="form-group">
                         <label class="form-label">Trạng thái</label>
                         <select class="form-control" id="status">
-                            <option value="upcoming">Sắp tới</option>
-                            <option value="active">Đang mở</option>
-                            <option value="closed">Đã đóng</option>
+                            <option value="PENDING">Sắp diễn ra</option>
+                            <option value="RUNNING">Đang mở</option>
+                            <option value="COMPLETED">Đã đóng</option>
+                            <option value="CANCELLED">Đã hủy</option>
                         </select>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Mô tả</label>
-                        <textarea class="form-control" id="description" rows="3" 
+                        <textarea class="form-control" id="description" rows="3"
                                   placeholder="Mô tả về đợt đăng ký..."></textarea>
                     </div>
 
@@ -454,8 +379,8 @@
 
         // Load windows on page load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('🟢 DOMContentLoaded fired');
             loadWindows();
+            loadPublishedPolicy();
 
             // Handle form submission
             document.getElementById('windowForm').addEventListener('submit', async function(e) {
@@ -464,13 +389,41 @@
             });
         });
 
+        // Load current published quota / active policy info
+        async function loadPublishedPolicy() {
+            try {
+                const res = await fetch('/api/admin/published-quota');
+                const data = await res.json();
+                const el = document.getElementById('activePolicyInfo');
+                if (!el) return;
+                if (data.policy) {
+                    el.innerHTML = `<i class="fas fa-check-circle" style="color:#16a34a"></i>
+                        <strong>Chính sách hiện hành:</strong> Năm học ${data.policy.academicYear}
+                        ${data.quota ? `(từ Quota <strong>${data.quota.academicYear}</strong> v${data.quota.version || ''})` : ''}
+                        — <span style="color:#16a34a">Đang áp dụng</span>`;
+                    el.style.background = '#f0fdf4';
+                    el.style.borderColor = '#86efac';
+                    el.style.color = '#15803d';
+                } else {
+                    el.innerHTML = `<i class="fas fa-exclamation-triangle" style="color:#d97706"></i>
+                        <strong>Chưa có chính sách nào!</strong> Vui lòng <a href="/admin/quotas">ban hành Quota</a> trước khi tạo đợt đăng ký.`;
+                    el.style.background = '#fffbeb';
+                    el.style.borderColor = '#fcd34d';
+                    el.style.color = '#92400e';
+                }
+            } catch (e) {
+                const el = document.getElementById('activePolicyInfo');
+                if (el) {
+                    el.innerHTML = `<i class="fas fa-times-circle" style="color:#dc2626"></i> Không tải được chính sách`;
+                    el.style.color = '#dc2626';
+                }
+            }
+        }
+
         // Load academic windows
         async function loadWindows() {
-            console.log('🔵 loadWindows() called');
             try {
-                console.log('🔵 Fetching from /api/admin/academic-windows');
                 const response = await fetch('/api/admin/academic-windows');
-                console.log('🔵 Response status:', response.status);
                 
                 if (!response.ok) {
                     console.error('🔴 Response not OK:', response.status, response.statusText);
@@ -478,11 +431,8 @@
                 }
                 
                 const data = await response.json();
-                console.log('🔵 Raw API data:', data);
                 
                 windows = Array.isArray(data) ? data : (data.windows || data.data || []);
-                console.log('🔵 Parsed windows:', windows);
-                console.log('🔵 Windows count:', windows.length);
                 
                 renderWindows();
             } catch (error) {
@@ -503,9 +453,7 @@
 
         // Render windows list
         function renderWindows() {
-            console.log('🟡 renderWindows() called');
             const container = document.getElementById('windowsList');
-            console.log('🟡 Container element:', container);
             
             if (!container) {
                 console.error('🔴 Container not found');
@@ -513,10 +461,8 @@
             }
             
             try {
-                console.log('🟡 Windows array length:', windows.length);
                 
                 if (!windows || windows.length === 0) {
-                    console.log('🟡 No windows, showing empty state');
                     container.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-calendar-times"></i>
@@ -527,25 +473,21 @@
                     return;
                 }
 
-                console.log('🟡 Rendering', windows.length, 'windows');
                 const html = windows.map((window, idx) => {
-                    console.log(`🟡 Rendering window ${idx}:`, window);
                     try {
-                        const startDate = new Date(window.startDate);
-                        const endDate = new Date(window.endDate);
+                        const startDate = new Date(window.registrationStart);
+                        const endDate = new Date(window.registrationEnd);
                         const now = new Date();
-                        
-                        console.log(`🟡 Window ${idx} dates: start=${startDate}, end=${endDate}`);
-                        
+
                         let statusClass = 'status-upcoming';
-                        let statusText = 'Sắp tới';
-                        
-                        if (window.status === 'active') {
+                        let statusText = 'Sắp diễn ra';
+
+                        if (window.status === 'RUNNING') {
                             statusClass = 'status-active';
                             statusText = 'Đang mở';
-                        } else if (window.status === 'closed' || endDate < now) {
+                        } else if (window.status === 'COMPLETED' || window.status === 'CANCELLED' || endDate < now) {
                             statusClass = 'status-closed';
-                            statusText = 'Đã đóng';
+                            statusText = window.status === 'CANCELLED' ? 'Đã hủy' : 'Đã đóng';
                         }
 
                         // Priority statistics
@@ -578,6 +520,14 @@
                                         <div class="info-label">Diện ưu tiên:</div>
                                         <div class="info-value">${priorityHtml}</div>
                                     </div>
+                                    <div class="info-row">
+                                        <div class="info-label">Chính sách áp dụng:</div>
+                                        <div class="info-value">${
+                                            window.currentPolicy
+                                                ? `<span style="color:#16a34a"><i class="fas fa-check-circle"></i> Năm học ${window.currentPolicy.academicYear}</span>`
+                                                : '<span style="color:#d97706"><i class="fas fa-exclamation-triangle"></i> Chưa có chính sách</span>'
+                                        }</div>
+                                    </div>
                                     ${window.description ? `
                                         <div class="info-row">
                                             <div class="info-label">Mô tả:</div>
@@ -586,7 +536,7 @@
                                     ` : ''}
                                 </div>
                                 <div class="window-actions">
-                                    ${window.status !== 'active' ? `
+                                    ${window.status !== 'RUNNING' ? `
                                         <button class="btn btn-sm btn-success" onclick="activateWindow('${window._id}')">
                                             <i class="fas fa-check-circle"></i> Kích hoạt
                                         </button>
@@ -617,9 +567,7 @@
                     }
                 }).join('');
                 
-                console.log('🟡 HTML length:', html.length);
                 container.innerHTML = html;
-                console.log('🟢 Render complete!');
             } catch (error) {
                 console.error('🔴 Error rendering windows:', error);
                 container.innerHTML = `
@@ -663,7 +611,7 @@
             
             document.getElementById('startDate').value = formatDateTimeLocal(now);
             document.getElementById('endDate').value = formatDateTimeLocal(later);
-            document.getElementById('status').value = 'active';
+            document.getElementById('status').value = 'PENDING';
             
             document.getElementById('windowModal').classList.add('show');
         }
@@ -675,10 +623,10 @@
 
             editingWindowId = id;
             document.getElementById('modalTitle').textContent = 'Chỉnh Sửa Đợt Đăng Ký';
-            
+
             document.getElementById('academicYear').value = window.academicYear;
-            document.getElementById('startDate').value = formatDateTimeLocal(new Date(window.startDate));
-            document.getElementById('endDate').value = formatDateTimeLocal(new Date(window.endDate));
+            document.getElementById('startDate').value = formatDateTimeLocal(new Date(window.registrationStart));
+            document.getElementById('endDate').value = formatDateTimeLocal(new Date(window.registrationEnd));
             document.getElementById('status').value = window.status;
             document.getElementById('description').value = window.description || '';
             
@@ -693,15 +641,9 @@
 
         // Save window
         async function saveWindow() {
-            const policyId = document.getElementById('policyId').value;
-            if (!policyId) {
-                alert('Vui lòng chọn chính sách phân bổ');
-                return;
-            }
-
+            // policyId is auto-assigned on the backend from the active AllocationPolicy
             const data = {
                 academicYear: document.getElementById('academicYear').value,
-                policyId: policyId,
                 startDate: document.getElementById('startDate').value,
                 endDate: document.getElementById('endDate').value,
                 status: document.getElementById('status').value,

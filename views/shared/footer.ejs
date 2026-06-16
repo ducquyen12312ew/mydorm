@@ -1,0 +1,200 @@
+<!-- ═══════════════════════════════════════════════════════════
+     SHARED FOOTER — include in all public & student pages
+     ═══════════════════════════════════════════════════════════ -->
+<footer class="fv2">
+    <div class="fv2-inner">
+
+        <!-- Col 1 · Brand -->
+        <div class="fv2-brand">
+            <img class="fv2-logo"
+                 src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png"
+                 alt="eDorm" />
+            <p class="fv2-copy">© 2026 Phan Đức Quyền</p>
+            <p class="fv2-tagline">
+                <strong>eDorm</strong><br>
+                <span data-i18n="footer.tagline">Hệ thống quản lý và đăng ký ký túc xá</span><br>
+                Đại học Bách Khoa Hà Nội
+            </p>
+            <div class="fv2-legal">
+                <span data-i18n="footer.terms">Điều khoản sử dụng</span>
+                <span class="fv2-dot">·</span>
+                <span data-i18n="footer.privacy">Chính sách bảo mật</span>
+            </div>
+        </div>
+
+        <!-- Col 2 · Khám phá -->
+        <div class="fv2-link-col">
+            <h5 class="fv2-col-title" data-i18n="footer.explore">Khám phá</h5>
+            <ul class="fv2-link-list">
+                <li><a href="/dormitory" data-i18n="footer.dormLink">Ký túc xá</a></li>
+                <li><a href="/#map-section" data-i18n="footer.map">Bản đồ</a></li>
+                <li><a href="/room-status" data-i18n="footer.rooms">Phòng ở</a></li>
+                <li><a href="/vr-tour">Virtual Tour</a></li>
+            </ul>
+        </div>
+
+        <!-- Col 3 · Thông tin -->
+        <div class="fv2-link-col">
+            <h5 class="fv2-col-title" data-i18n="footer.info">Thông tin</h5>
+            <ul class="fv2-link-list">
+                <li><span data-i18n="footer.about">Giới thiệu</span></li>
+                <li><span data-i18n="footer.guide">Hướng dẫn</span></li>
+                <li><span data-i18n="footer.faq">FAQ</span></li>
+            </ul>
+        </div>
+
+        <!-- Col 4 · Liên hệ -->
+        <div class="fv2-link-col">
+            <h5 class="fv2-col-title" data-i18n="footer.contact">Liên hệ</h5>
+            <ul class="fv2-link-list">
+                <li><a href="https://www.facebook.com/phanquyenlnk2111" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+                <li><a href="mailto:quyen.pd225916@sis.hust.edu.vn?subject=Liên hệ về hệ thống ký túc xá">Gmail</a></li>
+                <li><span>0982 773 892</span></li>
+            </ul>
+        </div>
+
+        <!-- Col 5 · Kết nối -->
+        <div class="fv2-social-col">
+            <p class="fv2-social-label" data-i18n="footer.connect">Kết nối</p>
+            <div class="fv2-social-wrap">
+                <div class="fv2-icons-row">
+                    <a class="fv2-icon-btn fv2-fb"
+                       href="https://www.facebook.com/phanquyenlnk2111"
+                       target="_blank" rel="noopener noreferrer"
+                       title="Facebook" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <button class="fv2-icon-btn fv2-phone" id="fv2PhoneBtn"
+                            type="button" title="Điện thoại" aria-label="Hiện số điện thoại">
+                        <i class="fas fa-phone"></i>
+                    </button>
+                    <button class="fv2-icon-btn fv2-gmail" id="fv2EmailBtn"
+                            type="button" title="Email" aria-label="Hiện địa chỉ email">
+                        <i class="fas fa-envelope"></i>
+                    </button>
+                </div>
+
+                <!-- Phone panel — drops down below icons -->
+                <div class="fv2-side-panel fv2-phone-panel" id="fv2PhonePanel" aria-hidden="true">
+                    <span class="fv2-contact-text" id="fv2PhoneVal">0982 773 892</span>
+                    <button class="fv2-copy-btn" id="fv2CopyPhone" type="button"
+                            title="Sao chép số điện thoại" aria-label="Sao chép số điện thoại">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+
+                <!-- Email panel — drops down below icons -->
+                <div class="fv2-side-panel fv2-email-panel" id="fv2EmailPanel" aria-hidden="true">
+                    <a class="fv2-contact-text"
+                       href="mailto:quyen.pd225916@sis.hust.edu.vn?subject=Liên hệ về hệ thống ký túc xá"
+                       id="fv2EmailLink">quyen.pd225916@sis.hust.edu.vn</a>
+                    <button class="fv2-copy-btn" id="fv2CopyEmail" type="button"
+                            title="Sao chép email" aria-label="Sao chép email">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /fv2-inner -->
+
+    <div class="fv2-bottom">
+        <span>eDorm · Đại học Bách Khoa Hà Nội · 2026</span>
+    </div>
+</footer>
+
+<!-- Toast container (shared) -->
+<div class="fv2-toast-container" id="fv2ToastContainer" aria-live="polite"></div>
+
+<script>
+(function () {
+    function setupFooterSocial() {
+        var phoneBtn   = document.getElementById('fv2PhoneBtn');
+        var emailBtn   = document.getElementById('fv2EmailBtn');
+        var phonePanel = document.getElementById('fv2PhonePanel');
+        var emailPanel = document.getElementById('fv2EmailPanel');
+        var copyPhone  = document.getElementById('fv2CopyPhone');
+        var copyEmail  = document.getElementById('fv2CopyEmail');
+
+        if (!phoneBtn || !emailBtn) return;
+
+        function closeAll() {
+            phonePanel.classList.remove('open');
+            emailPanel.classList.remove('open');
+            phonePanel.setAttribute('aria-hidden', 'true');
+            emailPanel.setAttribute('aria-hidden', 'true');
+            phoneBtn.classList.remove('active');
+            emailBtn.classList.remove('active');
+        }
+
+        phoneBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (phonePanel.classList.contains('open')) {
+                closeAll();
+            } else {
+                closeAll();
+                phonePanel.classList.add('open');
+                phonePanel.setAttribute('aria-hidden', 'false');
+                phoneBtn.classList.add('active');
+            }
+        });
+
+        emailBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (emailPanel.classList.contains('open')) {
+                closeAll();
+            } else {
+                closeAll();
+                emailPanel.classList.add('open');
+                emailPanel.setAttribute('aria-hidden', 'false');
+                emailBtn.classList.add('active');
+            }
+        });
+
+        document.addEventListener('click', function () { closeAll(); });
+        phonePanel.addEventListener('click', function (e) { e.stopPropagation(); });
+        emailPanel.addEventListener('click', function (e) { e.stopPropagation(); });
+
+        if (copyPhone) {
+            copyPhone.addEventListener('click', function (e) {
+                e.stopPropagation();
+                navigator.clipboard.writeText('0982773892').then(function () {
+                    showToast('<i class="fas fa-check-circle"></i> Đã sao chép số điện thoại');
+                }).catch(function () {
+                    showToast('<i class="fas fa-check-circle"></i> Đã sao chép số điện thoại');
+                });
+            });
+        }
+
+        if (copyEmail) {
+            copyEmail.addEventListener('click', function (e) {
+                e.stopPropagation();
+                navigator.clipboard.writeText('quyen.pd225916@sis.hust.edu.vn').then(function () {
+                    showToast('<i class="fas fa-check-circle"></i> Đã sao chép email');
+                }).catch(function () {
+                    showToast('<i class="fas fa-check-circle"></i> Đã sao chép email');
+                });
+            });
+        }
+    }
+
+    function showToast(html) {
+        var container = document.getElementById('fv2ToastContainer');
+        if (!container) return;
+        var el = document.createElement('div');
+        el.className = 'fv2-toast';
+        el.innerHTML = html;
+        container.appendChild(el);
+        setTimeout(function () {
+            el.classList.add('out');
+            setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 250);
+        }, 2800);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupFooterSocial);
+    } else {
+        setupFooterSocial();
+    }
+})();
+</script>
