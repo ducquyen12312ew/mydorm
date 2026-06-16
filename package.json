@@ -17,7 +17,8 @@
     "set-super-admin": "node scripts/set-super-admin.js",
     "seed:enrollment-historical": "node scripts/seed-enrollment-historical.js",
     "seed:students-realistic": "node scripts/seed-hust-students-realistic.js",
-    "test:features": "node scripts/test-new-features.js"
+    "test:features": "node scripts/test-new-features.js",
+    "test:forecast": "node scripts/test-forecast-service.js"
   },
   "keywords": [],
   "author": "",

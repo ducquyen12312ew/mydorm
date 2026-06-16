@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { NotificationCollection } = require('../config/config');
-const { createNotification } = require('../utils/notificationHelper');
 const { logger } = require('../config/logger');
 const { isAdmin } = require('../middleware/auth');
 
@@ -9,6 +8,55 @@ const requireSession = (req, res, next) => {
     if (!req.session.userId) return res.status(401).json({ error: 'Unauthorized' });
     next();
 };
+
+// Enum hợp lệ theo NotificationSchema (config.js)
+const VALID_TYPES = ['success', 'warning', 'info', 'error'];
+const VALID_CATEGORIES = ['allocation', 'registration', 'maintenance', 'violation', 'payment', 'system', 'announcement'];
+const VALID_PRIORITIES = ['low', 'normal', 'high'];
+const VALID_ROLES = ['all', 'user', 'admin'];
+
+// Category → màn hình deep-link trong app mobile
+function getCategoryDeepLink(category) {
+    const links = {
+        allocation: '/allocation',
+        registration: '/allocation',
+        maintenance: '/maintenance',
+        violation: '/violations',
+        payment: '/profile',
+    };
+    return links[category] || '/';
+}
+
+/**
+ * Đẩy notification realtime tới các socket sinh viên.
+ * - Global / targetRole 'all' → io.emit('notification:push') tới mọi client.
+ * - Có targetUsers → 'new_notification' tới từng room student:<id>.
+ * Mobile (useSocketEvents.ts) sẽ gọi scheduleLocalPush() khi nhận event này.
+ */
+function pushNotificationToSockets(io, notification) {
+    if (!io) {
+        logger.warn('Socket io not available — notification not pushed realtime');
+        return;
+    }
+    const payload = {
+        id: String(notification._id),
+        title: notification.title,
+        message: notification.message,
+        type: notification.type,
+        category: notification.category || 'announcement',
+        priority: notification.priority || 'normal',
+        deepLink: getCategoryDeepLink(notification.category),
+    };
+
+    const targets = Array.isArray(notification.targetUsers) ? notification.targetUsers : [];
+    if (notification.isGlobal || notification.targetRole === 'all' || targets.length === 0) {
+        io.emit('notification:push', payload);
+    } else {
+        targets.forEach((uid) => {
+            io.to(`student:${String(uid)}`).emit('new_notification', payload);
+        });
+    }
+}
 
 router.get('/api/notifications', requireSession, async (req, res) => {
     try {
@@ -115,24 +163,28 @@ router.post('/api/notifications/mark-all-read', requireSession, async (req, res)
 
 router.post('/api/admin/notifications', isAdmin, async (req, res) => {
     try {
-        const { title, message, type, targetRole, isGlobal, priority, expiresAt } = req.body;
+        const { title, message, type, targetRole, isGlobal, priority, category, targetUsers, expiresAt } = req.body;
+        if (!title || !message) {
+            return res.status(400).json({ error: 'title và message là bắt buộc' });
+        }
 
-        const notification = await createNotification({
+        const notification = await NotificationCollection.create({
             title,
             message,
-            type: type || 'info',
-            targetRole: targetRole || 'all',
-            isGlobal: isGlobal || false,
-            priority: priority || 'normal',
+            type: VALID_TYPES.includes(type) ? type : 'info',
+            targetRole: VALID_ROLES.includes(targetRole) ? targetRole : 'all',
+            targetUsers: Array.isArray(targetUsers) ? targetUsers : [],
+            isGlobal: isGlobal !== undefined ? !!isGlobal : false,
+            priority: VALID_PRIORITIES.includes(priority) ? priority : 'normal',
+            category: VALID_CATEGORIES.includes(category) ? category : 'announcement',
             expiresAt: expiresAt ? new Date(expiresAt) : null,
             createdBy: req.session.userId
         });
 
-        if (notification) {
-            res.json({ success: true, notification });
-        } else {
-            res.status(500).json({ error: 'Failed to create notification' });
-        }
+        // Đẩy realtime tới mobile/socket sinh viên
+        pushNotificationToSockets(req.app.get('io'), notification);
+
+        res.json({ success: true, notification });
     } catch (error) {
         logger.error('Error creating notification', { error: error.message });
         res.status(500).json({ error: 'Internal server error' });
@@ -141,17 +193,24 @@ router.post('/api/admin/notifications', isAdmin, async (req, res) => {
 
 router.post('/admin/send-announcement', isAdmin, async (req, res) => {
     try {
-        const { title, message, type, targetRole, priority } = req.body;
+        const { title, message, type, targetRole, priority, category } = req.body;
+        if (!title || !message) {
+            return res.status(400).json({ error: 'title và message là bắt buộc' });
+        }
 
-        const notification = await createNotification({
+        const notification = await NotificationCollection.create({
             title,
             message,
-            type: type || 'info',
+            type: VALID_TYPES.includes(type) ? type : 'info',
             isGlobal: true,
-            targetRole: targetRole || 'all',
-            priority: priority || 'normal',
+            targetRole: VALID_ROLES.includes(targetRole) ? targetRole : 'all',
+            priority: VALID_PRIORITIES.includes(priority) ? priority : 'normal',
+            category: VALID_CATEGORIES.includes(category) ? category : 'announcement',
             createdBy: req.session.userId
         });
+
+        // Đẩy realtime tới mobile/socket sinh viên
+        pushNotificationToSockets(req.app.get('io'), notification);
 
         res.json({
             success: true,

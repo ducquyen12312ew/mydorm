@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE, API_PREFIX } from '../config';
+import { apiConfig, API_PREFIX } from '../config';
 import { TokenStore } from './client';
 
 export interface LoginPayload {
@@ -27,7 +27,7 @@ export interface LoginResponse {
 
 export async function loginMobile(payload: LoginPayload): Promise<LoginResponse> {
   const { data } = await axios.post<LoginResponse>(
-    `${API_BASE}${API_PREFIX}/auth/mobile/login`,
+    `${apiConfig.baseUrl}${API_PREFIX}/auth/mobile/login`,
     payload,
     { timeout: 15000 }
   );
@@ -42,7 +42,7 @@ export async function logoutMobile(): Promise<void> {
     const refreshToken = await TokenStore.getRefresh();
     if (refreshToken) {
       await axios.post(
-        `${API_BASE}${API_PREFIX}/auth/mobile/logout`,
+        `${apiConfig.baseUrl}${API_PREFIX}/auth/mobile/logout`,
         { refreshToken, reason: 'LOGOUT' },
         { timeout: 8000 }
       );

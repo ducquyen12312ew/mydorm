@@ -5,9 +5,14 @@ const ScenarioOutputSchema = new mongoose.Schema({
   enrollmentQuota:       Number,
   growthAssumption:      Number, // % growth
 
+  // Phương pháp dự báo thực sự dùng cho kịch bản này
+  method:                { type: String, enum: ['nearest-year', 'weighted-average', 'manual-override'] },
+  referenceYear:         String,   // năm lịch sử tham chiếu (chỉ khi nearest-year)
+  yearsUsed:             [String], // các năm lịch sử dùng để tính
+
   // Computed outputs
   expectedApplications:  Number,
-  applicationRate:       Number, // % of students who apply
+  applicationRate:       Number, // tỷ lệ đơn = đơn / chỉ tiêu (phân số 0..1)
   expectedAccepted:      Number,
   acceptanceRate:        Number,
   expectedResidents:     Number,
@@ -44,6 +49,12 @@ const DemandForecastSchema = new mongoose.Schema({
     enum: ['ratio-nearest', 'weighted-average', 'manual-override', 'scenario'],
     default: 'weighted-average'
   },
+
+  // Năm lịch sử tham chiếu cho dự báo chính (chỉ khi nearest-year)
+  referenceYear: String,
+
+  // Dự báo CHÍNH (trước khi tách kịch bản) — đúng nghiệp vụ chuẩn
+  primaryForecast: ScenarioOutputSchema,
 
   // Historical data used
   yearsUsed: [String], // e.g. ['2022-2023', '2023-2024']

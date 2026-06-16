@@ -3,6 +3,37 @@ const router = express.Router();
 const { isAdmin } = require('../../middleware/auth');
 const EnrollmentPlan = require('../../schemas/EnrollmentPlanSchema');
 const HistoricalEnrollment = require('../../schemas/HistoricalEnrollmentSchema');
+const RoomTransfer = require('../../schemas/RoomTransferSchema');
+
+/**
+ * Thống kê đơn đổi phòng theo năm + dự kiến cho năm mới (Task 4).
+ * Dự kiến = trung bình số đơn các năm trước (làm tròn). Lịch sử mỏng → đánh dấu lowConfidence.
+ */
+async function getTransferStats() {
+  const byYear = await RoomTransfer.aggregate([
+    { $group: {
+        _id: { $ifNull: ['$academicYear', 'Không rõ'] },
+        total: { $sum: 1 },
+        approved: { $sum: { $cond: [{ $in: ['$status', ['approved', 'completed']] }, 1, 0] } }
+    } },
+    { $sort: { _id: -1 } }
+  ]);
+
+  const yearsWithData = byYear.filter(y => y._id && y._id !== 'Không rõ');
+  const totalAll = byYear.reduce((s, y) => s + y.total, 0);
+  const avgPerYear = yearsWithData.length > 0
+    ? Math.round(totalAll / yearsWithData.length)
+    : 0;
+
+  return {
+    byYear,
+    avgPerYear,
+    projectedNextYear: avgPerYear,
+    yearsCount: yearsWithData.length,
+    totalAll,
+    lowConfidence: yearsWithData.length < 2 // ít hơn 2 năm → ước lượng kém tin cậy
+  };
+}
 
 // HUST programs master list
 const HUST_PROGRAMS = [
@@ -31,10 +62,12 @@ const HUST_PROGRAMS = [
 router.get('/admin/enrollment-planning', isAdmin, async (req, res) => {
   try {
     const plans = await EnrollmentPlan.find({}).sort({ createdAt: -1 }).lean();
+    const transferStats = await getTransferStats();
     res.render('admin/enrollment-planning/index', {
       user: { name: req.session.adminName, role: req.session.adminRole },
       activeNav: 'enrollmentplanning',
-      plans
+      plans,
+      transferStats
     });
   } catch (err) {
     console.error('[EnrollmentPlanning] list error:', err);

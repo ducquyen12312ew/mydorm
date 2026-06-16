@@ -21,7 +21,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#d63031"
       },
-      "package": "vn.edu.hust.dormitory.student"
+      "package": "vn.edu.hust.dormitory.student",
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.VIBRATE",
+        "android.permission.USE_FULL_SCREEN_INTENT",
+        "android.permission.POST_NOTIFICATIONS"
+      ]
     },
     "web": {
       "bundler": "metro"
@@ -29,6 +35,14 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#d63031",
+          "defaultChannel": "edorm-alerts"
+        }
+      ],
       [
         "expo-font",
         {

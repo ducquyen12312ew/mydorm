@@ -76,6 +76,37 @@
     </div>
   </div>
 
+  <!-- Task 4: Thống kê đơn đổi phòng trong kế hoạch -->
+  <% if (typeof transferStats !== 'undefined' && transferStats) { %>
+    <div class="plan-card" style="margin-bottom:1.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.75rem">
+        <div style="font-size:.95rem;font-weight:700"><i class="fas fa-right-left" style="color:var(--red)"></i> Đơn đổi phòng</div>
+        <a href="/admin/room-transfer" class="btn btn-outline btn-sm"><i class="fas fa-arrow-right"></i> Xem module đổi phòng</a>
+      </div>
+      <div style="display:flex;gap:1.5rem;flex-wrap:wrap;align-items:flex-end">
+        <div>
+          <div style="font-size:1.8rem;font-weight:800;color:var(--red)"><%= transferStats.projectedNextYear.toLocaleString('vi-VN') %></div>
+          <div style="font-size:.75rem;color:var(--muted)">Dự kiến năm mới (TB các năm trước)</div>
+        </div>
+        <div>
+          <div style="font-size:1.2rem;font-weight:700"><%= transferStats.totalAll.toLocaleString('vi-VN') %></div>
+          <div style="font-size:.75rem;color:var(--muted)">Tổng đơn (<%= transferStats.yearsCount %> năm có dữ liệu)</div>
+        </div>
+        <% (transferStats.byYear || []).slice(0,4).forEach(y => { %>
+          <div>
+            <div style="font-size:1.05rem;font-weight:700"><%= y.total %> <span style="font-size:.72rem;color:var(--success);font-weight:600">(<%= y.approved %> duyệt)</span></div>
+            <div style="font-size:.75rem;color:var(--muted)"><%= y._id %></div>
+          </div>
+        <% }) %>
+      </div>
+      <% if (transferStats.lowConfidence) { %>
+        <p style="font-size:.75rem;color:#92400E;background:#FEF3C7;padding:.4rem .6rem;border-radius:6px;margin-top:.75rem">
+          <i class="fas fa-info-circle"></i> Dữ liệu đổi phòng còn ít (&lt; 2 năm) — con số dự kiến chỉ mang tính tham khảo.
+        </p>
+      <% } %>
+    </div>
+  <% } %>
+
   <% if (plans.length === 0) { %>
     <div class="empty-state">
       <i class="fas fa-calendar-alt"></i>

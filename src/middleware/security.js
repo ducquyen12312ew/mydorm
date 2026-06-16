@@ -93,6 +93,10 @@ const helmetConfig = helmet({
                 "https://my.matterport.com",
                 "https://matterport.com"
             ],
+            // helmet bật 'upgrade-insecure-requests' mặc định → WebView mobile
+            // nâng http://LAN_IP:5000/api lên https:// và fail SSL. Tắt ở dev,
+            // giữ ở production (HTTPS thật). null = gỡ directive mặc định.
+            upgradeInsecureRequests: isProduction ? [] : null,
         },
     },
     crossOriginEmbedderPolicy: false,
