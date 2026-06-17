@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Notification = require('../schemas/NotificationSchema');
+const { NotificationCollection } = require('../config/config');
+const { getStudentNotifications } = require('../services/studentMobileService');
 const notificationService = require('../services/notificationService');
 const { logger } = require('../config/logger');
 
@@ -17,39 +19,42 @@ const requireAuth = (req, res, next) => {
  */
 router.get('/', requireAuth, async (req, res) => {
     try {
-        const { read, limit = 20, skip = 0, type } = req.query;
+        const { read, limit = 20, type } = req.query;
 
-        let query = { userId: req.session.userId };
+        // Single source of truth — same query the mobile badge uses. This
+        // covers broadcast announcements (targetRole/isGlobal) AND legacy
+        // per-user docs, so the web list matches the unread badge count.
+        const items = await getStudentNotifications(req.session.userId, parseInt(limit));
 
-        // Filter by read status
+        let notifications = items.map((n) => ({
+            _id: n.id,
+            title: n.title,
+            message: n.message,
+            type: n.type,
+            category: n.category,
+            priority: n.priority,
+            createdAt: n.createdAt,
+            read: n.isRead,
+        }));
+
         if (read !== undefined) {
-            query.read = read === 'true';
+            const want = read === 'true';
+            notifications = notifications.filter((n) => n.read === want);
         }
-
-        // Filter by type
         if (type) {
-            query.type = type;
+            notifications = notifications.filter((n) => n.type === type);
         }
 
-        const notifications = await Notification.find(query)
-            .sort({ createdAt: -1 })
-            .limit(parseInt(limit))
-            .skip(parseInt(skip));
-
-        const total = await Notification.countDocuments(query);
-        const unreadCount = await Notification.countDocuments({
-            userId: req.session.userId,
-            read: false
-        });
+        const unreadCount = notifications.filter((n) => !n.read).length;
 
         res.json({
             notifications: notifications,
             unreadCount: unreadCount,
             pagination: {
-                total: total,
+                total: notifications.length,
                 unreadCount: unreadCount,
                 limit: parseInt(limit),
-                skip: parseInt(skip)
+                skip: 0
             }
         });
     } catch (error) {
@@ -92,19 +97,16 @@ router.get('/:id', requireAuth, async (req, res) => {
  */
 router.post('/:id/read', requireAuth, async (req, res) => {
     try {
-        const notification = await Notification.findOne({
-            _id: req.params.id,
-            userId: req.session.userId
-        });
+        // Mark read in the broadcast model (readBy[]) — works for both
+        // announcement and legacy docs in the shared collection.
+        const result = await NotificationCollection.findByIdAndUpdate(
+            req.params.id,
+            { $addToSet: { readBy: { userId: req.session.userId, readAt: new Date() } } }
+        );
 
-        if (!notification) {
+        if (!result) {
             return res.status(404).json({ error: 'Notification not found' });
         }
-
-        notification.read = true;
-        notification.channels.inApp.read = true;
-        notification.channels.inApp.readAt = new Date();
-        await notification.save();
 
         res.json({ success: true, message: 'Notification marked as read' });
     } catch (error) {
@@ -118,15 +120,10 @@ router.post('/:id/read', requireAuth, async (req, res) => {
  */
 async function markAllReadHandler(req, res) {
     try {
-        const result = await Notification.updateMany(
-            { userId: req.session.userId, read: false },
-            {
-                $set: {
-                    read: true,
-                    'channels.inApp.read': true,
-                    'channels.inApp.readAt': new Date()
-                }
-            }
+        const userId = req.session.userId;
+        const result = await NotificationCollection.updateMany(
+            { 'readBy.userId': { $ne: userId } },
+            { $push: { readBy: { userId, readAt: new Date() } } }
         );
         res.json({ success: true, message: `${result.modifiedCount} notifications marked as read` });
     } catch (error) {
@@ -206,10 +203,8 @@ router.delete('/', requireAuth, async (req, res) => {
  */
 router.get('/count/unread', requireAuth, async (req, res) => {
     try {
-        const unreadCount = await Notification.countDocuments({
-            userId: req.session.userId,
-            read: false
-        });
+        const items = await getStudentNotifications(req.session.userId, 100);
+        const unreadCount = items.filter((n) => !n.isRead).length;
 
         res.json({ unreadCount: unreadCount });
     } catch (error) {

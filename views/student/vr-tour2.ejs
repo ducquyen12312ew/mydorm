@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>VR Tour B2 – Ký túc xá HUST</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -432,6 +432,54 @@
 'use strict';
 
 /* ═══════════════════════════════════════════════════════════════
+   FORCE LANDSCAPE — tham quan 3D cần chế độ nằm ngang
+   ═══════════════════════════════════════════════════════════════ */
+(function forceLandscape() {
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('landscape').catch(function (err) {
+      console.log('Orientation lock failed (expected on desktop):', err && err.message);
+    });
+  }
+
+  function checkAndRotate() {
+    var overlay = document.getElementById('rotate-overlay');
+    if (window.innerWidth < window.innerHeight) {
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'rotate-overlay';
+        overlay.style.cssText = [
+          'position:fixed', 'inset:0', 'z-index:99999',
+          'background:rgba(0,0,0,0.92)',
+          'display:flex', 'flex-direction:column',
+          'align-items:center', 'justify-content:center',
+          'color:#fff', 'font-family:sans-serif',
+        ].join(';');
+        overlay.innerHTML = [
+          '<div style="font-size:64px;margin-bottom:16px;animation:rotspin 2s linear infinite">📱</div>',
+          '<div style="font-size:18px;font-weight:700;margin-bottom:8px">Xoay ngang điện thoại</div>',
+          '<div style="font-size:14px;color:rgba(255,255,255,0.7);text-align:center;max-width:280px">',
+          'Tham quan 3D cần chế độ nằm ngang để hiển thị đúng',
+          '</div>',
+          '<style>@keyframes rotspin{0%{transform:rotate(0deg)}50%{transform:rotate(90deg)}100%{transform:rotate(90deg)}}</style>',
+        ].join('');
+        document.body.appendChild(overlay);
+      }
+      overlay.style.display = 'flex';
+    } else if (overlay) {
+      overlay.style.display = 'none';
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', checkAndRotate);
+  } else {
+    checkAndRotate();
+  }
+  window.addEventListener('orientationchange', function () { setTimeout(checkAndRotate, 300); });
+  window.addEventListener('resize', checkAndRotate);
+})();
+
+/* ═══════════════════════════════════════════════════════════════
    B2 — chỉ thay MODEL_URL so với vr-tour.ejs (room.glb → roomm.glb)
    ═══════════════════════════════════════════════════════════════ */
 const MODEL_URL = '/models/roomm.glb';
@@ -718,6 +766,32 @@ dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5
 const gltfLoader = new THREE.GLTFLoader();
 gltfLoader.setDRACOLoader(dracoLoader);
 
+/* FIX 5: heavy GLB (~100MB) can OOM a mobile WebView — warn + timeout fallback */
+const isMobileDevice = /Android|iPhone|iPad/i.test(navigator.userAgent);
+if (isMobileDevice) {
+    const warn = document.createElement('div');
+    warn.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.8);color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;text-align:center;z-index:100;max-width:300px';
+    warn.textContent = '⚠️ Mô hình 3D nặng, có thể mất 30-60s để tải trên điện thoại';
+    document.body.appendChild(warn);
+    setTimeout(() => warn.remove(), 5000);
+}
+
+function showGlbFallback() {
+    if (glbReady || document.getElementById('glb-fallback')) return;
+    const ls = document.getElementById('loading-screen');
+    if (ls) ls.style.display = 'none';
+    const fallback = document.createElement('div');
+    fallback.id = 'glb-fallback';
+    fallback.style.cssText = 'position:fixed;inset:0;background:#1a1a2e;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:sans-serif;z-index:50;padding:24px';
+    fallback.innerHTML = '<div style="font-size:48px;margin-bottom:16px">🏠</div>'
+        + '<div style="font-size:18px;font-weight:700;margin-bottom:8px">Không thể tải mô hình 3D</div>'
+        + '<div style="font-size:14px;color:rgba(255,255,255,0.6);text-align:center;max-width:300px;margin-bottom:24px">Mô hình quá nặng cho thiết bị này. Vui lòng thử trên máy tính.</div>'
+        + '<button onclick="history.back()" style="background:#d63031;color:#fff;border:none;padding:12px 24px;border-radius:8px;font-size:15px;cursor:pointer">Quay lại</button>';
+    document.body.appendChild(fallback);
+}
+
+const glbTimeout = setTimeout(showGlbFallback, 90000);
+
 gltfLoader.load(
     MODEL_URL,
     onGLBLoaded,
@@ -727,10 +801,11 @@ gltfLoader.load(
             setLd(pct, 'Đang tải mô hình 3D... ' + Math.round(pct - 5) + '%');
         }
     },
-    (err) => { console.error('[B2] GLB load error:', err); }
+    (err) => { console.error('[B2] GLB load error:', err); clearTimeout(glbTimeout); showGlbFallback(); }
 );
 
 function onGLBLoaded(gltf) {
+    clearTimeout(glbTimeout);
     setLd(85, 'Đang xử lý mô hình...');
     console.log('[B2] roomm.glb loaded OK');
 

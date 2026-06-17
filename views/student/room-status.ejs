@@ -1229,8 +1229,8 @@ function initLeaflet() {
     const c=document.getElementById('mapLeaflet');
     if (!c||typeof L==='undefined') return;
     RS.leaflet=L.map(c,{zoomControl:true}).setView([21.0048,105.8432],16);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+        attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:20
     }).addTo(RS.leaflet);
     L.marker([21.0048,105.8432]).addTo(RS.leaflet)
         .bindPopup(`<b>${RS.mapDorm||'KTX HUST'}</b><br>${RS.mapAddr||''}`).openPopup();

@@ -236,10 +236,13 @@ async function getStudentNotifications(userId, limit = 20) {
         $or: [
           { isGlobal: true },
           { targetUsers: student._id },
+          { userId: student._id }, // per-user docs (legacy NotificationSchema in same collection)
           { targetRole: student.role || 'user' },
           { targetRole: 'all' }
         ]
       },
+      // exclude soft-deleted for this user
+      { deletedBy: { $ne: student._id } },
       {
         $or: [
           { expiresAt: { $exists: false } },
@@ -254,7 +257,9 @@ async function getStudentNotifications(userId, limit = 20) {
     .lean();
 
   return notifications.map((item) => {
-    const isRead = (item.readBy || []).some(
+    // Read state lives in two shapes across the shared collection: broadcast
+    // docs use readBy[], legacy per-user docs use a `read` boolean.
+    const isRead = item.read === true || (item.readBy || []).some(
       (entry) => String(entry.userId) === String(student._id)
     );
 
