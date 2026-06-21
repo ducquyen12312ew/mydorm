@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>Simulation Engine — eDorm</title>
@@ -11,39 +14,27 @@
 .eng-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
 .eng-head h2{font-size:21px;font-weight:700;color:#111827;margin:0;}
 .eng-head p{font-size:13px;color:#6B7280;margin:0;}
-.sandbox-badge{display:inline-flex;align-items:center;gap:6px;background:#FFF7ED;color:#C2410C;border:1px solid #FED7AA;font-size:11px;font-weight:600;padding:2px 10px;border-radius:99px;}
 
 /* ── Summary cards ───────────────────────────────────────────────────────── */
 .metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;}
-.metric-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px 18px;}
+.metric-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
 .metric-card .lbl{font-size:11px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
 .metric-card .val{font-size:24px;font-weight:700;color:#111827;}
 .metric-card .sub{font-size:11px;color:#6B7280;margin-top:2px;}
-.metric-card.accent .val{color:#C8102E;}
-.metric-card.green  .val{color:#16A34A;}
-.metric-card.amber  .val{color:#D97706;}
 
 /* ── Panel cards ─────────────────────────────────────────────────────────── */
-.panel{background:#fff;border:1px solid #E5E7EB;border-radius:12px;padding:22px 24px;margin-bottom:20px;}
+.panel{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:22px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
 .panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .panel-hd h3{font-size:14px;font-weight:700;color:#111827;margin:0;display:flex;align-items:center;gap:7px;}
 .panel-hd .panel-sub{font-size:12px;color:#6B7280;}
 
-/* ── Cohort shift visual ─────────────────────────────────────────────────── */
-.cohort-grid{display:flex;gap:0;align-items:center;flex-wrap:wrap;justify-content:center;padding:8px 0;}
-.cohort-box{
-  display:flex;flex-direction:column;align-items:center;gap:4px;
-  min-width:90px;padding:12px 10px;border-radius:10px;text-align:center;
-}
-.cohort-box .yr-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:99px;margin-bottom:2px;}
-.cohort-box .yr-count{font-size:26px;font-weight:800;}
-.cohort-box .yr-label{font-size:11px;color:#6B7280;}
-.cohort-arrow{font-size:20px;color:#D1D5DB;padding:0 6px;margin-bottom:14px;}
-.yr1  {background:#EFF6FF;}.yr1  .yr-badge{background:#2563EB;color:#fff;}.yr1  .yr-count{color:#1D4ED8;}
-.yr2  {background:#F0FDF4;}.yr2  .yr-badge{background:#16A34A;color:#fff;}.yr2  .yr-count{color:#15803D;}
-.yr3  {background:#FDF4FF;}.yr3  .yr-badge{background:#7C3AED;color:#fff;}.yr3  .yr-count{color:#6D28D9;}
-.yr4p {background:#FFF7ED;}.yr4p .yr-badge{background:#D97706;color:#fff;}.yr4p .yr-count{color:#B45309;}
-.yr5p {background:#FFF1F2;}.yr5p .yr-badge{background:#9CA3AF;color:#fff;}.yr5p .yr-count{color:#6B7280;}
+/* ── Cohort grid ─────────────────────────────────────────────────────────── */
+.cohort-simple{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:4px 0 8px;}
+.cohort-cell{text-align:center;padding:14px 8px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.cohort-cell .c-label{font-size:11px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.cohort-cell .c-count{font-size:26px;font-weight:700;color:#111827;line-height:1.1;}
+.cohort-cell .c-sub{font-size:11px;color:#9CA3AF;margin-top:2px;}
+.cohort-cell.exit .c-count{color:#9CA3AF;}
 
 /* ── Form elements ───────────────────────────────────────────────────────── */
 .form-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
@@ -126,15 +117,15 @@
 
 /* ── Year-group stats ────────────────────────────────────────────────────── */
 .yg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
-.yg-card{border-radius:10px;padding:14px 16px;border:1.5px solid;}
+.yg-card{border-radius:10px;padding:14px 16px;border:1px solid #E5E7EB;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
 .yg-card .yg-title{font-size:12px;font-weight:700;margin-bottom:10px;}
-.yg-card .yg-stat{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(0,0,0,.06);}
+.yg-card .yg-stat{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #F3F4F6;}
 .yg-card .yg-stat:last-child{border:none;font-weight:700;}
-.yg-yr1  {background:#EFF6FF;border-color:#BFDBFE;}.yg-yr1  .yg-title{color:#1D4ED8;}
-.yg-yr2  {background:#F0FDF4;border-color:#BBF7D0;}.yg-yr2  .yg-title{color:#15803D;}
-.yg-yr3  {background:#FDF4FF;border-color:#E9D5FF;}.yg-yr3  .yg-title{color:#6D28D9;}
-.yg-yr4p {background:#FFF7ED;border-color:#FDE68A;}.yg-yr4p .yg-title{color:#B45309;}
-.yg-yr5p {background:#F9FAFB;border-color:#E5E7EB;}.yg-yr5p .yg-title{color:#6B7280;}
+.yg-yr1  {border-left:3px solid #3B82F6;}.yg-yr1  .yg-title{color:#3B82F6;}
+.yg-yr2  {border-left:3px solid #10B981;}.yg-yr2  .yg-title{color:#10B981;}
+.yg-yr3  {border-left:3px solid #8B5CF6;}.yg-yr3  .yg-title{color:#8B5CF6;}
+.yg-yr4p {border-left:3px solid #F59E0B;}.yg-yr4p .yg-title{color:#F59E0B;}
+.yg-yr5p {border-left:3px solid #9CA3AF;}.yg-yr5p .yg-title{color:#9CA3AF;}
 
 /* ── Progress bar ────────────────────────────────────────────────────────── */
 .prog-bar{height:8px;background:#F3F4F6;border-radius:99px;overflow:hidden;margin-top:6px;}
@@ -181,8 +172,7 @@
 .act-promote{background:#F0FDF4;color:#15803D;}.act-promote:hover{background:#DCFCE7;}
 
 /* ── Apply/Undo panel ────────────────────────────────────────────────────── */
-.apply-panel{background:#fff;border:2px solid #16A34A;border-radius:12px;padding:22px 24px;margin-bottom:20px;}
-.apply-panel.applied{border-color:#D97706;}
+.apply-panel{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:22px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
 .apply-panel h3{font-size:14px;font-weight:700;color:#111827;margin:0 0 8px;display:flex;align-items:center;gap:7px;}
 .apply-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;}
 .apply-stats{font-size:12px;color:#6B7280;background:#F9FAFB;border-radius:7px;padding:8px 12px;flex:1;min-width:200px;}
@@ -211,78 +201,70 @@
   <!-- Header -->
   <div class="eng-head">
     <div>
-      <div style="margin-bottom:8px;">
-        <span class="sandbox-badge"><i class="fas fa-flask"></i> SANDBOX</span>
-        &nbsp;
-        <a href="/admin/simulation" style="font-size:12px;color:#6B7280;text-decoration:none;">
-          <i class="fas fa-arrow-left"></i> Workspace
-        </a>
-      </div>
-      <h2><i class="fas fa-cogs" style="color:#C8102E;margin-right:6px;"></i>Simulation Engine</h2>
-      <p>Phân bổ thử nghiệm — không ảnh hưởng dữ liệu thật</p>
-    </div>
-    <div style="text-align:right;">
-      <div style="font-size:12px;color:#6B7280;">Workspace ID</div>
-      <div style="font-size:11px;font-family:monospace;color:#9CA3AF;"><%= workspace._id %></div>
+      <h2><i class="fas fa-cogs" style="color:#C8102E;margin-right:6px;"></i>Mô phỏng Phân bổ Phòng</h2>
+      <p>Thiết lập tiêu chí và chạy mô phỏng phân bổ phòng ở KTX</p>
     </div>
   </div>
 
-  <!-- ══ STEP 1: COHORT SHIFT + SEED YEAR 1 ════════════════════════════════ -->
+  <!-- ══ STEP 1: COHORT DISPLAY + OPTIONAL YEAR-1 SEED ══════════════════════ -->
   <div class="panel">
     <div class="panel-hd">
-      <h3><i class="fas fa-users-cog" style="color:#4F46E5;"></i> Bước 1 — Cohort Shift & Seed Năm 1</h3>
-      <span class="panel-sub">Phân loại lại khóa và tạo sinh viên nhập học mới</span>
+      <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">1.</span> Chuẩn bị dữ liệu</h3>
+      <span class="panel-sub">Phân loại khóa tự động — Năm học 2026-2027</span>
     </div>
 
-    <!-- Cohort visualization -->
-    <div class="cohort-grid" id="cohortGrid">
-      <%
-        const dist = distribution;
-        const cohortBoxes = [
-          { cls:'yr1',  label:'Năm 1',  count: dist.year1,     badge:'K' + (new Date().getFullYear()-2020+66) },
-          { cls:'yr2',  label:'Năm 2',  count: dist.year2,     badge:'Năm 2' },
-          { cls:'yr3',  label:'Năm 3',  count: dist.year3,     badge:'Năm 3' },
-          { cls:'yr4p', label:'Năm 4+', count: dist.year4_plus, badge:'Năm 4+' },
-          { cls:'yr5p', label:'Năm 5+', count: dist.year5plus, badge:'Ra KTX' },
-        ];
-      %>
-      <% cohortBoxes.forEach((b, idx) => { %>
-        <% if (idx > 0) { %><div class="cohort-arrow"><i class="fas fa-chevron-right"></i></div><% } %>
-        <div class="cohort-box <%= b.cls %>">
-          <div class="yr-badge"><%= b.badge %></div>
-          <div class="yr-count" id="cnt-<%= b.cls %>"><%= b.count %></div>
-          <div class="yr-label"><%= b.label %></div>
-        </div>
-      <% }) %>
+    <!-- Cohort visualization — simple grid (Task 2) -->
+    <div class="cohort-simple">
+      <div class="cohort-cell">
+        <div class="c-label">Năm 1</div>
+        <div class="c-count" id="cnt-y1"><%= distribution.year1 %></div>
+        <div class="c-sub">sinh viên</div>
+      </div>
+      <div class="cohort-cell">
+        <div class="c-label">Năm 2</div>
+        <div class="c-count" id="cnt-y2"><%= distribution.year2 %></div>
+        <div class="c-sub">sinh viên</div>
+      </div>
+      <div class="cohort-cell">
+        <div class="c-label">Năm 3</div>
+        <div class="c-count" id="cnt-y3"><%= distribution.year3 %></div>
+        <div class="c-sub">sinh viên</div>
+      </div>
+      <div class="cohort-cell">
+        <div class="c-label">Năm 4+</div>
+        <div class="c-count" id="cnt-y4"><%= distribution.year4_plus %></div>
+        <div class="c-sub">sinh viên</div>
+      </div>
+      <div class="cohort-cell exit">
+        <div class="c-label">Ra KTX</div>
+        <div class="c-count" id="cnt-y5"><%= distribution.year5plus %></div>
+        <div class="c-sub">sinh viên</div>
+      </div>
     </div>
 
     <div style="height:1px;background:#F3F4F6;margin:16px 0;"></div>
 
     <div class="form-row">
       <div class="form-group">
-        <label>Số sinh viên Năm 1</label>
-        <input type="number" id="year1Count" value="200" min="50" max="500"/>
-      </div>
-      <div class="form-group">
-        <label>Năm nhập học</label>
-        <input type="number" id="enrollYear" value="<%= new Date().getFullYear() %>" min="2020" max="2030"/>
-      </div>
-      <div class="form-group">
-        <label>Năm học mô phỏng</label>
-        <input type="text" id="simYear" value="<%= new Date().getFullYear() %>-<%= new Date().getFullYear()+1 %>" placeholder="2025-2026"/>
+        <label>Thêm sinh viên Năm 1 mới</label>
+        <input type="number" id="year1Count" value="333" min="50" max="500"
+               placeholder="Mặc định: tự động"/>
       </div>
       <div class="form-group" style="justify-content:flex-end;">
-        <button class="btn btn-indigo" onclick="seedYear1()">
-          <i class="fas fa-user-plus"></i> Seed Năm 1 + Cohort Shift
+        <button class="btn btn-indigo" onclick="reseedYear1()">
+          <i class="fas fa-user-plus"></i> Thêm Năm 1 mới
         </button>
       </div>
     </div>
+    <p style="font-size:12px;color:#9CA3AF;margin:0;">
+      Cohort shift đã được áp dụng tự động khi tải trang.
+    </p>
   </div>
 
   <!-- ══ STEP 2: PRIORITY ENGINE CONFIG ════════════════════════════════════ -->
   <div class="panel">
     <div class="panel-hd">
-      <h3><i class="fas fa-sliders-h" style="color:#D97706;"></i> Bước 2 — Cấu hình Priority Engine</h3>
+      <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">2.</span> Thiết lập tiêu chí ưu tiên</h3>
       <span class="panel-sub">Điều chỉnh trọng số cho từng tiêu chí ưu tiên</span>
     </div>
 
@@ -295,7 +277,7 @@
         </div>
         <input type="range" id="w-year" min="0" max="2" step="0.1" value="1.0"
                oninput="updateWeight('year',this.value)"/>
-        <div class="weight-hint">Năm 1 ưu tiên cao nhất (+30), Năm 5+ thấp nhất (−15)</div>
+        <div class="weight-hint">Ưu tiên theo năm học</div>
       </div>
 
       <div class="weight-row">
@@ -305,7 +287,7 @@
         </div>
         <input type="range" id="w-distance" min="0" max="2" step="0.1" value="1.0"
                oninput="updateWeight('distance',this.value)"/>
-        <div class="weight-hint">>500km +30 | 200–500km +20 | 50–200km +10 | <50km −10</div>
+        <div class="weight-hint">Ưu tiên sinh viên ở xa</div>
       </div>
 
       <div class="weight-row">
@@ -315,7 +297,7 @@
         </div>
         <input type="range" id="w-family" min="0" max="2" step="0.1" value="1.0"
                oninput="updateWeight('family',this.value)"/>
-        <div class="weight-hint">Hộ nghèo +25 | Bình thường 0 | Khá giả −10</div>
+        <div class="weight-hint">Ưu tiên hoàn cảnh khó khăn</div>
       </div>
 
       <div class="weight-row">
@@ -325,7 +307,7 @@
         </div>
         <input type="range" id="w-policy" min="0" max="2" step="0.1" value="1.0"
                oninput="updateWeight('policy',this.value)"/>
-        <div class="weight-hint">Khó khăn TC +20 | Dân tộc +15 | Khuyết tật +25 | Nông thôn +10</div>
+        <div class="weight-hint">Chính sách ưu tiên đặc biệt</div>
       </div>
 
       <div class="weight-row">
@@ -335,7 +317,7 @@
         </div>
         <input type="range" id="w-ethnicity" min="0" max="2" step="0.1" value="0.5"
                oninput="updateWeight('ethnicity',this.value)"/>
-        <div class="weight-hint">Dân tộc thiểu số +10 × hệ số này</div>
+        <div class="weight-hint">Ưu tiên dân tộc thiểu số</div>
       </div>
 
       <div class="weight-row">
@@ -345,7 +327,7 @@
         </div>
         <input type="range" id="w-violation" min="0" max="2" step="0.1" value="1.0"
                oninput="updateWeight('violation',this.value)"/>
-        <div class="weight-hint">Sạch +5 | Nhẹ −10 | Nặng −25 | Nghiêm trọng −40</div>
+        <div class="weight-hint">Trừ điểm theo vi phạm</div>
       </div>
 
       <div class="weight-row">
@@ -355,23 +337,23 @@
         </div>
         <input type="range" id="w-dormHistory" min="0" max="2" step="0.1" value="0.3"
                oninput="updateWeight('dormHistory',this.value)"/>
-        <div class="weight-hint">Chưa từng ở +5 | Tốt +3 | Xấu −10 × hệ số</div>
+        <div class="weight-hint">Lịch sử cư trú</div>
       </div>
 
     </div>
   </div>
 
   <!-- ══ STEP 3: RUN ════════════════════════════════════════════════════════ -->
-  <div class="panel" style="border:2px solid #C8102E;">
+  <div class="panel" style="border:1px solid #E5E7EB;">
     <div class="panel-hd">
-      <h3><i class="fas fa-play-circle" style="color:#C8102E;"></i> Bước 3 — Chạy Simulation</h3>
+      <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">3.</span> Chạy mô phỏng</h3>
     </div>
     <p style="font-size:13px;color:#6B7280;margin:0 0 16px;">
       Engine sẽ tính điểm ưu tiên toàn bộ sinh viên, xếp hạng, rồi phân phòng tuần tự theo thứ tự điểm.
-      Kết quả hiển thị bên dưới — <strong>không ghi vào dữ liệu thật</strong>.
+      Kết quả hiển thị bên dưới để xem xét trước khi áp dụng.
     </p>
     <button class="btn btn-primary" onclick="runSimulation()" id="btnRun">
-      <i class="fas fa-bolt"></i> Chạy Allocation Preview
+      <i class="fas fa-play" style="font-size:11px;"></i> Bắt đầu mô phỏng
     </button>
   </div>
 
@@ -379,11 +361,11 @@
   <div id="resultsSection" style="display:<%= latestRun ? 'block' : 'none' %>;">
     <div class="panel">
       <div class="panel-hd">
-        <h3><i class="fas fa-chart-bar" style="color:#16A34A;"></i> Kết quả Simulation</h3>
+        <h3><i class="fas fa-chart-bar" style="color:#C8102E;"></i> Kết quả mô phỏng</h3>
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="panel-sub" id="runInfo">
             <% if (latestRun) { %>
-              Run: <strong><%= latestRun.runId %></strong> &nbsp;|&nbsp;
+              <span style="display:none;font-size:11px;color:#9CA3AF;font-family:monospace;"><%= latestRun.runId %></span>
               <%= new Date(latestRun.runAt).toLocaleString('vi-VN') %>
             <% } %>
           </span>
@@ -398,14 +380,14 @@
           <div class="val"><%= s.totalStudentsInQueue.toLocaleString() %></div>
           <div class="sub">Đã đăng ký mô phỏng</div>
         </div>
-        <div class="metric-card green">
+        <div class="metric-card">
           <div class="lbl">Được phân phòng</div>
-          <div class="val"><%= s.allocated.toLocaleString() %></div>
+          <div class="val" style="color:#16A34A;"><%= s.allocated.toLocaleString() %></div>
           <div class="sub"><%= latestRun.byYearGroup?.year1?.allocated || 0 %> SV Năm 1</div>
         </div>
-        <div class="metric-card accent">
+        <div class="metric-card">
           <div class="lbl">Danh sách chờ</div>
-          <div class="val"><%= s.waitlisted.toLocaleString() %></div>
+          <div class="val" style="color:#C8102E;"><%= s.waitlisted.toLocaleString() %></div>
           <div class="sub">Không đủ giường</div>
         </div>
         <div class="metric-card">
@@ -413,7 +395,7 @@
           <div class="val"><%= s.totalBeds.toLocaleString() %></div>
           <div class="sub"><%= s.totalRooms %> phòng</div>
         </div>
-        <div class="metric-card amber">
+        <div class="metric-card">
           <div class="lbl">Occupancy trước</div>
           <div class="val"><%= s.occupancyRateBefore %>%</div>
           <div class="sub">Trước khi sim</div>
@@ -608,41 +590,59 @@
     </div><!-- /panel -->
   </div><!-- /resultsSection -->
 
-  <!-- ══ APPLY / UNDO PANEL ════════════════════════════════════════════════ -->
+  <!-- ══ APPLY / CONFIRM PANEL ═════════════════════════════════════════════ -->
   <% if (latestRun) { %>
-  <div class="apply-panel" id="applyPanel">
-    <h3><i class="fas fa-database" style="color:#16A34A;"></i> Áp dụng vào Dữ liệu Thật</h3>
-    <p style="font-size:13px;color:#6B7280;margin:0;">
-      Nhấn <strong>Apply</strong> để đẩy kết quả simulation vào database thật. Snapshot sẽ được tạo tự động để có thể undo.
-      Sinh viên Năm 1 mô phỏng (không có ID thật) sẽ bị bỏ qua.
-    </p>
-    <div class="apply-row">
-      <div class="apply-stats" id="applyStatsBox">
-        Run: <b><%= latestRun.runId %></b> &nbsp;|&nbsp;
-        <b><%= latestRun.summary.allocated %></b> sinh viên được nhận &nbsp;|&nbsp;
-        Năm học: <b><%= latestRun.simYear || '—' %></b>
+  <div id="applySection">
+
+    <% if (simState && simState.applied) { %>
+    <!-- Applied banner -->
+    <div id="appliedBanner" style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+      <div style="display:flex;align-items:center;gap:.6rem;">
+        <i class="fas fa-check-circle" style="color:#16a34a;font-size:1rem;flex-shrink:0;"></i>
+        <div>
+          <strong style="color:#15803d;font-size:13px;">Đã áp dụng mô phỏng thành công</strong>
+          <span style="font-size:12px;color:#166534;margin-left:10px;">
+            <strong id="savedCount"><%= simState.stats.allocated || 0 %></strong> sinh viên được lưu &nbsp;|&nbsp;
+            Bỏ qua <strong id="skippedCount"><%= simState.stats.skippedYear1 || 0 %></strong> SV năm 1 mô phỏng
+          </span>
+        </div>
       </div>
-      <button class="btn btn-green" id="btnApply" onclick="applyToReal()">
-        <i class="fas fa-check-circle"></i> Apply to Real Allocation
-      </button>
-      <button class="btn btn-secondary" onclick="downloadReport()">
-        <i class="fas fa-file-download"></i> Export Report
+      <button onclick="undoSimulation()" style="padding:.35rem .9rem;border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+        <i class="fas fa-undo"></i> Hoàn tác
       </button>
     </div>
-    <!-- Undo section (shown after apply) -->
-    <div id="undoSection" style="display:none;margin-top:16px;padding:14px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:9px;">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-        <div style="flex:1;">
-          <div style="font-size:13px;font-weight:700;color:#92400E;">
-            <i class="fas fa-history"></i> Snapshot đã tạo
-          </div>
-          <div style="font-size:12px;color:#78350F;margin-top:3px;" id="snapshotInfo">—</div>
+    <% } else { %>
+    <!-- Confirm panel -->
+    <div class="apply-panel" id="applyPanel">
+      <h3><i class="fas fa-check-double" style="color:#16A34A;"></i> Xác nhận kết quả</h3>
+      <div class="apply-row">
+        <div class="apply-stats" id="applyStatsBox">
+          <b><%= latestRun.summary.allocated %></b> sinh viên được nhận &nbsp;|&nbsp;
+          Năm học: <b>2026-2027</b>
         </div>
-        <button class="btn btn-amber" id="btnUndo" onclick="undoAllocation()">
-          <i class="fas fa-undo"></i> Undo Allocation
+        <button class="btn btn-primary" id="btnApply" onclick="applyToReal()">
+          <i class="fas fa-check-circle"></i> Xác nhận &amp; Lưu kết quả
+        </button>
+        <button class="btn btn-secondary" onclick="downloadReport()">
+          <i class="fas fa-file-download"></i> Export Report
         </button>
       </div>
+      <!-- Success banner (shown after apply on this page visit) -->
+      <div id="applySuccessBanner" style="display:none;margin-top:14px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.75rem 1.25rem;">
+        <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
+          <i class="fas fa-check-circle" style="color:#16a34a;font-size:1rem;flex-shrink:0;"></i>
+          <div style="flex:1;">
+            <strong style="color:#15803d;font-size:13px;">Đã áp dụng mô phỏng thành công</strong>
+            <span style="font-size:12px;color:#166534;margin-left:8px;" id="snapshotInfo">—</span>
+          </div>
+          <button onclick="undoSimulation()" style="padding:.35rem .9rem;border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            <i class="fas fa-undo"></i> Hoàn tác
+          </button>
+        </div>
+      </div>
     </div>
+    <% } %>
+
   </div>
   <% } %>
 
@@ -751,31 +751,28 @@ function switchTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ── Seed Year 1 ───────────────────────────────────────────────────────────────
-async function seedYear1() {
-  const count = parseInt(document.getElementById('year1Count').value) || 200;
-  const enrollYear = parseInt(document.getElementById('enrollYear').value) || new Date().getFullYear();
-  const simAcademicYear = document.getElementById('simYear').value.trim() || `${enrollYear}-${enrollYear+1}`;
-
-  spin(true, `Đang tạo ${count} sinh viên Năm 1 và áp dụng Cohort Shift...`);
+// ── Reseed Year 1 (manual, on demand) ────────────────────────────────────────
+async function reseedYear1() {
+  const count = parseInt(document.getElementById('year1Count').value) || 333;
+  spin(true, `Đang thêm ${count} sinh viên Năm 1...`);
   try {
     const res = await fetch('/api/simulation/engine/seed-year1', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ count, enrollmentYear: enrollYear, simAcademicYear })
+      body: JSON.stringify({ count, enrollmentYear: 2026, simAcademicYear: '2026-2027' })
     });
     const data = await res.json();
     spin(false);
     if (!data.success) return toast('Lỗi: ' + data.error, 'err');
-    toast(`Đã tạo ${data.seeded} SV Năm 1 + Cohort Shift hoàn tất`, 'ok');
+    toast(`Đã thêm ${data.seeded} SV Năm 1`, 'ok');
     updateCohortDisplay(data.distribution);
   } catch(e) { spin(false); toast('Lỗi kết nối', 'err'); }
 }
 
 function updateCohortDisplay(dist) {
   if (!dist) return;
-  const map = { 'cnt-yr1': dist.year1, 'cnt-yr2': dist.year2, 'cnt-yr3': dist.year3,
-                'cnt-yr4p': dist.year4_plus, 'cnt-yr5p': dist.year5plus };
+  const map = { 'cnt-y1': dist.year1, 'cnt-y2': dist.year2, 'cnt-y3': dist.year3,
+                'cnt-y4': dist.year4_plus, 'cnt-y5': dist.year5plus };
   Object.entries(map).forEach(([id, val]) => {
     const el = document.getElementById(id);
     if (el) el.textContent = val || 0;
@@ -876,11 +873,11 @@ async function submitPromote() {
 // ── Apply to Real Allocation ──────────────────────────────────────────────────
 async function applyToReal() {
   if (!CURRENT_RUN_ID) return toast('Chưa có simulation run', 'err');
-  if (!confirm('⚠️ Bạn có chắc muốn apply kết quả simulation vào database thật?\n\nHành động này sẽ tạo RoomAllocation thật cho sinh viên hiện có.\nBạn có thể undo ngay sau đó.')) return;
+  if (!confirm('Xác nhận áp dụng kết quả mô phỏng?')) return;
 
   const btn = document.getElementById('btnApply');
   btn.disabled = true;
-  spin(true, 'Đang apply vào database thật...');
+  spin(true, 'Đang xử lý...');
   try {
     const res  = await fetch('/api/simulation/engine/apply', {
       method: 'POST',
@@ -894,40 +891,34 @@ async function applyToReal() {
       return toast('Lỗi: ' + data.error, 'err');
     }
     currentSnapshotId = data.snapshotId;
-    toast(data.message, 'ok');
+    toast(data.message || 'Đã lưu kết quả mô phỏng', 'ok');
 
-    // Show undo section
-    document.getElementById('undoSection').style.display = 'block';
-    document.getElementById('snapshotInfo').textContent =
-      `Snapshot: ${data.snapshotId} | Đã apply: ${data.stats.realStudents} SV | Bỏ qua Năm 1 mô phỏng: ${data.stats.skippedYear1}`;
-    document.getElementById('applyPanel').classList.add('applied');
+    // Show success banner
+    const banner = document.getElementById('applySuccessBanner');
+    if (banner) {
+      banner.style.display = 'block';
+      document.getElementById('snapshotInfo').textContent =
+        `Đã lưu ${data.stats.realStudents} sinh viên | Bỏ qua ${data.stats.skippedYear1} SV năm 1 mô phỏng`;
+    }
     btn.disabled = true;
-    btn.textContent = '✓ Đã Apply';
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Đã áp dụng';
   } catch(e) { spin(false); btn.disabled = false; toast('Lỗi kết nối', 'err'); }
 }
 
-// ── Undo Allocation ───────────────────────────────────────────────────────────
-async function undoAllocation() {
-  if (!currentSnapshotId) return toast('Không tìm thấy snapshot ID', 'err');
-  if (!confirm('Khôi phục dữ liệu về trạng thái trước khi apply?')) return;
-
-  spin(true, 'Đang undo...');
+// ── Undo simulation ───────────────────────────────────────────────────────────
+async function undoSimulation() {
+  if (!confirm('Hoàn tác kết quả mô phỏng?')) return;
+  spin(true, 'Đang hoàn tác...');
   try {
-    const res  = await fetch(`/api/simulation/engine/undo/${currentSnapshotId}`, {
+    const res = await fetch('/api/simulation/engine/undo-demo', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
     const data = await res.json();
     spin(false);
     if (!data.success) return toast('Lỗi: ' + data.error, 'err');
-    toast(data.message, 'ok');
-
-    document.getElementById('btnUndo').disabled = true;
-    document.getElementById('btnUndo').textContent = '✓ Đã Undo';
-    document.getElementById('snapshotInfo').textContent += ' | ✓ UNDONE';
-    document.getElementById('btnApply').disabled = false;
-    document.getElementById('btnApply').innerHTML = '<i class="fas fa-check-circle"></i> Apply to Real Allocation';
-    document.getElementById('applyPanel').classList.remove('applied');
+    toast('Đã hoàn tác', 'ok');
+    setTimeout(() => location.reload(), 600);
   } catch(e) { spin(false); toast('Lỗi kết nối', 'err'); }
 }
 
@@ -938,9 +929,6 @@ function downloadReport() {
 
 // ── Run Simulation ────────────────────────────────────────────────────────────
 async function runSimulation() {
-  const simAcademicYear = document.getElementById('simYear').value.trim()
-    || `${new Date().getFullYear()}-${new Date().getFullYear()+1}`;
-
   const weights = {
     weightYear:        document.getElementById('w-year').value,
     weightDistance:    document.getElementById('w-distance').value,
@@ -949,7 +937,7 @@ async function runSimulation() {
     weightEthnicity:   document.getElementById('w-ethnicity').value,
     weightViolation:   document.getElementById('w-violation').value,
     weightDormHistory: document.getElementById('w-dormHistory').value,
-    simAcademicYear
+    simAcademicYear:   '2026-2027'
   };
 
   document.getElementById('btnRun').disabled = true;
@@ -965,8 +953,6 @@ async function runSimulation() {
     document.getElementById('btnRun').disabled = false;
     if (!data.success) return toast('Lỗi: ' + data.error, 'err');
     toast(`${data.message}`, 'ok');
-
-    // Reload page to show full results
     setTimeout(() => location.reload(), 800);
   } catch(e) {
     spin(false);

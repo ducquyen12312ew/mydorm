@@ -30,7 +30,7 @@ router.get('/student/service-requests', isAuthenticated, async (req, res) => {
             if (dorm) {
                 outer: for (const floor of (dorm.floors || [])) {
                     for (const room of (floor.rooms || [])) {
-                        if (room.roomNumber === student.roomNumber) {
+                        if (String(room.roomNumber) === String(student.roomNumber)) {
                             currentRoom = {
                                 dormName: dorm.name,
                                 floor: floor.floorNumber,

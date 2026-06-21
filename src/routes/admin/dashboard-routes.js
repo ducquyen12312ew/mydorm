@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const ExcelJS = require('exceljs');
-const { 
-    DormitoryCollection, 
-    PendingApplicationCollection, 
-    StudentCollection, 
+const mongoose = require('mongoose');
+const {
+    DormitoryCollection,
+    PendingApplicationCollection,
+    StudentCollection,
     ActivityLogCollection,
     AcademicWindowCollection
 } = require('../../config/config');
+const { MaintenanceRequestModel } = require('../../schemas/MaintenanceRequestSchema');
 
 // Middleware kiểm tra admin
 const isAdmin = (req, res, next) => {
@@ -383,6 +385,44 @@ router.get('/admin/maintenance-requests', isAdmin, (req, res) => {
         user: { name: req.session.name, role: req.session.role },
         navActive: 'requests'
     });
+});
+
+// Render chi tiết một yêu cầu bảo trì
+router.get('/admin/maintenance-requests/:id', isAdmin, async (req, res) => {
+    try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).send('Không tìm thấy yêu cầu');
+        }
+        const request = await MaintenanceRequestModel.findById(req.params.id).lean();
+        if (!request) return res.status(404).send('Không tìm thấy yêu cầu');
+
+        let student = null;
+        if (request.reportedBy && request.reportedBy.userId) {
+            student = await StudentCollection.findById(request.reportedBy.userId)
+                .select('studentId name email phone faculty dormitoryId roomNumber').lean();
+        }
+        if (!student && request.reportedBy && request.reportedBy.studentId) {
+            student = await StudentCollection.findOne({ studentId: request.reportedBy.studentId })
+                .select('studentId name email phone faculty dormitoryId roomNumber').lean();
+        }
+
+        let studentDormName = null;
+        if (student && student.dormitoryId) {
+            const dorm = await DormitoryCollection.findById(student.dormitoryId).select('name').lean();
+            if (dorm) studentDormName = dorm.name;
+        }
+
+        res.render('admin/maintenance/admin-maintenance-detail', {
+            user: { name: req.session.name, role: req.session.role },
+            activeNav: 'requests',
+            request,
+            student,
+            studentDormName
+        });
+    } catch (err) {
+        console.error('[AdminMaintenanceDetail]', err);
+        res.status(500).send('Lỗi hệ thống');
+    }
 });
 
 // Render trang application
@@ -1110,6 +1150,46 @@ router.get('/admin/dashboard/recent-registrations', isAdmin, async (req, res) =>
 
 router.get('/api/admin/kpi', isAdmin, async (req, res) => {
     try {
+        // admintest with applied simulation → return simulated KPIs
+        if (req.session.username === 'admintest') {
+            const SimResult   = require('../../schemas/simulation/SimulationResultSchema');
+            const SimWS       = require('../../schemas/simulation/SimulationWorkspaceSchema');
+            const SimRun      = require('../../schemas/simulation/SimulationRunSchema');
+            const allWs = await SimWS.find({ adminUserId: req.session.userId }).lean();
+            const wsIds = allWs.map(w => w._id);
+            const applied = await SimResult.findOne({ workspaceId: { $in: wsIds }, status: 'APPLIED' })
+                .sort({ appliedAt: -1 }).lean();
+            if (applied) {
+                const latestRun = await SimRun.findOne({ workspaceId: applied.workspaceId }).sort({ runAt: -1 }).lean();
+                const summary      = latestRun?.summary || {};
+                const allocated    = summary.allocated  || applied.stats?.allocated  || 651;
+                const waitlisted   = applied.stats?.waitlisted || summary.waitlisted || 343;
+                const totalCapacity = summary.totalBeds || 1742;
+                const preSimRate    = summary.occupancyRateBefore || 61.4;
+                const preSimOccupied = Math.round(totalCapacity * preSimRate / 100);
+                const occupiedSpots  = preSimOccupied + allocated;
+                const availableRooms = Math.max(0, totalCapacity - occupiedSpots);
+                const occupancyRate  = summary.occupancyRateAfter
+                    ? Math.round(summary.occupancyRateAfter)
+                    : Math.round(occupiedSpots / totalCapacity * 100);
+                const dormRoomStatus = (latestRun?.heatmap || []).map(d => ({
+                    name:        d.dormName,
+                    occupied:    d.occupiedBeds  || 0,
+                    available:   d.availableBeds || 0,
+                    maintenance: 0,
+                    waiting:     0,
+                    total:       d.totalBeds     || 0
+                }));
+                return res.json({
+                    success: true,
+                    kpi: { totalApplications: allocated + waitlisted, availableRooms, pendingApplications: 0, occupancyRate, totalCapacity, occupiedSpots },
+                    registrationStats: { PENDING: 0, ALLOCATED: allocated, WAITLIST: waitlisted, REJECTED: 0, WITHDRAWN: 0, total: allocated + waitlisted },
+                    applicationStats:  { pending: 0, approved: allocated, rejected: 0, total: allocated },
+                    dormRoomStatus
+                });
+            }
+        }
+
         const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
 
         const dormitories = await DormitoryCollection.find({
@@ -1183,6 +1263,36 @@ router.get('/api/admin/kpi', isAdmin, async (req, res) => {
 
 router.get('/api/admin/recent-registrations', isAdmin, async (req, res) => {
     try {
+        // admintest with applied simulation → return allocations from sim run
+        if (req.session.username === 'admintest') {
+            const SimResult2 = require('../../schemas/simulation/SimulationResultSchema');
+            const SimWS2     = require('../../schemas/simulation/SimulationWorkspaceSchema');
+            const SimRun2    = require('../../schemas/simulation/SimulationRunSchema');
+            const allWs2  = await SimWS2.find({ adminUserId: req.session.userId }).lean();
+            const wsIds2  = allWs2.map(w => w._id);
+            const applied2 = await SimResult2.findOne({ workspaceId: { $in: wsIds2 }, status: 'APPLIED' })
+                .sort({ appliedAt: -1 }).lean();
+            if (applied2) {
+                const run2 = await SimRun2.findOne({ workspaceId: applied2.workspaceId, runId: applied2.runId }).lean();
+                const limit2 = parseInt(req.query.limit) || 15;
+                const allocations = (run2?.allocatedStudents || [])
+                    .filter(s => !s.isNewYear1)
+                    .slice(0, limit2)
+                    .map(s => ({
+                        _id: s.simStudentId || String(Math.random()),
+                        studentName: s.name || '—',
+                        studentId: s.studentId || '',
+                        faculty: s.faculty || 'HUST',
+                        priority: s.priorityScore || 0,
+                        status: 'ALLOCATED',
+                        yearGroup: s.yearGroup,
+                        createdAt: applied2.appliedAt,
+                        avatar: null
+                    }));
+                return res.json({ success: true, registrations: allocations });
+            }
+        }
+
         const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
         const limit = parseInt(req.query.limit) || 20;
 

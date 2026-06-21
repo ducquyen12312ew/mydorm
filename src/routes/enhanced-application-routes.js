@@ -211,6 +211,17 @@ router.get('/admin/forced-exit-candidates', async (req, res) => {
 });
 
 /**
+ * GET /student/explore-rooms
+ * Browse available rooms with 360° panoramic views
+ */
+router.get('/student/explore-rooms', (req, res) => {
+  if (!req.isAuthenticated() || req.user.role !== 'student') {
+    return res.redirect('/login');
+  }
+  res.render('student/explore-rooms', { user: req.user });
+});
+
+/**
  * DELETE /uploads/:filename
  * Delete uploaded file (admin only)
  */

@@ -3,7 +3,7 @@
 const express = require('express');
 const router = express.Router();
 const { isAdmin } = require('../../middleware/auth');
-const MaintenanceRequest = require('../../schemas/MaintenanceRequestSchema');
+const { MaintenanceRequestModel: MaintenanceRequest } = require('../../schemas/MaintenanceRequestSchema');
 const RoomTransfer = require('../../schemas/RoomTransferSchema');
 
 const PER_PAGE = 25;
@@ -55,7 +55,7 @@ router.get('/admin/requests', isAdmin, async (req, res) => {
                 statusLabel: _maintStatusLabel(r.status),
                 meta: r.requestNumber,
                 createdAt: r.reportedAt || r.createdAt,
-                detailUrl: `/admin/maintenance-requests`,
+                detailUrl: `/admin/maintenance-requests/${r._id}`,
                 priority: r.priority
             }));
         } else if (type === 'room_transfer') {
@@ -95,7 +95,7 @@ router.get('/admin/requests', isAdmin, async (req, res) => {
                     statusLabel: _maintStatusLabel(r.status),
                     meta: r.requestNumber,
                     createdAt: r.reportedAt || r.createdAt,
-                    detailUrl: `/admin/maintenance-requests`,
+                    detailUrl: `/admin/maintenance-requests/${r._id}`,
                     priority: r.priority
                 })),
                 ...rtRaw.map(r => ({

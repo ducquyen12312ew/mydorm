@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title><%= mode === 'edit' ? 'Kế hoạch quota' : 'Tạo quota nháp' %></title>
@@ -88,7 +91,16 @@
           </div>
           <div class="field">
             <label>Tổng sức chứa (C)</label>
-            <input form="quotaForm" type="number" min="1" name="totalCapacity" value="<%= form.totalCapacity %>" required <%= isLocked ? 'disabled' : '' %> />
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <input id="totalCapacityInput" form="quotaForm" type="number" min="1" name="totalCapacity" value="<%= form.totalCapacity %>" required <%= isLocked ? 'disabled' : '' %> style="flex:1;min-width:100px;" />
+              <% if (!isLocked) { %>
+              <button type="button" onclick="fetchCurrentCapacity(event)"
+                style="padding:.5rem 1rem;border:1px solid #D1D5DB;background:#F9FAFB;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;color:#374151;white-space:nowrap;">
+                <i class="fas fa-sync-alt"></i> Lấy theo phòng hiện tại
+              </button>
+              <% } %>
+            </div>
+            <span id="capacityBreakdown" class="hint"></span>
           </div>
           <div class="field">
             <label>Hiệu lực từ</label>
@@ -348,6 +360,28 @@
       totalCapacityInput.addEventListener('input', syncPercentHint);
     }
     syncPercentHint();
+
+    async function fetchCurrentCapacity(e) {
+      const btn = e.target.closest('button');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang tính...';
+      try {
+        const res = await fetch('/api/admin/capacity/current');
+        const data = await res.json();
+        if (data.success) {
+          const inp = document.getElementById('totalCapacityInput');
+          if (inp) { inp.value = data.totalBeds; inp.dispatchEvent(new Event('input')); }
+          const info = document.getElementById('capacityBreakdown');
+          if (info) info.textContent = `${data.totalRooms} phòng · ${data.totalBeds} giường · ${data.dormCount} tòa`;
+        } else {
+          alert(data.error || 'Không lấy được sức chứa');
+        }
+      } catch(err) {
+        alert('Lỗi kết nối');
+      }
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-sync-alt"></i> Lấy theo phòng hiện tại';
+    }
   </script>
 </body>
 </html>

@@ -123,6 +123,12 @@ self.addEventListener('fetch', (event) => {
     if (request.method !== 'GET') return;
     if (!url.startsWith('http')) return;
 
+    // Bypass SW for map tiles — let browser handle directly
+    if (url.includes('tile.openstreetmap.org') ||
+        url.includes('arcgisonline.com')) {
+        return;
+    }
+
     // ── Network Only: API, Socket.IO, auth ─────────────────────────────
     if (isBypass(url)) {
         // Let the browser handle it — no SW interception

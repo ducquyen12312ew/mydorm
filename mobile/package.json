@@ -40,6 +40,7 @@
     "@babel/core": "^7.25.0",
     "@types/react": "~18.3.12",
     "playwright": "^1.60.0",
+    "sharp": "^0.35.1",
     "typescript": "~5.3.3"
   }
 }

@@ -752,6 +752,54 @@ async function finalizeQuotaPlan(req, res) {
   }
 }
 
+async function deleteQuota(req, res) {
+  try {
+    const quota = await QuotaConfig.findById(req.params.id);
+    if (!quota) return res.json({ success: false, error: 'Không tìm thấy quota' });
+    if (quota.isPublished) return res.json({ success: false, error: 'Không thể xóa quota đang ban hành. Hãy lưu trữ trước.' });
+    await QuotaConfig.deleteOne({ _id: quota._id });
+    res.json({ success: true, message: `Đã xóa quota ${quota.academicYear} v${quota.version}` });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+}
+
+async function archiveQuota(req, res) {
+  try {
+    const quota = await QuotaConfig.findById(req.params.id);
+    if (!quota) return res.json({ success: false, error: 'Không tìm thấy quota' });
+    await QuotaConfig.updateOne(
+      { _id: quota._id },
+      { $set: { isPublished: false, archivedAt: new Date(), archivedBy: getActorId(req) } },
+      { strict: false }
+    );
+    res.json({ success: true, message: 'Đã lưu trữ quota' });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+}
+
+async function reactivateQuota(req, res) {
+  try {
+    const quota = await QuotaConfig.findById(req.params.id);
+    if (!quota) return res.json({ success: false, error: 'Không tìm thấy quota' });
+    const now = new Date();
+    await QuotaConfig.updateMany(
+      { isPublished: true },
+      { $set: { isPublished: false, archivedAt: now } },
+      { strict: false }
+    );
+    await QuotaConfig.updateOne(
+      { _id: quota._id },
+      { $set: { isPublished: true, isDraft: false, reactivatedAt: now, reactivatedBy: getActorId(req) } },
+      { strict: false }
+    );
+    res.json({ success: true, message: 'Đã ban hành lại quota' });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+}
+
 module.exports = {
   renderQuotaList,
   renderAuditHistory,
@@ -768,5 +816,8 @@ module.exports = {
   regenerateWorkflowPlan,
   createNotificationBatch,
   sendNotificationBatch,
-  renderLeadershipDashboard
+  renderLeadershipDashboard,
+  archiveQuota,
+  reactivateQuota,
+  deleteQuota
 };

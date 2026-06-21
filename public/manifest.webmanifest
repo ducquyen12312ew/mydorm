@@ -13,27 +13,27 @@
   "categories": ["education", "utilities"],
   "icons": [
     {
-      "src": "/icons/icon-192.png",
+      "src": "https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-512.png",
+      "src": "https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/icon-maskable-512.png",
+      "src": "https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/icon.svg",
+      "src": "https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png",
       "sizes": "any",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     }
   ],
@@ -43,14 +43,14 @@
       "short_name": "Đăng ký",
       "description": "Đăng ký phòng ký túc xá",
       "url": "/register",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png", "sizes": "192x192" }]
     },
     {
       "name": "Trạng thái phòng",
       "short_name": "Trạng thái",
       "description": "Xem trạng thái phòng hiện tại",
       "url": "/room-status",
-      "icons": [{ "src": "/icons/icon-192.png", "sizes": "192x192" }]
+      "icons": [{ "src": "https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png", "sizes": "192x192" }]
     }
   ],
   "screenshots": []

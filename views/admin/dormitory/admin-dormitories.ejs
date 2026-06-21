@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ký túc xá — KTX HUST Admin</title>
@@ -453,7 +456,14 @@
         }
       });
     }
-    const globalOccRate = totalCapCnt > 0 ? Math.round(totalOccCnt / totalCapCnt * 100) : 0;
+    let globalOccRate = totalCapCnt > 0 ? Math.round(totalOccCnt / totalCapCnt * 100) : 0;
+
+    // admintest: override global KPIs with simulation data
+    if (typeof simOverall !== 'undefined' && simOverall) {
+      totalCapCnt  = simOverall.totalBeds;
+      totalOccCnt  = simOverall.occupiedBeds;
+      globalOccRate = simOverall.occupancyRate;
+    }
     %>
 
     <!-- KPI Cards -->
@@ -512,6 +522,12 @@
               });
             }
           });
+        }
+        // admintest: override per-dorm occupancy with simulation data
+        if (typeof simDormMap !== 'undefined' && simDormMap && simDormMap[dorm.name]) {
+          const sd = simDormMap[dorm.name];
+          dCap = sd.capacity;
+          dOcc = sd.occupied;
         }
         const dRate = dCap > 0 ? Math.round(dOcc / dCap * 100) : 0;
         const isAvailable = dOcc < dCap;

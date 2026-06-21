@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gửi yêu cầu | KTX HUST</title>
@@ -26,24 +29,18 @@
     body { font-family:'Inter','Segoe UI',sans-serif; background:var(--bg); color:var(--t1); }
     .page-container { max-width:900px; margin:0 auto; padding:1.5rem; }
 
-    /* Hero */
-    .hero { position:relative; overflow:hidden; background:
-              radial-gradient(circle at 16% 18%, rgba(255,255,255,.20), transparent 42%),
-              radial-gradient(circle at 88% 0%, rgba(33,61,84,.32), transparent 46%),
-              linear-gradient(135deg,var(--brand) 0%,var(--brand-strong) 100%);
-            border-radius:var(--r18); padding:2rem; color:#fff; margin-bottom:1.5rem; box-shadow:0 14px 32px rgba(157,95,56,.22); }
-    .hero::after { content:''; position:absolute; inset:0; background-image:radial-gradient(rgba(255,255,255,.14) 1px,transparent 1px); background-size:18px 18px; opacity:.5; }
-    .hero > * { position:relative; z-index:1; }
-    .hero h1 { font-size:1.5rem; font-weight:800; margin-bottom:.35rem; }
-    .hero p  { font-size:.9rem; opacity:.9; }
-    .hero-badge { display:inline-flex;align-items:center;gap:.3rem;background:rgba(255,255,255,.18);border-radius:20px;padding:.25rem .7rem;font-size:.72rem;font-weight:700;margin-bottom:.75rem; }
+    /* Page header */
+    .pg-header { display:flex; align-items:center; gap:1rem; background:var(--surface); border-radius:var(--r18); border:1px solid var(--border); padding:1.25rem 1.5rem; margin-bottom:1.25rem; box-shadow:var(--sh1); }
+    .pg-header-icon { width:44px; height:44px; border-radius:12px; background:var(--brand-soft); display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--brand-strong); font-size:1.1rem; }
+    .pg-title { font-size:1.15rem; font-weight:800; color:var(--t1); margin-bottom:.15rem; }
+    .pg-sub   { font-size:.82rem; color:var(--t2); }
 
-    /* Tab toggle */
-    .tab-toggle { display:flex; gap:.3rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--r12); padding:.3rem; margin-bottom:1.5rem; box-shadow:var(--sh1); }
-    .tab-btn { flex:1; padding:.65rem 1rem; border:none; background:none; border-radius:10px; font-size:.9rem; font-weight:700; color:var(--t2); cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:.5rem; min-height:44px; }
-    .tab-btn.active { background:linear-gradient(135deg,var(--brand),var(--brand-strong)); color:#fff; box-shadow:0 6px 14px rgba(157,95,56,.28); }
-    .tab-btn:not(.active):hover { background:var(--brand-soft); color:var(--brand-strong); }
-    .tab-btn .tab-count { background:rgba(255,255,255,.28); border-radius:10px; padding:0 .45rem; font-size:.72rem; font-weight:700; display:none; }
+    /* Tab pills */
+    .tab-toggle { display:flex; gap:.5rem; margin-bottom:1.5rem; }
+    .tab-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.5rem 1.1rem; min-height:40px; border:1.5px solid var(--border); border-radius:999px; background:var(--surface); font-size:.86rem; font-weight:600; color:var(--t2); cursor:pointer; transition:all .18s; }
+    .tab-btn.active { background:var(--brand); border-color:var(--brand); color:#fff; }
+    .tab-btn:not(.active):hover { border-color:var(--brand); color:var(--brand); background:var(--brand-soft); }
+    .tab-btn .tab-count { background:rgba(255,255,255,.3); border-radius:20px; padding:0 .4rem; font-size:.7rem; font-weight:700; display:none; }
     .tab-btn.active .tab-count { display:inline; }
 
     /* Panel */
@@ -186,14 +183,7 @@
 
 <div class="page-container">
 
-  <!-- Hero -->
-  <div class="hero">
-    <div class="hero-badge"><i class="fas fa-paper-plane"></i> Yêu cầu dịch vụ KTX</div>
-    <h1>Gửi yêu cầu hỗ trợ</h1>
-    <p>Báo cáo sự cố bảo trì hoặc gửi yêu cầu chuyển phòng — tất cả trong một nơi</p>
-  </div>
-
-  <!-- Tab toggle -->
+  <!-- Tab pills -->
   <div class="tab-toggle">
     <button class="tab-btn <%= tab === 'maintenance' ? 'active' : '' %>" data-tab="maintenance" onclick="switchTab('maintenance')">
       <i class="fas fa-tools"></i> Bảo trì
@@ -207,7 +197,7 @@
   <!-- ═══════════ MAINTENANCE TAB ═══════════ -->
   <div class="tab-panel <%= tab === 'maintenance' ? 'active' : '' %>" id="panel-maintenance">
 
-    <% if (!student || !student.dormitoryId || !student.roomNumber) { %>
+    <% if (!currentRoom) { %>
     <div class="no-room-msg">
       <i class="fas fa-exclamation-triangle"></i>
       Bạn chưa được phân phòng. Vui lòng đăng ký phòng trước khi gửi yêu cầu bảo trì.
@@ -228,7 +218,7 @@
             <option value="completed">Hoàn thành</option>
             <option value="cancelled">Đã huỷ</option>
           </select>
-          <button class="action-btn" onclick="openCreateMaintModal()" <%= (!student || !student.dormitoryId) ? 'disabled' : '' %>>
+          <button class="action-btn" onclick="openCreateMaintModal()" <%= !currentRoom ? 'disabled' : '' %>>
             <i class="fas fa-plus"></i> Tạo yêu cầu
           </button>
         </div>
@@ -445,6 +435,7 @@
 const PHONE = '<%= (student && student.phone) ? student.phone : "" %>';
 let selectedRating = 0;
 let currentFeedbackId = null;
+let _maintCache = {};
 
 // ──────────────── Tabs ────────────────
 function switchTab(tab) {
@@ -479,11 +470,15 @@ function renderMaintList(reqs) {
         return;
     }
 
+    // Cache requests by _id so click handler doesn't embed JSON in HTML attributes
+    _maintCache = {};
+    reqs.forEach(r => { _maintCache[r._id] = r; });
+
     const typeMap = { electrical:'Điện', plumbing:'Nước', hvac:'Điều hòa', furniture:'Nội thất', door_lock:'Cửa & khóa', window:'Cửa sổ', internet:'Mạng internet', cleaning:'Vệ sinh', pest_control:'Côn trùng', other:'Khác' };
     const statusLabel = { submitted:'Chờ xử lý', assigned:'Đã phân công', in_progress:'Đang xử lý', completed:'Hoàn thành', cancelled:'Đã huỷ' };
 
     list.innerHTML = '<div class="req-list">' + reqs.map(r => `
-        <div class="req-card s-${r.status}" onclick="viewMaintDetail('${r._id}', ${JSON.stringify(r).replace(/'/g,"&#39;")})">
+        <div class="req-card s-${r.status}" onclick="openMaintDetail('${r._id}')">
             <div class="req-card-head">
                 <div>
                     <div class="req-card-title">${esc(r.title)}</div>
@@ -497,13 +492,16 @@ function renderMaintList(reqs) {
             <div class="req-card-desc">${esc(r.description)}</div>
             <div class="req-card-foot">
                 <span class="req-card-date"><i class="fas fa-clock" style="margin-right:.25rem"></i>${new Date(r.reportedAt||r.createdAt).toLocaleDateString('vi-VN')}</span>
-                ${r.status === 'completed' && !r.feedbackRating ? '<span style="font-size:.75rem;color:var(--red);font-weight:600">Đánh giá dịch vụ →</span>' : ''}
+                ${r.status === 'completed' && !r.feedbackRating ? '<span style="font-size:.75rem;color:var(--brand-strong);font-weight:600">Đánh giá dịch vụ →</span>' : ''}
             </div>
         </div>
     `).join('') + '</div>';
 }
 
-function viewMaintDetail(id, req) {
+function openMaintDetail(id) {
+    const req = _maintCache[id];
+    if (!req) return;
+    selectedRating = 0;
     const statusLabel = { submitted:'Đã gửi yêu cầu', assigned:'Đã phân công', in_progress:'Đang xử lý', completed:'Hoàn thành', cancelled:'Đã huỷ' };
     const statusOrder = ['submitted','assigned','in_progress','completed'];
     const cur = statusOrder.indexOf(req.status);
@@ -581,7 +579,7 @@ async function submitFeedback() {
         if (d.success) {
             closeModal('maintDetailModal');
             loadMaintenance();
-            alert('Cảm ơn bạn đã đánh giá!');
+            showToast('Cảm ơn bạn đã đánh giá dịch vụ!');
         } else {
             alert(d.error || 'Lỗi gửi đánh giá');
             btn.disabled = false; btn.textContent = 'Gửi đánh giá';
@@ -689,6 +687,21 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') document.que
 // ──────────────── Utilities ────────────────
 function esc(s) {
     return String(s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'})[c]);
+}
+
+// ──────────────── Toast ────────────────
+function showToast(msg) {
+    let t = document.getElementById('_toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = '_toast';
+        t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;background:#1f232a;color:#fff;padding:.65rem 1.25rem;border-radius:12px;font-size:.85rem;font-weight:600;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.25);transition:opacity .3s;pointer-events:none';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(t._hide);
+    t._hide = setTimeout(() => { t.style.opacity = '0'; }, 3000);
 }
 
 // ──────────────── Init ────────────────

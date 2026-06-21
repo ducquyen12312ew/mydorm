@@ -87,6 +87,7 @@ const helmetConfig = helmet({
             ],
             frameSrc: [
                 "'self'",
+                "https://www.openstreetmap.org",
                 "https://www.youtube.com",
                 "https://youtube.com",
                 "https://sketchfab.com",

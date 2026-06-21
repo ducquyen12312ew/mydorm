@@ -25,7 +25,7 @@ const { requestLogger } = require('./src/observability/observability');
 // ============================================
 // LOGGING IMPORTS
 // ============================================
-const { logger } = require('./src/config/logger');
+const { logger, logSecurityEvent } = require('./src/config/logger');
 
 // ============================================
 // SECURITY IMPORTS
@@ -81,6 +81,7 @@ const studentRoomTransferRoutes = require('./src/routes/student/student-room-tra
 const serviceRequestRoutes = require('./src/routes/student/service-request-routes');
 const adminRequestsRoutes = require('./src/routes/admin/admin-requests-routes');
 const adminEnrollmentPlanningRoutes = require('./src/routes/admin/admin-enrollment-planning-routes');
+const adminRegistrationPeriodRoutes = require('./src/routes/admin/admin-registration-period-routes');
 const adminDemandForecastRoutes = require('./src/routes/admin/admin-demand-forecast-routes');
 const simulationWorkspaceRoutes = require('./src/routes/admin/simulation-workspace-routes');
 const simulationEngineRoutes    = require('./src/routes/admin/simulation-engine-routes');
@@ -174,6 +175,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'src/uploads')));
 app.get('/favicon.ico', (req, res) => res.status(204).end());
 
 
+// Dev-only coordinate picker — no auth
+app.get('/dev/testmap', (req, res) => res.render('admin/testmap', { layout: false }));
+
 app.use(dashboardRoutes);
 app.use(dormitoryRoutes);
 app.use('/api', adminAcademicRoutes);
@@ -199,7 +203,8 @@ app.use(adminRoomTransferRoutes);         // Room transfer — admin side (detai
 app.use(studentRoomTransferRoutes);       // Room transfer — student side (POST + cancel; GET redirects)
 app.use(serviceRequestRoutes);            // Unified student service-requests page
 app.use(adminRequestsRoutes);             // Unified admin requests page
-app.use(adminEnrollmentPlanningRoutes);   // Enrollment planning
+// app.use(adminEnrollmentPlanningRoutes);   // Enrollment planning — replaced by /admin/registration-period
+app.use(adminRegistrationPeriodRoutes);   // Registration period management
 app.use(adminDemandForecastRoutes);       // Demand forecasting
 app.use(simulationWorkspaceRoutes);       // Simulation Workspace (admintest only)
 app.use(simulationEngineRoutes);          // Simulation Engine (admintest only)
@@ -461,44 +466,26 @@ app.use(errorHandler);
 // START SERVER
 // ============================================
 
-const MAX_PORT_RETRIES = 20;
-const basePort = Number(process.env.PORT) || 5000;
-let currentPort = basePort;
+const port = Number(process.env.PORT) || 5000;
 let server;
 
-function startServer(portToUse, retries = 0) {
-    const httpServer = http.createServer(app);
-    startDomainEventDispatcher();
-    server = httpServer.listen(portToUse, '0.0.0.0', () => {
-        currentPort = portToUse;
-        logger.info(`Server started successfully on port ${portToUse}`, {
-            env: process.env.NODE_ENV,
-            nodeVersion: process.version,
-        });
-
-        const io = setupStudentSocketServer(httpServer, sessionMiddleware);
-        app.set('io', io);
-        logger.info(`Server listening on 0.0.0.0:${portToUse}`);
+const httpServer = http.createServer(app);
+startDomainEventDispatcher();
+server = httpServer.listen(port, '0.0.0.0', () => {
+    logger.info(`Server started successfully on port ${port}`, {
+        env: process.env.NODE_ENV,
+        nodeVersion: process.version,
     });
 
-    server.on('error', (error) => {
-        if (error.code === 'EADDRINUSE' && retries < MAX_PORT_RETRIES) {
-            const nextPort = portToUse + 1;
-            logger.warn(`Port ${portToUse} is busy, retrying on ${nextPort}...`);
-            setTimeout(() => startServer(nextPort, retries + 1), 250);
-            return;
-        }
+    const io = setupStudentSocketServer(httpServer, sessionMiddleware);
+    app.set('io', io);
+    logger.info(`Server listening on 0.0.0.0:${port}`);
+});
 
-        logger.error(error.message, {
-            stack: error.stack,
-            port: portToUse,
-            retries,
-        });
-        process.exit(1);
-    });
-}
-
-startServer(basePort);
+server.on('error', (error) => {
+    logger.error(error.message, { stack: error.stack, port });
+    process.exit(1);
+});
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

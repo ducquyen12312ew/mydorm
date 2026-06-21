@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Simulation Workspace — eDorm</title>
+  <title>Phân bổ Phòng — eDorm</title>
   <%- include('../navbar', { user, activeNav: 'simulation' }) %>
   <style>
     .sim-wrap { max-width: 1100px; margin: 32px auto; padding: 0 24px; }
@@ -116,14 +119,13 @@
 <div class="sim-wrap">
 
   <div class="sim-header">
-    <div class="sandbox-badge"><i class="fas fa-flask"></i> SANDBOX — không ảnh hưởng dữ liệu thật</div>
-    <h2>Simulation Workspace</h2>
-    <p>Môi trường thử nghiệm phân bổ độc lập. Dữ liệu được clone từ Production và reset mỗi lần đăng nhập.</p>
+    <h2>Phân bổ Phòng Tự động</h2>
+    <p>Thiết lập tiêu chí, chạy mô phỏng và xem trước kết quả phân bổ phòng ở KTX.</p>
   </div>
 
   <!-- Flow Diagram -->
   <div class="flow-section">
-    <h3><i class="fas fa-route" style="color:#C8102E;margin-right:6px;"></i>Luồng Sandbox</h3>
+    <h3><i class="fas fa-route" style="color:#C8102E;margin-right:6px;"></i>Quy trình phân bổ</h3>
     <div class="flow-steps">
       <div class="flow-step">
         <div class="icon prod"><i class="fas fa-database"></i></div>
@@ -161,14 +163,14 @@
   <% if (workspaceStatus.hasWorkspace) { %>
   <div class="ws-grid">
     <div class="ws-card">
-      <div class="label">Sinh viên (Sandbox)</div>
+      <div class="label">Sinh viên</div>
       <div class="value"><%= workspaceStatus.liveCounts.studentCount.toLocaleString() %></div>
-      <div class="sub">Clone từ production</div>
+      <div class="sub">Đã tải vào hệ thống</div>
     </div>
     <div class="ws-card">
       <div class="label">Ký túc xá</div>
       <div class="value"><%= workspaceStatus.liveCounts.dormCount %></div>
-      <div class="sub">KTX được clone</div>
+      <div class="sub">Ký túc xá</div>
     </div>
     <div class="ws-card">
       <div class="label">Đăng ký mô phỏng</div>
@@ -191,10 +193,10 @@
     </button>
     <% } else { %>
     <a href="/admin/simulation/engine" class="btn-sim btn-primary" style="text-decoration:none;">
-      <i class="fas fa-bolt"></i> Mở Simulation Engine
+      <i class="fas fa-bolt"></i> Mở công cụ phân bổ
     </a>
     <button class="btn-sim btn-warning" onclick="resetWorkspace()">
-      <i class="fas fa-redo"></i> Reset & Clone lại
+      <i class="fas fa-redo"></i> Làm mới dữ liệu
     </button>
     <button class="btn-sim btn-secondary" onclick="refreshStatus()">
       <i class="fas fa-sync"></i> Làm mới
@@ -227,36 +229,18 @@
       </div>
       <div>
         <div class="info-row">
-          <span class="info-label">Workspace ID</span>
-          <span class="info-value" style="font-family:monospace;font-size:11px;color:#6B7280"><%= workspaceStatus.workspace._id %></span>
-        </div>
-        <div class="info-row">
           <span class="info-label">Số phòng</span>
           <span class="info-value"><%= workspaceStatus.workspace.snapshotSummary.roomCount %> phòng</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Reset khi</span>
-          <span class="info-value">Logout hoặc Login lại</span>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="section-panel">
-    <h3><i class="fas fa-exclamation-triangle" style="color:#CA8A04;margin-right:6px;"></i>Lưu ý quan trọng</h3>
-    <ul style="margin:0;padding-left:18px;color:#374151;font-size:14px;line-height:1.8;">
-      <li>Mọi thay đổi trong Workspace <strong>không ảnh hưởng</strong> đến dữ liệu thật</li>
-      <li>Workspace tự động <strong>xóa và clone lại</strong> khi bạn đăng xuất hoặc đăng nhập lại</li>
-      <li>Chỉ tài khoản <code>admintest</code> mới có thể truy cập tính năng này</li>
-      <li>Dữ liệu được clone tại thời điểm: <strong><%= new Date(workspaceStatus.workspace.clonedAt).toLocaleString('vi-VN') %></strong></li>
-    </ul>
-  </div>
   <% } else { %>
   <div class="section-panel">
-    <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Chưa có Workspace</h3>
+    <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Chưa khởi tạo</h3>
     <p style="color:#6B7280;font-size:14px;margin:0;">
-      Nhấn <strong>Khởi tạo Workspace</strong> để clone dữ liệu từ Production vào Sandbox.
-      Quá trình này sẽ sao chép sinh viên, ký túc xá, chính sách và chu kỳ phân bổ.
+      Nhấn <strong>Khởi tạo</strong> để tải dữ liệu sinh viên, ký túc xá và chu kỳ phân bổ vào hệ thống.
     </p>
   </div>
   <% } %>
@@ -281,7 +265,7 @@ function toast(msg, type = 'info') {
 }
 
 async function initWorkspace() {
-  showSpinner('Đang clone dữ liệu từ Production...');
+  showSpinner('Đang khởi tạo...');
   try {
     const res = await fetch('/api/simulation/workspace/init', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();
@@ -299,8 +283,8 @@ async function initWorkspace() {
 }
 
 async function resetWorkspace() {
-  if (!confirm('Reset workspace sẽ xóa toàn bộ dữ liệu sandbox hiện tại và clone lại từ production. Tiếp tục?')) return;
-  showSpinner('Đang reset và clone lại dữ liệu...');
+  if (!confirm('Làm mới sẽ xóa dữ liệu hiện tại và tải lại. Tiếp tục?')) return;
+  showSpinner('Đang làm mới dữ liệu...');
   try {
     const res = await fetch('/api/simulation/workspace/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();

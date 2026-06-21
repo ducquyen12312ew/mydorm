@@ -1,89 +1,134 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= plan.planName %> — Admin KTX HUST</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --red:#C8102E; --red-dark:#9E0D25; --bg:#F5F6F8; --card:#FFF; --border:#EAECF0; --text:#2D3748; --muted:#9AA3AD; --success:#6BAF95; --radius:12px; }
-    body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); }
-    .admin-content { min-height:100vh; }
-    .page-wrap { max-width:1300px; margin:0 auto; padding:1.5rem; }
-    .back-link { display:inline-flex;align-items:center;gap:.4rem;color:var(--muted);font-size:.85rem;text-decoration:none;margin-bottom:1.25rem; }
-    .back-link:hover { color:var(--red); }
-    .page-header { display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.5rem;gap:1rem;flex-wrap:wrap; }
-    .page-header h1 { font-size:1.25rem;font-weight:700; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F8F9FA; color: #111827; }
+    .page-wrap { max-width: 1200px; margin: 28px auto; padding: 0 24px; }
 
-    .badge { display:inline-flex;align-items:center;padding:.25rem .65rem;border-radius:20px;font-size:.75rem;font-weight:700; }
-    .badge-draft    { background:#F3F4F6;color:#6B7280; }
-    .badge-review   { background:#FEF3C7;color:#92400E; }
-    .badge-approved { background:#D1FAE5;color:#065F46; }
-    .badge-locked   { background:#EDE9FE;color:#5B21B6; }
+    .back-link { display: inline-flex; align-items: center; gap: 5px; color: #6B7280; font-size: 13px; text-decoration: none; margin-bottom: 16px; }
+    .back-link:hover { color: #C8102E; }
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; flex-wrap: wrap; }
+    .page-header h1 { font-size: 19px; font-weight: 700; color: #111827; }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    .kpi-row { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.25rem; }
-    .kpi { background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem; }
-    .kpi .label { font-size:.75rem;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.05em; }
-    .kpi .value { font-size:1.8rem;font-weight:800;margin-top:.2rem; }
-    .kpi .value.red { color:var(--red); }
-    .kpi .value.green { color:var(--success); }
-    .kpi .sub { font-size:.75rem;color:var(--muted);margin-top:.15rem; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: background .15s; }
+    .btn-red { background: #C8102E; color: #fff; }
+    .btn-red:hover { background: #a50d24; }
+    .btn-outline { background: #fff; border: 1px solid #E5E7EB; color: #374151; }
+    .btn-outline:hover { border-color: #C8102E; color: #C8102E; }
+    .btn-danger { background: #fff; border: 1px solid #FCA5A5; color: #DC2626; }
+    .btn-danger:hover { background: #FEF2F2; }
 
-    .grid-2 { display:grid;grid-template-columns:1fr 1.5fr;gap:1.25rem;margin-bottom:1.25rem; }
-    .card { background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem; }
-    .card-title { font-size:.82rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:1rem; }
+    .badge { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .badge-draft    { background: #F3F4F6; color: #6B7280; }
+    .badge-review   { background: #FEF3C7; color: #92400E; }
+    .badge-approved { background: #D1FAE5; color: #065F46; }
+    .badge-locked   { background: #EDE9FE; color: #5B21B6; }
 
-    .btn { display:inline-flex;align-items:center;gap:.4rem;padding:.45rem .9rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:none;transition:all .2s;text-decoration:none; }
-    .btn-red { background:var(--red);color:#fff; } .btn-red:hover { background:var(--red-dark); }
-    .btn-outline { background:transparent;border:1px solid var(--border);color:var(--text); }
-    .btn-outline:hover { border-color:var(--red);color:var(--red); }
+    .card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 20px 22px; margin-bottom: 16px; }
+    .card-title { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 14px; }
 
-    .prog-table { width:100%;border-collapse:collapse; }
-    .prog-table th { background:#F8F9FB;font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;padding:.6rem .75rem;text-align:left;border-bottom:1px solid var(--border); }
-    .prog-table td { padding:.6rem .75rem;border-bottom:1px solid var(--border);font-size:.84rem;vertical-align:middle; }
-    .prog-table tr:last-child td { border-bottom:none; }
+    /* KPI row */
+    .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+    .kpi { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); padding: 14px 18px; }
+    .kpi .lbl { font-size: 11px; font-weight: 600; color: #9CA3AF; text-transform: uppercase; letter-spacing: .04em; }
+    .kpi .val { font-size: 22px; font-weight: 800; color: #111827; margin-top: 4px; }
+    .kpi .val.red { color: #C8102E; }
+    .kpi .val.green { color: #16A34A; }
+    .kpi .sub { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
 
-    .bar-track { height:6px;background:#EEF0F5;border-radius:3px;width:80px;overflow:hidden; }
-    .bar-fill { height:100%;background:var(--red);border-radius:3px; }
+    /* 2-col layout */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1.6fr; gap: 16px; margin-bottom: 16px; }
 
-    .workflow-steps { display:flex;gap:0;overflow:hidden;border-radius:8px;border:1px solid var(--border); }
-    .wf-step { flex:1;padding:.6rem .5rem;text-align:center;font-size:.72rem;font-weight:700;background:#F8F9FB;color:var(--muted); }
-    .wf-step.done { background:var(--success);color:#fff; }
-    .wf-step.active { background:var(--red);color:#fff; }
-    .wf-step + .wf-step { border-left:1px solid var(--border); }
+    /* Info table */
+    .info-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .info-table tr:not(:last-child) td { border-bottom: 1px solid #F3F4F6; }
+    .info-table td { padding: 9px 0; vertical-align: top; }
+    .info-table td:first-child { color: #6B7280; font-size: 12px; width: 42%; }
+    .info-table td:last-child { font-weight: 600; color: #111827; }
 
-    .tl { list-style:none; } .tl li { display:flex;gap:.6rem;padding-bottom:1rem; }
-    .tl-dot { width:18px;height:18px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0;margin-top:.1rem; }
-    .tl-step { font-size:.82rem;font-weight:600;text-transform:capitalize; }
-    .tl-meta { font-size:.75rem;color:var(--muted);margin-top:.1rem; }
-    @media(max-width:900px){.kpi-row{grid-template-columns:repeat(2,1fr);}.grid-2{grid-template-columns:1fr;}}
+    /* Workflow bar */
+    .wf-steps { display: flex; overflow: hidden; border-radius: 8px; border: 1px solid #E5E7EB; margin-bottom: 16px; }
+    .wf-step { flex: 1; padding: 8px 6px; text-align: center; font-size: 11px; font-weight: 700; background: #F9FAFB; color: #9CA3AF; }
+    .wf-step.done   { background: #16A34A; color: #fff; }
+    .wf-step.active { background: #C8102E; color: #fff; }
+    .wf-step + .wf-step { border-left: 1px solid #E5E7EB; }
+
+    /* Programs table */
+    .prog-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .prog-table th { background: #F9FAFB; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: .04em; padding: 9px 12px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    .prog-table th:not(:first-child) { text-align: right; }
+    .prog-table td { padding: 9px 12px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+    .prog-table td:not(:first-child) { text-align: right; }
+    .prog-table tr:last-child td { border-bottom: none; }
+    .prog-table tr:hover td { background: #FAFAFA; }
+    .tbl-scroll { overflow-x: auto; }
+
+    /* Faculty summary */
+    .fac-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .fac-table th { background: #F9FAFB; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    .fac-table th:last-child { text-align: right; }
+    .fac-table td { padding: 8px 12px; border-bottom: 1px solid #F3F4F6; font-size: 12px; }
+    .fac-table td:last-child { text-align: right; font-weight: 700; color: #C8102E; }
+    .fac-table tr:last-child td { border-bottom: none; }
+
+    /* Timeline */
+    .tl { list-style: none; }
+    .tl li { display: flex; gap: 8px; padding-bottom: 12px; }
+    .tl-dot { width: 18px; height: 18px; border-radius: 50%; background: #C8102E; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 8px; flex-shrink: 0; margin-top: 2px; }
+    .tl-step { font-size: 12px; font-weight: 600; }
+    .tl-meta { font-size: 11px; color: #9CA3AF; margin-top: 2px; }
+
+    @media(max-width:900px) { .kpi-row { grid-template-columns: repeat(2,1fr); } .grid-2 { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
 <%- include('../navbar', { activeNav: 'enrollmentplanning' }) %>
-<div class="admin-content">
-<div class="page-wrap">
 
-  <a href="/admin/enrollment-planning" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại</a>
+<div class="page-wrap">
+  <a href="/admin/enrollment-planning" class="back-link"><i class="fas fa-arrow-left"></i> Quay lại danh sách</a>
 
   <div class="page-header">
     <div>
-      <div style="font-size:.78rem;color:var(--red);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.3rem"><%= plan.academicYear %></div>
+      <div style="font-size:11px;color:#C8102E;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px"><%= plan.academicYear %></div>
       <h1><%= plan.planName %></h1>
-      <div style="margin-top:.5rem;display:flex;align-items:center;gap:.75rem;flex-wrap:wrap">
-        <% const sl={draft:'Nháp',review:'Chờ duyệt',approved:'Đã duyệt',locked:'Đã khoá'} %>
-        <span class="badge badge-<%= plan.status %>"><%= sl[plan.status] %></span>
-        <% if (plan.description) { %><span style="font-size:.82rem;color:var(--muted)"><%= plan.description %></span><% } %>
+      <div style="margin-top:6px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <% const statusLabels={draft:'Nháp',review:'Chờ duyệt',approved:'Đã duyệt',locked:'Đã khoá'} %>
+        <span class="badge badge-<%= plan.status %>"><%= statusLabels[plan.status] || plan.status %></span>
+        <% if (plan.description) { %><span style="font-size:12px;color:#6B7280"><%= plan.description %></span><% } %>
       </div>
     </div>
-    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+    <div class="header-actions">
+      <% if (plan.status === 'draft') { %>
+        <button class="btn btn-danger" onclick="deletePlan()">
+          <i class="fas fa-trash"></i> Xoá
+        </button>
+      <% } %>
+      <% if (plan.status === 'approved') { %>
+        <% if (activeCycle) { %>
+          <span class="badge badge-approved" style="padding:7px 12px"><i class="fas fa-circle" style="font-size:8px;color:#16A34A;margin-right:4px"></i> Đang mở đăng ký</span>
+          <button class="btn btn-outline" onclick="closeRegistration()">
+            <i class="fas fa-stop-circle"></i> Đóng đăng ký
+          </button>
+        <% } else { %>
+          <button class="btn btn-red" onclick="openRegistration()">
+            <i class="fas fa-door-open"></i> Mở đăng ký phòng
+          </button>
+        <% } %>
+      <% } %>
       <% if (plan.status !== 'locked') { %>
         <% const nextLabel={draft:'Gửi duyệt',review:'Phê duyệt',approved:'Khoá kế hoạch'} %>
         <% const nextAction={draft:'submitted',review:'approved',approved:'locked'} %>
         <% if (nextAction[plan.status]) { %>
-          <button class="btn btn-red" onclick="advanceWorkflow('<%= nextAction[plan.status] %>')">
+          <button class="btn btn-outline" onclick="advanceWorkflow('<%= nextAction[plan.status] %>')">
             <i class="fas fa-arrow-right"></i> <%= nextLabel[plan.status] %>
           </button>
         <% } %>
@@ -91,96 +136,145 @@
     </div>
   </div>
 
-  <!-- Workflow -->
-  <div class="card" style="margin-bottom:1.25rem">
-    <div class="card-title">Tiến trình phê duyệt</div>
-    <div class="workflow-steps">
-      <% const steps=['draft','review','approved','locked']; const slWf={draft:'Nháp',review:'Xét duyệt',approved:'Phê duyệt',locked:'Khoá'}; %>
-      <% const planStepIdx = steps.indexOf(plan.status); %>
-      <% steps.forEach((s,i) => { %>
-        <div class="wf-step <%= i < planStepIdx ? 'done' : i === planStepIdx ? 'active' : '' %>">
-          <%= i < planStepIdx ? '✓ ' : '' %><%= slWf[s] %>
-        </div>
-      <% }) %>
-    </div>
-  </div>
-
-  <!-- KPIs -->
-  <div class="kpi-row">
-    <div class="kpi"><div class="label">Tổng chỉ tiêu</div><div class="value"><%= (plan.totalPlannedQuota||0).toLocaleString('vi-VN') %></div><div class="sub">sinh viên</div></div>
-    <div class="kpi"><div class="label">Dự kiến ở KTX</div><div class="value red"><%= (plan.totalExpectedDorm||0).toLocaleString('vi-VN') %></div><div class="sub">sinh viên</div></div>
-    <div class="kpi"><div class="label">Lấp đầy dự kiến</div>
-      <div class="value <%= (plan.projectedOccupancy||0) > 95 ? 'red' : 'green' %>"><%= plan.projectedOccupancy||0 %>%</div>
-      <div class="sub">/ 1308 chỗ</div>
-    </div>
-    <div class="kpi"><div class="label">Chênh lệch</div>
-      <div class="value <%= (plan.capacityGap||0) > 0 ? 'red' : 'green' %>">
-        <%= (plan.capacityGap||0) > 0 ? '+' : '' %><%= (plan.capacityGap||0).toLocaleString('vi-VN') %>
+  <!-- Workflow progress -->
+  <div class="wf-steps">
+    <% const wfSteps=['draft','review','approved','locked'];
+       const wfLabels={draft:'Nháp',review:'Xét duyệt',approved:'Phê duyệt',locked:'Khoá'};
+       const planIdx = wfSteps.indexOf(plan.status); %>
+    <% wfSteps.forEach((s,i) => { %>
+      <div class="wf-step <%= i < planIdx ? 'done' : i === planIdx ? 'active' : '' %>">
+        <%= i < planIdx ? '✓ ' : '' %><%= wfLabels[s] %>
       </div>
-      <div class="sub"><%= (plan.capacityGap||0) > 0 ? 'thiếu chỗ' : 'còn dư chỗ' %></div>
+    <% }) %>
+  </div>
+
+  <!-- KPI row -->
+  <%
+    const rawOcc = plan.projectedOccupancy || 0;
+  %>
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="lbl">Tổng chỉ tiêu</div>
+      <div class="val"><%= (plan.totalPlannedQuota || 0).toLocaleString('vi-VN') %></div>
+      <div class="sub">sinh viên</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Dự kiến ở KTX</div>
+      <div class="val red"><%= (plan.totalExpectedDorm || 0).toLocaleString('vi-VN') %></div>
+      <div class="sub">sinh viên</div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Lấp đầy dự kiến</div>
+      <div class="val <%= rawOcc > 95 ? 'red' : 'green' %>"><%= rawOcc %>%</div>
+      <div class="sub"><%= rawOcc > 100 ? 'Vượt sức chứa' : '/ ' + (plan.dormCapacity || 1308).toLocaleString('vi-VN') + ' chỗ' %></div>
+    </div>
+    <div class="kpi">
+      <div class="lbl">Chênh lệch</div>
+      <div class="val <%= (plan.capacityGap || 0) > 0 ? 'red' : 'green' %>">
+        <%= (plan.capacityGap || 0) > 0 ? '+' : '' %><%= (plan.capacityGap || 0).toLocaleString('vi-VN') %>
+      </div>
+      <div class="sub"><%= (plan.capacityGap || 0) > 0 ? 'thiếu chỗ' : 'còn dư chỗ' %></div>
     </div>
   </div>
 
+  <!-- 2-col: overview + faculty breakdown -->
   <div class="grid-2">
-    <!-- Chart -->
-    <div class="card">
-      <div class="card-title">Phân bổ chỉ tiêu theo khoa</div>
-      <canvas id="facultyChart" height="260"></canvas>
+    <!-- Left: plan info + workflow history -->
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-title">Thông tin kế hoạch</div>
+        <table class="info-table">
+          <tr><td>Năm học</td><td><%= plan.academicYear %></td></tr>
+          <tr><td>Tên kế hoạch</td><td><%= plan.planName %></td></tr>
+          <tr><td>Trạng thái</td><td><span class="badge badge-<%= plan.status %>"><%= statusLabels[plan.status] %></span></td></tr>
+          <tr><td>Số ngành</td><td><%= (plan.programs || []).length %> ngành</td></tr>
+          <tr><td>Sức chứa KTX</td><td><%= (plan.dormCapacity || 1308).toLocaleString('vi-VN') %> chỗ</td></tr>
+          <tr><td>Ngày tạo</td><td><%= plan.createdAt ? new Date(plan.createdAt).toLocaleDateString('vi-VN') : '—' %></td></tr>
+          <% if (plan.description) { %><tr><td>Ghi chú</td><td style="font-style:italic;color:#6B7280"><%= plan.description %></td></tr><% } %>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Lịch sử phê duyệt</div>
+        <% if (!plan.workflowHistory || plan.workflowHistory.length === 0) { %>
+          <p style="font-size:13px;color:#9CA3AF">Chưa có lịch sử</p>
+        <% } else { %>
+          <ul class="tl">
+            <% plan.workflowHistory.forEach(w => { %>
+            <li>
+              <div class="tl-dot"><i class="fas fa-check" style="font-size:7px"></i></div>
+              <div>
+                <div class="tl-step"><%= w.step %></div>
+                <div class="tl-meta"><%= w.actorName || 'System' %> · <%= w.timestamp ? new Date(w.timestamp).toLocaleString('vi-VN') : '—' %></div>
+                <% if (w.note) { %><div style="font-size:11px;color:#4A5568;font-style:italic;margin-top:2px"><%= w.note %></div><% } %>
+              </div>
+            </li>
+            <% }) %>
+          </ul>
+        <% } %>
+      </div>
     </div>
 
-    <!-- Workflow history -->
+    <!-- Right: faculty summary -->
     <div class="card">
-      <div class="card-title">Lịch sử phê duyệt</div>
-      <% if (!plan.workflowHistory || plan.workflowHistory.length === 0) { %>
-        <p style="color:var(--muted);font-size:.85rem">Chưa có lịch sử</p>
-      <% } else { %>
-        <ul class="tl">
-          <% plan.workflowHistory.forEach(w => { %>
-          <li>
-            <div class="tl-dot"><i class="fas fa-check" style="font-size:.5rem"></i></div>
-            <div>
-              <div class="tl-step"><%= w.step %></div>
-              <div class="tl-meta"><%= w.actorName || 'System' %> · <%= w.timestamp ? new Date(w.timestamp).toLocaleString('vi-VN') : '—' %></div>
-              <% if (w.note) { %><div style="font-size:.8rem;color:#4A5568;font-style:italic;margin-top:.15rem"><%= w.note %></div><% } %>
-            </div>
-          </li>
-          <% }) %>
-        </ul>
-      <% } %>
+      <div class="card-title">Phân bổ theo khoa</div>
+      <%
+        const byFaculty = {};
+        (plan.programs || []).forEach(p => {
+          if (!byFaculty[p.faculty]) byFaculty[p.faculty] = { quota: 0, dorm: 0 };
+          byFaculty[p.faculty].quota += p.plannedQuota || 0;
+          byFaculty[p.faculty].dorm  += p.expectedDormResidents || 0;
+        });
+        const facEntries = Object.entries(byFaculty).sort((a,b) => b[1].quota - a[1].quota);
+      %>
+      <div class="tbl-scroll">
+        <table class="fac-table">
+          <thead>
+            <tr><th>Khoa</th><th style="text-align:right">Chỉ tiêu</th><th style="text-align:right">Dự kiến KTX</th></tr>
+          </thead>
+          <tbody>
+            <% facEntries.forEach(([fac, v]) => { %>
+            <tr>
+              <td style="font-weight:500"><%= fac %></td>
+              <td style="text-align:right;font-weight:700"><%= v.quota.toLocaleString('vi-VN') %></td>
+              <td style="text-align:right;font-weight:700;color:#C8102E"><%= v.dorm.toLocaleString('vi-VN') %></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- Programs table -->
+  <!-- Programs detail table -->
   <div class="card">
-    <div class="card-title">Chỉ tiêu chi tiết theo ngành (<%= (plan.programs||[]).length %> ngành)</div>
-    <div style="overflow-x:auto">
+    <div class="card-title">Chỉ tiêu chi tiết theo ngành (<%= (plan.programs || []).length %> ngành)</div>
+    <div class="tbl-scroll">
       <table class="prog-table">
         <thead>
           <tr>
             <th>Ngành</th>
             <th>Khoa</th>
             <th>Loại</th>
-            <th>Chỉ tiêu kế hoạch</th>
-            <th>Thực tế tuyển</th>
+            <th>Chỉ tiêu KH</th>
+            <th>Thực tế</th>
             <th>Tỷ lệ KTX</th>
             <th>Dự kiến KTX</th>
           </tr>
         </thead>
         <tbody>
-          <% (plan.programs||[]).forEach(p => { %>
+          <% (plan.programs || []).forEach(p => { %>
           <tr>
-            <td><strong><%= p.programName %></strong><br><span style="color:var(--muted);font-size:.72rem"><%= p.programCode %></span></td>
-            <td style="font-size:.8rem"><%= p.faculty %></td>
-            <td><span style="font-size:.72rem;background:#F0F4FF;border-radius:4px;padding:.1rem .4rem;color:#1E40AF"><%= p.programType %></span></td>
-            <td style="font-weight:700"><%= (p.plannedQuota||0).toLocaleString('vi-VN') %></td>
-            <td style="color:var(--muted)"><%= p.actualEnrollment || '—' %></td>
             <td>
-              <%= Math.round((p.dormApplicationRate||0)*100) %>%
-              <div class="bar-track" style="margin-top:3px">
-                <div class="bar-fill" style="width:<%= Math.round((p.dormApplicationRate||0)*100) %>%"></div>
-              </div>
+              <div style="font-weight:600;color:#111827"><%= p.programName %></div>
+              <div style="font-size:11px;color:#9CA3AF"><%= p.programCode %></div>
             </td>
-            <td style="font-weight:600;color:var(--red)"><%= (p.expectedDormResidents||0).toLocaleString('vi-VN') %></td>
+            <td style="font-size:12px;color:#6B7280"><%= p.faculty %></td>
+            <td><span style="font-size:11px;background:#F0F4FF;border-radius:4px;padding:2px 6px;color:#1E40AF"><%= p.programType %></span></td>
+            <td style="font-weight:700"><%= (p.plannedQuota || 0).toLocaleString('vi-VN') %></td>
+            <td style="color:#6B7280"><%= p.actualEnrollment ? p.actualEnrollment.toLocaleString('vi-VN') : '—' %></td>
+            <td><%= Math.round((p.dormApplicationRate || 0) * 100) %>%</td>
+            <td style="font-weight:700;color:#C8102E"><%= (p.expectedDormResidents || 0).toLocaleString('vi-VN') %></td>
           </tr>
           <% }) %>
         </tbody>
@@ -189,18 +283,17 @@
   </div>
 
 </div>
-</div>
 
 <!-- Workflow modal -->
 <div id="wfModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1000;align-items:center;justify-content:center">
-  <div style="background:#fff;border-radius:12px;padding:1.5rem;width:min(420px,90vw)">
-    <h3 id="wfModalTitle" style="margin-bottom:.75rem">Xác nhận</h3>
-    <p id="wfModalDesc" style="font-size:.88rem;color:var(--muted);margin-bottom:1rem"></p>
-    <div style="margin-bottom:1rem">
-      <label style="font-size:.82rem;font-weight:600;display:block;margin-bottom:.35rem">Ghi chú (tuỳ chọn)</label>
-      <textarea id="wfNote" style="width:100%;padding:.6rem .9rem;border:1px solid #EAECF0;border-radius:8px;font-size:.88rem" rows="2"></textarea>
+  <div style="background:#fff;border-radius:12px;padding:22px;width:min(420px,90vw)">
+    <h3 id="wfModalTitle" style="font-size:15px;font-weight:700;margin-bottom:10px">Xác nhận</h3>
+    <p id="wfModalDesc" style="font-size:13px;color:#6B7280;margin-bottom:14px"></p>
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;display:block;margin-bottom:5px">Ghi chú (tuỳ chọn)</label>
+      <textarea id="wfNote" style="width:100%;padding:8px 12px;border:1px solid #E5E7EB;border-radius:8px;font-size:13px" rows="2"></textarea>
     </div>
-    <div style="display:flex;justify-content:flex-end;gap:.5rem">
+    <div style="display:flex;justify-content:flex-end;gap:8px">
       <button class="btn btn-outline" onclick="document.getElementById('wfModal').style.display='none'">Huỷ</button>
       <button class="btn btn-red" id="wfConfirmBtn" onclick="confirmWorkflow()">Xác nhận</button>
     </div>
@@ -219,12 +312,10 @@ function advanceWorkflow(action) {
   document.getElementById('wfNote').value = '';
   document.getElementById('wfModal').style.display = 'flex';
 }
-
 async function confirmWorkflow() {
   const note = document.getElementById('wfNote').value;
   const r = await fetch(`/admin/enrollment-planning/${PLAN_ID}/workflow`, {
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: pendingAction, note })
   });
   const d = await r.json();
@@ -232,23 +323,33 @@ async function confirmWorkflow() {
   else alert('Lỗi: ' + d.error);
 }
 
-// Faculty chart
-const programs = <%- JSON.stringify(plan.programs||[]) %>;
-const byFaculty = {};
-programs.forEach(p => {
-  if (!byFaculty[p.faculty]) byFaculty[p.faculty] = 0;
-  byFaculty[p.faculty] += p.plannedQuota || 0;
-});
-new Chart(document.getElementById('facultyChart'), {
-  type: 'doughnut',
-  data: {
-    labels: Object.keys(byFaculty),
-    datasets: [{ data: Object.values(byFaculty),
-      backgroundColor: ['#C8102E','#6B9FC8','#6BAF95','#C8AA60','#9B7EC8','#7EC8C8','#C87E9B','#7EC87E','#C8A07E','#7E9BC8','#A0C87E']
-    }]
-  },
-  options: { plugins: { legend: { position:'right', labels:{ font:{ size:11 }, boxWidth:12 } } }, responsive:true, maintainAspectRatio:false }
-});
+async function deletePlan() {
+  if (!confirm('Xoá kế hoạch này? Hành động không thể hoàn tác.')) return;
+  const r = await fetch(`/admin/enrollment-planning/${PLAN_ID}`, { method: 'DELETE' });
+  const d = await r.json();
+  if (d.success) window.location.href = '/admin/enrollment-planning';
+  else alert('Lỗi: ' + d.error);
+}
+
+async function openRegistration() {
+  if (!confirm('Mở đăng ký phòng cho sinh viên? Chu kỳ đăng ký mới (30 ngày) sẽ được tạo.')) return;
+  const r = await fetch(`/admin/enrollment-planning/${PLAN_ID}/open-registration`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }
+  });
+  const d = await r.json();
+  if (d.success) { alert(d.message); location.reload(); }
+  else alert('Lỗi: ' + d.error);
+}
+
+async function closeRegistration() {
+  if (!confirm('Đóng đăng ký phòng? Sinh viên sẽ không thể đăng ký thêm.')) return;
+  const r = await fetch(`/admin/enrollment-planning/${PLAN_ID}/close-registration`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }
+  });
+  const d = await r.json();
+  if (d.success) { alert(d.message); location.reload(); }
+  else alert('Lỗi: ' + d.error);
+}
 </script>
 </body>
 </html>

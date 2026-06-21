@@ -218,8 +218,9 @@ body {
     position: relative;
     margin-top: 84px;
     width: 100%;
-    height: 80vh;
-    min-height: 520px;
+    height: 55vh;
+    max-height: 55vh;
+    min-height: 360px;
     display: grid;
     place-items: center;
     overflow: hidden;
@@ -1421,28 +1422,20 @@ select.viewer-control {
 .dorm-slider-track {
     display: flex;
     gap: 24px;
-    overflow-x: auto;
-    scroll-behavior: smooth;
     padding: 12px 0;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-
-.dorm-slider-track::-webkit-scrollbar {
-    display: none;
+    transition: transform 0.35s ease;
+    will-change: transform;
 }
 
 .room-card {
     flex: 0 0 auto;
     width: 100%;
-    max-width: 380px;
+    max-width: 500px;
     background: white;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 8px 28px rgba(31, 35, 42, 0.12);
     transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    scroll-snap-align: start;
     cursor: pointer;
     border: 1px solid rgba(232, 224, 213, 0.5);
 }
@@ -1456,7 +1449,7 @@ select.viewer-control {
 .room-media {
     position: relative;
     width: 100%;
-    height: 220px;
+    height: 300px;
     background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 100%);
     overflow: hidden;
 }
@@ -1589,7 +1582,7 @@ select.viewer-control {
 .skeleton-card {
     flex: 0 0 auto;
     width: 100%;
-    max-width: 380px;
+    max-width: 460px;
     background: white;
     border-radius: 20px;
     overflow: hidden;
@@ -1599,7 +1592,7 @@ select.viewer-control {
 
 .skeleton-media {
     width: 100%;
-    height: 220px;
+    height: 260px;
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
@@ -1630,7 +1623,7 @@ select.viewer-control {
 }
 
 @media (max-width: 1190px) {
-    .room-card { max-width: 340px; }
+    .room-card { max-width: 400px; }
 }
 
 @media (max-width: 920px) {
@@ -1642,8 +1635,8 @@ select.viewer-control {
 @media (max-width: 576px) {
     .dorm-slider-btn { display: none; }
     .dorm-slider-track { gap: 16px; }
-    .room-card { max-width: 280px; }
-    .room-media { height: 160px; }
+    .room-card { max-width: 320px; }
+    .room-media { height: 180px; }
     .room-body { padding: 16px; }
     .room-type { font-size: 1.05rem; }
     .room-meta { font-size: 0.8rem; }
@@ -2246,7 +2239,7 @@ a.fv2-contact-text:hover { text-decoration: underline; }
     }
 
     /* Room cards — slightly narrower */
-    .room-card { max-width: 310px; }
+    .room-card { max-width: 360px; }
 
     /* Amenities section — less top/bottom breathing room */
     .amenities-section { padding: 3rem 0; }
@@ -2284,7 +2277,7 @@ a.fv2-contact-text:hover { text-decoration: underline; }
 
     /* Room cards — near full-width snap cards */
     .room-card { max-width: 88vw; }
-    .room-media { height: 150px; }
+    .room-media { height: 170px; }
 
     /* Footer columns — slightly smaller text */
     .footer-title { font-size: 0.9rem; }

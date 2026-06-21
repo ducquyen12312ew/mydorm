@@ -89,7 +89,6 @@
             } else {
                 _dict = {};
                 _lang = DEFAULT;
-                localStorage.setItem('edorm_lang', DEFAULT);
             }
             cb && cb();
         };
@@ -98,7 +97,6 @@
 
     function setLanguage(lang, persist) {
         if (SUPPORTED.indexOf(lang) === -1) lang = DEFAULT;
-        localStorage.setItem('edorm_lang', lang);
         _loadDict(lang, function () {
             _apply();
             /* save to DB (non-blocking, ignore errors) */
@@ -116,7 +114,6 @@
     function getLang() { return _lang; }
 
     function init() {
-        var saved = localStorage.getItem('edorm_lang') || DEFAULT;
         /* attach click handlers for switcher buttons */
         document.addEventListener('click', function (e) {
             var el = e.target.closest('[data-lang-opt]');
@@ -126,12 +123,9 @@
                 setLanguage(el.getAttribute('data-lang-opt'));
             }
         });
-        if (saved === DEFAULT) {
-            _lang = DEFAULT;
-            _updateSwitcherState();
-        } else {
-            _loadDict(saved, _apply);
-        }
+        /* always boot in Vietnamese — no saved preference applied */
+        _lang = DEFAULT;
+        _updateSwitcherState();
     }
 
     /* expose */
@@ -142,5 +136,25 @@
         document.addEventListener('DOMContentLoaded', init);
     } else {
         init();
+    }
+})();
+
+/* Patch Chrome's built-in Summarizer API to always include outputLanguage */
+(function () {
+    function patchSummarizer() {
+        if (!window.ai || !window.ai.summarizer) return;
+        var orig = window.ai.summarizer.create.bind(window.ai.summarizer);
+        window.ai.summarizer.create = function (opts) {
+            if (!opts) opts = {};
+            if (!opts.outputLanguage) {
+                opts.outputLanguage = document.documentElement.lang || 'vi';
+            }
+            return orig(opts);
+        };
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', patchSummarizer);
+    } else {
+        patchSummarizer();
     }
 })();

@@ -17,107 +17,11 @@ function requireAdmin(req, res, next) {
 }
 
 // ===============================
-// POLICIES MANAGEMENT
+// POLICIES — REMOVED
 // ===============================
-
-// GET: View all policies
-router.get('/policies', requireAdmin, async (req, res) => {
-    try {
-        const policies = await AllocationPolicy.find({})
-            .sort({ academicYear: -1 });
-
-        res.render('admin/allocation/admin-allocation-policies', {
-            policies,
-            message: req.query.message ? {
-                type: req.query.type || 'success',
-                text: decodeURIComponent(req.query.message)
-            } : null
-        });
-    } catch (error) {
-        console.error('Error loading policies:', error);
-        res.status(500).send('Server error');
-    }
-});
-
-// POST: Create new policy
-router.post('/policies', requireAdmin, async (req, res) => {
-    try {
-        const { academicYear, notes, active, quotaConfig } = req.body;
-
-        // Validate academic year format
-        if (!/^\d{4}-\d{4}$/.test(academicYear)) {
-            return res.redirect('/admin/allocation/policies?message=' +
-                encodeURIComponent('Định dạng năm học không hợp lệ (YYYY-YYYY)') +
-                '&type=error');
-        }
-
-        // Validate quota config sums to 100
-        const qc = quotaConfig || {};
-        const y1 = parseInt(qc.year1 || 50, 10);
-        const y2 = parseInt(qc.year2 || 30, 10);
-        const y3 = parseInt(qc.year3 || 15, 10);
-        const y4 = parseInt(qc.year4plus || 5, 10);
-        if (y1 + y2 + y3 + y4 !== 100) {
-            return res.redirect('/admin/allocation/policies?message=' +
-                encodeURIComponent(`Tổng % quota phải bằng 100 (hiện tại: ${y1+y2+y3+y4})`) +
-                '&type=error');
-        }
-
-        // Check if policy already exists
-        const existing = await AllocationPolicy.findOne({ academicYear });
-        if (existing) {
-            return res.redirect('/admin/allocation/policies?message=' +
-                encodeURIComponent('Chính sách cho năm học này đã tồn tại') +
-                '&type=error');
-        }
-
-        // Create policy
-        const policy = new AllocationPolicy({
-            academicYear,
-            notes: notes || '',
-            createdBy: req.session.username,
-            active: active === 'on',
-            quotaConfig: {
-                year1: y1, year2: y2, year3: y3, year4plus: y4,
-                allowOverflow: qc.allowOverflow === 'true'
-            }
-        });
-
-        await policy.save();
-
-        res.redirect('/admin/allocation/policies?message=' + 
-            encodeURIComponent('Tạo chính sách thành công!') + 
-            '&type=success');
-    } catch (error) {
-        console.error('Error creating policy:', error);
-        res.redirect('/admin/allocation/policies?message=' + 
-            encodeURIComponent('Lỗi: ' + error.message) + 
-            '&type=error');
-    }
-});
-
-// POST: Activate policy
-router.post('/policies/:academicYear/activate', requireAdmin, async (req, res) => {
-    try {
-        const { academicYear } = req.params;
-
-        // Deactivate all other policies
-        await AllocationPolicy.updateMany(
-            { academicYear: { $ne: academicYear } },
-            { $set: { active: false } }
-        );
-
-        // Activate this policy
-        await AllocationPolicy.updateOne(
-            { academicYear },
-            { $set: { active: true } }
-        );
-
-        res.json({ success: true, message: 'Đã kích hoạt chính sách' });
-    } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
-    }
-});
+router.get('/policies', requireAdmin, (req, res) => res.redirect('/admin/registration-period'));
+router.post('/policies', requireAdmin, (req, res) => res.status(404).json({ error: 'Removed' }));
+router.post('/policies/:academicYear/activate', requireAdmin, (req, res) => res.status(404).json({ error: 'Removed' }));
 
 // ===============================
 // CYCLES MANAGEMENT

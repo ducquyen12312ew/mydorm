@@ -1,8 +1,9 @@
 // src/routes/maintenance-routes.js
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const { MaintenanceRequestModel } = require('../schemas/MaintenanceRequestSchema');
-const { StudentCollection, DormitoryCollection } = require('../config/config');
+const { StudentCollection, DormitoryCollection, NotificationCollection } = require('../config/config');
 const { validate } = require('../middleware/security');
 const { body } = require('express-validator');
 const notificationService = require('../services/notificationService');
@@ -220,7 +221,32 @@ router.post('/student/maintenance-requests/:id/feedback',
             request.feedbackRating = rating;
             request.feedbackComment = comment;
             await request.save();
-            
+
+            // Non-blocking: notify all admins about the new feedback
+            (async () => {
+                try {
+                    const admins = await StudentCollection.find({ role: 'admin' }, '_id').lean();
+                    if (admins.length > 0) {
+                        const studentName = request.reportedBy?.name || 'Sinh viên';
+                        const commentPart = comment ? ` "${comment}"` : '';
+                        const message = `Sinh viên ${studentName} đã đánh giá yêu cầu ${request.requestNumber}: ${rating}/5 sao.${commentPart}`;
+                        const docs = admins.map(a => ({
+                            userId: a._id,
+                            type: 'maintenance',
+                            title: 'Đánh giá yêu cầu bảo trì mới',
+                            message,
+                            priority: rating <= 2 ? 'high' : 'normal',
+                            read: false,
+                            channels: { inApp: { sent: true, sentAt: new Date() } },
+                            data: { maintenanceId: request._id, requestNumber: request.requestNumber, rating }
+                        }));
+                        await NotificationCollection.insertMany(docs);
+                    }
+                } catch (notifErr) {
+                    logger.error('Failed to send admin feedback notifications:', notifErr);
+                }
+            })();
+
             res.json({
                 success: true,
                 message: 'Cảm ơn bạn đã đánh giá'
@@ -283,15 +309,18 @@ router.get('/admin/maintenance-requests', isAdmin, async (req, res) => {
 // ============================================
 router.get('/admin/maintenance-requests/:id', isAdmin, async (req, res) => {
     try {
+        if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+            return res.status(404).json({ success: false, error: 'Không tìm thấy yêu cầu' });
+        }
         const request = await MaintenanceRequestModel.findById(req.params.id);
-        
+
         if (!request) {
             return res.status(404).json({
                 success: false,
                 error: 'Không tìm thấy yêu cầu'
             });
         }
-        
+
         res.json({ success: true, request });
     } catch (error) {
         console.error('Error fetching maintenance request:', error);

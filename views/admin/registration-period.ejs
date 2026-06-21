@@ -1,0 +1,420 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đợt đăng ký KTX — Admin</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F8F9FA; color: #111827; }
+    .page-wrap { max-width: 1100px; margin: 28px auto; padding: 0 24px 48px; }
+
+    .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .page-header h1 { font-size: 20px; font-weight: 700; color: #111827; }
+    .page-header h1 span { color: #C8102E; }
+    .page-header p { font-size: 13px; color: #6B7280; margin-top: 3px; }
+
+    .card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 20px; }
+    .card-hd { padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .card-title { font-size: 13px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: #C8102E; }
+    .card-body { padding: 20px; }
+
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: background .15s; }
+    .btn-red    { background: #C8102E; color: #fff; }
+    .btn-red:hover { background: #a50d24; }
+    .btn-outline { background: #fff; border: 1px solid #E5E7EB; color: #374151; }
+    .btn-outline:hover { border-color: #C8102E; color: #C8102E; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+    .btn-danger { background: #fff; border: 1px solid #FCA5A5; color: #DC2626; }
+    .btn-danger:hover { background: #FEF2F2; }
+
+    /* Quota grid */
+    .quota-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .quota-card { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; text-align: center; }
+    .quota-card .q-label { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
+    .quota-card .q-slot  { font-size: 26px; font-weight: 800; color: #C8102E; }
+    .quota-card .q-pct   { font-size: 12px; color: #6B7280; margin-top: 2px; }
+    .quota-total { text-align: right; font-size: 13px; color: #6B7280; margin-top: 10px; }
+    .quota-total strong { color: #111827; font-size: 15px; }
+
+    /* Open form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group label { font-size: 12px; font-weight: 600; color: #374151; }
+    .form-group input, .form-group textarea, .form-group select {
+      padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px;
+      font-size: 13px; color: #111827; background: #fff; outline: none;
+      transition: border .15s;
+    }
+    .form-group input:focus, .form-group textarea:focus { border-color: #C8102E; }
+    .form-group textarea { resize: vertical; min-height: 60px; }
+    .form-full { grid-column: 1 / -1; }
+
+    /* Table */
+    .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .hist-table thead th { background: #F9FAFB; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: .04em; padding: 10px 14px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    .hist-table thead th:last-child { text-align: right; }
+    .hist-table tbody td { padding: 12px 14px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+    .hist-table tbody tr:last-child td { border-bottom: none; }
+    .hist-table tbody tr:hover td { background: #FAFAFA; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .badge-running  { background: #D1FAE5; color: #065F46; }
+    .badge-pending  { background: #FEF3C7; color: #92400E; }
+    .badge-completed { background: #E0E7FF; color: #3730A3; }
+    .badge-cancelled { background: #F3F4F6; color: #6B7280; }
+
+    .empty-state { text-align: center; padding: 48px 24px; color: #9CA3AF; }
+    .empty-state i { font-size: 36px; margin-bottom: 12px; display: block; }
+    .empty-state p { font-size: 13px; }
+
+    /* Modal overlay */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-box { background: #fff; border-radius: 12px; padding: 24px; width: min(480px, 92vw); box-shadow: 0 20px 60px rgba(0,0,0,.18); }
+    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; color: #111827; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+    /* Alert */
+    .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
+    .alert-success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
+    .alert-error   { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+
+    @media(max-width: 700px) {
+      .quota-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<%- include('./navbar', { activeNav: 'registrationperiod' }) %>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <div>
+      <h1>Đợt <span>Đăng ký KTX</span></h1>
+      <p>Quản lý các đợt mở đăng ký phòng ký túc xá cho sinh viên</p>
+    </div>
+  </div>
+
+  <!-- SECTION 1: Quota hiện tại -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><i class="fas fa-sliders-h"></i> Chỉ tiêu hiện tại</div>
+      <button class="btn btn-outline btn-sm" onclick="openQuotaModal()">
+        <i class="fas fa-edit"></i> Chỉnh sửa chỉ tiêu
+      </button>
+    </div>
+    <div class="card-body">
+      <%
+        const q = quota;
+        function slotOf(yg) {
+          if (!q || !q.quotas) return 0;
+          const e = q.quotas.find(x => x.yearGroup === yg);
+          return e ? e.slot : 0;
+        }
+        function pctOf(yg) {
+          if (!q || !q.quotas) return 0;
+          const e = q.quotas.find(x => x.yearGroup === yg);
+          return e ? e.percentage : 0;
+        }
+        const totalSlot = q ? q.totalCapacity : 0;
+        const academicYearQ = q ? q.academicYear : '—';
+      %>
+      <% if (!q) { %>
+        <div class="empty-state">
+          <i class="fas fa-chart-pie"></i>
+          <p>Chưa có cấu hình chỉ tiêu. Nhấn "Chỉnh sửa chỉ tiêu" để tạo mới.</p>
+        </div>
+      <% } else { %>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span style="font-size:11px;color:#C8102E;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Năm học <%= academicYearQ %></span>
+          <% if (q.isPublished) { %>
+            <span style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:#D1FAE5;color:#065F46">
+              <i class="fas fa-check-circle"></i> Đang ban hành
+            </span>
+          <% } else { %>
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:11px;color:#92400E;background:#FEF3C7;padding:3px 10px;border-radius:20px;font-weight:700">Chưa ban hành</span>
+              <button class="btn btn-red btn-sm" onclick="publishQuota()">
+                <i class="fas fa-bullhorn"></i> Ban hành ngay
+              </button>
+            </div>
+          <% } %>
+        </div>
+        <div class="quota-grid">
+          <div class="quota-card">
+            <div class="q-label">Năm 1</div>
+            <div class="q-slot"><%= slotOf('year1').toLocaleString('vi-VN') %></div>
+            <div class="q-pct"><%= pctOf('year1') %>% tổng</div>
+          </div>
+          <div class="quota-card">
+            <div class="q-label">Năm 2</div>
+            <div class="q-slot"><%= slotOf('year2').toLocaleString('vi-VN') %></div>
+            <div class="q-pct"><%= pctOf('year2') %>% tổng</div>
+          </div>
+          <div class="quota-card">
+            <div class="q-label">Năm 3</div>
+            <div class="q-slot"><%= slotOf('year3').toLocaleString('vi-VN') %></div>
+            <div class="q-pct"><%= pctOf('year3') %>% tổng</div>
+          </div>
+          <div class="quota-card">
+            <div class="q-label">Năm 4+</div>
+            <div class="q-slot"><%= slotOf('year4_plus').toLocaleString('vi-VN') %></div>
+            <div class="q-pct"><%= pctOf('year4_plus') %>% tổng</div>
+          </div>
+        </div>
+        <div class="quota-total">Tổng chỉ tiêu: <strong><%= totalSlot.toLocaleString('vi-VN') %> chỗ</strong></div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Mở đợt đăng ký mới -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><i class="fas fa-calendar-plus"></i> Mở đợt đăng ký mới</div>
+    </div>
+    <div class="card-body">
+      <div id="openAlert" class="alert"></div>
+      <form id="openForm">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Năm học <span style="color:#C8102E">*</span></label>
+            <input type="text" name="academicYear" value="2026-2027" placeholder="YYYY-YYYY" required>
+          </div>
+          <div class="form-group" style="align-self:end">
+            <label>&nbsp;</label>
+            <div style="font-size:12px;color:#6B7280;padding:9px 0">Đợt đăng ký sẽ được tạo với trạng thái <strong>Đang mở</strong></div>
+          </div>
+          <div class="form-group">
+            <label>Ngày bắt đầu đăng ký <span style="color:#C8102E">*</span></label>
+            <input type="date" name="registrationStart" required>
+          </div>
+          <div class="form-group">
+            <label>Ngày kết thúc đăng ký <span style="color:#C8102E">*</span></label>
+            <input type="date" name="registrationEnd" required>
+          </div>
+          <div class="form-group form-full">
+            <label>Ghi chú (tuỳ chọn)</label>
+            <textarea name="note" placeholder="Ghi chú cho đợt đăng ký này..."></textarea>
+          </div>
+        </div>
+        <div style="margin-top:16px;display:flex;justify-content:flex-end">
+          <button type="submit" class="btn btn-red">
+            <i class="fas fa-door-open"></i> Mở đợt đăng ký
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Lịch sử các đợt đăng ký -->
+  <div class="card">
+    <div class="card-hd">
+      <div class="card-title"><i class="fas fa-history"></i> Lịch sử đợt đăng ký</div>
+      <span style="font-size:12px;color:#9CA3AF"><%= cycles.length %> đợt</span>
+    </div>
+    <% if (cycles.length === 0) { %>
+      <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p>Chưa có đợt đăng ký nào được tạo.</p>
+      </div>
+    <% } else { %>
+    <div style="overflow-x:auto">
+      <table class="hist-table">
+        <thead>
+          <tr>
+            <th>Năm học</th>
+            <th>Ngày mở</th>
+            <th>Ngày đóng</th>
+            <th>Trạng thái</th>
+            <th>Số đăng ký</th>
+            <th style="text-align:right">Thao tác</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% cycles.forEach(c => {
+            const statusMap = {
+              RUNNING:   { cls: 'badge-running',   label: 'Đang mở' },
+              PENDING:   { cls: 'badge-pending',   label: 'Chờ mở' },
+              COMPLETED: { cls: 'badge-completed', label: 'Hoàn tất' },
+              CANCELLED: { cls: 'badge-cancelled', label: 'Đã đóng' },
+            };
+            const st = statusMap[c.status] || { cls: 'badge-cancelled', label: c.status };
+            const isOpen = c.status === 'RUNNING' || c.status === 'PENDING';
+          %>
+          <tr>
+            <td>
+              <span style="font-weight:700;color:#111827"><%= c.academicYear %></span>
+              <div style="font-size:11px;color:#9CA3AF;margin-top:2px"><%= c.name || 'Main Registration' %></div>
+            </td>
+            <td style="color:#374151"><%= c.registrationStart ? new Date(c.registrationStart).toLocaleDateString('vi-VN') : '—' %></td>
+            <td style="color:#374151"><%= c.registrationEnd ? new Date(c.registrationEnd).toLocaleDateString('vi-VN') : '—' %></td>
+            <td>
+              <span class="badge <%= st.cls %>">
+                <% if (c.status === 'RUNNING') { %><i class="fas fa-circle" style="font-size:6px"></i><% } %>
+                <%= st.label %>
+              </span>
+            </td>
+            <td style="font-weight:700;color:#111827"><%= (c.registrationCount || 0).toLocaleString('vi-VN') %></td>
+            <td style="text-align:right;white-space:nowrap">
+              <% if (isOpen) { %>
+                <button class="btn btn-danger btn-sm" onclick="closeCycle('<%= c._id %>')">
+                  <i class="fas fa-stop-circle"></i> Đóng đăng ký
+                </button>
+              <% } %>
+              <a href="/admin/application" class="btn btn-outline btn-sm" style="margin-left:4px">
+                <i class="fas fa-file-alt"></i> Xem đơn
+              </a>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- Quota Edit Modal -->
+<div id="quotaModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-title"><i class="fas fa-sliders-h" style="color:#C8102E;margin-right:8px"></i>Chỉnh sửa chỉ tiêu</div>
+    <div id="quotaAlert" class="alert"></div>
+    <form id="quotaForm">
+      <div class="form-group" style="margin-bottom:12px">
+        <label>Năm học</label>
+        <input type="text" name="academicYear" value="<%= quota ? quota.academicYear : '2026-2027' %>" placeholder="YYYY-YYYY">
+      </div>
+      <div class="form-grid" style="margin-bottom:12px">
+        <div class="form-group">
+          <label>Chỉ tiêu Năm 1</label>
+          <input type="number" name="year1" value="<%= quota ? (quota.quotas.find(x=>x.yearGroup==='year1')||{}).slot||0 : 326 %>" min="0">
+        </div>
+        <div class="form-group">
+          <label>Chỉ tiêu Năm 2</label>
+          <input type="number" name="year2" value="<%= quota ? (quota.quotas.find(x=>x.yearGroup==='year2')||{}).slot||0 : 196 %>" min="0">
+        </div>
+        <div class="form-group">
+          <label>Chỉ tiêu Năm 3</label>
+          <input type="number" name="year3" value="<%= quota ? (quota.quotas.find(x=>x.yearGroup==='year3')||{}).slot||0 : 97 %>" min="0">
+        </div>
+        <div class="form-group">
+          <label>Chỉ tiêu Năm 4+</label>
+          <input type="number" name="year4_plus" value="<%= quota ? (quota.quotas.find(x=>x.yearGroup==='year4_plus')||{}).slot||0 : 32 %>" min="0">
+        </div>
+      </div>
+      <div style="font-size:12px;color:#6B7280;margin-bottom:4px">Tổng: <strong id="quotaSumDisplay">—</strong> chỗ</div>
+    </form>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeQuotaModal()">Huỷ</button>
+      <button class="btn btn-red btn-sm" onclick="saveQuota()"><i class="fas fa-save"></i> Lưu chỉ tiêu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Set default dates
+(function() {
+  const today = new Date();
+  const next30 = new Date(today.getTime() + 30 * 86400000);
+  document.querySelector('[name="registrationStart"]').value = today.toISOString().slice(0,10);
+  document.querySelector('[name="registrationEnd"]').value   = next30.toISOString().slice(0,10);
+})();
+
+// Open form submit
+document.getElementById('openForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+  const alert = document.getElementById('openAlert');
+  alert.style.display = 'none';
+
+  const r = await fetch('/admin/registration-period/open', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  if (d.success) {
+    alert.className = 'alert alert-success';
+    alert.textContent = d.message || 'Thành công!';
+    alert.style.display = 'block';
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    alert.className = 'alert alert-error';
+    alert.textContent = d.error || 'Lỗi không xác định';
+    alert.style.display = 'block';
+  }
+});
+
+// Close cycle
+async function closeCycle(id) {
+  if (!confirm('Đóng đợt đăng ký này? Sinh viên sẽ không thể đăng ký thêm.')) return;
+  const r = await fetch(`/admin/registration-period/close/${id}`, { method: 'POST' });
+  const d = await r.json();
+  if (d.success) location.reload();
+  else alert('Lỗi: ' + d.error);
+}
+
+// Quota modal
+function openQuotaModal() {
+  document.getElementById('quotaModal').style.display = 'flex';
+  updateQuotaSum();
+}
+function closeQuotaModal() {
+  document.getElementById('quotaModal').style.display = 'none';
+}
+function updateQuotaSum() {
+  const f = document.getElementById('quotaForm');
+  const sum = ['year1','year2','year3','year4_plus'].reduce((s, n) => s + (parseInt(f[n].value)||0), 0);
+  document.getElementById('quotaSumDisplay').textContent = sum.toLocaleString('vi-VN');
+}
+document.querySelectorAll('#quotaForm input[type="number"]').forEach(el => el.addEventListener('input', updateQuotaSum));
+
+async function saveQuota() {
+  const fd = new FormData(document.getElementById('quotaForm'));
+  const body = Object.fromEntries(fd.entries());
+  const alert = document.getElementById('quotaAlert');
+  alert.style.display = 'none';
+
+  const y1 = parseInt(body.year1)||0, y2 = parseInt(body.year2)||0,
+        y3 = parseInt(body.year3)||0, y4 = parseInt(body.year4_plus)||0;
+  body.totalCapacity = y1 + y2 + y3 + y4;
+
+  const r = await fetch('/admin/registration-period/quota', {
+    method: 'PUT', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const d = await r.json();
+  if (d.success) {
+    alert.className = 'alert alert-success';
+    alert.textContent = d.message || 'Đã lưu!';
+    alert.style.display = 'block';
+    setTimeout(() => location.reload(), 900);
+  } else {
+    alert.className = 'alert alert-error';
+    alert.textContent = d.error || 'Lỗi';
+    alert.style.display = 'block';
+  }
+}
+
+// Publish quota
+async function publishQuota() {
+  if (!confirm('Ban hành chỉ tiêu này? Hệ thống học vụ sẽ nhận chỉ tiêu đang ban hành.')) return;
+  const r = await fetch('/admin/registration-period/publish-quota', { method: 'POST' });
+  const d = await r.json();
+  if (d.success) location.reload();
+  else alert('Lỗi: ' + d.error);
+}
+
+// Close modal on overlay click
+document.getElementById('quotaModal').addEventListener('click', function(e) {
+  if (e.target === this) closeQuotaModal();
+});
+</script>
+</body>
+</html>

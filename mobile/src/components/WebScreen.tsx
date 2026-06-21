@@ -258,7 +258,11 @@ export function WebScreen({ path, onNavigate }: WebScreenProps) {
     <View style={styles.container}>
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color={Colors.primary} />
+          <View style={styles.shimmerBox} />
+          <View style={[styles.shimmerBox, { height: 120, marginTop: 12 }]} />
+          <View style={[styles.shimmerBox, { height: 80, marginTop: 12 }]} />
+          <ActivityIndicator size="large" color={Colors.primary} style={{ marginTop: 24 }} />
+          <Text style={styles.loadingText}>Đang tải...</Text>
         </View>
       )}
 
@@ -280,6 +284,15 @@ export function WebScreen({ path, onNavigate }: WebScreenProps) {
         }}
         onShouldStartLoadWithRequest={handleNavChange}
         onMessage={handleMessage}
+        // FIX 5: hardware layer + recover gracefully if WebView process is
+        // killed (e.g. OOM from a heavy 3D page) instead of a blank crash.
+        androidLayerType="hardware"
+        onRenderProcessGone={(e) => {
+          console.warn('[WebView] Render process gone, didCrash=', e.nativeEvent.didCrash);
+          setError(false);
+          setLoading(true);
+          webViewRef.current?.reload();
+        }}
         javaScriptEnabled
         domStorageEnabled
         sharedCookiesEnabled
@@ -305,6 +318,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     zIndex: 10,
+  },
+  shimmerBox: {
+    width: '90%',
+    height: 200,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 12,
+  },
+  loadingText: {
+    marginTop: 8,
+    fontSize: 13,
+    color: Colors.textMuted,
   },
   errorContainer: {
     flex: 1,

@@ -1,12 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= action === 'add' ? 'Thêm' : 'Cập nhật' %> Ký túc xá</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <style>
         .admin-header {
             background-color: #f8f9fa;
@@ -492,8 +495,6 @@
     </div>
  
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-    
     <script>
         function generateFloorConfig() {
             const totalFloors = parseInt(document.getElementById('totalFloors').value);
@@ -688,40 +689,24 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            const longitude = parseFloat(document.getElementById('longitude').value) || 105.843220;
-            const latitude = parseFloat(document.getElementById('latitude').value) || 21.007119;
-            
-            const map = L.map('map').setView([latitude, longitude], 15);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            const marker = L.marker([latitude, longitude], {
-                draggable: true
-            }).addTo(map);
-            marker.on('dragend', function(event) {
-                const position = marker.getLatLng();
-                document.getElementById('latitude').value = position.lat.toFixed(6);
-                document.getElementById('longitude').value = position.lng.toFixed(6);
-            });
+            const lng = parseFloat(document.getElementById('longitude').value) || 105.843220;
+            const lat = parseFloat(document.getElementById('latitude').value) || 21.007119;
 
-            map.on('click', function(e) {
-                marker.setLatLng(e.latlng);
-                document.getElementById('latitude').value = e.latlng.lat.toFixed(6);
-                document.getElementById('longitude').value = e.latlng.lng.toFixed(6);
+            const map = new maplibregl.Map({
+                container: 'map',
+                style: 'https://tiles.openfreemap.org/styles/bright',
+                center: [lng, lat],
+                zoom: 16
             });
-
-            document.getElementById('latitude').addEventListener('change', updateMapFromInputs);
-            document.getElementById('longitude').addEventListener('change', updateMapFromInputs);
-            
-            function updateMapFromInputs() {
-                const lat = parseFloat(document.getElementById('latitude').value);
-                const lng = parseFloat(document.getElementById('longitude').value);
-                
-                if (!isNaN(lat) && !isNaN(lng)) {
-                    marker.setLatLng([lat, lng]);
-                    map.setView([lat, lng], 15);
-                }
+            const marker = new maplibregl.Marker({ draggable: true })
+                .setLngLat([lng, lat])
+                .addTo(map);
+            function syncCoords(ll) {
+                document.getElementById('latitude').value  = ll.lat.toFixed(6);
+                document.getElementById('longitude').value = ll.lng.toFixed(6);
             }
+            marker.on('dragend', () => syncCoords(marker.getLngLat()));
+            map.on('click', e => { marker.setLngLat(e.lngLat); syncCoords(e.lngLat); });
 
             if ('<%= action %>' === 'add') {
                 generateFloorConfig();

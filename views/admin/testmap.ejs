@@ -1,0 +1,256 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Coordinate Picker — Dev Tool</title>
+  <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; overflow: hidden; }
+    #map { width: 100vw; height: 100vh; }
+
+    #panel {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 280px;
+      max-height: 80vh;
+      background: rgba(20, 20, 20, 0.88);
+      color: #fff;
+      border-radius: 8px;
+      padding: 12px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      backdrop-filter: blur(4px);
+      font-family: 'Consolas', 'Courier New', monospace;
+      font-size: 12px;
+    }
+
+    #panel h3 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #f0c070;
+      margin-bottom: 2px;
+    }
+
+    #points-list {
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 40vh;
+    }
+
+    .point-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 4px;
+      padding: 4px 6px;
+    }
+
+    .point-item span { flex: 1; line-height: 1.4; }
+
+    .point-item button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      padding: 0 2px;
+      color: #ff6b6b;
+      flex-shrink: 0;
+    }
+
+    .point-item button:hover { color: #ff3333; }
+
+    .btn-row {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-row button {
+      flex: 1;
+      padding: 6px 4px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 600;
+      transition: opacity 0.15s;
+    }
+
+    .btn-row button:hover { opacity: 0.85; }
+
+    #btn-copy { background: #4caf50; color: #fff; }
+    #btn-clear { background: #e57373; color: #fff; }
+
+    #map-info {
+      border-top: 1px solid rgba(255,255,255,0.15);
+      padding-top: 6px;
+      color: #aaa;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 13px;
+      z-index: 2000;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+
+    .marker-dot {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #e53935;
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="panel">
+    <h3>📍 Coordinate Picker</h3>
+    <div id="points-list"><em style="color:#888;">Click map to add points</em></div>
+    <div class="btn-row">
+      <button id="btn-copy">Copy JSON</button>
+      <button id="btn-clear">Clear All</button>
+    </div>
+    <div id="map-info">
+      Center: —<br>
+      Zoom: —
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+  <script>
+    const map = new maplibregl.Map({
+      container: 'map',
+      style: 'https://tiles.openfreemap.org/styles/bright',
+      center: [105.8412, 21.0045],
+      zoom: 16
+    });
+
+    map.addControl(new maplibregl.NavigationControl(), 'bottom-right');
+    map.addControl(new maplibregl.ScaleControl(), 'bottom-left');
+
+    const points = [];
+    let counter = 0;
+    const mapInfo = document.getElementById('map-info');
+
+    function updateMapInfo() {
+      const c = map.getCenter();
+      const z = map.getZoom().toFixed(2);
+      mapInfo.innerHTML =
+        `Center: ${c.lat.toFixed(6)}, ${c.lng.toFixed(6)}<br>Zoom: ${z}`;
+    }
+
+    map.on('move', updateMapInfo);
+    map.on('load', updateMapInfo);
+
+    map.on('click', (e) => {
+      const { lat, lng } = e.lngLat;
+      counter++;
+      const n = counter;
+
+      const el = document.createElement('div');
+      el.className = 'marker-dot';
+      el.textContent = n;
+
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
+        .setLngLat([lng, lat])
+        .addTo(map);
+
+      points.push({ lat, lng, marker, n });
+      renderList();
+    });
+
+    function renderList() {
+      const list = document.getElementById('points-list');
+      if (points.length === 0) {
+        list.innerHTML = '<em style="color:#888;">Click map to add points</em>';
+        return;
+      }
+      list.innerHTML = '';
+      points.forEach((p, idx) => {
+        const item = document.createElement('div');
+        item.className = 'point-item';
+        item.innerHTML =
+          `<span>[${p.n}] ${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}</span>` +
+          `<button title="Remove" data-idx="${idx}">❌</button>`;
+        item.querySelector('button').addEventListener('click', () => removePoint(idx));
+        list.appendChild(item);
+      });
+    }
+
+    function removePoint(idx) {
+      points[idx].marker.remove();
+      points.splice(idx, 1);
+      renderList();
+    }
+
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      points.forEach(p => p.marker.remove());
+      points.length = 0;
+      counter = 0;
+      renderList();
+    });
+
+    document.getElementById('btn-copy').addEventListener('click', () => {
+      const arr = points.map(p => [
+        parseFloat(p.lat.toFixed(6)),
+        parseFloat(p.lng.toFixed(6))
+      ]);
+      navigator.clipboard.writeText(JSON.stringify(arr))
+        .then(() => showToast('Copied to clipboard!'))
+        .catch(() => {
+          const ta = document.createElement('textarea');
+          ta.value = JSON.stringify(arr);
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          showToast('Copied!');
+        });
+    });
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.style.opacity = '1';
+      setTimeout(() => { t.style.opacity = '0'; }, 2000);
+    }
+  </script>
+</body>
+</html>

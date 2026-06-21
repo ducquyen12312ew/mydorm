@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+  <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+  <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết bảo trì #<%= request.requestNumber %> — Admin KTX HUST</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #C8102E; --red-dark: #9E0D25;
+      --bg: #F5F6F8; --card: #FFFFFF; --border: #EAECF0;
+      --text: #2D3748; --muted: #9AA3AD;
+      --radius: 12px; --shadow: 0 1px 6px rgba(0,0,0,.04);
+    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .admin-content { min-height: 100vh; }
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+
+    /* Breadcrumb */
+    .breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: var(--muted); margin-bottom: 1.1rem; flex-wrap: wrap; }
+    .breadcrumb a { color: var(--muted); text-decoration: none; } .breadcrumb a:hover { color: var(--red); }
+    .breadcrumb .sep { opacity: .5; }
+    .breadcrumb .current { color: var(--text); font-weight: 600; }
+
+    /* Back link */
+    .back-link { display: inline-flex; align-items: center; gap: .4rem; color: var(--muted); font-size: .84rem; text-decoration: none; margin-bottom: 1.1rem; }
+    .back-link:hover { color: var(--red); }
+
+    /* Header */
+    .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+    .page-header h1 { font-size: 1.25rem; font-weight: 700; }
+    .action-bar { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+    /* Cards */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem; }
+    .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem; margin-bottom: 1.25rem; }
+    .card-title { font-size: .75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 1rem; display: flex; align-items: center; gap: .4rem; }
+    .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: .5rem 0; border-bottom: 1px solid var(--border); gap: .5rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-size: .82rem; color: var(--muted); font-weight: 600; min-width: 120px; flex-shrink: 0; }
+    .info-value { font-size: .85rem; text-align: right; word-break: break-word; }
+
+    /* Student avatar */
+    .student-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+    .avatar { width: 46px; height: 46px; border-radius: 50%; background: var(--red); color: #fff; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+    /* Badges */
+    .badge { display: inline-flex; align-items: center; gap: .28rem; padding: .25rem .65rem; border-radius: 20px; font-size: .75rem; font-weight: 700; white-space: nowrap; }
+    .badge-submitted { background: #FEF3C7; color: #92400E; }
+    .badge-assigned  { background: #DBEAFE; color: #1E40AF; }
+    .badge-in_progress { background: #EDE9FE; color: #5B21B6; }
+    .badge-completed   { background: #D1FAE5; color: #065F46; }
+    .badge-cancelled   { background: #F3F4F6; color: #6B7280; }
+    .badge-low    { background: #F3F4F6; color: #374151; }
+    .badge-medium { background: #FEF3C7; color: #92400E; }
+    .badge-high   { background: #FEE2E2; color: #991B1B; }
+    .badge-urgent { background: var(--red); color: #fff; }
+
+    /* Description box */
+    .desc-box { background: #F8F9FB; border-radius: 8px; padding: 1rem; font-size: .88rem; line-height: 1.6; border: 1px solid var(--border); }
+
+    /* Images */
+    .img-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .75rem; }
+    .img-grid img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: opacity .15s; }
+    .img-grid img:hover { opacity: .85; }
+
+    /* Timeline */
+    .timeline { list-style: none; padding: 0; }
+    .timeline li { display: flex; gap: .75rem; padding-bottom: 1.25rem; position: relative; }
+    .timeline li:not(:last-child)::before { content: ''; position: absolute; left: 10px; top: 22px; bottom: 0; width: 2px; background: var(--border); }
+    .tl-dot { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .6rem; flex-shrink: 0; }
+    .tl-dot.done { background: var(--red); color: #fff; }
+    .tl-dot.pending { background: var(--border); color: var(--muted); }
+    .tl-body { flex: 1; }
+    .tl-label { font-weight: 700; font-size: .85rem; }
+    .tl-label.muted { color: var(--muted); font-weight: 600; }
+    .tl-meta { font-size: .78rem; color: var(--muted); margin-top: .1rem; }
+
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .5rem 1.1rem; border-radius: 8px; font-size: .84rem; font-weight: 600; cursor: pointer; border: none; transition: all .18s; text-decoration: none; }
+    .btn-red     { background: var(--red); color: #fff; } .btn-red:hover { background: var(--red-dark); }
+    .btn-green   { background: #059669; color: #fff; } .btn-green:hover { background: #047857; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); } .btn-outline:hover { border-color: var(--red); color: var(--red); }
+    .btn-danger  { background: #DC2626; color: #fff; } .btn-danger:hover { background: #B91C1C; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* Inline completion form */
+    .complete-form { display: none; background: #F8F9FB; border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-top: .75rem; }
+    .complete-form.open { display: block; }
+    .form-label { font-size: .82rem; font-weight: 600; margin-bottom: .4rem; display: block; color: var(--text); }
+    .form-control { width: 100%; padding: .55rem .85rem; border: 1px solid var(--border); border-radius: 8px; font-size: .88rem; color: var(--text); resize: vertical; }
+    .form-control:focus { outline: none; border-color: var(--red); }
+    .form-row { display: flex; gap: .5rem; margin-top: .75rem; justify-content: flex-end; }
+
+    /* Toast */
+    #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: #1a202c; color: #fff; padding: .65rem 1.25rem; border-radius: 8px; font-size: .84rem; z-index: 9999; display: none; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+    #toast.show { display: block; }
+    #toast.success { background: #059669; }
+    #toast.error { background: #DC2626; }
+
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<%- include('../navbar', { activeNav: 'requests' }) %>
+
+<div class="admin-content">
+<div class="page-wrap">
+
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="/admin/requests">Yêu cầu</a>
+    <span class="sep">/</span>
+    <a href="/admin/requests?type=maintenance">Bảo trì</a>
+    <span class="sep">/</span>
+    <span class="current">#<%= request.requestNumber %></span>
+  </div>
+
+  <!-- Back + header -->
+  <a href="/admin/requests?type=maintenance" class="back-link">
+    <i class="fas fa-arrow-left"></i> Quay lại danh sách
+  </a>
+
+  <div class="page-header">
+    <div>
+      <h1><i class="fas fa-tools" style="color:var(--red);margin-right:.4rem"></i><%= request.title %></h1>
+      <p style="font-size:.82rem;color:var(--muted);margin-top:.2rem">Mã yêu cầu: <strong>#<%= request.requestNumber %></strong></p>
+    </div>
+    <div class="action-bar" id="actionBar">
+      <% if (['submitted', 'assigned'].includes(request.status)) { %>
+      <button class="btn btn-red" onclick="setStatus('in_progress')">
+        <i class="fas fa-play"></i> Đang xử lý
+      </button>
+      <% } %>
+      <% if (request.status === 'in_progress') { %>
+      <button class="btn btn-green" onclick="toggleCompleteForm()">
+        <i class="fas fa-check"></i> Hoàn thành
+      </button>
+      <% } %>
+      <% if (['submitted', 'assigned', 'in_progress'].includes(request.status)) { %>
+      <button class="btn btn-danger" onclick="setStatus('cancelled')">
+        <i class="fas fa-times"></i> Từ chối
+      </button>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Completion form (shown when "Hoàn thành" clicked) -->
+  <% if (request.status === 'in_progress') { %>
+  <div class="complete-form" id="completeForm">
+    <label class="form-label">Ghi chú hoàn thành</label>
+    <textarea class="form-control" id="completionNotes" rows="3" placeholder="Mô tả công việc đã thực hiện..."></textarea>
+    <div class="form-row">
+      <button class="btn btn-outline" onclick="toggleCompleteForm()">Huỷ</button>
+      <button class="btn btn-green" onclick="submitComplete()"><i class="fas fa-check"></i> Xác nhận hoàn thành</button>
+    </div>
+  </div>
+  <% } %>
+
+  <div class="grid-2">
+
+    <!-- Student card -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-user"></i> Thông tin sinh viên</div>
+      <% if (student) { %>
+      <div class="student-header">
+        <div class="avatar"><%= (student.name || request.reportedBy.name || 'S')[0].toUpperCase() %></div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem"><%= student.name || request.reportedBy.name || '—' %></div>
+          <div style="font-size:.8rem;color:var(--muted)">MSSV: <%= student.studentId || request.reportedBy.studentId || '—' %></div>
+        </div>
+      </div>
+      <div class="info-row"><span class="info-label">Email</span><span class="info-value"><%= student.email || '—' %></span></div>
+      <div class="info-row"><span class="info-label">Điện thoại</span><span class="info-value"><%= student.phone || request.reportedBy.phone || '—' %></span></div>
+      <div class="info-row"><span class="info-label">Khoa</span><span class="info-value"><%= student.faculty || '—' %></span></div>
+      <div class="info-row"><span class="info-label">Phòng hiện tại</span><span class="info-value"><%= student.roomNumber || '—' %></span></div>
+      <div class="info-row"><span class="info-label">KTX</span><span class="info-value"><%= studentDormName || '—' %></span></div>
+      <% } else { %>
+      <div class="student-header">
+        <div class="avatar"><%= (request.reportedBy.name || 'S')[0].toUpperCase() %></div>
+        <div>
+          <div style="font-weight:700;font-size:.95rem"><%= request.reportedBy.name || '—' %></div>
+          <div style="font-size:.8rem;color:var(--muted)">MSSV: <%= request.reportedBy.studentId || '—' %></div>
+        </div>
+      </div>
+      <div class="info-row"><span class="info-label">Điện thoại</span><span class="info-value"><%= request.reportedBy.phone || '—' %></span></div>
+      <% } %>
+    </div>
+
+    <!-- Request detail card -->
+    <div class="card">
+      <div class="card-title"><i class="fas fa-clipboard-list"></i> Thông tin yêu cầu</div>
+      <div class="info-row">
+        <span class="info-label">Mã yêu cầu</span>
+        <span class="info-value">#<%= request.requestNumber %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Loại sự cố</span>
+        <span class="info-value">
+          <%
+            const typeLabels = {
+              electrical:'Điện', plumbing:'Nước', hvac:'Điều hòa',
+              furniture:'Đồ nội thất', door_lock:'Khóa cửa', window:'Cửa sổ',
+              internet:'Internet', cleaning:'Vệ sinh', pest_control:'Kiểm soát côn trùng', other:'Khác'
+            };
+            const typeIcons = {
+              electrical:'fa-bolt', plumbing:'fa-faucet', hvac:'fa-snowflake',
+              furniture:'fa-chair', door_lock:'fa-lock', window:'fa-square',
+              internet:'fa-wifi', cleaning:'fa-broom', pest_control:'fa-bug', other:'fa-wrench'
+            };
+          %>
+          <i class="fas <%= typeIcons[request.type] || 'fa-wrench' %>"></i>
+          <%= typeLabels[request.type] || request.type %>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Ưu tiên</span>
+        <span class="info-value">
+          <span class="badge badge-<%= request.priority %>">
+            <%= {low:'Thấp', medium:'Trung bình', high:'Cao', urgent:'Khẩn cấp'}[request.priority] || request.priority %>
+          </span>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Trạng thái</span>
+        <span class="info-value">
+          <span class="badge badge-<%= request.status %>">
+            <%= {submitted:'Chờ xử lý', assigned:'Đã phân công', in_progress:'Đang xử lý', completed:'Hoàn thành', cancelled:'Đã huỷ'}[request.status] || request.status %>
+          </span>
+        </span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">KTX</span>
+        <span class="info-value"><%= request.dormitoryName || '—' %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Tầng / Phòng</span>
+        <span class="info-value">Tầng <%= request.floorNumber %> – Phòng <%= request.roomNumber %></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Ngày gửi</span>
+        <span class="info-value"><%= request.reportedAt ? new Date(request.reportedAt).toLocaleString('vi-VN') : '—' %></span>
+      </div>
+      <% if (request.completedAt) { %>
+      <div class="info-row">
+        <span class="info-label">Ngày hoàn thành</span>
+        <span class="info-value"><%= new Date(request.completedAt).toLocaleString('vi-VN') %></span>
+      </div>
+      <% } %>
+    </div>
+
+  </div>
+
+  <!-- Description -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-align-left"></i> Mô tả chi tiết</div>
+    <div class="desc-box"><%= request.description %></div>
+    <% if (request.completionNotes) { %>
+    <div class="card-title" style="margin-top:1rem"><i class="fas fa-check-circle"></i> Ghi chú hoàn thành</div>
+    <div class="desc-box"><%= request.completionNotes %></div>
+    <% } %>
+  </div>
+
+  <!-- Images -->
+  <% if (request.imageUrls && request.imageUrls.length > 0) { %>
+  <div class="card">
+    <div class="card-title"><i class="fas fa-images"></i> Hình ảnh đính kèm (<%= request.imageUrls.length %>)</div>
+    <div class="img-grid">
+      <% request.imageUrls.forEach(url => { %>
+      <img src="<%= url %>" alt="Ảnh bảo trì" onclick="window.open(this.src,'_blank')">
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Status timeline -->
+  <div class="card">
+    <div class="card-title"><i class="fas fa-stream"></i> Tiến trình xử lý</div>
+    <%
+      const stages = [
+        { key: 'submitted',   label: 'Đã gửi yêu cầu',  icon: 'fa-paper-plane', date: request.reportedAt },
+        { key: 'assigned',    label: 'Đã phân công',     icon: 'fa-user-check',  date: request.assignedAt },
+        { key: 'in_progress', label: 'Đang xử lý',       icon: 'fa-cog',         date: request.startedAt },
+        { key: 'completed',   label: 'Hoàn thành',       icon: 'fa-check-circle',date: request.completedAt }
+      ];
+      const stageOrder = ['submitted','assigned','in_progress','completed','cancelled'];
+      const currentIdx = stageOrder.indexOf(request.status);
+    %>
+    <ul class="timeline">
+      <% stages.forEach((stage, i) => {
+           const stageIdx = stageOrder.indexOf(stage.key);
+           const isDone = (request.status === 'cancelled' && stage.key === 'submitted')
+                        || stageIdx <= currentIdx;
+      %>
+      <li>
+        <div class="tl-dot <%= isDone ? 'done' : 'pending' %>">
+          <i class="fas <%= stage.icon %>"></i>
+        </div>
+        <div class="tl-body">
+          <div class="tl-label <%= isDone ? '' : 'muted' %>"><%= stage.label %></div>
+          <% if (stage.date) { %>
+          <div class="tl-meta"><%= new Date(stage.date).toLocaleString('vi-VN') %></div>
+          <% } else if (!isDone) { %>
+          <div class="tl-meta">Chưa thực hiện</div>
+          <% } %>
+        </div>
+      </li>
+      <% }) %>
+      <% if (request.status === 'cancelled') { %>
+      <li>
+        <div class="tl-dot done" style="background:#DC2626">
+          <i class="fas fa-times"></i>
+        </div>
+        <div class="tl-body">
+          <div class="tl-label">Đã huỷ</div>
+          <div class="tl-meta"><%= request.updatedAt ? new Date(request.updatedAt).toLocaleString('vi-VN') : '' %></div>
+        </div>
+      </li>
+      <% } %>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const REQ_ID = '<%= request._id %>';
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className = ''; }, 3000);
+}
+
+function setStatus(status) {
+  const labels = { in_progress: 'Đang xử lý', cancelled: 'Đã huỷ' };
+  if (!confirm(`Xác nhận chuyển trạng thái sang "${labels[status] || status}"?`)) return;
+  fetch(`/api/admin/maintenance-requests/${REQ_ID}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) { showToast('Đã cập nhật trạng thái', 'success'); setTimeout(() => location.reload(), 900); }
+    else showToast(d.error || 'Lỗi cập nhật', 'error');
+  })
+  .catch(() => showToast('Lỗi kết nối', 'error'));
+}
+
+function toggleCompleteForm() {
+  const f = document.getElementById('completeForm');
+  if (f) f.classList.toggle('open');
+}
+
+function submitComplete() {
+  const notes = document.getElementById('completionNotes').value.trim();
+  fetch(`/api/admin/maintenance-requests/${REQ_ID}/complete`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ completionNotes: notes })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) { showToast('Đã đánh dấu hoàn thành', 'success'); setTimeout(() => location.reload(), 900); }
+    else showToast(d.error || 'Lỗi cập nhật', 'error');
+  })
+  .catch(() => showToast('Lỗi kết nối', 'error'));
+}
+</script>
+</body>
+</html>

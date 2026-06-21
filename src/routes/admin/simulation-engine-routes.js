@@ -5,7 +5,11 @@ const { isSimulationAdmin } = require('../../middleware/simulationAuth');
 const SimulationEngineService    = require('../../services/simulationEngineService');
 const SimulationWorkspaceService = require('../../services/simulationWorkspaceService');
 const SimulationApplyService     = require('../../services/simulationApplyService');
+const SimulationResult           = require('../../schemas/simulation/SimulationResultSchema');
 const { logger } = require('../../config/logger');
+
+const SIM_ACADEMIC_YEAR = '2026-2027';
+const SIM_ENROLL_YEAR   = 2026;
 
 // Guard: all engine routes require admintest
 router.use('/api/simulation/engine', isAdmin, isSimulationAdmin);
@@ -22,9 +26,21 @@ router.get('/admin/simulation/engine', async (req, res) => {
     }
 
     const wid = wsStatus.workspace._id;
-    const [dist, latestRun] = await Promise.all([
-      SimulationEngineService.getCohortDistribution(wid),
-      SimulationEngineService.getLatestRun(wid)
+
+    // Auto cohort shift on every load (idempotent)
+    await SimulationEngineService.applyCohortShift(wid, SIM_ACADEMIC_YEAR);
+
+    // Get distribution; auto-seed year1 if none exist yet
+    let dist = await SimulationEngineService.getCohortDistribution(wid);
+    if (dist.year1 === 0) {
+      const year1Count = Math.floor(Math.random() * 101) + 280;
+      await SimulationEngineService.seedYear1Students(wid, year1Count, SIM_ENROLL_YEAR);
+      dist = await SimulationEngineService.getCohortDistribution(wid);
+    }
+
+    const [latestRun, latestApplied] = await Promise.all([
+      SimulationEngineService.getLatestRun(wid),
+      SimulationResult.findOne({ workspaceId: wid, status: 'APPLIED' }).sort({ appliedAt: -1 }).lean()
     ]);
 
     res.render('admin/simulation/engine', {
@@ -37,7 +53,13 @@ router.get('/admin/simulation/engine', async (req, res) => {
       activeNav:    'simulation',
       workspace:    wsStatus.workspace,
       distribution: dist,
-      latestRun:    latestRun || null
+      latestRun:    latestRun || null,
+      simState: latestApplied ? {
+        applied:    true,
+        snapshotId: latestApplied.snapshotId,
+        appliedAt:  latestApplied.appliedAt,
+        stats:      latestApplied.stats
+      } : null
     });
   } catch (err) {
     logger.error('Engine page error', { error: err.message });
@@ -278,6 +300,43 @@ router.post('/api/simulation/engine/apply', async (req, res) => {
     const { runId } = req.body;
     if (!runId) return res.status(400).json({ success: false, error: 'Thiếu runId' });
 
+    // admintest: chỉ lưu SimulationResult, không động DB thật
+    if (req.session.username === 'admintest') {
+      const run = await SimulationEngineService.getRunById(wsStatus.workspace._id, runId);
+      let realStudents = 0, skippedYear1 = 0;
+      if (run) {
+        (run.allocatedStudents || []).forEach(s => {
+          if (s.isNewYear1) skippedYear1++;
+          else realStudents++;
+        });
+      }
+      const snapshotId = `DEMO-${Date.now()}`;
+      // Mark any previous APPLIED result as UNDONE before creating new one
+      await SimulationResult.updateMany(
+        { workspaceId: wsStatus.workspace._id, status: 'APPLIED' },
+        { $set: { status: 'UNDONE', undoneAt: new Date() } }
+      );
+      await SimulationResult.create({
+        workspaceId: wsStatus.workspace._id,
+        runId,
+        snapshotId,
+        status: 'APPLIED',
+        appliedBy: req.session.userId,
+        stats: {
+          total:       run?.summary?.totalStudentsInQueue || 0,
+          allocated:   run?.summary?.allocated || 0,
+          waitlisted:  run?.summary?.waitlisted || 0,
+          skippedYear1
+        }
+      });
+      return res.json({
+        success: true,
+        snapshotId,
+        stats: { realStudents, skippedYear1 },
+        message: 'Đã lưu kết quả mô phỏng'
+      });
+    }
+
     const snapshot = await SimulationApplyService.applyToRealAllocation(
       wsStatus.workspace._id,
       runId,
@@ -345,14 +404,36 @@ router.get('/api/simulation/engine/report', async (req, res) => {
     const md = await SimulationApplyService.generateReport(wsStatus.workspace._id, run.runId);
 
     if (req.query.download === '1') {
-      res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
-      res.setHeader('Content-Disposition', 'attachment; filename="simulation-test-report.md"');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      res.setHeader('Content-Disposition', `attachment; filename="BaoCao_MoPhong_${dateStr}.xlsx"`);
       return res.send(md);
     }
 
-    res.json({ success: true, report: md, runId: run.runId });
+    res.json({ success: true, runId: run.runId });
   } catch (err) {
     logger.error('Generate report error', { error: err.message });
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── POST /api/simulation/engine/undo-demo ────────────────────────────────────
+
+router.post('/api/simulation/engine/undo-demo', async (req, res) => {
+  try {
+    const SimulationWorkspace = require('../../schemas/simulation/SimulationWorkspaceSchema');
+    const allWs = await SimulationWorkspace.find({ adminUserId: req.session.userId }).lean();
+    if (!allWs.length) return res.status(400).json({ success: false, error: 'Không có workspace.' });
+
+    const wsIds = allWs.map(w => w._id);
+    const result = await SimulationResult.updateMany(
+      { workspaceId: { $in: wsIds }, status: 'APPLIED' },
+      { $set: { status: 'UNDONE', undoneAt: new Date() } }
+    );
+
+    res.json({ success: true, undone: result.modifiedCount, message: 'Đã hoàn tác kết quả mô phỏng' });
+  } catch (err) {
+    logger.error('Undo demo error', { error: err.message });
     res.status(500).json({ success: false, error: err.message });
   }
 });

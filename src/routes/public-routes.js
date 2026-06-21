@@ -1,8 +1,29 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const { DormitoryCollection, StudentCollection } = require('../config/config');
 const { logger } = require('../config/logger');
 const { isAuthenticated } = require('../middleware/auth');
+const { uploadAvatar } = require('../middleware/upload');
+
+// ─── QR token verification (mirrors qr.routes.js) ───────────────────────────
+const QR_SECRET = process.env.QR_SECRET || process.env.JWT_SECRET || 'fallback-qr-secret-change-me';
+
+function verifyToken(token) {
+    const dotIdx = token.lastIndexOf('.');
+    if (dotIdx === -1) throw new Error('Malformed token');
+    const dataPart = token.slice(0, dotIdx);
+    const sigPart  = token.slice(dotIdx + 1);
+    const expectedSig = crypto.createHmac('sha256', QR_SECRET)
+        .update(Buffer.from(dataPart, 'base64url').toString())
+        .digest('hex');
+    if (!crypto.timingSafeEqual(Buffer.from(sigPart, 'hex'), Buffer.from(expectedSig, 'hex'))) {
+        throw new Error('Invalid signature');
+    }
+    const payload = JSON.parse(Buffer.from(dataPart, 'base64url').toString());
+    if (payload.exp < Math.floor(Date.now() / 1000)) throw new Error('Token expired');
+    return payload;
+}
 
 // ============================================
 // PUBLIC PAGE RENDERS
@@ -53,6 +74,10 @@ router.get('/notifications', isAuthenticated, async (req, res) => {
 
 router.get('/student/maintenance-requests', isAuthenticated, (req, res) => {
     res.redirect('/student/service-requests?tab=maintenance');
+});
+
+router.get('/student/notifications', isAuthenticated, (req, res) => {
+    res.redirect('/notifications');
 });
 
 // ============================================
@@ -131,6 +156,13 @@ router.get('/api/student/profile', isAuthenticated, async (req, res) => {
     try {
         const student = await StudentCollection.findById(req.session.userId).lean();
         if (!student) return res.status(404).json({ success: false, error: 'Sinh viên không tìm thấy' });
+
+        let dormName = null;
+        if (student.dormitoryId) {
+            const dorm = await DormitoryCollection.findById(student.dormitoryId).select('name').lean();
+            if (dorm) dormName = dorm.name;
+        }
+
         res.json({
             success: true,
             student: {
@@ -139,12 +171,70 @@ router.get('/api/student/profile', isAuthenticated, async (req, res) => {
                 major: student.major,
                 cohort: student.cohort,
                 email: student.email,
-                phone: student.phone
+                phone: student.phone,
+                avatar: student.avatar || null,
+                roomNumber: student.roomNumber || null,
+                dormName: dormName,
+                enrollmentYear: student.enrollmentYear || null,
+                createdAt: student.createdAt || null
             }
         });
     } catch (error) {
         logger.error('Error fetching student profile', { error: error.message });
         res.status(500).json({ success: false, error: 'Không thể lấy thông tin sinh viên' });
+    }
+});
+
+router.post('/api/student/avatar', isAuthenticated, uploadAvatar.single('avatar'), async (req, res) => {
+    try {
+        if (!req.file) return res.status(400).json({ success: false, error: 'Không có file ảnh' });
+        const avatarUrl = req.file.path || req.file.secure_url;
+        await StudentCollection.findByIdAndUpdate(req.session.userId, { avatar: avatarUrl });
+        res.json({ success: true, avatarUrl });
+    } catch (error) {
+        logger.error('Error uploading avatar', { error: error.message });
+        res.status(500).json({ success: false, error: 'Không thể tải lên ảnh đại diện' });
+    }
+});
+
+// ============================================
+// PUBLIC QR VERIFICATION PAGE
+// ============================================
+router.get('/verify/:token', async (req, res) => {
+    let payload;
+    try {
+        payload = verifyToken(req.params.token);
+    } catch (e) {
+        const reason = e.message === 'Token expired' ? 'expired' : 'invalid';
+        return res.render('public/verify-card', { valid: false, reason, student: null, dormName: null, payload: null, scannedAt: null });
+    }
+
+    try {
+        const student = await StudentCollection.findById(payload.sub)
+            .select('name studentId dormitoryId roomNumber faculty academicYear phone email gender nationality enrollmentYear')
+            .lean();
+
+        if (!student) {
+            return res.render('public/verify-card', { valid: false, reason: 'invalid', student: null, dormName: null, payload: null, scannedAt: null });
+        }
+
+        let dormName = null;
+        if (student.dormitoryId) {
+            const dorm = await DormitoryCollection.findById(student.dormitoryId).select('name').lean();
+            if (dorm) dormName = dorm.name;
+        }
+
+        return res.render('public/verify-card', {
+            valid: true,
+            student,
+            dormName,
+            payload,
+            scannedAt: new Date(),
+            reason: null
+        });
+    } catch (err) {
+        logger.error('Verify page error', { error: err.message });
+        return res.render('public/verify-card', { valid: false, reason: 'invalid', student: null, dormName: null, payload: null, scannedAt: null });
     }
 });
 

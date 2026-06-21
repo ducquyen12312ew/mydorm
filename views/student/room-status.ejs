@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Trạng thái phòng - KTX HUST</title>
@@ -11,8 +14,7 @@
     <link rel="stylesheet" href="/css/student-premium-shell.css">
     <link rel="stylesheet" href="/css/premium-home.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -508,6 +510,7 @@
                     <div class="qr-skeleton" id="qrSkeleton"></div>
                     <div id="qrCodeEl" style="display:none"></div>
                 </div>
+                <svg id="barcodeEl" style="margin-top:12px;max-width:220px;display:none"></svg>
                 <div class="qr-name" id="qrName"></div>
                 <div class="qr-sub"  id="qrSub"></div>
                 <div class="qr-badge" id="qrBadge"><i class="fa-solid fa-circle-check"></i> <span data-i18n="rs.qrBadge">Đã được phân phòng</span></div>
@@ -584,6 +587,7 @@
                             <div class="res-qr-skel" id="resQrSkel"></div>
                             <div id="resQrEl" style="display:none"></div>
                         </div>
+                        <svg id="resBarcodeEl" style="margin-top:8px;max-width:160px;display:none"></svg>
                         <div class="res-qr-lbl" data-i18n="rs.resScanQr">Quét mã</div>
                     </div>
                     <!-- RIGHT: Description -->
@@ -730,7 +734,15 @@ function validityDate(yr) {
 // ═══════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════
-const RS = { data:null, qrPayload:'', leaflet:null, mapInited:false, roommates:[] };
+const RS = { data:null, qrPayload:'', mapInited:false, roommates:[] };
+
+async function fetchQrToken() {
+    try {
+        const r = await fetch('/api/student/qr/token', { method:'POST', credentials:'include' });
+        const d = await r.json();
+        if (d.success && d.token) RS.qrPayload = d.token;
+    } catch(e) { console.warn('QR token fetch failed', e); }
+}
 
 // ═══════════════════════════════════════════════════
 // VIEW SWITCH
@@ -837,13 +849,14 @@ async function renderAllocated(data) {
     const rn = room?.roomNumber || ra?.roomNumber  || '—';
     const yr = reg?.academicYear || '—';
     RS.roommates  = data.roommates || [];
+    RS.sid = sid;
 
     // Fallback: nếu populate dorm thất bại, tự fetch
     let dorm = dormRaw;
     if (!dorm) dorm = await resolveDorm(ra?.buildingCode, ra?.dormitoryId || null);
 
     const dn = dorm?.name || '—';
-    RS.qrPayload  = 'HUST-KTX|'+sid+'|'+toAscii(rn)+'|'+toAscii(dn)+'|'+toAscii(yr);
+    await fetchQrToken();
 
     setHeroImage(dorm);
     setHeroText(dorm, rn);
@@ -865,12 +878,13 @@ async function renderAllocatedLegacy(data) {
     const rn = room?.roomNumber || reg?.roomNumber  || '—';
     const yr = reg?.academicYear || '—';
     RS.roommates = data.roommates || (Array.isArray(room?.occupants) ? room.occupants : []);
+    RS.sid = sid;
 
     let dorm = dormRaw;
     if (!dorm) dorm = await resolveDorm(null, reg?.dormitoryId || null);
 
     const dn = dorm?.name || reg?.dormitoryName || '—';
-    RS.qrPayload = 'HUST-KTX|'+sid+'|'+toAscii(rn)+'|'+toAscii(dn)+'|'+toAscii(yr);
+    await fetchQrToken();
 
     setHeroImage(dorm);
     setHeroText(dorm, rn);
@@ -897,6 +911,16 @@ function renderQRCard(name, sid) {
         }
         document.getElementById('qrSkeleton').style.display = 'none';
         document.getElementById('qrCodeEl').style.display = '';
+        // Barcode below QR
+        if (sid && typeof JsBarcode !== 'undefined') {
+            const bc = document.getElementById('barcodeEl');
+            if (bc) {
+                try {
+                    JsBarcode(bc, sid, { format:'CODE128', width:2, height:50, displayValue:true, fontSize:12, margin:6, lineColor:'#111827', background:'transparent' });
+                    bc.style.display = '';
+                } catch(e) { console.warn('Barcode:', e); }
+            }
+        }
     }, 200);
 }
 function setRoomNum(rn) {
@@ -971,6 +995,16 @@ function renderResidentCard(dn, rn, yr) {
         const skel = document.getElementById('resQrSkel');
         if (skel) skel.style.display = 'none';
         el.style.display = '';
+        // Barcode below resident QR
+        if (RS.sid && typeof JsBarcode !== 'undefined') {
+            const bc = document.getElementById('resBarcodeEl');
+            if (bc) {
+                try {
+                    JsBarcode(bc, RS.sid, { format:'CODE128', width:1.5, height:40, displayValue:true, fontSize:10, margin:4, lineColor:'#111827', background:'transparent' });
+                    bc.style.display = '';
+                } catch(e) { console.warn('Res barcode:', e); }
+            }
+        }
     }, 350);
 }
 
@@ -1146,7 +1180,7 @@ function fillMapDrawer(dorm) {
     const name = dorm?.name    || 'KTX HUST';
     RS.mapAddr = addr; RS.mapDorm = name;
     document.getElementById('mapBody').innerHTML = `
-        <div class="map-wrap" id="mapLeaflet"></div>
+        <div class="map-wrap" id="mapContainer"></div>
         <div class="map-addr">
             <i class="fa-solid fa-location-dot map-addr-icon"></i>
             <div><div class="map-addr-main">${esc(name)}</div><div class="map-addr-sub">${esc(addr)}</div></div>
@@ -1218,24 +1252,42 @@ function renderPending(reg) {
 function openOv(id) {
     const el=document.getElementById(id); if(!el) return;
     el.classList.add('open'); document.body.style.overflow='hidden';
-    if (id==='mapOv' && !RS.mapInited) setTimeout(initLeaflet,80);
+    if (id==='mapOv' && !RS.mapInited) setTimeout(initDormMap,80);
 }
 function closeOv(id) {
     const el=document.getElementById(id); if(!el) return;
     el.classList.remove('open'); document.body.style.overflow='';
 }
-function initLeaflet() {
+function initDormMap() {
     if (RS.mapInited) return;
-    const c=document.getElementById('mapLeaflet');
-    if (!c||typeof L==='undefined') return;
-    RS.leaflet=L.map(c,{zoomControl:true}).setView([21.0048,105.8432],16);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-        attribution:'© OpenStreetMap © CARTO',subdomains:'abcd',maxZoom:20
-    }).addTo(RS.leaflet);
-    L.marker([21.0048,105.8432]).addTo(RS.leaflet)
-        .bindPopup(`<b>${RS.mapDorm||'KTX HUST'}</b><br>${RS.mapAddr||''}`).openPopup();
-    RS.mapInited=true;
-    setTimeout(()=>RS.leaflet.invalidateSize(),120);
+    RS.mapInited = true;
+    const c = document.getElementById('mapContainer');
+    if (!c) return;
+
+    function doInit() {
+        const map = new maplibregl.Map({
+            container: c,
+            style: 'https://tiles.openfreemap.org/styles/bright',
+            center: [105.8432, 21.0048],
+            zoom: 16
+        });
+        new maplibregl.Marker()
+            .setLngLat([105.8432, 21.0048])
+            .addTo(map);
+    }
+
+    if (window.maplibregl) {
+        doInit();
+    } else {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+        document.head.appendChild(link);
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+        script.onload = doInit;
+        document.head.appendChild(script);
+    }
 }
 
 function openQRModal() {

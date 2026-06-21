@@ -86,34 +86,54 @@ class SimulationWorkspaceService {
     ]);
 
     // Clone students — include all profile fields used by the simulation scoring engine
-    const studentDocs = students.map(s => ({
-      workspaceId,
-      sourceStudentId: s._id,
-      name: s.name,
-      username: s.username,
-      studentId: s.studentId,
-      email: s.email,
-      phone: s.phone,
-      faculty: s.faculty,
-      academicYear: s.academicYear,
-      gender: s.gender,
-      role: s.role,
-      priorityScore:    s.priorityScore || 0,
-      priorityDetails:  s.priorityDetails || {},
-      enrollmentYear:   s.enrollmentYear,
-      dormitoryId:      s.dormitoryId,
-      roomNumber:       s.roomNumber,
-      isTestAccount:    s.isTestAccount || false,
-      // Scoring profile fields (Fix 2: must be cloned so engine produces varied scores)
-      province:         s.province,
-      distanceToHanoi:  s.distanceToHanoi,
-      familySituation:  s.familySituation,
-      ethnicity:        s.ethnicity,
-      priorityPolicies: s.priorityPolicies || {},
-      violationHistory: s.violationHistory,
-      dormHistory:      s.dormHistory,
-      mustLeave:        false
-    }));
+    const cloneYear = new Date().getFullYear();
+
+    const studentDocs = students.map(s => {
+      // Derive yearGroup from MSSV prefix (first 4 digits = enrollment year)
+      let yearGroup = 'year1', yearInSchool = 1, mustLeave = false;
+      const sid = String(s.studentId || '').trim();
+      if (sid && sid !== '99999999') {
+        const prefix = parseInt(sid.substring(0, 4), 10);
+        if (!isNaN(prefix) && prefix > 2000 && prefix <= cloneYear) {
+          const yis = (cloneYear - prefix) + 1;
+          yearInSchool = yis;
+          if (yis >= 5)      { yearGroup = 'year5plus';  mustLeave = true; }
+          else if (yis === 4) { yearGroup = 'year4_plus'; }
+          else if (yis === 3) { yearGroup = 'year3'; }
+          else if (yis === 2) { yearGroup = 'year2'; }
+        }
+      }
+
+      return {
+        workspaceId,
+        sourceStudentId: s._id,
+        name: s.name,
+        username: s.username,
+        studentId: s.studentId,
+        email: s.email,
+        phone: s.phone,
+        faculty: s.faculty,
+        academicYear: s.academicYear,
+        gender: s.gender,
+        role: s.role,
+        priorityScore:    s.priorityScore || 0,
+        priorityDetails:  s.priorityDetails || {},
+        enrollmentYear:   s.enrollmentYear,
+        dormitoryId:      s.dormitoryId,
+        roomNumber:       s.roomNumber,
+        isTestAccount:    s.isTestAccount || false,
+        province:         s.province,
+        distanceToHanoi:  s.distanceToHanoi,
+        familySituation:  s.familySituation,
+        ethnicity:        s.ethnicity,
+        priorityPolicies: s.priorityPolicies || {},
+        violationHistory: s.violationHistory,
+        dormHistory:      s.dormHistory,
+        yearGroup,
+        yearInSchool,
+        mustLeave
+      };
+    });
 
     // Clone dormitories (with embedded rooms)
     let totalRooms = 0;

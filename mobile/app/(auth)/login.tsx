@@ -8,20 +8,28 @@ import {
   Platform,
   ScrollView,
   TouchableOpacity,
+  Image,
+  ImageBackground,
   TextInput as TextInputType,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/store/authStore';
 import { Button } from '../../src/components/ui/Button';
 import { Colors } from '../../src/constants/colors';
-import { Spacing, Radius, Shadow } from '../../src/constants/spacing';
+import { Spacing, Radius } from '../../src/constants/spacing';
 import { FontSize, FontWeight } from '../../src/constants/typography';
 import { haptic } from '../../src/utils/haptics';
 
+const HERO_BG =
+  'https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg';
+const HERO_LOGO =
+  'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781631059/logoedorm_c33vj5.png';
+
 export default function LoginScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const login = useAuthStore((s) => s.login);
 
   const [username, setUsername] = useState('');
@@ -63,7 +71,7 @@ export default function LoginScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <View style={styles.root}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -74,17 +82,21 @@ export default function LoginScreen() {
           showsVerticalScrollIndicator={false}
           bounces={false}
         >
-          {/* Logo block */}
-          <View style={styles.logoSection}>
-            <View style={styles.logoBox}>
-              <Text style={styles.logoText}>KTX</Text>
+          {/* ── Hero section ── */}
+          <ImageBackground
+            source={{ uri: HERO_BG }}
+            style={[styles.hero, { paddingTop: insets.top }]}
+            imageStyle={{ opacity: 0.7 }}
+          >
+            <View style={styles.heroOverlay}>
+              <Image source={{ uri: HERO_LOGO }} style={styles.heroLogo} resizeMode="contain" />
+              <Text style={styles.heroSub}>Hệ thống quản lý ký túc xá</Text>
+              <Text style={styles.heroSub2}>Đại học Bách Khoa Hà Nội</Text>
             </View>
-            <Text style={styles.appName}>Ký Túc Xá HUST</Text>
-            <Text style={styles.tagline}>Cổng thông tin sinh viên</Text>
-          </View>
+          </ImageBackground>
 
-          {/* Form card */}
-          <View style={styles.formCard}>
+          {/* ── Form card ── */}
+          <View style={[styles.formCard, { paddingBottom: insets.bottom + Spacing.lg }]}>
             <Text style={styles.formTitle}>Đăng nhập</Text>
             <Text style={styles.formSubtitle}>
               Dùng tài khoản do Phòng Quản lý KTX cấp
@@ -169,48 +181,63 @@ export default function LoginScreen() {
               style={styles.loginBtn}
               hapticFeedback={false}
             />
-          </View>
 
-          <Text style={styles.footerNote}>
-            HUST Dormitory Management System v1.0
-          </Text>
+            <Text style={styles.footerNote}>eDorm v1.0 · ĐHBK Hà Nội</Text>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: Colors.background },
+  root: { flex: 1, backgroundColor: '#1a1a2e' },
   flex: { flex: 1 },
-  scroll: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.xl,
-  },
+  scroll: { flexGrow: 1 },
 
-  logoSection: { alignItems: 'center', marginBottom: Spacing.xl },
-  logoBox: {
-    width: 76,
-    height: 76,
-    borderRadius: 20,
-    backgroundColor: Colors.primary,
+  hero: {
+    width: '100%',
+    height: 240,
+    backgroundColor: '#1a1a2e',
+  },
+  heroOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 14,
-    ...Shadow.md,
+    padding: 24,
   },
-  logoText: { fontSize: FontSize.xxl, fontWeight: FontWeight.extrabold, color: Colors.textInverse, letterSpacing: 1 },
-  appName: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 4 },
-  tagline: { fontSize: FontSize.sm, color: Colors.textSecondary },
+  heroLogo: {
+    width: 180,
+    height: 60,
+    marginBottom: 12,
+  },
+  heroSub: {
+    fontSize: 14,
+    color: 'rgba(255,255,255,0.95)',
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  heroSub2: {
+    fontSize: 12,
+    color: 'rgba(255,255,255,0.75)',
+    marginTop: 2,
+    textAlign: 'center',
+  },
 
   formCard: {
+    flexGrow: 1,
     backgroundColor: Colors.surface,
-    borderRadius: Radius.lg,
-    padding: Spacing.lg,
-    ...Shadow.md,
-    marginBottom: Spacing.md,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    marginTop: -24,
+    paddingHorizontal: 28,
+    paddingTop: 32,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 8,
   },
   formTitle: { fontSize: FontSize.xl, fontWeight: FontWeight.bold, color: Colors.text, marginBottom: 4 },
   formSubtitle: { fontSize: FontSize.sm, color: Colors.textSecondary, marginBottom: Spacing.md, lineHeight: 18 },
@@ -262,6 +289,7 @@ const styles = StyleSheet.create({
     fontSize: FontSize.xs,
     color: Colors.textMuted,
     textAlign: 'center',
-    marginTop: Spacing.sm,
+    marginTop: 'auto',
+    paddingTop: Spacing.lg,
   },
 });

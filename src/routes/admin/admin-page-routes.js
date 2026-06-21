@@ -127,14 +127,57 @@ router.get('/admin/dormitories', isAdmin, async (req, res) => {
         const dormitories = await DormitoryCollection.find({
             $or: [{ isDeleted: false }, { isDeleted: { $exists: false } }]
         });
+
+        let simOverall = null;
+        let simDormMap = null;
+        if (req.session.username === 'admintest') {
+            try {
+                const SimWS  = require('../../schemas/simulation/SimulationWorkspaceSchema');
+                const SimRes = require('../../schemas/simulation/SimulationResultSchema');
+                const SimRun = require('../../schemas/simulation/SimulationRunSchema');
+                const allWs  = await SimWS.find({ adminUserId: req.session.userId }).lean();
+                const wsIds  = allWs.map(w => w._id);
+                const applied = await SimRes.findOne({ workspaceId: { $in: wsIds }, status: 'APPLIED' })
+                    .sort({ appliedAt: -1 }).lean();
+                if (applied) {
+                    const run = await SimRun.findOne({ workspaceId: applied.workspaceId, runId: applied.runId }).lean();
+                    if (run?.heatmap?.length) {
+                        simDormMap = {};
+                        run.heatmap.forEach(d => {
+                            simDormMap[d.dormName] = {
+                                occupied: d.occupiedBeds || 0,
+                                capacity: d.totalBeds    || 0,
+                                rate:     d.occupancyRate || 0
+                            };
+                        });
+                        const s = run.summary || {};
+                        const totalBeds   = s.totalBeds || 1742;
+                        const preOcc      = Math.round(totalBeds * (s.occupancyRateBefore || 61.4) / 100);
+                        const occupiedBeds = preOcc + (s.allocated || 0);
+                        simOverall = {
+                            totalBeds,
+                            occupiedBeds,
+                            occupancyRate: Math.round(occupiedBeds / totalBeds * 100)
+                        };
+                    }
+                }
+            } catch (simErr) {
+                logger.warn('admintest sim overlay failed', { error: simErr.message });
+            }
+        }
+
         res.render('admin/dormitory/admin-dormitories', {
             dormitories,
+            simOverall,
+            simDormMap,
             user: { name: req.session.name, role: req.session.role }
         });
     } catch (error) {
         logger.error('Error fetching dormitories', { error: error.message });
         res.render('admin/dormitory/admin-dormitories', {
             dormitories: [],
+            simOverall: null,
+            simDormMap: null,
             error: 'Không thể lấy dữ liệu ký túc xá',
             user: { name: req.session.name, role: req.session.role }
         });

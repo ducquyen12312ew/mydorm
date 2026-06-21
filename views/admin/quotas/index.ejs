@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quota - Quản trị</title>
@@ -78,7 +81,7 @@
         </thead>
         <tbody>
           <% const yearGroupLabels = { year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3', year4_plus: 'Năm 4 và các năm còn lại' }; %>
-          <% const publishedYears = new Set((quotas || []).filter((q) => !q.isDraft).map((q) => q.academicYear)); %>
+          <% const publishedYears = new Set((quotas || []).filter((q) => q.isPublished).map((q) => q.academicYear)); %>
           <% if (!quotas || quotas.length === 0) { %>
             <tr><td colspan="7">Chưa có cấu hình quota.</td></tr>
           <% } %>
@@ -102,8 +105,8 @@
                 <% }) %>
               </td>
               <td>
-                <div class="small">Từ: <%= new Date(item.effectiveFrom).toLocaleDateString('vi-VN') %></div>
-                <div class="small">Đến: <%= new Date(item.effectiveTo).toLocaleDateString('vi-VN') %></div>
+                <div class="small">Từ: <%- (function(d){ if(!d) return '—'; var dt=new Date(d); return isNaN(dt)?'—':dt.toLocaleDateString('vi-VN'); })(item.effectiveFrom) %></div>
+                <div class="small">Đến: <%- (function(d){ if(!d) return '—'; var dt=new Date(d); return isNaN(dt)?'—':dt.toLocaleDateString('vi-VN'); })(item.effectiveTo) %></div>
               </td>
               <td>
                 <% if (canManage) { %>
@@ -119,6 +122,22 @@
                       <% } else { %>
                         <button class="btn btn-success" onclick="publishQuota('<%= item._id %>')">Ban hành</button>
                       <% } %>
+                    <% } else if (item.isPublished) { %>
+                      <button onclick="archiveQuota('<%= item._id %>')"
+                        style="padding:.3rem .75rem;border:1px solid #9CA3AF;background:#fff;color:#6B7280;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                        Lưu trữ
+                      </button>
+                    <% } else if (!item.isDraft && !item.isPublished) { %>
+                      <button onclick="reactivateQuota('<%= item._id %>')"
+                        style="padding:.3rem .75rem;border:1px solid #C8102E;background:#fff;color:#C8102E;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                        Ban hành lại
+                      </button>
+                    <% } %>
+                    <% if (!item.isPublished) { %>
+                      <button onclick="deleteQuota('<%= item._id %>', '<%= item.academicYear %> v<%= item.version %>')"
+                        style="padding:.3rem .75rem;border:1px solid #EF4444;background:#fff;color:#EF4444;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                        <i class="fas fa-trash"></i> Xóa
+                      </button>
                     <% } %>
                   </div>
                   <% if (item.isDraft && publishedYears.has(item.academicYear)) { %>
@@ -158,6 +177,39 @@
         return;
       }
       window.location.href = '/admin/quotas?message=' + encodeURIComponent(data.message || 'Ban hành thành công') + '&type=success';
+    }
+
+    async function archiveQuota(id) {
+      if (!confirm('Lưu trữ quota này? Sẽ không có quota nào đang áp dụng cho đến khi ban hành mới.')) return;
+      const res = await fetch('/admin/quotas/' + id + '/archive', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = '/admin/quotas?message=' + encodeURIComponent(data.message) + '&type=success';
+      } else {
+        alert('Lỗi: ' + data.error);
+      }
+    }
+
+    async function reactivateQuota(id) {
+      if (!confirm('Ban hành lại quota này? Quota đang áp dụng sẽ bị lưu trữ.')) return;
+      const res = await fetch('/admin/quotas/' + id + '/reactivate', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = '/admin/quotas?message=' + encodeURIComponent(data.message) + '&type=success';
+      } else {
+        alert('Lỗi: ' + data.error);
+      }
+    }
+
+    async function deleteQuota(id, label) {
+      if (!confirm('Xóa vĩnh viễn quota "' + label + '"? Thao tác này không thể hoàn tác.')) return;
+      const res = await fetch('/admin/quotas/' + id, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        window.location.href = '/admin/quotas?message=' + encodeURIComponent(data.message) + '&type=success';
+      } else {
+        alert('Lỗi: ' + data.error);
+      }
     }
   </script>
 </body>

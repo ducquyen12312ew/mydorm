@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title><%= valid ? 'Xác minh thành công — eDorm' : 'Mã QR không hợp lệ — eDorm' %></title>
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --red: #C8102E;
+      --dark: #0f1117;
+      --dark2: #1a1e2a;
+      --green: #059669;
+      --green-l: #ECFDF5;
+      --green-d: #065F46;
+      --amber: #D97706;
+      --amber-l: #FFFBEB;
+      --text: #111827;
+      --muted: #6B7280;
+      --border: #E5E7EB;
+      --bg: #F3F4F6;
+      --card: #FFFFFF;
+      --shadow: 0 8px 32px rgba(0,0,0,.14), 0 2px 8px rgba(0,0,0,.08);
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── TOP BAR ─── */
+    .topbar {
+      background: var(--dark);
+      color: #fff;
+      padding: .75rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+      flex-shrink: 0;
+    }
+    .topbar-brand {
+      font-size: 1.1rem;
+      font-weight: 900;
+      letter-spacing: -.02em;
+      flex-shrink: 0;
+    }
+    .topbar-brand .e { color: var(--red); }
+    .topbar-brand .dorm { color: #fff; }
+    .topbar-center {
+      font-size: .6rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.55);
+      text-align: center;
+      line-height: 1.3;
+    }
+    .topbar-clock {
+      font-size: .82rem;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: rgba(255,255,255,.8);
+      letter-spacing: .03em;
+      flex-shrink: 0;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    /* ─── MAIN AREA ─── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.25rem 1rem 2rem;
+    }
+    .card-wrap {
+      width: 100%;
+      max-width: 460px;
+    }
+
+    /* ─── CARD ─── */
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 1rem;
+    }
+
+    /* ─── CARD STRIPE (valid) ─── */
+    .card-stripe {
+      background: var(--red);
+      padding: .85rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .verified-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      background: rgba(255,255,255,.18);
+      border: 1.5px solid rgba(255,255,255,.4);
+      color: #fff;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      border-radius: 20px;
+      padding: .28rem .85rem;
+    }
+    .verified-badge .chk { font-size: 1rem; }
+    .scan-ts {
+      font-size: .72rem;
+      color: rgba(255,255,255,.75);
+      text-align: right;
+      line-height: 1.4;
+    }
+    .scan-ts strong { display: block; color: #fff; font-size: .76rem; }
+
+    /* ─── CARD BODY ─── */
+    .card-body { padding: 1.5rem; }
+
+    /* ─── STUDENT ROW ─── */
+    .student-row {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.1rem;
+    }
+    .avatar {
+      width: 60px; height: 60px;
+      border-radius: 50%;
+      background: var(--red);
+      color: #fff;
+      font-size: 28px;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(200,16,46,.3);
+    }
+    .student-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.2;
+      margin-bottom: .35rem;
+    }
+    .mssv-pill {
+      display: inline-block;
+      background: #F3F4F6;
+      color: #374151;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: .2rem .6rem;
+      font-size: .8rem;
+      font-weight: 700;
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      letter-spacing: .04em;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 1.1rem 0; }
+
+    /* ─── INFO GRID ─── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: .6rem;
+      margin-bottom: 1rem;
+    }
+    .info-cell { padding: .6rem .75rem; background: #F9FAFB; border: 1px solid var(--border); border-radius: 10px; }
+    .info-cell.full { grid-column: 1 / -1; }
+    .info-label {
+      font-size: .63rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .25rem;
+    }
+    .info-value {
+      font-size: .88rem;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-word;
+      line-height: 1.3;
+    }
+
+    /* ─── ROOM STATUS CHIP ─── */
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      padding: .4rem 1rem;
+      border-radius: 20px;
+      font-size: .8rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      margin-bottom: 1rem;
+    }
+    .chip-resident  { background: var(--green-l); color: var(--green-d); border: 1.5px solid var(--green); }
+    .chip-noresidence { background: var(--amber-l); color: #92400E; border: 1.5px solid var(--amber); }
+    .chip-dot { width: 7px; height: 7px; border-radius: 50%; }
+    .chip-resident .chip-dot  { background: var(--green); }
+    .chip-noresidence .chip-dot { background: var(--amber); }
+
+    /* ─── BARCODE SECTION ─── */
+    .barcode-section {
+      text-align: center;
+      padding: 1rem 0 .5rem;
+      border-top: 1px solid var(--border);
+      margin-bottom: .75rem;
+    }
+    .barcode-label {
+      font-size: .62rem;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: .6rem;
+    }
+    #bcSvg { max-width: 100%; }
+
+    /* ─── EXPIRY ROW ─── */
+    .expiry-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .2rem;
+      padding-top: .75rem;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .expiry-text { font-size: .76rem; color: var(--muted); }
+    .expiry-text strong { color: var(--text); font-family: 'SF Mono', monospace; }
+    .expiry-note { font-size: .7rem; color: #9CA3AF; font-style: italic; }
+
+    /* ─── INVALID CARD ─── */
+    .card-invalid-stripe {
+      background: #7f1d1d;
+      padding: .7rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+    .card-invalid-stripe span { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+    .invalid-body {
+      padding: 2.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+    .x-circle {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: #FEE2E2;
+      border: 3px solid #FECACA;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1.25rem;
+      font-size: 2.2rem;
+      color: var(--red);
+    }
+    .invalid-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--red);
+      letter-spacing: .02em;
+      margin-bottom: .6rem;
+    }
+    .invalid-reason {
+      font-size: .88rem;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    /* ─── FOOTER ─── */
+    .footer {
+      padding: 1.25rem 1rem;
+      text-align: center;
+      font-size: .72rem;
+      color: #9CA3AF;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ─── TOP BAR ─── -->
+<header class="topbar">
+  <div class="topbar-brand"><span class="e">e</span><span class="dorm">Dorm</span></div>
+  <div class="topbar-center">Hệ thống<br>xác minh danh tính</div>
+  <div class="topbar-clock" id="liveClock">--:--:--</div>
+</header>
+
+<div class="main">
+<div class="card-wrap">
+
+<%
+  function fmtDateTime(d) {
+    const dt = new Date(d);
+    const hh = String(dt.getHours()).padStart(2,'0');
+    const mm = String(dt.getMinutes()).padStart(2,'0');
+    const dd = String(dt.getDate()).padStart(2,'0');
+    const mo = String(dt.getMonth()+1).padStart(2,'0');
+    const yy = dt.getFullYear();
+    return hh+':'+mm+' '+dd+'/'+mo+'/'+yy;
+  }
+  function fmtGender(g) {
+    if (!g) return null;
+    const lo = String(g).toLowerCase();
+    if (lo === 'male'   || lo === 'nam') return 'Nam';
+    if (lo === 'female' || lo === 'nữ' || lo === 'nu') return 'Nữ';
+    return g;
+  }
+%>
+
+<% if (valid) { %>
+
+<!-- ══ VALID CARD ══ -->
+<div class="card">
+
+  <!-- Stripe -->
+  <div class="card-stripe">
+    <div class="verified-badge">
+      <span class="chk">✓</span> Đã xác minh
+    </div>
+    <div class="scan-ts">
+      <strong><%= fmtDateTime(scannedAt) %></strong>
+      Thời điểm quét
+    </div>
+  </div>
+
+  <div class="card-body">
+
+    <!-- Student identity -->
+    <div class="student-row">
+      <div class="avatar"><%= (student.name || 'S')[0].toUpperCase() %></div>
+      <div>
+        <div class="student-name"><%= student.name || '—' %></div>
+        <div class="mssv-pill">MSSV &nbsp;<%= student.studentId || '—' %></div>
+      </div>
+    </div>
+
+    <!-- Room status chip -->
+    <% if (student.roomNumber) { %>
+    <div class="status-chip chip-resident">
+      <span class="chip-dot"></span> ĐANG CƯ TRÚ
+    </div>
+    <% } else { %>
+    <div class="status-chip chip-noresidence">
+      <span class="chip-dot"></span> CHƯA CÓ PHÒNG
+    </div>
+    <% } %>
+
+    <hr class="divider">
+
+    <!-- Info grid -->
+    <div class="info-grid">
+      <% if (dormName) { %>
+      <div class="info-cell full">
+        <div class="info-label">KTX</div>
+        <div class="info-value"><%= dormName %></div>
+      </div>
+      <% } %>
+
+      <% if (student.roomNumber) { %>
+      <div class="info-cell">
+        <div class="info-label">Phòng</div>
+        <div class="info-value"><%= student.roomNumber %></div>
+      </div>
+      <% } %>
+
+      <% if (student.faculty) { %>
+      <div class="info-cell">
+        <div class="info-label">Ngành</div>
+        <div class="info-value"><%= student.faculty %></div>
+      </div>
+      <% } %>
+
+      <% if (student.enrollmentYear || student.academicYear) { %>
+      <div class="info-cell">
+        <div class="info-label">Năm học</div>
+        <div class="info-value"><%= student.enrollmentYear || student.academicYear %></div>
+      </div>
+      <% } %>
+
+      <% const g = fmtGender(student.gender); if (g) { %>
+      <div class="info-cell">
+        <div class="info-label">Giới tính</div>
+        <div class="info-value"><%= g %></div>
+      </div>
+      <% } %>
+
+      <% if (student.nationality) { %>
+      <div class="info-cell">
+        <div class="info-label">Quốc tịch</div>
+        <div class="info-value"><%= student.nationality %></div>
+      </div>
+      <% } %>
+
+      <% if (student.priorityScore != null && student.priorityScore !== undefined) { %>
+      <div class="info-cell">
+        <div class="info-label">Điểm ưu tiên</div>
+        <div class="info-value"><%= student.priorityScore %></div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Barcode -->
+    <% if (student.studentId) { %>
+    <div class="barcode-section">
+      <div class="barcode-label">Mã vạch định danh</div>
+      <svg id="bcSvg"></svg>
+    </div>
+    <% } %>
+
+    <!-- Expiry -->
+    <div class="expiry-row">
+      <div class="expiry-text">Mã hết hạn: <strong><%= fmtDateTime(new Date(payload.exp * 1000)) %></strong></div>
+      <div class="expiry-note">Mã này chỉ dùng một lần cho mục đích xác minh</div>
+    </div>
+
+  </div><!-- /card-body -->
+</div><!-- /card -->
+
+<% } else { %>
+
+<!-- ══ INVALID CARD ══ -->
+<div class="card">
+  <div class="card-invalid-stripe">
+    <span>eDorm · Xác minh danh tính</span>
+  </div>
+  <div class="invalid-body">
+    <div class="x-circle">✕</div>
+    <div class="invalid-title">MÃ QR KHÔNG HỢP LỆ</div>
+    <div class="invalid-reason">
+      <% if (reason === 'expired') { %>
+        Mã đã hết hạn — yêu cầu sinh viên làm mới mã QR trong ứng dụng eDorm.
+      <% } else { %>
+        Mã không hợp lệ hoặc đã bị giả mạo. Không thể xác minh danh tính.
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<% } %>
+
+<div class="footer">
+  Hệ thống quản lý KTX · Đại học Bách Khoa Hà Nội
+</div>
+
+</div><!-- /card-wrap -->
+</div><!-- /main -->
+
+<% if (valid && student && student.studentId) { %>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+<% } %>
+<script>
+  // Live clock
+  function _tick() {
+    const n = new Date();
+    const t = [n.getHours(), n.getMinutes(), n.getSeconds()]
+      .map(x => String(x).padStart(2,'0')).join(':');
+    const el = document.getElementById('liveClock');
+    if (el) el.textContent = t;
+  }
+  _tick();
+  setInterval(_tick, 1000);
+
+  <% if (valid && student && student.studentId) { %>
+  // Barcode — runs after JsBarcode loads
+  (function tryBarcode(attempts) {
+    if (typeof JsBarcode !== 'undefined') {
+      try {
+        JsBarcode('#bcSvg', '<%= student.studentId %>', {
+          format: 'CODE128',
+          width: 2, height: 50,
+          displayValue: true,
+          fontSize: 12,
+          margin: 6,
+          lineColor: '#111827',
+          background: 'transparent'
+        });
+      } catch(e) { console.warn('Barcode error', e); }
+    } else if (attempts > 0) {
+      setTimeout(() => tryBarcode(attempts - 1), 200);
+    }
+  })(10);
+  <% } %>
+</script>
+
+</body>
+</html>

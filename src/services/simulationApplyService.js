@@ -1,20 +1,10 @@
 const mongoose = require('mongoose');
-const { DormitoryCollection, StudentCollection } = require('../config/config');
-const AllocationCycle    = require('../schemas/AllocationCycleSchema');
-const RoomAllocation     = require('../schemas/RoomAllocationSchema');
 const SimulationRun      = require('../schemas/simulation/SimulationRunSchema');
 const SimulationStudent  = require('../schemas/simulation/SimulationStudentSchema');
 const SimulationDormitory = require('../schemas/simulation/SimulationDormitorySchema');
 const SimulationApply    = require('../schemas/simulation/SimulationApplySchema');
+const SimulationResult   = require('../schemas/simulation/SimulationResultSchema');
 const { logger } = require('../config/logger');
-
-// Map simulation year-group labels → RoomAllocation enum values
-function mapYearGroup(simYg) {
-  if (simYg === 'year1')     return 'year1';
-  if (simYg === 'year2')     return 'year2_3';
-  if (simYg === 'year3')     return 'year2_3';
-  return 'year4_plus';
-}
 
 class SimulationApplyService {
 
@@ -158,251 +148,125 @@ class SimulationApplyService {
     return rooms;
   }
 
-  // ── Snapshot of real state BEFORE apply ─────────────────────────────────────
-
-  static async captureBeforeState(simYear) {
-    const totalAllocs = await RoomAllocation.countDocuments({ academicYear: simYear, status: 'ACTIVE' });
-    const dorms = await DormitoryCollection.find({}, { name: 1, 'floors.floorNumber': 1, 'floors.rooms.roomNumber': 1, 'floors.rooms.occupants': 1 }).lean();
-
-    const dormOccupancy = {};
-    dorms.forEach(d => {
-      let occ = 0, cap = 0;
-      (d.floors || []).forEach(f => {
-        (f.rooms || []).forEach(r => {
-          occ += (r.occupants || []).filter(o => o.active).length;
-          cap += r.maxCapacity || 0;
-        });
-      });
-      dormOccupancy[d.name] = { occupied: occ, capacity: cap };
-    });
-
-    return { totalAllocations: totalAllocs, dormOccupancy };
-  }
-
-  // ── Apply simulation results to real allocation DB ──────────────────────────
+  // ── Apply simulation results — saves to sim-only collections, no real DB writes
 
   static async applyToRealAllocation(workspaceId, runId, adminUserId) {
     const run = await SimulationRun.findOne({ workspaceId, runId });
     if (!run) throw new Error('Simulation run không tồn tại');
 
-    // Check not already applied
+    // Prevent double-apply
     const existing = await SimulationApply.findOne({ workspaceId, runId, status: 'APPLIED' });
-    if (existing) throw new Error('Run này đã được apply. Undo trước rồi apply lại.');
+    if (existing) throw new Error('Run này đã được áp dụng. Hoàn tác trước rồi thử lại.');
 
-    // Capture state before apply
-    const beforeState = await this.captureBeforeState(run.simYear);
+    const simYear  = run.simYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
+    const now      = new Date();
+    const snapshotId = `SNAP-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
-    // Create or find a simulation AllocationCycle
-    const simYear = run.simYear || `${new Date().getFullYear()}-${new Date().getFullYear() + 1}`;
-    const now = new Date();
-
-    let cycle = await AllocationCycle.findOne({
-      academicYear: simYear,
-      name: 'Manual Allocation',
-      status: { $in: ['PENDING', 'RUNNING'] }
-    });
-
-    if (!cycle) {
-      cycle = await AllocationCycle.create({
-        academicYear: simYear,
-        name: 'Manual Allocation',
-        registrationStart: now,
-        registrationEnd:   new Date(now.getTime() + 86400000),
-        status: 'RUNNING',
-        createdBy: adminUserId,
-        notes: `Auto-created by simulation apply (run: ${runId})`
-      });
-    }
-
-    // Process allocated students
-    const createdAllocationIds = [];
-    const modifiedRooms        = [];
-    let   skippedYear1         = 0;
-    let   realStudents         = 0;
+    // Build allocation list — skip synthetic Year-1 students (no real ID)
+    const allocations = [];
+    const waitlist    = [];
+    let skippedYear1  = 0;
 
     for (const alloc of run.allocatedStudents) {
-      // Seeded Year-1 students have no real DB counterpart — skip
       if (alloc.isNewYear1) { skippedYear1++; continue; }
 
-      // Find real student via simStudent.sourceStudentId
       const simStudent = await SimulationStudent.findById(alloc.simStudentId).lean();
-      if (!simStudent || !simStudent.sourceStudentId) { skippedYear1++; continue; }
+      const realStudentId = simStudent?.sourceStudentId || null;
 
-      const realStudentId = simStudent.sourceStudentId;
-
-      // Avoid duplicate active allocation for same student + year
-      const dupCheck = await RoomAllocation.findOne({
-        studentId: realStudentId,
-        academicYear: simYear,
-        status: 'ACTIVE'
+      allocations.push({
+        simStudentId:  alloc.simStudentId,
+        studentId:     realStudentId,
+        studentCode:   alloc.studentId || '',
+        studentName:   alloc.name,
+        yearGroup:     alloc.yearGroup,
+        gender:        alloc.gender,
+        faculty:       alloc.faculty,
+        priorityScore: alloc.priorityScore,
+        dormName:      alloc.dormName,
+        floor:         alloc.floor,
+        roomNumber:    alloc.roomNumber,
+        roomType:      alloc.roomType || '',
+        isNewYear1:    false
       });
-      if (dupCheck) continue;
+    }
 
-      // Find the real dormitory and room
-      const dorm = await DormitoryCollection.findOne({ name: alloc.dormName }).lean();
-      if (!dorm) continue;
+    for (const st of run.waitlistedStudents || []) {
+      waitlist.push({
+        simStudentId:  st.simStudentId,
+        studentCode:   st.studentId || '',
+        studentName:   st.name,
+        yearGroup:     st.yearGroup,
+        priorityScore: st.priorityScore,
+        reason:        st.reason
+      });
+    }
 
-      let targetRoomId  = null;
-      let targetRoomNum = alloc.roomNumber;
+    const s = run.summary || {};
 
-      for (const floor of dorm.floors || []) {
-        if (Number(floor.floorNumber) !== Number(alloc.floor)) continue;
-        for (const room of floor.rooms || []) {
-          if (room.roomNumber === alloc.roomNumber) {
-            targetRoomId = room._id;
-            break;
-          }
-        }
-        if (targetRoomId) break;
+    // Save to simulation-only result collection
+    await SimulationResult.create({
+      workspaceId,
+      runId,
+      snapshotId,
+      status:      'APPLIED',
+      simYear,
+      academicYear: simYear,
+      appliedAt:   now,
+      appliedBy:   adminUserId,
+      allocations,
+      waitlist,
+      stats: {
+        total:          allocations.length + skippedYear1,
+        allocated:      allocations.length,
+        waitlisted:     waitlist.length,
+        skippedYear1,
+        fillRate:       s.fillRate,
+        occupancyAfter: s.occupancyRateAfter,
+        byYear:         run.byYearGroup || {}
       }
+    });
 
-      if (!targetRoomId) continue;
-
-      // Create RoomAllocation
-      const yearGroup = mapYearGroup(alloc.yearGroup);
-      const raDoc = await RoomAllocation.create({
-        academicYear:      simYear,
-        allocationCycleId: cycle._id,
-        studentId:         realStudentId,
-        roomId:            targetRoomId,
-        studentYearGroup:  yearGroup,
-        studentFaculty:    alloc.faculty,
-        studentEnrollmentYear: simStudent.enrollmentYear,
-        dormitoryId:       dorm._id,
-        roomNumber:        targetRoomNum,
-        buildingCode:      dorm.name,
-        roomCapacity:      run.allocatedStudents.find(a => String(a.simStudentId) === String(alloc.simStudentId))?.maxCapacity,
-        allocationType:    'MANUAL_OVERRIDE',
-        allocationReason:  `Applied from simulation run ${runId}`,
-        allocationBy:      adminUserId,
-        status:            'ACTIVE',
-        allocationTimestamp: now
-      });
-
-      createdAllocationIds.push(raDoc._id);
-
-      // Add occupant to real dormitory room
-      await DormitoryCollection.updateOne(
-        { _id: dorm._id },
-        {
-          $push: {
-            'floors.$[fl].rooms.$[rm].occupants': {
-              studentId:   String(realStudentId),
-              name:        alloc.name,
-              checkInDate: now,
-              active:      true
-            }
-          }
-        },
-        {
-          arrayFilters: [
-            { 'fl.floorNumber': Number(alloc.floor) },
-            { 'rm._id': targetRoomId }
-          ]
-        }
-      );
-
-      modifiedRooms.push({
-        dormitoryId:    dorm._id,
-        dormitoryName:  dorm.name,
-        floorNumber:    Number(alloc.floor),
-        roomId:         targetRoomId,
-        roomNumber:     targetRoomNum,
-        studentMongoId: String(realStudentId),
-        studentName:    alloc.name
-      });
-
-      realStudents++;
-    }
-
-    // Mark cycle completed if we applied anything
-    if (createdAllocationIds.length > 0) {
-      await AllocationCycle.findByIdAndUpdate(cycle._id, {
-        status: 'COMPLETED',
-        executedBy: adminUserId,
-        executedAt: now,
-        'stats.totalAllocated': createdAllocationIds.length
-      });
-    }
-
-    // Save snapshot record
-    const snapshotId = `SNAP-${Date.now()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
+    // Save lightweight apply-record (no real IDs needed since we wrote nothing real)
     const snapshot = await SimulationApply.create({
       workspaceId,
       runId,
       snapshotId,
-      status:             'APPLIED',
+      status:              'APPLIED',
       simYear,
-      academicYear:       simYear,
-      createdCycleId:     cycle._id,
-      createdAllocationIds,
-      modifiedRooms,
-      stats:              { studentsApplied: createdAllocationIds.length, realStudents, skippedYear1 },
-      appliedBy:          adminUserId,
-      beforeState
+      academicYear:        simYear,
+      createdAllocationIds: [],
+      modifiedRooms:        [],
+      stats: {
+        studentsApplied: allocations.length,
+        realStudents:    allocations.length,
+        skippedYear1
+      },
+      appliedBy:   adminUserId,
+      beforeState: { totalAllocations: 0, dormOccupancy: {} }
     });
 
-    logger.info('Simulation applied to real allocation', {
-      workspaceId, runId, snapshotId,
-      applied: createdAllocationIds.length,
-      skipped: skippedYear1
+    logger.info('Simulation apply saved (workspace-only, no real DB writes)', {
+      workspaceId, runId, snapshotId, allocated: allocations.length, skippedYear1
     });
 
     return snapshot;
   }
 
-  // ── Undo: restore real DB to pre-apply state ─────────────────────────────────
+  // ── Undo: marks simulation result as undone — nothing real to reverse ─────────
 
   static async undoAllocation(workspaceId, snapshotId) {
     const snapshot = await SimulationApply.findOne({ workspaceId, snapshotId });
     if (!snapshot) throw new Error('Snapshot không tồn tại');
-    if (snapshot.status === 'UNDONE') throw new Error('Snapshot này đã được undo rồi');
+    if (snapshot.status === 'UNDONE') throw new Error('Snapshot này đã được hoàn tác rồi');
 
-    // 1. Revoke all RoomAllocation records
-    if (snapshot.createdAllocationIds.length > 0) {
-      await RoomAllocation.updateMany(
-        { _id: { $in: snapshot.createdAllocationIds } },
-        {
-          $set: {
-            status:            'REVOKED',
-            revokedAt:         new Date(),
-            revocationReason:  `Undone via simulation snapshot ${snapshotId}`
-          }
-        }
-      );
-    }
+    // Also mark the SimulationResult as undone
+    await SimulationResult.updateOne({ snapshotId }, { $set: { status: 'UNDONE', undoneAt: new Date() } });
 
-    // 2. Remove added occupants from real dormitory rooms
-    for (const mod of snapshot.modifiedRooms) {
-      await DormitoryCollection.updateOne(
-        { _id: mod.dormitoryId },
-        {
-          $pull: {
-            'floors.$[fl].rooms.$[rm].occupants': { studentId: mod.studentMongoId }
-          }
-        },
-        {
-          arrayFilters: [
-            { 'fl.floorNumber': mod.floorNumber },
-            { 'rm._id': mod.roomId }
-          ]
-        }
-      );
-    }
-
-    // 3. Restore AllocationCycle to PENDING (undo = not cancelled, just rolled back)
-    if (snapshot.createdCycleId) {
-      await AllocationCycle.findByIdAndUpdate(snapshot.createdCycleId, {
-        status: 'PENDING', executedBy: null, executedAt: null
-      });
-    }
-
-    // 4. Mark snapshot as undone
-    snapshot.status  = 'UNDONE';
+    snapshot.status   = 'UNDONE';
     snapshot.undoneAt = new Date();
     await snapshot.save();
 
-    logger.info('Simulation undo complete', { workspaceId, snapshotId });
+    logger.info('Simulation apply undone (workspace-only)', { workspaceId, snapshotId });
     return snapshot;
   }
 
@@ -412,132 +276,127 @@ class SimulationApplyService {
     return SimulationApply.findOne({ workspaceId }).sort({ appliedAt: -1 }).lean();
   }
 
-  // ── Generate markdown report ─────────────────────────────────────────────────
+  // ── Generate xlsx report ─────────────────────────────────────────────────────
 
   static async generateReport(workspaceId, runId) {
+    const XLSX = require('xlsx');
+
     const run      = await SimulationRun.findOne({ workspaceId, runId }).lean();
     if (!run) throw new Error('Run không tồn tại');
 
     const snapshot = await SimulationApply.findOne({ workspaceId, runId }).lean();
-
-    const now  = new Date().toLocaleString('vi-VN');
     const s    = run.summary;
     const byYG = run.byYearGroup || {};
+    const now  = new Date().toLocaleString('vi-VN');
 
     const ygLabel = {
       year1: 'Năm 1', year2: 'Năm 2', year3: 'Năm 3',
       year4_plus: 'Năm 4+', year5plus: 'Năm 5+ (Ra KTX)'
     };
 
-    // Heatmap section (top dormitories)
-    const heatmapLines = (run.heatmap || []).map(d => {
-      const floorLines = (d.floors || []).map(f => {
-        const roomLines = (f.rooms || []).map(r =>
-          `    - Phòng ${r.roomNumber}: ${r.occupied}/${r.maxCapacity} (${r.occupancyRate}%) [${r.status}]`
-        ).join('\n');
-        return `  - **Tầng ${f.floorNumber}**\n${roomLines}`;
-      }).join('\n');
-      return `### ${d.dormName} (${d.gender === 'male' ? 'Nam' : d.gender === 'female' ? 'Nữ' : 'Hỗn hợp'})\n- Giường: ${d.occupiedBeds}/${d.totalBeds} (${d.occupancyRate}%)\n${floorLines}`;
-    }).join('\n\n');
+    const wb = XLSX.utils.book_new();
 
-    // Rejected list — sorted by score ASC (lowest score first)
+    // ── Sheet 1: Tổng quan ────────────────────────────────────────────────────
+    const summaryData = [
+      ['Báo cáo Mô phỏng Phân bổ Phòng — eDorm'],
+      ['Tạo lúc', now],
+      ['Run ID', run.runId || '—'],
+      ['Năm học mô phỏng', run.simYear || '—'],
+      [],
+      ['Chỉ số', 'Giá trị'],
+      ['Tổng phòng', s.totalRooms],
+      ['Tổng giường', s.totalBeds],
+      ['Occupancy trước cohort shift', (s.occupancyBeforeCohortShift ?? '—') + '%'],
+      ['Năm 5+ rời KTX', s.mustLeaveCount ?? 0],
+      ['Giường giải phóng từ Năm 5+', s.mustLeaveWithRoom ?? 0],
+      ['Occupancy sau cohort shift', s.occupancyRateBefore + '%'],
+      ['Giường trống cho phân bổ', s.availableBedsInitial],
+      ['Sinh viên trong Queue', s.totalStudentsInQueue],
+      [],
+      ['Kết quả Phân bổ', ''],
+      ['Được phân phòng', s.allocated],
+      ['Danh sách chờ', s.waitlisted],
+      ['Fill Rate', s.fillRate + '%'],
+      ['Occupancy sau phân bổ', (s.occupancyRateAfter ?? '—') + '%'],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    ws1['!cols'] = [{ wch: 35 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Tổng quan');
+
+    // ── Sheet 2: Theo khóa ────────────────────────────────────────────────────
+    const yearData = [['Khóa', 'Quota', 'Đăng ký', 'Được nhận', 'Fill quota (%)', 'Danh sách chờ', 'Tỷ lệ nhận (%)']];
+    Object.entries(byYG).filter(([yg]) => yg !== 'year5plus').forEach(([yg, st]) => {
+      const quota = s.quotaBands?.[yg] ?? st.quota ?? '—';
+      const fillPct = (quota && quota !== '—' && quota > 0) ? Math.round((st.allocated / quota) * 100) : '—';
+      yearData.push([ygLabel[yg] || yg, quota, st.total, st.allocated, fillPct, st.waitlisted, st.rate]);
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet(yearData);
+    ws2['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 10 }, { wch: 12 }, { wch: 14 }, { wch: 14 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, ws2, 'Theo khóa');
+
+    // ── Sheet 3: Được nhận ────────────────────────────────────────────────────
+    const allocData = [['STT', 'MSSV', 'Họ tên', 'Khóa', 'Giới tính', 'Điểm ưu tiên', 'Tòa', 'Tầng', 'Phòng']];
+    const genLabel = { male: 'Nam', female: 'Nữ', other: 'Khác' };
+    (run.allocatedStudents || []).forEach((st, i) => {
+      allocData.push([
+        i + 1,
+        st.studentId || '—',
+        st.name,
+        ygLabel[st.yearGroup] || st.yearGroup,
+        genLabel[st.gender] || st.gender,
+        st.priorityScore ?? 0,
+        st.dormName,
+        st.floor,
+        st.roomNumber
+      ]);
+    });
+    const ws3 = XLSX.utils.aoa_to_sheet(allocData);
+    ws3['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 24 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 12 }, { wch: 8 }, { wch: 10 }];
+    XLSX.utils.book_append_sheet(wb, ws3, 'Được nhận');
+
+    // ── Sheet 4: Danh sách chờ ────────────────────────────────────────────────
+    const waitData = [['STT', 'MSSV', 'Họ tên', 'Khóa', 'Giới tính', 'Điểm ưu tiên', 'Lý do']];
     const sortedWaitlist = (run.waitlistedStudents || [])
       .slice()
       .sort((a, b) => (a.priorityScore ?? 0) - (b.priorityScore ?? 0));
-    const rejectedLines = sortedWaitlist.slice(0, 50).map((s, i) =>
-      `| ${i+1} | ${s.studentId || '—'} | ${s.name} | ${ygLabel[s.yearGroup] || s.yearGroup} | ${s.priorityScore ?? '—'} | ${s.reason} |`
-    ).join('\n');
+    sortedWaitlist.forEach((st, i) => {
+      waitData.push([
+        i + 1,
+        st.studentId || '—',
+        st.name,
+        ygLabel[st.yearGroup] || st.yearGroup,
+        genLabel[st.gender] || st.gender,
+        st.priorityScore ?? 0,
+        st.reason
+      ]);
+    });
+    const ws4 = XLSX.utils.aoa_to_sheet(waitData);
+    ws4['!cols'] = [{ wch: 6 }, { wch: 12 }, { wch: 24 }, { wch: 10 }, { wch: 10 }, { wch: 14 }, { wch: 40 }];
+    XLSX.utils.book_append_sheet(wb, ws4, 'Danh sách chờ');
 
-    // Rollback section
-    let rollbackSection = '_Chưa apply vào dữ liệu thật._';
-    if (snapshot) {
-      const before = snapshot.beforeState || {};
-      rollbackSection = `
-| Thời điểm     | Tổng allocation | Ghi chú                          |
-|---------------|-----------------|----------------------------------|
-| Before Apply  | ${before.totalAllocations ?? '—'} | Trước khi apply simulation |
-| After Apply   | ${(before.totalAllocations ?? 0) + snapshot.stats.studentsApplied} | +${snapshot.stats.studentsApplied} sinh viên thực |
-| After Undo    | ${snapshot.status === 'UNDONE' ? (before.totalAllocations ?? 0) : '_(chưa undo)_'} | ${snapshot.status === 'UNDONE' ? 'Đã restore về trạng thái ban đầu' : 'Chưa undo'} |
+    // ── Sheet 5: Heatmap tòa ──────────────────────────────────────────────────
+    const heatData = [['Tòa KTX', 'Giới tính', 'Tầng', 'Phòng', 'Đã ở', 'Sức chứa', 'Occupancy (%)']];
+    (run.heatmap || []).forEach(dorm => {
+      const genderLabel = dorm.gender === 'male' ? 'Nam' : dorm.gender === 'female' ? 'Nữ' : 'Hỗn hợp';
+      (dorm.floors || []).forEach(floor => {
+        (floor.rooms || []).forEach(room => {
+          heatData.push([
+            dorm.dormName,
+            genderLabel,
+            floor.floorNumber,
+            room.roomNumber,
+            room.occupied,
+            room.maxCapacity,
+            room.occupancyRate
+          ]);
+        });
+      });
+    });
+    const ws5 = XLSX.utils.aoa_to_sheet(heatData);
+    ws5['!cols'] = [{ wch: 14 }, { wch: 10 }, { wch: 8 }, { wch: 10 }, { wch: 8 }, { wch: 10 }, { wch: 14 }];
+    XLSX.utils.book_append_sheet(wb, ws5, 'Heatmap phòng');
 
-**Snapshot ID:** \`${snapshot.snapshotId}\`
-**Trạng thái:** ${snapshot.status}
-**Sinh viên thực được apply:** ${snapshot.stats.realStudents}
-**Sinh viên Năm 1 mô phỏng (bỏ qua):** ${snapshot.stats.skippedYear1}
-`;
-    }
-
-    const md = `# Simulation Test Report — eDorm
-> Tạo lúc: ${now}
-> Run ID: \`${run.runId}\`
-> Năm học mô phỏng: ${run.simYear}
-
----
-
-## 1. Database Overview
-
-| Chỉ số | Giá trị |
-|--------|---------|
-| Tổng phòng | ${s.totalRooms} |
-| Tổng giường | ${s.totalBeds.toLocaleString()} |
-| Occupancy **trước** cohort shift | **${s.occupancyBeforeCohortShift ?? '—'}%** (${((s.totalBeds || 0) - (s.availableBedsInitial || 0) + (s.mustLeaveWithRoom || 0)).toLocaleString()} / ${s.totalBeds.toLocaleString()} giường) |
-| Năm 5+ rời KTX | **${s.mustLeaveCount ?? 0}** người → giải phóng **${s.mustLeaveWithRoom ?? 0}** giường |
-| Occupancy **sau** cohort shift | **${s.occupancyRateBefore}%** (${((s.totalBeds || 0) - (s.availableBedsInitial || 0)).toLocaleString()} / ${s.totalBeds.toLocaleString()} giường) |
-| Giường trống cho phân bổ | ${s.availableBedsInitial.toLocaleString()} |
-| Effective beds (buffer ${((s.maintenanceBuffer ?? 0.03) * 100).toFixed(0)}% dự phòng) | ${s.effectiveBeds ?? s.availableBedsInitial} |
-| Sinh viên trong Queue | ${s.totalStudentsInQueue.toLocaleString()} |
-
----
-
-## 2. Kết quả Allocation
-
-> ⚠️ **Lưu ý:** ${s.allocated.toLocaleString()} sinh viên được nhận trong simulation.
-> Khi Apply thực tế, chỉ sinh viên real được apply — sinh viên Năm 1 synthetic (2026xxx — isNewYear1=true) sẽ bị bỏ qua.
-
-| Kết quả          | Số lượng        |
-|------------------|-----------------|
-| **Được nhận**    | **${s.allocated.toLocaleString()}** |
-| Danh sách chờ    | ${s.waitlisted.toLocaleString()} |
-| Fill Rate        | ${s.fillRate}% |
-| Occupancy sau    | ${s.occupancyRateAfter}% |
-
-### Theo Khóa
-
-| Khóa   | Quota | Đăng ký | Được nhận | Fill quota | Waitlist |
-|--------|-------|---------|-----------|-----------|---------|
-${Object.entries(byYG).filter(([yg]) => yg !== 'year5plus').map(([yg, st]) => {
-  const quota = s.quotaBands?.[yg] ?? st.quota ?? '—';
-  const fill  = (quota && quota !== '—' && quota > 0)
-    ? Math.round((st.allocated / quota) * 100) + '%'
-    : '—';
-  return `| ${ygLabel[yg] || yg} | ${quota} | ${st.total} | ${st.allocated} | ${fill} | ${st.waitlisted} |`;
-}).join('\n')}
-
----
-
-## 3. Danh sách bị loại (50 đầu)
-
-| # | MSSV | Tên | Khóa | Điểm | Lý do |
-|---|------|-----|------|------|-------|
-${rejectedLines || '_(Không có sinh viên bị loại)_'}
-
----
-
-## 4. Occupancy theo Tòa / Tầng / Phòng
-
-${heatmapLines || '_Không có dữ liệu heatmap._'}
-
----
-
-## 5. Rollback / Undo
-
-${rollbackSection}
-
----
-
-_Report được tạo tự động bởi eDorm Simulation Engine._
-`;
-
-    return md;
+    return XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' });
   }
 }
 

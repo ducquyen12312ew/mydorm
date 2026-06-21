@@ -1,8 +1,20 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 const { DormitoryCollection, PendingApplicationCollection, StudentCollection } = require('../../config/config');
 const AllocationRegistration = require('../../schemas/AllocationRegistrationSchema');
 const RoomAllocationModel = require('../../schemas/RoomAllocationSchema');
+
+// ─── QR helpers (session-based endpoint) ─────────────────────────────────────
+const QR_SECRET = process.env.QR_SECRET || process.env.JWT_SECRET || 'fallback-qr-secret-change-me';
+const QR_TTL_SECONDS = 86400;
+const APP_BASE_URL = process.env.APP_BASE_URL || 'http://localhost:5000';
+
+function _signQrPayload(payload) {
+    const data = JSON.stringify(payload);
+    const sig = crypto.createHmac('sha256', QR_SECRET).update(data).digest('hex');
+    return Buffer.from(data).toString('base64url') + '.' + sig;
+}
 
 // Middleware kiểm tra đăng nhập
 const isAuthenticated = (req, res, next) => {
@@ -372,6 +384,39 @@ router.get('/api/student/allocation-result', isAuthenticated, async (req, res) =
     } catch (error) {
         console.error('allocation-result error:', error);
         res.status(500).json({ success: false, error: 'Lỗi hệ thống' });
+    }
+});
+
+// POST /api/student/qr/token — session-authenticated QR URL for web room-status page
+router.post('/api/student/qr/token', isAuthenticated, async (req, res) => {
+    try {
+        const student = await StudentCollection.findById(req.session.userId)
+            .select('name studentId dormitoryId roomNumber faculty academicYear')
+            .lean();
+        if (!student) return res.status(404).json({ success: false, error: 'Student not found' });
+
+        const iat = Math.floor(Date.now() / 1000);
+        const payload = {
+            v: 2,
+            sub: String(student._id),
+            sid: student.studentId || '',
+            name: student.name || '',
+            room: student.roomNumber || '',
+            iat,
+            exp: iat + QR_TTL_SECONDS,
+        };
+
+        const token = _signQrPayload(payload);
+        const verifyUrl = `${APP_BASE_URL}/verify/${token}`;
+
+        return res.json({
+            success: true,
+            token: verifyUrl,
+            expiresAt: new Date((iat + QR_TTL_SECONDS) * 1000).toISOString(),
+            expiresIn: QR_TTL_SECONDS,
+        });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
     }
 });
 

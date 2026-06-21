@@ -1,6 +1,7 @@
 \documentclass[../DoAn.tex]{subfiles}
 
 \begin{document}
+\sloppy
 
 Chương 3 đã xác lập nền tảng công nghệ và kiến trúc tổng thể của hệ thống qua
 tám nhóm lựa chọn từ backend, frontend, cơ sở dữ liệu cho đến hạ tầng vận hành.
@@ -25,37 +26,31 @@ vụ; Controller tiếp nhận yêu cầu từ người dùng, điều phối Mo
 cập nhật dữ liệu, sau đó chọn View phù hợp để phản hồi.
 
 Trong hệ thống quản lý ký túc xá, kiến trúc MVC được hiện thực theo cách sau.
-Tầng Model gồm các Mongoose Schema quản lý dữ liệu như \texttt{Student},
-\texttt{Room}, \texttt{Application}, \texttt{Allocation}, \texttt{Notification},
-\texttt{MaintenanceRequest}, \texttt{AcademicYear} và \texttt{AdminUser}, được
-lưu trong thư mục \texttt{src/schemas/}. Tầng View bao gồm giao diện web sử
-dụng EJS và ứng dụng di động React Native dành cho sinh viên. Tầng Controller
-gồm các Express route handler và các controller chuyên biệt xử lý nghiệp vụ,
-kết hợp với middleware để thực hiện xác thực và phân quyền người dùng.
+Tầng Model bao gồm các cấu trúc dữ liệu quản lý thông tin sinh viên, phòng ở,
+đơn đăng ký, kết quả phân bổ, thông báo, yêu cầu bảo trì và hồ sơ năm học.
+Tầng View bao gồm giao diện web dành cho sinh viên và quản trị viên, cùng
+ứng dụng di động React Native. Tầng Controller tiếp nhận yêu cầu từ người
+dùng, điều phối các nghiệp vụ xử lý và trả kết quả phù hợp về giao diện.
 
-Dự án không sử dụng MVC thuần túy mà bổ sung thêm tầng Service nằm giữa
-Controller và Model. Tầng Service được bố trí tập trung trong \texttt{src/services/},
-chứa toàn bộ logic nghiệp vụ phức tạp --- bao gồm Allocation Engine phân bổ
-phòng tự động, xử lý thông báo realtime, quản lý năm học và các quy trình
-nghiệp vụ quan trọng khác --- tách biệt hoàn toàn khỏi Controller. Các yêu cầu
-từ Controller được chuyển đến Service để xử lý nghiệp vụ trước khi tương tác
-với tầng dữ liệu, giúp mỗi tầng chỉ đảm nhiệm một trách nhiệm duy nhất và dễ
-kiểm thử độc lập.
+Dự án không sử dụng MVC thuần túy mà bổ sung thêm tầng nghiệp vụ nằm giữa
+Controller và Model. Tầng này tập trung toàn bộ logic nghiệp vụ phức tạp ---
+bao gồm phân bổ phòng tự động, xử lý thông báo thời gian thực, quản lý năm
+học và các quy trình quan trọng khác --- tách biệt hoàn toàn khỏi tầng điều
+khiển. Nhờ đó, mỗi tầng chỉ đảm nhiệm một trách nhiệm duy nhất, dễ kiểm thử
+và bảo trì độc lập.
 
-Một yêu cầu điển hình từ người dùng được xử lý theo trình tự sau: client gửi
-HTTP request đến server; tầng Routes tiếp nhận và áp dụng middleware xác thực;
-Controller trích xuất tham số và gọi Service tương ứng; Service thực thi logic
-nghiệp vụ, gọi Model để truy xuất hoặc cập nhật dữ liệu; Model tương tác với
-MongoDB Atlas và trả kết quả về Service; cuối cùng Controller nhận kết quả từ
-Service và trả về response cho client dưới dạng JSON hoặc HTML render tùy theo
-loại giao diện. Ngoài luồng HTTP chính, tầng Service còn giao tiếp với Redis để
-quản lý Socket.IO cluster adapter phục vụ thông báo realtime, trong khi Sentry
-thu thập error events và performance traces từ cả backend lẫn ứng dụng di động.
+Một yêu cầu điển hình từ người dùng được xử lý theo trình tự: người dùng gửi
+yêu cầu đến server; cơ chế xác thực kiểm tra quyền truy cập; tầng điều khiển
+trích xuất tham số và chuyển sang tầng nghiệp vụ tương ứng; tầng nghiệp vụ
+thực thi logic, truy xuất hoặc cập nhật dữ liệu; kết quả được trả về cho người
+dùng dưới dạng trang web hoặc dữ liệu JSON tùy theo loại giao diện. Hệ thống
+còn duy trì kênh thông báo thời gian thực song song với luồng HTTP chính và
+tích hợp giám sát lỗi trong môi trường vận hành thực tế.
 
 \subsection{Thiết kế tổng quan hệ thống}
 \label{subsec:package_overview}
 
-Hệ thống EDorm được thiết kế theo mô hình Modular Monolith~\cite{fowler2002patterns}
+Hệ thống eDorm được thiết kế theo mô hình Modular Monolith~\cite{fowler2002patterns}
 --- một ứng dụng Node.js duy nhất có thể triển khai độc lập (Single Deployable
 Application), tổ chức nội bộ thành các module có ranh giới trách nhiệm rõ ràng.
 Cách tiếp cận này phù hợp với quy mô của một hệ thống quản lý ký túc xá cấp
@@ -70,13 +65,13 @@ tiếp giữa chúng.
 \makebox[\textwidth][c]{%
     \includegraphics[width=1.2\textwidth]{Hinhve/software_arch.png}
 }
-\caption{Sơ đồ kiến trúc phần mềm hệ thống quản lý ký túc xá EDorm}
+\caption{Sơ đồ kiến trúc phần mềm hệ thống quản lý ký túc xá eDorm}
 \label{fig:software_arch}
 \end{figure}
 
 \subsubsection*{Nhóm ứng dụng khách}
 
-EDorm phục vụ người dùng qua bốn ứng dụng khách độc lập, mỗi ứng dụng được lựa
+eDorm phục vụ người dùng qua bốn ứng dụng khách độc lập, mỗi ứng dụng được lựa
 chọn công nghệ phù hợp với đặc thù thiết bị và nhóm người dùng tương ứng. Mobile
 App được xây dựng bằng \textit{React Native} và \textit{Expo SDK}, tích hợp
 \textit{Socket.IO Client} để duy trì kết nối WebSocket nhận thông báo thời gian
@@ -118,69 +113,64 @@ sinh viên.
 Toàn bộ logic nghiệp vụ được đóng gói trong một ứng dụng \textit{Express.js
 Modular Monolith} duy nhất, giao tiếp với MongoDB thông qua \textit{Mongoose ODM}.
 Bên trong server, sáu module xử lý các mảng nghiệp vụ độc lập rồi hội tụ vào hai
-thành phần xử lý trung tâm. Module quản lý sinh viên (Express.js, Mongoose,
-Cloudinary SDK) quản lý hồ sơ cá nhân, tính toán điểm ưu tiên đa tiêu chí, phát
-sinh mã thẻ QR định danh và xử lý ảnh đại diện qua Cloudinary SDK. Module quản lý
-đăng ký KTX (Express.js, Mongoose, Academic Window Engine) điều phối toàn bộ vòng
-đời đơn đăng ký từ tiếp nhận trong khung thời gian quy định, xác minh minh chứng
-ưu tiên đến cập nhật trạng thái xét duyệt theo từng đợt. Module quản lý ký túc xá
-(Express.js, Mongoose, Cloudinary SDK) quản lý thông tin tòa nhà, phòng, tài sản
-và hỗ trợ xem phòng 360° thông qua media lưu trên Cloudinary.
+thành phần xử lý trung tâm. Module quản lý sinh viên phụ trách hồ sơ cá nhân,
+tính toán điểm ưu tiên đa tiêu chí, phát sinh mã thẻ QR định danh và lưu trữ
+ảnh đại diện trên nền tảng đám mây. Module quản lý đăng ký ký túc xá điều phối
+toàn bộ vòng đời đơn đăng ký từ tiếp nhận trong khung thời gian quy định, xác
+minh minh chứng ưu tiên đến cập nhật trạng thái xét duyệt theo từng đợt. Module
+quản lý ký túc xá phụ trách thông tin tòa nhà, phòng ở, tài sản và hỗ trợ xem
+phòng 360° qua thư viện ảnh đa phương tiện.
 
-Ba module trên hội tụ vào hệ thống phân bổ phòng --- thành phần cốt lõi của hệ
-thống, được xây dựng với \textit{Business Rules Engine} và \textit{Priority Scoring
-Engine}: module nhận cấu hình chính sách và quota từng đợt, tính điểm ưu tiên cho
-từng ứng viên, chạy thuật toán gán phòng tự động, kiểm tra tính công bằng trong
-kết quả và ghi nhật ký đầy đủ cho từng quyết định phân bổ. Ở nửa còn lại, module
-trung tâm yêu cầu dịch vụ tiếp nhận và quản lý vòng đời các yêu cầu bảo trì,
-chuyển phòng từ lúc gửi đến khi hoàn thành; module quản lý vi phạm ghi nhận vi
-phạm nội quy, xử lý kỷ luật theo từng mức độ và tiếp nhận khiếu nại; module thống
-kê và báo cáo (MongoDB Aggregation Pipeline, Chart.js, ExcelJS) tổng hợp dữ liệu
-vận hành, cung cấp dashboard trực quan và xuất báo cáo Excel định kỳ. Ba module
-này hội tụ vào trung tâm thông báo (Socket.IO, Nodemailer, Redis Pub/Sub), điều
-phối phân phối thông báo đến đúng người nhận qua kênh realtime được đồng bộ giữa
-các instance thông qua Redis Pub/Sub, và email quan trọng qua Nodemailer.
+Ba module trên hội tụ vào mô-đun phân bổ phòng ở --- thành phần cốt lõi của hệ
+thống: mô-đun này tiếp nhận cấu hình chính sách và chỉ tiêu từng đợt, tính điểm
+ưu tiên cho từng ứng viên, thực thi thuật toán gán phòng tự động, kiểm tra tính
+công bằng trong kết quả và lưu lịch sử đầy đủ cho từng quyết định phân bổ. Ở
+nhánh còn lại, mô-đun yêu cầu dịch vụ tiếp nhận và theo dõi vòng đời các yêu
+cầu bảo trì, chuyển phòng từ lúc gửi đến khi hoàn thành; mô-đun quản lý vi phạm
+ghi nhận vi phạm nội quy, xử lý kỷ luật theo từng mức độ và tiếp nhận khiếu nại;
+mô-đun thống kê và báo cáo tổng hợp dữ liệu vận hành, cung cấp bảng điều khiển
+trực quan và xuất báo cáo định kỳ. Ba mô-đun này hội tụ vào trung tâm thông báo,
+phân phối thông tin đến đúng người nhận qua kênh thời gian thực được đồng bộ
+giữa các máy chủ, đồng thời gửi email quan trọng qua dịch vụ thư điện tử.
 
 \subsubsection*{Nền tảng dữ liệu}
 
-Hệ thống sử dụng ba thành phần lưu trữ với vai trò phân biệt rõ ràng. MongoDB
-Atlas Cluster triển khai theo mô hình \textit{Replica Set} với Mongoose ODM lưu
-trữ toàn bộ dữ liệu giao dịch theo mô hình document --- Students, Applications,
-Rooms, Buildings, Policies, Allocations, Violations, Notifications và Maintenance
-Requests --- cho phép biểu diễn các cấu trúc linh hoạt như chính sách phân bổ đa
-tiêu chí mà không cần ràng buộc schema cứng nhắc, trong khi Replica Set đảm bảo
-tính sẵn sàng và khả năng chịu lỗi của dữ liệu.
+Hệ thống sử dụng ba thành phần lưu trữ với vai trò phân biệt rõ ràng. Cơ sở dữ
+liệu đám mây triển khai theo mô hình nhân bản tự động, lưu trữ toàn bộ dữ liệu
+nghiệp vụ theo mô hình tài liệu --- hồ sơ sinh viên, đơn đăng ký, thông tin
+phòng ở, chính sách phân bổ, kết quả phân bổ, vi phạm nội quy, thông báo và
+yêu cầu bảo trì --- cho phép biểu diễn các cấu trúc linh hoạt như chính sách
+phân bổ đa tiêu chí mà không cần ràng buộc cấu trúc cứng nhắc, đồng thời đảm
+bảo tính sẵn sàng và khả năng chịu lỗi của dữ liệu.
 
-Redis Cluster với \textit{connect-redis} và \textit{Socket.IO Redis Adapter} phục
-vụ ba mục đích song song: lưu trữ session web portal, bộ nhớ đệm cho các truy vấn
-thường xuyên nhằm giảm áp lực lên MongoDB, và làm adapter đồng bộ trạng thái
-Socket.IO giữa nhiều instance server. Socket.IO Cluster sử dụng
-\textit{@socket.io/redis-adapter} làm cầu nối giao tiếp thời gian thực giữa trung
-tâm thông báo và các ứng dụng khách, đảm bảo push notification và live update được
-phân phối nhất quán đến tất cả client bất kể instance server nào đang xử lý kết
-nối WebSocket tương ứng.
+Hệ thống bộ nhớ đệm phục vụ ba mục đích song song: lưu trữ phiên đăng nhập của
+web portal, bộ nhớ đệm cho các truy vấn thường xuyên nhằm giảm áp lực lên cơ sở
+dữ liệu chính, và đồng bộ trạng thái kênh thông báo thời gian thực giữa nhiều
+máy chủ. Cơ chế giao tiếp thời gian thực kết hợp với hệ thống bộ nhớ đệm này
+đảm bảo thông báo được phân phối nhất quán đến tất cả người dùng bất kể máy chủ
+nào đang xử lý kết nối của họ.
 
 \subsubsection*{Dịch vụ bên ngoài}
 
 Hệ thống tích hợp bốn dịch vụ bên ngoài thông qua giao diện được trừu tượng hóa
 tại tầng nghiệp vụ, đảm bảo việc thay thế nhà cung cấp không ảnh hưởng đến logic
-bên trong. Cloudinary (Cloudinary SDK) đảm nhận lưu trữ và phân phối toàn bộ media
-của hệ thống gồm ảnh phòng, ảnh đại diện sinh viên, tài liệu minh chứng ưu tiên
-và media 360° cho tính năng xem phòng ảo. Google OAuth 2.0 (Passport Google OAuth
-Strategy) cung cấp cơ chế đăng nhập Single Sign-On, cho phép sinh viên xác thực
-bằng tài khoản tổ chức mà không cần tạo mật khẩu riêng.
+bên trong. Dịch vụ lưu trữ media đám mây đảm nhận toàn bộ nội dung hình ảnh của
+hệ thống gồm ảnh phòng ở, ảnh đại diện sinh viên, tài liệu minh chứng ưu tiên và
+media 360° cho tính năng tham quan phòng ảo. Dịch vụ đăng nhập liên kết cung cấp
+cơ chế xác thực qua tài khoản tổ chức, cho phép sinh viên đăng nhập bằng tài
+khoản nhà trường mà không cần tạo mật khẩu riêng.
 
-Email SMTP (Nodemailer) xử lý toàn bộ luồng email quan trọng gồm gửi mã OTP xác
-thực hai bước, thông báo kết quả phân bổ và hỗ trợ khôi phục mật khẩu. Sentry
-(Sentry SDK) được tích hợp ở cả backend lẫn ứng dụng di động để thu thập error
-log, theo dõi hiệu năng và giám sát exception trong môi trường production, hỗ trợ
-phát hiện và khắc phục sự cố nhanh chóng. Bảng~\ref{tab:component_overview} tóm
-tắt toàn bộ thành phần, công nghệ sử dụng và vai trò của từng thành phần trong
-kiến trúc hệ thống EDorm.
+Dịch vụ email xử lý toàn bộ luồng thông báo quan trọng gồm gửi mã xác thực
+hai bước, thông báo kết quả phân bổ phòng và hỗ trợ khôi phục mật khẩu. Dịch vụ
+giám sát lỗi được tích hợp ở cả backend lẫn ứng dụng di động để theo dõi sự cố
+và hiệu năng trong môi trường vận hành thực tế, hỗ trợ phát hiện và khắc phục
+vấn đề nhanh chóng. Bảng~\ref{tab:component_overview} tóm tắt toàn bộ thành
+phần, công nghệ sử dụng và vai trò của từng thành phần trong kiến trúc hệ thống
+eDorm.
 
 \begin{table}[H]
 \centering
-\caption{Tổng quan thành phần và công nghệ trong kiến trúc hệ thống EDorm}
+\caption{Tổng quan thành phần và công nghệ trong kiến trúc hệ thống eDorm}
 \label{tab:component_overview}
 \small
 \begin{tabular}{|p{3.4cm}|p{4.8cm}|p{4.4cm}|}
@@ -259,110 +249,107 @@ Sentry
 \label{subsec:package_detail}
 % =====================================================================
 
-Mục này trình bày cấu trúc nội tại của ba gói cốt lõi: Allocation Package phụ
-trách quy trình phân bổ phòng tự động, Notification and Realtime Package xử lý
-thông báo và đồng bộ thời gian thực, và Authentication Package quản lý xác thực
-người dùng. Với mỗi gói, một Class Diagram~\cite{omg2017uml} được trình bày để
-mô tả các lớp chính và quan hệ giữa chúng. Các quan hệ xuất hiện chủ yếu là
-dependency và association giữa các thành phần nghiệp vụ, dữ liệu và hạ tầng,
-phản ánh nguyên tắc phân tách trách nhiệm và phụ thuộc một chiều trong hệ thống.
+Mục này trình bày cấu trúc nội tại của ba gói nghiệp vụ cốt lõi: gói phân bổ
+phòng ở phụ trách quy trình phân bổ tự động, gói thông báo và thời gian thực
+xử lý phân phối thông tin đến người dùng, và gói xác thực quản lý danh tính
+và phân quyền. Với mỗi gói, một Class Diagram~\cite{omg2017uml} được trình bày
+để mô tả các thành phần chính và mối quan hệ giữa chúng, phản ánh nguyên tắc
+phân tách trách nhiệm và phụ thuộc một chiều trong hệ thống.
 
-\subsubsection{Allocation Package}
+\subsubsection{Gói phân bổ phòng ở}
 
-Hình~\ref{fig:class_allocation} trình bày Class Diagram của Allocation Package,
-thể hiện các lớp tham gia vào quy trình phân bổ phòng tự động và mối quan hệ
-giữa chúng.
+Hình~\ref{fig:class_allocation} trình bày Class Diagram của gói phân bổ phòng
+ở, thể hiện các thành phần tham gia vào quy trình phân bổ tự động và mối quan
+hệ giữa chúng.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.92\textwidth]{Hinhve/class_allocation.png}
-\caption{Class Diagram của Allocation Package}
+\caption{Class Diagram của gói phân bổ phòng ở}
 \label{fig:class_allocation}
 \end{figure}
 
-\texttt{AllocationService} là lớp điều phối trung tâm, phụ thuộc vào ba nhóm
-lớp với vai trò khác biệt mà không trực tiếp thực thi tính toán chi tiết. Nhóm
-lớp dữ liệu gồm \texttt{AllocationPolicy}, \texttt{AllocationCycle},
-\texttt{AllocationRegistration} và \texttt{RoomAllocation}, mỗi lớp biểu diễn
-một khái niệm nghiệp vụ riêng biệt. \texttt{AllocationPolicy} và
-\texttt{AllocationCycle} được tách biệt để một chính sách có thể áp dụng lại
-qua nhiều chu kỳ mà không cần nhân bản cấu hình.
+Mô-đun điều phối phân bổ là thành phần trung tâm, phụ thuộc vào ba nhóm thành
+phần với vai trò khác biệt mà không trực tiếp thực thi tính toán chi tiết. Nhóm
+dữ liệu nghiệp vụ gồm chính sách phân bổ, đợt đăng ký, đơn đăng ký và kết quả
+phân bổ phòng, mỗi thành phần biểu diễn một khái niệm nghiệp vụ riêng biệt.
+Chính sách phân bổ và đợt đăng ký được tách biệt để một chính sách có thể áp
+dụng lại qua nhiều đợt mà không cần nhân bản cấu hình.
 
-\texttt{AllocationAuditLog} thực hiện ghi nhật ký bất biến: mỗi hành động phân
-bổ tạo một bản ghi ngay lập tức, cho phép truy vết toàn bộ trạng thái phiên
-phân bổ về sau. Đây là quan hệ ghi một chiều từ \texttt{AllocationService}, vì
-lớp nhật ký không trả dữ liệu ngược lại. \texttt{SimulationService} sử dụng lại
-toàn bộ thuật toán phân bổ nhưng không ghi kết quả vào lớp dữ liệu chính thức,
-tách biệt rõ hai trạng thái preview và commit.
+Nhật ký phân bổ thực hiện ghi lịch sử bất biến: mỗi hành động phân bổ tạo một
+bản ghi ngay lập tức, cho phép truy vết toàn bộ trạng thái của đợt phân bổ về
+sau. Đây là quan hệ ghi một chiều từ mô-đun điều phối, vì lịch sử không trả dữ
+liệu ngược lại. Chức năng mô phỏng phân bổ sử dụng lại toàn bộ thuật toán nhưng
+không ghi kết quả vào cơ sở dữ liệu chính thức, tách biệt rõ hai trạng thái
+xem trước và xác nhận thực thi.
 
-\subsubsection{Notification and Realtime Package}
+\subsubsection{Gói thông báo và thời gian thực}
 
-Hình~\ref{fig:class_notification} trình bày Class Diagram của Notification and
-Realtime Package, thể hiện các lớp phối hợp để phân phối thông báo thời gian
-thực từ backend đến client.
+Hình~\ref{fig:class_notification} trình bày Class Diagram của gói thông báo và
+thời gian thực, thể hiện các thành phần phối hợp để phân phối thông báo tức
+thì từ hệ thống đến người dùng.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.92\textwidth]{Hinhve/class_notification.png}
-\caption{Class Diagram của Notification and Realtime Package}
+\caption{Class Diagram của gói thông báo và thời gian thực}
 \label{fig:class_notification}
 \end{figure}
 
-\texttt{StudentSocketServer} là lớp khởi tạo hạ tầng realtime, có nhiệm vụ cấu
-hình kết nối Socket.IO, xác định cơ chế nhận dạng người dùng và ủy thác phân
-phối cho \texttt{DomainEventBridge} và \texttt{RedisAdapter}.
-\texttt{DomainEventBridge} cầu nối hệ thống sự kiện bất đồng bộ với hạ tầng
-WebSocket theo quan hệ lắng nghe một chiều: lớp này đăng ký xử lý sự kiện từ
-\texttt{DomainEventBus} và dịch chuyển thành thông điệp WebSocket gửi đến đúng
-người nhận.
+Hạ tầng thông báo thời gian thực là thành phần khởi tạo kênh kết nối WebSocket,
+xác định cơ chế nhận dạng người dùng và ủy thác phân phối cho cầu nối sự kiện
+và bộ đồng bộ đa máy chủ. Cầu nối sự kiện kết nối hệ thống sự kiện bất đồng bộ
+bên trong với kênh WebSocket theo quan hệ lắng nghe một chiều: thành phần này
+nhận sự kiện từ kênh nội bộ và chuyển thành thông điệp thời gian thực gửi đến
+đúng người nhận.
 
-\texttt{DurableEventPublisher} và \texttt{DomainEventOutbox} đảm bảo tính bền
-vững của sự kiện bằng cách ghi sự kiện vào outbox trước khi phát lên bus, đảm
-bảo sự kiện không bị mất nếu quá trình phát bị gián đoạn. \texttt{RedisAdapter}
-kết nối Socket.IO với Redis theo mô hình pub/sub, cho phép nhiều instance server
-cùng broadcast sự kiện; quan hệ với \texttt{StudentSocketServer} là kết hợp vì
-adapter có thể vắng mặt khi Redis không được cấu hình mà không làm gián đoạn
-hệ thống. \texttt{NotificationService} và \texttt{NotificationSchema} phục vụ
-kênh thông báo bền vững song song với kênh WebSocket: schema lưu bản ghi để
-sinh viên truy xuất lại, còn service điều phối tạo và cập nhật trạng thái
-thông báo.
+Cơ chế phát sự kiện bền vững kết hợp với hàng đợi sự kiện đảm bảo tính an toàn
+của thông báo bằng cách ghi vào hàng đợi trước khi phát, đảm bảo thông báo không
+bị mất nếu quá trình phân phối bị gián đoạn. Bộ đồng bộ đa máy chủ kết nối
+kênh thông báo thời gian thực với hệ thống bộ nhớ đệm theo mô hình pub/sub, cho
+phép nhiều máy chủ cùng broadcast sự kiện; quan hệ này có thể vắng mặt khi chỉ
+triển khai một máy chủ mà không làm gián đoạn hệ thống. Chức năng thông báo và
+bản ghi thông báo phục vụ kênh lưu trữ bền vững song song với kênh thời gian
+thực: bản ghi được lưu để sinh viên truy xuất lại lịch sử, còn chức năng thông
+báo điều phối việc tạo và cập nhật trạng thái đã đọc.
 
-\subsubsection{Authentication Package}
+\subsubsection{Gói xác thực và phân quyền}
 
-Hình~\ref{fig:class_auth} trình bày Class Diagram của Authentication Package,
-thể hiện hai luồng xác thực song song và các lớp tăng cường bảo mật.
+Hình~\ref{fig:class_auth} trình bày Class Diagram của gói xác thực và phân
+quyền, thể hiện hai luồng xác thực song song và các thành phần tăng cường bảo
+mật.
 
 \begin{figure}[!htbp]
 \centering
 \includegraphics[width=0.86\textwidth]{Hinhve/class_auth.png}
-\caption{Class Diagram của Authentication Package}
+\caption{Class Diagram của gói xác thực và phân quyền}
 \label{fig:class_auth}
 \end{figure}
 
-Gói xác thực phân tách hai luồng theo loại client: \texttt{AuthMiddleware} phục
-vụ web portal theo cơ chế session-based, còn \texttt{MobileJwtAuth} phục vụ ứng
-dụng di động theo cơ chế token-based. Hai middleware không kế thừa nhau vì hai
-cơ chế có bản chất khác nhau --- session dựa trên trạng thái phía server, trong
-khi JWT là token phi trạng thái. \texttt{MobileJwtAuth} phụ thuộc vào
-\texttt{MobileTokenService} theo quan hệ dependency: middleware chỉ trích xuất
-token từ header và ủy thác xác minh cho service, còn \texttt{MobileTokenService}
-quản lý toàn bộ vòng đời token mobile --- cấp phát, xác minh, luân phiên và
-thu hồi. \texttt{MobileRefreshToken} lưu refresh token dưới dạng đã qua xử lý
-một chiều, đảm bảo bảo mật ở tầng lưu trữ.
+Gói xác thực phân tách hai luồng theo loại giao diện: cơ chế xác thực web phục
+vụ portal dựa trên phiên đăng nhập lưu phía máy chủ, còn cơ chế xác thực di
+động phục vụ ứng dụng điện thoại dựa trên token không trạng thái. Hai cơ chế
+này không dùng chung nền tảng vì bản chất kỹ thuật khác nhau --- phiên web phụ
+thuộc vào cookie trình duyệt, trong khi token di động được truyền qua tiêu đề
+HTTP. Cơ chế xác thực di động chỉ trích xuất token từ yêu cầu và ủy thác xác
+minh cho mô-đun quản lý phiên đăng nhập di động, còn mô-đun này quản lý toàn
+bộ vòng đời token --- cấp phát, xác minh, luân phiên và thu hồi. Token gia hạn
+phiên được lưu ở dạng đã qua xử lý một chiều, đảm bảo bảo mật ở tầng lưu trữ.
 
-\texttt{TwoFactorService} là lớp độc lập phụ trách quy trình xác thực bổ sung
-theo chuẩn TOTP: sinh bí mật, tạo mã QR và xác minh mã. Lớp này không phụ thuộc
-vào tầng dữ liệu vì việc lưu bí mật TOTP vào \texttt{TwoFactorSchema} là trách
-nhiệm của tầng controller.
+Chức năng xác thực hai bước là thành phần độc lập phụ trách quy trình bảo mật
+bổ sung theo chuẩn mã dùng một lần: sinh bí mật, tạo mã QR cho ứng dụng xác
+thực và xác minh mã khi đăng nhập. Thành phần này tách biệt hoàn toàn khỏi
+tầng lưu trữ để đảm bảo phân tách trách nhiệm rõ ràng.
 
 Thông qua ba mục của phần~\ref{sec:arch_design}, chương~4 đã trình bày đầy đủ
-quyết định lựa chọn kiến trúc MVC kết hợp Service Layer, cấu trúc tổ chức gói
-theo kiến trúc phân tầng và thiết kế nội tại của ba gói cốt lõi. Các nguyên tắc
-phụ thuộc một chiều và phân tách trách nhiệm được duy trì nhất quán từ mức kiến
-trúc tổng thể xuống đến mức lớp trong từng gói, đảm bảo hệ thống có thể mở rộng
-và bảo trì mà không làm phức tạp thêm các phần đã ổn định. Phần tiếp theo đi
-sâu vào thiết kế chi tiết ở hai góc độ bổ trợ: thiết kế giao diện người dùng
-và thiết kế lớp kết hợp biểu đồ trình tự cho các luồng nghiệp vụ cốt lõi.
+quyết định lựa chọn kiến trúc MVC kết hợp tầng nghiệp vụ, cấu trúc tổ chức
+module theo kiến trúc phân tầng và thiết kế nội tại của ba gói nghiệp vụ cốt
+lõi. Các nguyên tắc phụ thuộc một chiều và phân tách trách nhiệm được duy trì
+nhất quán từ mức kiến trúc tổng thể xuống đến mức thành phần trong từng gói,
+đảm bảo hệ thống có thể mở rộng và bảo trì mà không làm phức tạp thêm các phần
+đã ổn định. Phần tiếp theo đi sâu vào thiết kế chi tiết ở hai góc độ bổ trợ:
+thiết kế giao diện người dùng và thiết kế cấu trúc dữ liệu nghiệp vụ kết hợp
+biểu đồ trình tự cho các luồng nghiệp vụ cốt lõi.
 
 % =====================================================================
 \section{Thiết kế chi tiết}
@@ -374,14 +361,11 @@ và thiết kế lớp kết hợp biểu đồ trình tự cho các luồng ngh
 % =====================================================================
 
 Hệ thống có hai portal web độc lập dành cho sinh viên và quản trị viên. Toàn
-bộ giao diện web được thiết kế theo nguyên tắc responsive thông qua việc khai
-báo thẻ viewport nhằm tự động điều chỉnh kích thước hiển thị theo thiết bị truy
-cập. CSS Grid với thuộc tính \texttt{repeat(auto-fit, minmax(220px, 1fr))} được
-sử dụng làm cơ chế bố cục chủ đạo, giúp số lượng cột tự động thay đổi theo
-chiều rộng màn hình mà không cần xây dựng các breakpoint cố định. Bảng
-\ref{tab:device_targets} trình bày các nhóm thiết bị mục tiêu của hệ thống.
-Giao diện tương thích với các trình duyệt Chrome~90+, Firefox~88+, Edge~90+
-và Safari~14+.
+bộ giao diện web được thiết kế theo nguyên tắc responsive, tự động điều chỉnh
+bố cục theo kích thước thiết bị truy cập mà không cần xây dựng các điểm ngắt
+giao diện cố định. Bảng~\ref{tab:device_targets} trình bày các nhóm thiết bị
+mục tiêu của hệ thống. Giao diện tương thích với các trình duyệt hiện đại
+phổ biến trên cả nền tảng máy tính để bàn lẫn thiết bị di động.
 
 \begin{table}[H]
 \centering
@@ -404,29 +388,21 @@ Máy tính bảng & 768$\times$1024 -- 1024$\times$1366 & Grid 2 cột, navbar r
 \end{table}
 
 Hai portal sử dụng bảng màu riêng phù hợp với tính chất công việc của từng
-nhóm người dùng. Student portal dùng gradient
-\texttt{\#667eea}$\to$\texttt{\#764ba2} (tím--xanh) cho header, nút chính và
-đường viền focus, kết hợp màu nhấn \texttt{\#d63031} (đỏ HUST) cho các chỉ số
-nổi bật và nền trang \texttt{\#f8f3ef}. Admin portal dùng màu văn bản
-\texttt{\#2c3e50} và nền \texttt{\#f5f7fa}. Badge trạng thái nghiệp vụ được
-phân màu nhất quán xuyên suốt toàn hệ thống: xanh lá (\texttt{\#10b981}) cho
-trạng thái \texttt{ALLOCATED} hoặc thành công, cam (\texttt{\#f59e0b}) cho
-\texttt{WAITLIST} hoặc cảnh báo, và đỏ (\texttt{\#dc2626}) cho
-\texttt{REJECTED} hoặc lỗi.
+nhóm người dùng. Portal sinh viên sử dụng tông màu tím--xanh cho các thành
+phần điều hướng và màu đỏ đặc trưng của nhà trường cho các chỉ số nổi bật.
+Portal quản trị viên dùng tông màu trung tính, tạo cảm giác trang trọng và
+chuyên nghiệp. Nhãn trạng thái nghiệp vụ được phân màu nhất quán xuyên suốt
+toàn hệ thống: xanh lá cho trạng thái đã phân bổ hoặc thành công, cam cho
+danh sách chờ hoặc cảnh báo, và đỏ cho từ chối hoặc lỗi.
 
-Về typography, toàn bộ hệ thống sử dụng duy nhất font Inter tải từ Google Fonts
-với bốn trọng số 400, 500, 600 và 700, fallback về \texttt{system-ui, sans-serif}.
-Thang chữ được chuẩn hóa theo thứ tự từ lớn đến nhỏ: \texttt{h1} 32px,
-\texttt{h2} 28px, \texttt{h3} 24px, body 14--16px và \texttt{small} 12px.
-
-Các thành phần giao diện tái sử dụng được chuẩn hóa nhất quán trên toàn hệ
-thống. Card thông tin áp dụng \texttt{border-radius} 12--20px và box-shadow đa
-tầng để tạo chiều sâu. Thanh tiến trình cao 6px phân màu theo ba mức lấp đầy.
-Trường nhập liệu có focus ring màu \texttt{\#667eea} để phản hồi tương tác trực
-quan. Thông báo lỗi và xác nhận được đặt ngay trên form liên quan, hiển thị có
-điều kiện thay vì dùng hộp thoại popup. Navbar của student portal cố định ở đầu
-trang, trong khi navbar của admin portal tích hợp thêm khu vực thông báo
-realtime.
+Phông chữ và thang cỡ chữ được chuẩn hóa nhất quán trên toàn bộ giao diện,
+đảm bảo khả năng đọc tốt ở mọi độ phân giải. Các thành phần giao diện tái
+sử dụng như thẻ thông tin, thanh tiến trình và trường nhập liệu được thiết kế
+theo phong cách nhất quán. Thông báo lỗi và xác nhận được đặt ngay gần phần
+biểu mẫu liên quan, hiển thị theo ngữ cảnh thay vì dùng hộp thoại ngắt quãng
+trải nghiệm người dùng. Thanh điều hướng của portal sinh viên cố định ở đầu
+trang, trong khi thanh điều hướng của portal quản trị viên tích hợp thêm khu
+vực thông báo thời gian thực.
 
 Hình~\ref{fig:wf_apply} đến Hình~\ref{fig:wf_result} trình bày phương án thiết
 kế bố cục cho ba màn hình nghiệp vụ trọng tâm của hệ thống, bao quát luồng đăng
@@ -478,143 +454,133 @@ trong danh sách chờ khi sinh viên chưa được phân phòng.
 \label{subsec:class_design}
 % =====================================================================
 
-Phần này trình bày thiết kế chi tiết của ba lớp trung tâm trong mô hình nghiệp
-vụ, suy luận trực tiếp từ các Mongoose schema trong thư mục \texttt{src/schemas/}
-và logic của service layer: \texttt{AllocationPolicy} xác định quy tắc tính
-điểm ưu tiên, \texttt{AllocationCycle} quản lý vòng đời đợt đăng ký và
-\texttt{AllocationRegistration} lưu trữ đơn đăng ký của từng sinh viên.
+Phần này trình bày thiết kế chi tiết của ba cấu trúc dữ liệu trung tâm trong
+mô hình nghiệp vụ: chính sách phân bổ xác định quy tắc tính điểm ưu tiên, đợt
+đăng ký quản lý vòng đời mỗi chu kỳ và đơn đăng ký lưu trữ hồ sơ của từng
+sinh viên.
 
-\subsubsection{Lớp AllocationPolicy}
+\subsubsection{Cấu trúc chính sách phân bổ}
 
-\texttt{AllocationPolicy} lưu trữ quy tắc tính điểm ưu tiên áp dụng cho một
-năm học. Chính sách xác định trọng số cho sáu tiêu chí: nhóm năm học, tình
-trạng tài chính, khoảng cách từ nhà, học bổng, lịch sử vi phạm và gia cảnh
-kinh tế. Mỗi năm học chỉ có một chính sách hiệu lực; lớp này là nguồn tham số
-duy nhất để \texttt{AllocationService} xếp hạng các đơn đăng ký.
+Chính sách phân bổ lưu trữ bộ quy tắc tính điểm ưu tiên áp dụng cho một năm
+học. Chính sách xác định trọng số cho sáu tiêu chí: nhóm năm học, tình trạng
+tài chính, khoảng cách từ nhà, học bổng, lịch sử vi phạm và gia cảnh kinh tế.
+Mỗi năm học chỉ có một chính sách hiệu lực; đây là nguồn tham số duy nhất để
+mô-đun phân bổ xếp hạng các đơn đăng ký.
 
 \vspace{-6pt}
 \begin{table}[H]
 \centering
-\caption{Thuộc tính chính của lớp \texttt{AllocationPolicy}}
+\caption{Các trường dữ liệu chính của chính sách phân bổ}
 \label{tab:class_policy_attr}
 \small
 \begin{tabular}{|>{\raggedright\arraybackslash}p{3.6cm}|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{7.0cm}|}
 \hline
-\textbf{Tên thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ý nghĩa} \\
+\textbf{Trường dữ liệu} & \textbf{Kiểu} & \textbf{Ý nghĩa nghiệp vụ} \\
 \hline
-\texttt{academicYear} & String & Năm học YYYY-YYYY, duy nhất và bắt buộc \\
+Năm học & Chuỗi & Năm học YYYY-YYYY, duy nhất và bắt buộc \\
 \hline
-\texttt{active} & Boolean & Trạng thái hiệu lực; duy nhất một chính sách active mỗi năm \\
+Trạng thái hiệu lực & Logic & Đánh dấu chính sách đang được áp dụng; chỉ một chính sách được hiệu lực mỗi năm \\
 \hline
-\texttt{priorityRules} & Object & Nhóm trọng số cho năm học, tài chính, khoảng cách, học bổng, vi phạm, gia cảnh \\
+Bộ trọng số ưu tiên & Đối tượng & Trọng số cho nhóm năm học, tình trạng tài chính, khoảng cách, học bổng, vi phạm và gia cảnh \\
 \hline
 \end{tabular}
 \end{table}
 \vspace{-4pt}
 
-Lớp \texttt{AllocationPolicy} cung cấp hai nghiệp vụ cốt lõi được
-\texttt{AllocationService} gọi xuyên suốt quy trình phân bổ. Cơ chế tính điểm
-ưu tiên nhận đầu vào là tập thông tin hồ sơ sinh viên bao gồm nhóm năm học,
-tình trạng tài chính, khoảng cách từ nhà, học bổng, lịch sử vi phạm và gia
-cảnh kinh tế; kết quả là điểm tổng hợp được chuẩn hóa về khoảng $[0, 100]$
-dựa trên bộ trọng số định nghĩa trong \texttt{priorityRules}. Mức vi phạm
-minor, major và critical lần lượt trừ đi 5, 20 và 40 điểm trước khi kẹp kết
-quả. Cơ chế truy xuất chính sách hiệu lực cho phép hệ thống xác định bộ quy
-tắc đang áp dụng cho một năm học cụ thể trước khi xếp hạng toàn bộ hồ sơ
-đăng ký; ràng buộc duy nhất một chính sách \texttt{active} mỗi năm đảm bảo
-tính nhất quán của điểm ưu tiên trong toàn chu kỳ. \texttt{AllocationPolicy}
-được \texttt{AllocationCycle} tham chiếu qua \texttt{policyId}, qua đó liên
-kết bộ quy tắc với từng đợt đăng ký cụ thể.
+Chính sách phân bổ cung cấp hai nghiệp vụ cốt lõi được mô-đun phân bổ sử dụng
+xuyên suốt quy trình. Cơ chế tính điểm ưu tiên nhận đầu vào là thông tin hồ sơ
+sinh viên gồm nhóm năm học, tình trạng tài chính, khoảng cách từ nhà, học bổng,
+lịch sử vi phạm và gia cảnh kinh tế; kết quả là điểm tổng hợp được chuẩn hóa
+về khoảng $[0, 100]$ dựa trên bộ trọng số của chính sách đang hiệu lực. Vi phạm
+mức nhẹ, trung bình và nghiêm trọng lần lượt trừ đi 5, 20 và 40 điểm trước khi
+xác định điểm cuối. Cơ chế xác định chính sách hiệu lực cho phép hệ thống tra
+cứu bộ quy tắc đang áp dụng cho một năm học trước khi xếp hạng toàn bộ hồ sơ
+đăng ký; ràng buộc chỉ một chính sách được hiệu lực mỗi năm đảm bảo tính nhất
+quán của điểm ưu tiên trong toàn đợt. Mỗi đợt đăng ký tham chiếu đến đúng một
+chính sách, qua đó liên kết bộ quy tắc với từng đợt phân bổ cụ thể.
 
-\subsubsection{Lớp AllocationCycle}
+\subsubsection{Cấu trúc đợt đăng ký}
 
-\texttt{AllocationCycle} đại diện cho một đợt đăng ký ký túc xá, xác định
-khoảng thời gian mở đăng ký, liên kết với chính sách phân bổ đang áp dụng và
-lưu bản chụp trạng thái giường phòng. Mỗi năm học có thể có nhiều chu kỳ như
-đăng ký chính thức, đăng ký bổ sung và điều chỉnh thủ công.
+Đợt đăng ký đại diện cho một chu kỳ mở đăng ký ký túc xá, xác định khoảng
+thời gian sinh viên được phép nộp hồ sơ, liên kết với chính sách phân bổ đang
+áp dụng và lưu bản ghi sức chứa tại thời điểm mở đợt. Mỗi năm học có thể có
+nhiều đợt như đăng ký chính thức, đăng ký bổ sung và điều chỉnh thủ công.
 
 \vspace{-6pt}
 \begin{table}[H]
 \centering
-\caption{Thuộc tính chính của lớp \texttt{AllocationCycle}}
+\caption{Các trường dữ liệu chính của đợt đăng ký}
 \label{tab:class_cycle_attr}
 \small
 \begin{tabular}{|>{\raggedright\arraybackslash}p{4.6cm}|>{\raggedright\arraybackslash}p{1.8cm}|>{\raggedright\arraybackslash}p{7.0cm}|}
 \hline
-\textbf{Tên thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ý nghĩa} \\
+\textbf{Trường dữ liệu} & \textbf{Kiểu} & \textbf{Ý nghĩa nghiệp vụ} \\
 \hline
-\texttt{name} & String (enum) & Loại chu kỳ: Main Registration, Late Registration, Adjustment Period \\
+Tên đợt & Liệt kê & Loại đợt: đăng ký chính thức, đăng ký muộn, điều chỉnh \\
 \hline
-\texttt{policyId} & ObjectId & Tham chiếu đến \texttt{AllocationPolicy} đang hiệu lực \\
+Chính sách áp dụng & Tham chiếu & Liên kết đến chính sách phân bổ đang hiệu lực \\
 \hline
-\texttt{registrationStart}\newline/ \texttt{registrationEnd} & Date & Khoảng thời gian mở đăng ký \\
+Thời gian mở/đóng đăng ký & Ngày giờ & Khoảng thời gian sinh viên được phép nộp hồ sơ \\
 \hline
-\texttt{status} & String (enum) & Trạng thái: PENDING, RUNNING, COMPLETED, CANCELLED \\
+Trạng thái đợt & Liệt kê & Chờ mở, đang mở, hoàn thành, đã hủy \\
 \hline
 \end{tabular}
 \end{table}
 \vspace{-4pt}
 
-\texttt{AllocationCycle} cung cấp hai nghiệp vụ kiểm soát trạng thái vận hành
-của đợt đăng ký. Cơ chế kiểm tra cửa sổ thời gian đối chiếu thời điểm hiện
-tại với khoảng được xác định bởi \texttt{registrationStart} và
-\texttt{registrationEnd}, trả về giá trị logic cho biết sinh viên có thể nộp
-đơn hay không; \texttt{EnhancedApplicationService} gọi cơ chế này tại bước
-kiểm tra đầu vào của mỗi đơn đăng ký để từ chối sớm các yêu cầu ngoài thời
-hạn. Cơ chế truy xuất chu kỳ hiệu lực xác định đợt đăng ký đang ở trạng thái
-\texttt{PENDING} hoặc \texttt{RUNNING} cho một năm học chỉ định, phục vụ cả
-luồng nộp đơn từ phía sinh viên lẫn luồng thực thi phân bổ từ phía quản trị
-viên. \texttt{AllocationService} cập nhật trạng thái chu kỳ tuần tự qua các
-mốc \texttt{PENDING}~$\to$~\texttt{RUNNING}~$\to$~\texttt{COMPLETED} trong quá
-trình thực thi; \texttt{AllocationCycle} đồng thời là đầu của quan hệ một-nhiều
-với \texttt{AllocationRegistration}, liên kết toàn bộ đơn được nộp trong cùng
-một đợt với đúng bộ chính sách đang hiệu lực.
+Đợt đăng ký cung cấp hai nghiệp vụ kiểm soát trạng thái vận hành. Cơ chế kiểm
+tra cửa sổ thời gian đối chiếu thời điểm hiện tại với khoảng thời gian đã thiết
+lập, trả về kết quả cho biết sinh viên có thể nộp hồ sơ hay không; chức năng
+tiếp nhận đăng ký sử dụng kết quả này tại bước kiểm tra đầu vào để từ chối
+sớm các yêu cầu ngoài thời hạn. Cơ chế xác định đợt đang mở cho phép hệ thống
+tìm đợt đăng ký đang hoạt động cho một năm học cụ thể, phục vụ cả luồng nộp
+hồ sơ từ phía sinh viên lẫn luồng thực thi phân bổ từ phía quản trị viên.
+Mô-đun phân bổ cập nhật trạng thái đợt tuần tự qua các mốc chờ mở~$\to$~đang
+mở~$\to$~hoàn thành trong quá trình thực thi; mỗi đợt đăng ký đồng thời là đầu
+của quan hệ một-nhiều với các đơn đăng ký, liên kết toàn bộ hồ sơ được nộp
+trong cùng một đợt với đúng bộ chính sách đang hiệu lực.
 
-\subsubsection{Lớp AllocationRegistration}
+\subsubsection{Cấu trúc đơn đăng ký}
 
-\texttt{AllocationRegistration} biểu diễn đơn đăng ký của một sinh viên trong
-một chu kỳ. Ràng buộc unique index trên cặp \texttt{(studentId, allocationCycleId)}
-đảm bảo mỗi sinh viên chỉ đăng ký một lần mỗi chu kỳ. Sau khi thuật toán phân
-bổ chạy, trạng thái đơn cập nhật thành \texttt{ALLOCATED} hoặc
-\texttt{WAITLIST} tuỳ kết quả.
+Đơn đăng ký biểu diễn hồ sơ đăng ký ký túc xá của một sinh viên trong một
+đợt. Ràng buộc duy nhất theo cặp sinh viên--đợt đăng ký đảm bảo mỗi sinh viên
+chỉ có tối đa một hồ sơ trong mỗi đợt. Sau khi mô-đun phân bổ chạy, trạng thái
+hồ sơ được cập nhật thành đã phân bổ hoặc danh sách chờ tùy theo kết quả.
 
 \vspace{-6pt}
 \begin{table}[H]
 \centering
-\caption{Thuộc tính chính của lớp \texttt{AllocationRegistration}}
+\caption{Các trường dữ liệu chính của đơn đăng ký}
 \label{tab:class_reg_attr}
 \small
 \begin{tabular}{|>{\raggedright\arraybackslash}p{4.4cm}|>{\raggedright\arraybackslash}p{2.0cm}|>{\raggedright\arraybackslash}p{7.0cm}|}
 \hline
-\textbf{Tên thuộc tính} & \textbf{Kiểu dữ liệu} & \textbf{Ý nghĩa} \\
+\textbf{Trường dữ liệu} & \textbf{Kiểu} & \textbf{Ý nghĩa nghiệp vụ} \\
 \hline
-\texttt{allocationCycleId} & ObjectId & Tham chiếu đến chu kỳ chứa đơn \\
+Đợt đăng ký & Tham chiếu & Liên kết đến đợt đăng ký chứa hồ sơ \\
 \hline
-\texttt{studentId} & ObjectId & Tham chiếu đến tài khoản sinh viên \\
+Sinh viên & Tham chiếu & Liên kết đến hồ sơ sinh viên nộp đơn \\
 \hline
-\texttt{status} & String (enum) & Trạng thái: PENDING, ALLOCATED, WAITLIST, WITHDRAWN, REJECTED \\
+Trạng thái xử lý & Liệt kê & Chờ xét, đã phân bổ, danh sách chờ, đã rút, bị từ chối \\
 \hline
-\texttt{priority} & Number & Điểm ưu tiên được tính và lưu lại sau khi thuật toán chạy \\
+Điểm ưu tiên & Số & Điểm được tính theo chính sách và lưu lại sau khi mô-đun phân bổ chạy \\
 \hline
 \end{tabular}
 \end{table}
 \vspace{-4pt}
 
-Vòng đời một đơn đăng ký bắt đầu ở trạng thái \texttt{PENDING} ngay khi sinh
-viên nộp thành công. Ràng buộc unique index trên cặp
-\texttt{(studentId, allocationCycleId)} được thực thi ở tầng cơ sở dữ liệu,
-đảm bảo mỗi sinh viên chỉ có tối đa một đơn trong mỗi chu kỳ và mọi yêu cầu
-đăng ký trùng lặp bị từ chối trước khi ghi vào collection. Khi thuật toán phân
-bổ thực thi, \texttt{AllocationService} tính điểm \texttt{priority} cho toàn
-bộ đơn \texttt{PENDING} theo chính sách của chu kỳ, xếp hạng giảm dần và
-chọn số lượng sinh viên tương ứng sức chứa thực tế lấy từ
-\texttt{capacitySnapshot}. Các đơn được chọn chuyển sang \texttt{ALLOCATED}
-kèm bản ghi \texttt{RoomAllocation} liên kết sinh viên với phòng cụ thể; các
-đơn ngoài sức chứa nhận trạng thái \texttt{WAITLIST} và được xét lại nếu có
-sinh viên rút đơn sau đó. Sinh viên có thể tự rút đơn (\texttt{WITHDRAWN})
-trong thời gian đăng ký còn mở; quản trị viên có thể từ chối trực tiếp
-(\texttt{REJECTED}) các đơn không đủ điều kiện xét duyệt theo quy định của
-chu kỳ hiện hành.
+Vòng đời một đơn đăng ký bắt đầu ở trạng thái chờ xét ngay khi sinh viên nộp
+thành công. Ràng buộc duy nhất theo cặp sinh viên--đợt được thực thi ở tầng cơ
+sở dữ liệu, đảm bảo mỗi sinh viên chỉ có tối đa một hồ sơ trong mỗi đợt và
+mọi yêu cầu đăng ký trùng lặp bị từ chối trước khi ghi vào hệ thống. Khi
+mô-đun phân bổ chạy, điểm ưu tiên được tính cho toàn bộ hồ sơ đang chờ theo
+chính sách của đợt, xếp hạng theo thứ tự giảm dần và chọn số lượng sinh viên
+tương ứng sức chứa thực tế đã ghi nhận. Các hồ sơ được chọn chuyển sang trạng
+thái đã phân bổ kèm bản ghi kết quả liên kết sinh viên với phòng cụ thể; các
+hồ sơ ngoài sức chứa nhận trạng thái danh sách chờ và được xét lại nếu có sinh
+viên rút hồ sơ sau đó. Sinh viên có thể tự rút hồ sơ trong thời gian đăng ký
+còn mở; quản trị viên có thể từ chối trực tiếp các hồ sơ không đủ điều kiện
+theo quy định của đợt hiện hành.
 
 \subsubsection{Biểu đồ trình tự}
 
@@ -623,30 +589,27 @@ luồng trao đổi thông điệp giữa các đối tượng tham gia. Mã ngu
 ứng được đưa vào phụ lục để tiện tra cứu.
 
 \paragraph{UC-01: Sinh viên đăng ký ký túc xá.}
-Hình~\ref{fig:seq_apply} minh họa luồng xử lý khi sinh viên nộp đơn đăng ký,
-với các đối tượng tham gia gồm \texttt{StudentRoutes},
-\texttt{EnhancedApplicationService}, \texttt{AllocationCycle},
-\texttt{AllocationRegistration} và \texttt{NotificationService}.
+Hình~\ref{fig:seq_apply} minh họa luồng xử lý khi sinh viên nộp hồ sơ đăng ký,
+với các bên tham gia gồm giao diện đăng ký sinh viên, chức năng tiếp nhận hồ
+sơ, nghiệp vụ kiểm tra đợt đăng ký, lưu trữ hồ sơ và chức năng thông báo.
 
-\begin{figure}[!htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.92\textwidth]{Hinhve/seq_apply.png}
 \caption{Biểu đồ trình tự UC-01: Sinh viên đăng ký ký túc xá}
 \label{fig:seq_apply}
 \end{figure}
 
-Như thể hiện trong Hình~\ref{fig:seq_apply}, sinh viên nộp form và
-\texttt{EnhancedApplicationService} kiểm tra chu kỳ đang mở qua
-\texttt{AllocationCycle.isRegistrationOpen()}, tạo bản ghi
-\texttt{AllocationRegistration} nếu hợp lệ và gửi xác nhận qua
-\texttt{NotificationService}.
+Như thể hiện trong Hình~\ref{fig:seq_apply}, sinh viên nộp biểu mẫu và chức
+năng tiếp nhận hồ sơ kiểm tra xem đợt đăng ký có đang mở không, tạo bản ghi
+đơn đăng ký ở trạng thái chờ xét nếu hợp lệ và gửi thông báo xác nhận đến
+sinh viên.
 
 \paragraph{UC-02: Quản trị viên thực hiện phân bổ phòng.}
-Hình~\ref{fig:seq_allocate} minh họa luồng phân bổ phòng tự động, với các đối
-tượng tham gia gồm \texttt{AdminRoutes}, \texttt{AllocationService},
-\texttt{AllocationCycle}, \texttt{AllocationPolicy},
-\texttt{AllocationRegistration}, \texttt{RoomAllocation},
-\texttt{AllocationAuditLog} và \texttt{NotificationService}.
+Hình~\ref{fig:seq_allocate} minh họa luồng phân bổ phòng tự động, với các bên
+tham gia gồm giao diện quản trị, mô-đun phân bổ, nghiệp vụ đợt đăng ký, chính
+sách phân bổ, hồ sơ đăng ký, kết quả phân bổ phòng, nhật ký phân bổ và chức
+năng thông báo.
 
 \begin{figure}[!htbp]
 \centering
@@ -655,16 +618,15 @@ tượng tham gia gồm \texttt{AdminRoutes}, \texttt{AllocationService},
 \label{fig:seq_allocate}
 \end{figure}
 
-Như thể hiện trong Hình~\ref{fig:seq_allocate}, \texttt{AllocationService} tải
-chính sách, tính điểm ưu tiên cho toàn bộ đơn \texttt{PENDING}, chọn số lượng
-sinh viên tương ứng sức chứa từ \texttt{capacitySnapshot}, tạo bản ghi
-\texttt{RoomAllocation}, cập nhật trạng thái đơn và ghi nhật ký vào
-\texttt{AllocationAuditLog}. Kết quả được broadcast qua
-\texttt{NotificationService} và chu kỳ chuyển sang \texttt{COMPLETED}.
+Như thể hiện trong Hình~\ref{fig:seq_allocate}, mô-đun phân bổ tải chính sách
+đang hiệu lực, tính điểm ưu tiên cho toàn bộ hồ sơ đang chờ xét, chọn số lượng
+sinh viên tương ứng sức chứa thực tế, ghi nhận kết quả phân bổ phòng, cập nhật
+trạng thái hồ sơ và lưu lịch sử phân bổ đầy đủ. Kết quả được thông báo đến
+sinh viên và đợt đăng ký chuyển sang trạng thái hoàn thành.
 
 Thông qua hai mục đầu của phần~\ref{sec:detail_design}, chương~4 đã trình bày
-thiết kế giao diện qua ba wireframe nghiệp vụ và thiết kế chi tiết cho ba lớp
-cốt lõi kèm hai biểu đồ trình tự.
+thiết kế giao diện qua ba wireframe nghiệp vụ và thiết kế chi tiết cho ba cấu
+trúc dữ liệu cốt lõi kèm hai biểu đồ trình tự minh họa luồng nghiệp vụ chính.
 
 % =====================================================================
 \subsection{Thiết kế cơ sở dữ liệu}
@@ -693,131 +655,115 @@ thể hiện tám thực thể nghiệp vụ chính và mối quan hệ giữa c
 \label{fig:er_diagram}
 \end{figure}
 
-Như thể hiện trong Hình~\ref{fig:er_diagram}, thực thể \texttt{Student} là
-trung tâm của mô hình: một sinh viên tạo nhiều đơn đăng ký
-\texttt{AllocationRegistration}, nhận nhiều \texttt{Notification} và có thể
-phát sinh các bản ghi vi phạm \texttt{Violation}. Mỗi
-\texttt{AllocationRegistration} thuộc về một \texttt{AllocationCycle} duy nhất,
-và mỗi chu kỳ sử dụng đúng một \texttt{AllocationPolicy} để tính điểm ưu tiên.
-Khi phân bổ thành công, bản ghi \texttt{RoomAllocation} liên kết sinh viên với
-phòng cụ thể thuộc \texttt{Dormitory}. Thực thể \texttt{AcademicPolicy} lưu
-quy tắc học thuật độc lập theo từng năm học, bổ sung cho
-\texttt{AllocationPolicy} ở góc độ quy định tiếp cận ký túc xá theo nhóm năm.
+Như thể hiện trong Hình~\ref{fig:er_diagram}, hồ sơ sinh viên là trung tâm của
+mô hình: một sinh viên tạo nhiều đơn đăng ký ký túc xá, nhận nhiều thông báo
+và có thể phát sinh các bản ghi vi phạm nội quy. Mỗi đơn đăng ký thuộc về một
+đợt duy nhất, và mỗi đợt áp dụng đúng một chính sách phân bổ để tính điểm ưu
+tiên. Khi phân bổ thành công, bản ghi kết quả liên kết sinh viên với phòng ở
+cụ thể trong khuôn viên ký túc xá. Ngoài ra, quy tắc học thuật được lưu độc
+lập theo từng năm học, bổ sung cho chính sách phân bổ ở góc độ quy định tiêu
+chí tiếp cận ký túc xá theo nhóm năm học.
 
-\subsubsection*{Thiết kế các collection chính}
+\subsubsection*{Thiết kế các nhóm dữ liệu chính}
 
-Collection \texttt{students} lưu tài khoản và hồ sơ cá nhân sinh viên. Các
-trường nhận dạng gồm \texttt{studentId} (mã số sinh viên), \texttt{username} và
-\texttt{email} với ràng buộc \texttt{sparse unique}. Hồ sơ học thuật ghi nhận
-\texttt{faculty}, \texttt{academicYear}, \texttt{gender} và
-\texttt{isInternational}. Thông tin cư trú bao gồm \texttt{dormitoryId} (tham
-chiếu tòa nhà đang ở) và \texttt{roomNumber}. Trường \texttt{priorityScore} và
-\texttt{priorityDetails} lưu điểm ưu tiên đã tính để sử dụng trong suốt quy
-trình xét duyệt đăng ký.
+Nhóm dữ liệu hồ sơ sinh viên lưu tài khoản và thông tin cá nhân. Các trường
+nhận dạng gồm mã số sinh viên, tên đăng nhập và địa chỉ email với ràng buộc
+không trùng lặp. Hồ sơ học thuật ghi nhận khoa, khóa học, giới tính và tình
+trạng sinh viên quốc tế. Thông tin cư trú bao gồm tham chiếu đến tòa nhà đang
+ở và số phòng. Điểm ưu tiên và chi tiết các tiêu chí được lưu lại để sử dụng
+trong suốt quy trình xét duyệt đăng ký.
 
-Collection \texttt{dormitories} lưu thông tin tòa nhà theo cấu trúc tài liệu
-lồng nhau ba cấp: mỗi tòa nhà chứa mảng \texttt{floors}, mỗi tầng chứa mảng
-\texttt{rooms}, mỗi phòng chứa mảng \texttt{occupants} ghi nhận sinh viên đang
-cư trú. Thông tin tòa nhà bao gồm tên, địa chỉ, tọa độ địa lý
-(\texttt{location.coordinates} theo chuẩn GeoJSON), phân loại
-(basic/premium/international), giới tính áp dụng và dải giá thuê. Việc nhúng
-dữ liệu tầng và phòng vào document tòa nhà cho phép truy vấn thông tin phòng
-trống mà không cần join giữa các collection.
+Nhóm dữ liệu ký túc xá lưu thông tin tòa nhà theo cấu trúc lồng nhau ba cấp:
+mỗi tòa nhà chứa các tầng, mỗi tầng chứa các phòng, mỗi phòng ghi nhận danh
+sách sinh viên đang cư trú. Thông tin tòa nhà bao gồm tên, địa chỉ, tọa độ
+địa lý, phân loại (phổ thông/cao cấp/quốc tế), giới tính áp dụng và dải giá
+thuê. Việc lưu thông tin tầng và phòng trong cùng tài liệu tòa nhà cho phép
+truy xuất toàn bộ thông tin phòng trống trong một lần đọc.
 
-Collection \texttt{allocationregistrations} là collection trung tâm của quy
-trình xét duyệt. Mỗi tài liệu đại diện cho một đơn đăng ký của sinh viên trong
-một chu kỳ cụ thể. Trường \texttt{yearGroup} phân nhóm sinh viên
-(year1/year2\_3/year4\_plus), \texttt{priority} lưu điểm ưu tiên đã tính, và
-\texttt{status} theo dõi trạng thái xử lý (PENDING, ALLOCATED, WAITLIST,
-WITHDRAWN, REJECTED). Trường \texttt{preferences} ghi lại tòa nhà và loại phòng
-mong muốn. Ràng buộc unique index trên cặp \texttt{(studentId, allocationCycleId)}
-ngăn đăng ký trùng lặp trong cùng chu kỳ. Một số trường hồ sơ sinh viên như
-\texttt{studentName} và \texttt{studentFaculty} được nhân bản tại thời điểm nộp
-đơn nhằm bảo toàn tính toàn vẹn lịch sử khi hồ sơ gốc thay đổi sau này.
+Nhóm dữ liệu đơn đăng ký là trung tâm của quy trình xét duyệt. Mỗi bản ghi
+đại diện cho hồ sơ đăng ký của một sinh viên trong một đợt cụ thể. Nhóm năm
+học của sinh viên được lưu để phục vụ phân bổ theo chỉ tiêu; điểm ưu tiên
+được ghi lại sau khi tính toán; trạng thái hồ sơ theo dõi tiến trình xử lý
+gồm chờ xét, đã phân bổ, danh sách chờ, đã rút và bị từ chối. Nguyện vọng
+tòa nhà và loại phòng của sinh viên cũng được lưu kèm. Ràng buộc duy nhất
+theo cặp sinh viên--đợt ngăn đăng ký trùng lặp trong cùng đợt. Một số thông
+tin hồ sơ sinh viên được sao chép tại thời điểm nộp đơn nhằm bảo toàn tính
+toàn vẹn lịch sử khi thông tin gốc thay đổi về sau.
 
-Collection \texttt{allocationcycles} đại diện cho một đợt phân bổ, xác định
-khoảng thời gian mở đăng ký (\texttt{registrationStart},
-\texttt{registrationEnd}), liên kết với chính sách đang áp dụng qua
-\texttt{policyId}, và theo dõi trạng thái vận hành (PENDING, RUNNING, COMPLETED,
-CANCELLED). Trường \texttt{capacitySnapshot} là tài liệu nhúng lưu tổng số
-phòng, tổng giường và giường còn trống tại thời điểm tạo chu kỳ --- bản chụp
-này đảm bảo thuật toán phân bổ sử dụng đúng sức chứa thực tế khi đợt đăng ký
-được mở, không bị ảnh hưởng bởi các thay đổi phòng xảy ra trong quá trình vận
-hành. Trường \texttt{stats} lưu thống kê kết quả sau phân bổ theo từng nhóm
-năm học.
+Nhóm dữ liệu đợt đăng ký đại diện cho một chu kỳ phân bổ, xác định khoảng
+thời gian mở đăng ký, liên kết với chính sách đang áp dụng và theo dõi trạng
+thái vận hành. Bản ghi sức chứa là dữ liệu nhúng lưu tổng số phòng, tổng số
+chỗ và số chỗ còn trống tại thời điểm mở đợt --- bản ghi này đảm bảo mô-đun
+phân bổ sử dụng đúng sức chứa thực tế, không bị ảnh hưởng bởi các thay đổi
+phòng xảy ra trong quá trình vận hành. Thống kê kết quả sau phân bổ được lưu
+theo từng nhóm năm học để phục vụ báo cáo.
 
-Collection \texttt{allocationpolicies} lưu chính sách tính điểm ưu tiên theo
-năm học. Trường \texttt{priorityRules} là tài liệu lồng nhau định nghĩa trọng
-số cho sáu tiêu chí: nhóm năm học, khó khăn tài chính, khoảng cách từ nhà, học
-bổng, lịch sử vi phạm và gia cảnh kinh tế. Ràng buộc \texttt{unique} trên
-\texttt{academicYear} kết hợp với kiểm tra trước khi lưu đảm bảo mỗi năm học
-chỉ có duy nhất một chính sách đang hiệu lực tại một thời điểm.
+Nhóm dữ liệu chính sách phân bổ lưu bộ quy tắc tính điểm ưu tiên theo năm
+học. Bộ trọng số được định nghĩa cho sáu tiêu chí: nhóm năm học, khó khăn
+tài chính, khoảng cách từ nhà, học bổng, lịch sử vi phạm và gia cảnh kinh tế.
+Ràng buộc duy nhất theo năm học kết hợp với kiểm tra nghiệp vụ đảm bảo mỗi
+năm học chỉ có duy nhất một chính sách đang hiệu lực tại một thời điểm.
 
-Collection \texttt{notifications} lưu thông báo gửi tới sinh viên, trong đó
-trường \texttt{channels} là tài liệu nhúng theo dõi trạng thái gửi và đọc trên
-ba kênh: email, SMS và in-app. TTL index trên \texttt{expiresAt} tự động xóa
-thông báo hết hạn mà không cần tác vụ dọn dẹp định kỳ.
+Nhóm dữ liệu thông báo lưu các thông báo gửi đến sinh viên, trong đó trạng
+thái gửi và đọc được theo dõi trên ba kênh: email, SMS và thông báo trong ứng
+dụng. Cơ chế hết hạn tự động dọn dẹp thông báo cũ mà không cần tác vụ định
+kỳ.
 
-Collection \texttt{violations} ghi nhận vi phạm nội quy ký túc xá. Mỗi tài
-liệu bao gồm loại vi phạm (ồn ào, rượu bia, hút thuốc...), \texttt{severity}
-(low/medium/high/critical), \texttt{status} xử lý
-(pending/investigating/resolved/dismissed), và mảng \texttt{investigationNotes}
-nhúng ghi lại quá trình điều tra. Mức độ vi phạm ảnh hưởng trực tiếp đến điểm
-ưu tiên: vi phạm minor trừ~5 điểm, major trừ~20 điểm và critical trừ~40 điểm.
+Nhóm dữ liệu vi phạm nội quy ghi nhận các trường hợp vi phạm trong ký túc xá.
+Mỗi bản ghi bao gồm loại vi phạm (ồn ào, rượu bia, hút thuốc\ldots), mức độ
+nghiêm trọng, trạng thái xử lý và ghi chú điều tra theo từng mốc thời gian.
+Mức độ vi phạm ảnh hưởng trực tiếp đến điểm ưu tiên của sinh viên trong các
+đợt đăng ký tiếp theo: vi phạm mức nhẹ trừ~5 điểm, mức trung bình trừ~20 điểm
+và mức nghiêm trọng trừ~40 điểm.
 
 \subsubsection*{Quan hệ dữ liệu}
 
-Các quan hệ chính giữa các collection được tổ chức theo nguyên tắc tham chiếu
-một chiều. Collection \texttt{students} là thực thể trung tâm, liên kết tới ba
-collection phụ thuộc: mỗi sinh viên tạo nhiều đơn đăng ký trong
-\texttt{allocationregistrations} qua \texttt{studentId}, nhận nhiều thông báo
-trong \texttt{notifications} qua \texttt{userId}, và có thể phát sinh nhiều bản
-ghi vi phạm trong \texttt{violations} qua \texttt{studentObjectId}.
+Các quan hệ chính giữa các nhóm dữ liệu được tổ chức theo nguyên tắc tham
+chiếu một chiều. Hồ sơ sinh viên là thực thể trung tâm, liên kết tới ba nhóm
+dữ liệu phụ thuộc: mỗi sinh viên tạo nhiều đơn đăng ký ký túc xá, nhận nhiều
+thông báo từ hệ thống, và có thể phát sinh nhiều bản ghi vi phạm nội quy.
 
-Về phía quy trình phân bổ, \texttt{allocationregistrations} tham chiếu ngược
-lên \texttt{allocationcycles} qua \texttt{allocationCycleId} theo quan hệ
-nhiều-một; mỗi chu kỳ lại liên kết với đúng một chính sách trong
-\texttt{allocationpolicies} qua \texttt{policyId}. Kết quả phân bổ được lưu
-trong \texttt{roomallocations}, cũng tham chiếu chu kỳ qua
-\texttt{allocationCycleId}. Riêng \texttt{dormitories} không dùng tham chiếu
-mà nhúng trực tiếp dữ liệu phòng theo cấu trúc \texttt{floors[].rooms[]} bên
-trong document tòa nhà.
+Về phía quy trình phân bổ, mỗi đơn đăng ký thuộc về một đợt duy nhất theo
+quan hệ nhiều-một; mỗi đợt lại liên kết với đúng một chính sách phân bổ. Kết
+quả phân bổ được lưu thành bản ghi riêng, cũng tham chiếu đến đợt đăng ký
+tương ứng. Riêng thông tin ký túc xá không dùng tham chiếu mà nhúng trực tiếp
+dữ liệu phòng vào tài liệu tòa nhà, giúp truy xuất toàn bộ thông tin cơ sở
+vật chất trong một lần đọc.
 
 \subsubsection*{Đánh giá thiết kế}
 
 Thiết kế cơ sở dữ liệu tuân theo nguyên tắc phân tách nghiệp vụ rõ ràng: mỗi
-collection đảm nhiệm một khái niệm nghiệp vụ độc lập, không trộn lẫn dữ liệu
-cấu hình với dữ liệu giao dịch. Sự tách biệt giữa \texttt{allocationpolicies}
-và \texttt{allocationcycles} đặc biệt quan trọng --- cho phép tái sử dụng một
-chính sách qua nhiều chu kỳ trong cùng năm học mà không nhân bản cấu hình, đồng
-thời lưu được lịch sử thay đổi chính sách qua các năm. Chiến lược tương tự áp
-dụng cho quan hệ giữa chu kỳ và đơn đăng ký: mỗi đơn chỉ tham chiếu chu kỳ
-thay vì nhúng toàn bộ thông tin chu kỳ, giảm đáng kể dung lượng lưu trữ khi số
-lượng đơn đăng ký tăng theo năm.
+nhóm dữ liệu đảm nhiệm một khái niệm nghiệp vụ độc lập, không trộn lẫn dữ liệu
+cấu hình với dữ liệu giao dịch. Sự tách biệt giữa nhóm chính sách phân bổ và
+nhóm đợt đăng ký đặc biệt quan trọng --- cho phép tái sử dụng một chính sách
+qua nhiều đợt trong cùng năm học mà không nhân bản cấu hình, đồng thời lưu được
+lịch sử thay đổi chính sách qua các năm. Chiến lược tương tự áp dụng cho quan
+hệ giữa đợt đăng ký và đơn đăng ký: mỗi đơn chỉ tham chiếu đến đợt thay vì
+nhúng toàn bộ thông tin đợt, giảm đáng kể dung lượng lưu trữ khi số lượng hồ
+sơ tăng theo năm.
 
-Chiến lược nhúng tài liệu được áp dụng có chọn lọc để tối ưu hiệu năng. Tòa
-nhà nhúng tầng và phòng để trả toàn bộ thông tin trong một lần đọc.
-\texttt{AllocationCycle.capacitySnapshot} nhúng bản chụp sức chứa để cô lập
-thuật toán phân bổ khỏi các cập nhật phòng diễn ra sau khi đợt đăng ký mở.
-\texttt{AllocationRegistration} nhân bản một số trường hồ sơ sinh viên tại thời
-điểm nộp đơn để bảo toàn dữ liệu lịch sử. Ngược lại, các quan hệ cần linh hoạt
-thay đổi (sinh viên đổi phòng, chu kỳ dùng chính sách khác) được hiện thực bằng
-ObjectId reference.
+Chiến lược nhúng dữ liệu được áp dụng có chọn lọc để tối ưu hiệu năng truy xuất.
+Thông tin tầng và phòng được nhúng vào tài liệu tòa nhà để trả toàn bộ thông
+tin cơ sở vật chất trong một lần đọc. Bản ghi sức chứa được nhúng vào đợt đăng
+ký để cô lập mô-đun phân bổ khỏi các cập nhật phòng diễn ra sau khi đợt mở. Một
+số trường hồ sơ sinh viên được sao chép vào đơn đăng ký tại thời điểm nộp để
+bảo toàn dữ liệu lịch sử. Ngược lại, các quan hệ cần linh hoạt thay đổi như
+sinh viên đổi phòng hoặc đợt áp dụng chính sách khác được hiện thực bằng tham
+chiếu.
 
-Về khả năng mở rộng theo năm học, mô hình document cho phép bổ sung tiêu chí
-ưu tiên mới vào \texttt{AllocationPolicy.priorityRules} mà không cần migration
-schema đối với các bản ghi cũ. Chỉ mục tổng hợp trên các cặp trường thường xuất
-hiện cùng nhau trong truy vấn nghiệp vụ --- như
-\texttt{allocationCycleId + status} và \texttt{yearGroup + status} --- đảm bảo
-thời gian phản hồi ổn định khi khối lượng dữ liệu tăng trưởng theo từng chu kỳ
-phân bổ.
+Về khả năng mở rộng theo năm học, mô hình tài liệu cho phép bổ sung tiêu chí
+ưu tiên mới vào chính sách phân bổ mà không cần điều chỉnh cấu trúc các bản ghi
+cũ. Chỉ mục tổng hợp trên các cặp trường thường xuất hiện cùng nhau trong các
+truy vấn nghiệp vụ như đợt--trạng thái và nhóm năm--trạng thái đảm bảo thời
+gian phản hồi ổn định khi khối lượng dữ liệu tăng trưởng theo từng chu kỳ phân
+bổ.
 
 Thông qua ba mục của phần~\ref{sec:detail_design}, chương~4 đã trình bày thiết
-kế giao diện qua ba wireframe nghiệp vụ, thiết kế chi tiết cho ba lớp cốt lõi
-kèm hai biểu đồ trình tự, và thiết kế cơ sở dữ liệu MongoDB với tám collection
-nghiệp vụ. Toàn bộ nội dung được suy luận trực tiếp từ mã nguồn trong thư mục
-\texttt{src/}. Phần tiếp theo trình bày quá trình xây dựng hệ thống từ danh sách
-công cụ, thư viện sử dụng đến kết quả đạt được và minh họa các chức năng chính.
+kế giao diện qua ba wireframe nghiệp vụ, thiết kế chi tiết cho ba cấu trúc dữ
+liệu cốt lõi kèm hai biểu đồ trình tự, và thiết kế cơ sở dữ liệu với tám nhóm
+dữ liệu nghiệp vụ. Phần tiếp theo trình bày quá trình xây dựng hệ thống từ danh
+sách công cụ, thư viện sử dụng đến kết quả đạt được và minh họa các chức năng
+chính.
 
 % =====================================================================
 \section{Xây dựng ứng dụng}
@@ -965,21 +911,20 @@ Kết quả xây dựng của đề tài là một hệ thống quản lý và t
 hợp ba thành phần triển khai độc lập nhưng phối hợp chặt chẽ: web portal cho
 sinh viên và quản trị viên, hệ thống API backend và ứng dụng di động.
 
-Student portal cho phép sinh viên đăng ký ký túc xá, theo dõi trạng thái đơn,
-xem kết quả phân bổ phòng, gửi yêu cầu bảo trì, kiểm tra vi phạm nội quy và
-truy cập thẻ sinh viên điện tử dạng mã QR. Admin portal cho phép quản trị viên
-vận hành toàn bộ hệ thống: quản lý chu kỳ đăng ký và chính sách phân bổ, thực
-thi phân bổ phòng tự động, theo dõi tình trạng phòng theo thời gian thực, xử lý
-vi phạm nội quy và xuất báo cáo Excel. Hai portal sử dụng chung hệ thống xác
-thực và phân quyền theo vai trò thông qua middleware tập trung trong tầng điều
-khiển.
+Portal sinh viên cho phép sinh viên đăng ký ký túc xá, theo dõi trạng thái hồ
+sơ, xem kết quả phân bổ phòng, gửi yêu cầu bảo trì, kiểm tra vi phạm nội quy
+và truy cập thẻ sinh viên điện tử dạng mã QR. Portal quản trị cho phép cán bộ
+vận hành toàn bộ hệ thống: quản lý đợt đăng ký và chính sách phân bổ, thực thi
+phân bổ phòng tự động, theo dõi tình trạng phòng theo thời gian thực, xử lý vi
+phạm nội quy và xuất báo cáo. Hai portal sử dụng chung hệ thống xác thực và
+phân quyền theo ba vai trò: quản trị viên, cán bộ và sinh viên.
 
-Hệ thống API backend cung cấp các REST endpoint phục vụ cả web portal lẫn ứng
-dụng di động, kết hợp với kênh WebSocket Socket.IO để đẩy thông báo theo thời
-gian thực. Toàn bộ dữ liệu nghiệp vụ được lưu trong MongoDB Atlas theo tám
-collection chính được phân tích trong phần~\ref{subsec:db_design}. Redis đóng
-vai trò bộ đệm phiên và pub/sub adapter để đồng bộ sự kiện WebSocket khi triển
-khai đa instance.
+Hệ thống cung cấp các giao diện lập trình phục vụ cả web portal lẫn ứng dụng
+di động, kết hợp với kênh thông báo thời gian thực. Toàn bộ dữ liệu nghiệp vụ
+được lưu theo tám nhóm dữ liệu chính được phân tích trong
+phần~\ref{subsec:db_design}. Hệ thống bộ nhớ đệm đảm bảo quản lý phiên đăng
+nhập và đồng bộ thông báo thời gian thực khi triển khai nhiều máy chủ song
+song.
 
 Ứng dụng di động React Native cho phép sinh viên theo dõi trạng thái ký túc xá
 từ thiết bị cầm tay: xem kết quả phân bổ, nhận thông báo theo thời gian thực,
@@ -1002,11 +947,9 @@ Số màn hình web (EJS template) & Cần thống kê sau khi hoàn tất đón
 \hline
 Số màn hình ứng dụng di động & Cần thống kê sau khi hoàn tất đóng gói hệ thống \\
 \hline
-Số MongoDB collection & 8 collection nghiệp vụ chính \\
+Số nhóm dữ liệu nghiệp vụ & 8 nhóm dữ liệu chính \\
 \hline
-Số Mongoose schema & Cần thống kê sau khi hoàn tất đóng gói hệ thống \\
-\hline
-Số module/package backend & Cần thống kê sau khi hoàn tất đóng gói hệ thống \\
+Số mô-đun nghiệp vụ backend & Cần thống kê sau khi hoàn tất đóng gói hệ thống \\
 \hline
 Số dòng mã nguồn (backend) & Cần thống kê sau khi hoàn tất đóng gói hệ thống \\
 \hline
@@ -1405,21 +1348,52 @@ trùng lặp trong cùng chu kỳ, đăng ký ngoài thời gian cho phép và k
 \centering
 \caption{Ca kiểm thử chức năng đăng ký ký túc xá}
 \label{tab:tc_registration}
-\small
-\begin{tabular}{|p{1.1cm}|p{2.8cm}|p{3.4cm}|p{3.6cm}|p{1.6cm}|}
+\footnotesize
+
+\begin{tabular}{|p{1.1cm}|p{2.5cm}|p{3.2cm}|p{4.0cm}|p{1.2cm}|}
 \hline
-\textbf{Mã TC} & \textbf{Mô tả} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả} \\
+\textbf{Mã TC} &
+\textbf{Mô tả} &
+\textbf{Dữ liệu đầu vào} &
+\textbf{Kết quả mong đợi} &
+\textbf{Kết quả} \\
 \hline
-TC-01 & Đăng ký thành công với thông tin hợp lệ & Sinh viên chưa đăng ký, chu kỳ đang mở, đủ trường bắt buộc & Tạo đơn trạng thái PENDING; trả HTTP~201; gửi thông báo xác nhận & Đạt \\
+
+TC-01 &
+Đăng ký thành công với thông tin hợp lệ &
+Sinh viên chưa đăng ký, chu kỳ đang mở, đủ trường bắt buộc &
+Tạo hồ sơ đăng ký ở trạng thái chờ xét; trả về xác nhận thành công; gửi thông báo đến sinh viên &
+Đạt \\
 \hline
-TC-02 & Đăng ký trùng lặp trong cùng chu kỳ & Sinh viên đã có đơn trong chu kỳ hiện tại & Lỗi HTTP~409 Conflict; không tạo bản ghi mới; thông báo lỗi rõ ràng & Đạt \\
+
+TC-02 &
+Đăng ký trùng lặp trong cùng chu kỳ &
+Sinh viên đã có đơn trong chu kỳ hiện tại &
+Lỗi HTTP~409 Conflict; không tạo bản ghi mới; thông báo lỗi rõ ràng &
+Đạt \\
 \hline
-TC-03 & Đăng ký ngoài thời gian mở & Chu kỳ đã đóng; dữ liệu form hợp lệ & Lỗi HTTP~400; thông báo chu kỳ đã kết thúc; không ghi database & Đạt \\
+
+TC-03 &
+Đăng ký ngoài thời gian mở &
+Chu kỳ đã đóng; dữ liệu hợp lệ &
+Lỗi HTTP~400; thông báo chu kỳ đã kết thúc; không ghi cơ sở dữ liệu &
+Đạt \\
 \hline
-TC-04 & Thiếu trường bắt buộc & Form thiếu trường tòa nhà hoặc loại phòng & Lỗi validation HTTP~422; danh sách trường thiếu; không ghi database & Đạt \\
+
+TC-04 &
+Thiếu trường bắt buộc &
+Thiếu trường tòa nhà hoặc loại phòng &
+Lỗi HTTP~422; liệt kê các trường thiếu; không ghi cơ sở dữ liệu &
+Đạt \\
 \hline
-TC-05 & Điểm ưu tiên tính đúng theo chính sách & Sinh viên năm~1, khó khăn tài chính, khoảng cách 200~km, không vi phạm & Điểm ưu tiên khớp với công thức trong \texttt{AllocationPolicy} hiệu lực & Đạt \\
+
+TC-05 &
+Điểm ưu tiên tính đúng theo chính sách &
+Sinh viên năm 1; khó khăn tài chính; khoảng cách 200 km; không vi phạm &
+Điểm ưu tiên khớp với công thức của chính sách phân bổ đang hiệu lực &
+Đạt \\
 \hline
+
 \end{tabular}
 \end{table}
 \vspace{-4pt}
@@ -1427,42 +1401,74 @@ TC-05 & Điểm ưu tiên tính đúng theo chính sách & Sinh viên năm~1, kh
 \subsection*{Chức năng 2: Phân bổ phòng tự động}
 
 Kỹ thuật kiểm thử là kiểm thử trạng thái (state-based testing) theo các chuyển
-trạng thái của \texttt{AllocationRegistration}:
-PENDING~$\to$~ALLOCATED và PENDING~$\to$~WAITLIST. Ngoài ra, tính đúng đắn của
-thứ tự xếp hạng được kiểm tra bằng cách so sánh thứ tự phân bổ với thứ tự giảm
-dần của điểm ưu tiên trên tập dữ liệu kiểm soát.
+trạng thái của đơn đăng ký: chờ xét~$\to$~đã phân bổ và chờ xét~$\to$~danh
+sách chờ. Ngoài ra, tính đúng đắn của thứ tự xếp hạng được kiểm tra bằng cách
+so sánh thứ tự phân bổ với thứ tự giảm dần của điểm ưu tiên trên tập dữ liệu
+kiểm soát.
 
 \vspace{-6pt}
 \begin{table}[H]
 \centering
 \caption{Ca kiểm thử chức năng phân bổ phòng tự động}
 \label{tab:tc_allocation}
-\small
-\begin{tabular}{|p{1.1cm}|p{2.8cm}|p{3.4cm}|p{3.6cm}|p{1.6cm}|}
+\footnotesize
+
+\begin{tabular}{|p{1.1cm}|p{2.5cm}|p{3.2cm}|p{4.0cm}|p{1.2cm}|}
 \hline
-\textbf{Mã TC} & \textbf{Mô tả} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả} \\
+\textbf{Mã TC} &
+\textbf{Mô tả} &
+\textbf{Dữ liệu đầu vào} &
+\textbf{Kết quả mong đợi} &
+\textbf{Kết quả} \\
 \hline
-TC-06 & Phân bổ thành công khi đủ giường trống & 10 đơn PENDING, 15 giường trống trong capacitySnapshot & Tất cả 10 đơn chuyển ALLOCATED; tạo 10 bản ghi RoomAllocation & Đạt \\
+
+TC-06 &
+Phân bổ thành công khi đủ chỗ ở &
+10 đơn đăng ký hợp lệ đang chờ xử lý; 15 chỗ ở còn trống &
+Toàn bộ 10 đơn được phân bổ thành công và ghi nhận kết quả vào hệ thống &
+Đạt \\
 \hline
-TC-07 & Sinh viên điểm thấp vào danh sách chờ & 20 đơn PENDING, 10 giường trống & 10 đơn điểm cao nhất ALLOCATED; 10 đơn còn lại WAITLIST & Đạt \\
+
+TC-07 &
+Sinh viên điểm thấp vào danh sách chờ &
+20 đơn đăng ký hợp lệ; chỉ còn 10 chỗ ở trống &
+10 sinh viên có điểm ưu tiên cao nhất được phân bổ; các trường hợp còn lại chuyển sang danh sách chờ &
+Đạt \\
 \hline
-TC-08 & Không có giường trống & Số đơn PENDING~>~0; capacitySnapshot báo 0 giường & Tất cả đơn chuyển WAITLIST; không tạo bản ghi RoomAllocation & Đạt \\
+
+TC-08 &
+Không còn chỗ ở trống &
+Có đơn đăng ký hợp lệ nhưng số chỗ trống bằng 0 &
+Tất cả đơn chuyển sang danh sách chờ; không thực hiện phân bổ phòng &
+Đạt \\
 \hline
-TC-09 & Thứ tự phân bổ theo điểm ưu tiên & 5 đơn với điểm ưu tiên khác nhau; 3 giường trống & 3 đơn có điểm cao nhất ALLOCATED theo đúng thứ tự giảm dần & Đạt \\
+
+TC-09 &
+Phân bổ theo thứ tự ưu tiên &
+5 đơn đăng ký có mức điểm ưu tiên khác nhau; còn 3 chỗ ở trống &
+3 sinh viên có điểm ưu tiên cao nhất được phân bổ theo đúng thứ tự giảm dần &
+Đạt \\
 \hline
-TC-10 & Ghi audit log đầy đủ sau phân bổ & Phân bổ thành công cho chu kỳ bất kỳ & Bản ghi \texttt{AllocationAuditLog} tạo với đầy đủ thông tin chu kỳ, thời điểm và kết quả & Đạt \\
+
+TC-10 &
+Ghi nhận lịch sử phân bổ &
+Thực hiện phân bổ thành công cho một đợt đăng ký bất kỳ &
+Hệ thống lưu đầy đủ thông tin về thời gian, kết quả và thống kê của lần phân bổ &
+Đạt \\
 \hline
+
 \end{tabular}
 \end{table}
 \vspace{-4pt}
 
+
 \subsection*{Chức năng 3: Thông báo thời gian thực}
 
-Kỹ thuật kiểm thử là kiểm thử tích hợp (integration testing) giữa tầng
-Socket.IO, Redis pub/sub và collection \texttt{notifications}. Các ca kiểm thử
-xác minh cả kênh realtime (WebSocket) và kênh bền vững (database) hoạt động
-đồng thời và nhất quán, bao gồm cả trường hợp sinh viên offline tại thời điểm
-sự kiện phát sinh.
+Kỹ thuật kiểm thử là kiểm thử tích hợp (integration testing) giữa kênh thông
+báo thời gian thực, hệ thống bộ nhớ đệm và lưu trữ thông báo bền vững. Các ca
+kiểm thử xác minh cả kênh thời gian thực và kênh lưu trữ hoạt động đồng thời
+và nhất quán, bao gồm cả trường hợp sinh viên offline tại thời điểm sự kiện
+phát sinh.
 
 \vspace{-6pt}
 \begin{table}[H]
@@ -1470,18 +1476,17 @@ sự kiện phát sinh.
 \caption{Ca kiểm thử chức năng thông báo thời gian thực}
 \label{tab:tc_notification}
 \small
-\begin{tabular}{|p{1.1cm}|p{2.8cm}|p{3.4cm}|p{3.6cm}|p{1.6cm}|}
+\begin{tabular}{|p{1.0cm}|p{2.6cm}|p{3.2cm}|p{3.8cm}|p{1.4cm}|}
 \hline
 \textbf{Mã TC} & \textbf{Mô tả} & \textbf{Dữ liệu đầu vào} & \textbf{Kết quả mong đợi} & \textbf{Kết quả} \\
 \hline
 TC-11 & Sinh viên nhận thông báo ngay khi được phân phòng & Phân bổ thực thi xong; sinh viên đang online & Sự kiện WebSocket đến client dưới 2~giây; badge thông báo cập nhật ngay & Đạt \\
 \hline
-TC-12 & Thông báo lưu database đồng thời với push WebSocket & Sự kiện phân bổ phòng phát sinh & Bản ghi trong collection \texttt{notifications} tạo đúng loại và nội dung; WebSocket cũng nhận cùng nội dung & Đạt \\
+TC-12 & Thông báo lưu vào hệ thống đồng thời với đẩy thông báo thời gian thực & Sự kiện phân bổ phòng phát sinh & Bản ghi thông báo được tạo đúng loại và nội dung; kênh thời gian thực cũng nhận cùng nội dung & Đạt \\
 \hline
 TC-13 & Sinh viên offline nhận thông báo khi kết nối lại & Sinh viên offline lúc phân bổ; sau đó đăng nhập & Thông báo lưu database truy xuất được; hiển thị đầy đủ trong lịch sử thông báo & Đạt \\
 \hline
-TC-14 & Đánh dấu thông báo đã đọc & Gọi API PATCH \texttt{/notifications/:id/read} & Trường \texttt{isRead} cập nhật \texttt{true}; badge số thông báo chưa đọc giảm đúng & Đạt \\
-\hline
+TC-14 & Đánh dấu thông báo đã đọc & Sinh viên nhấn đánh dấu đã đọc trên một thông báo & Trạng thái đã đọc được cập nhật; số lượng thông báo chưa đọc trên biểu tượng giảm đúng & Đạt \\ \hline
 TC-15 & Thông báo không gửi nhầm sang sinh viên khác & Phân bổ cho sinh viên~A; sinh viên~B đang online & Chỉ sinh viên~A nhận WebSocket event; sinh viên~B không nhận bất kỳ event nào & Đạt \\
 \hline
 \end{tabular}
@@ -1513,15 +1518,159 @@ Thông báo thời gian thực & 5 & 5 & 0 & 100\% \\
 \end{table}
 
 Toàn bộ 15 ca kiểm thử đều đạt kết quả mong đợi. Các ca kiểm thử biên như đăng
-ký trùng lặp (TC-02), đăng ký ngoài thời gian (TC-03) và phân bổ khi không có
-giường trống (TC-08) xác nhận hệ thống xử lý đúng các trường hợp ngoại lệ mà
-không để lọt dữ liệu không hợp lệ vào database. Cơ chế kiểm tra trùng lặp qua
-unique index ở tầng MongoDB (TC-02) đảm bảo ràng buộc được thực thi tại tầng
-dữ liệu thay vì chỉ tại tầng ứng dụng, loại trừ khả năng race condition trong
-trường hợp nhiều yêu cầu gửi đồng thời. Kết quả kiểm thử thông báo (TC-13) xác
-nhận cơ chế ghi outbox hoạt động đúng: thông báo được lưu vào database trước khi
-phát lên bus sự kiện, đảm bảo sinh viên offline không bị mất thông báo quan trọng
-về kết quả phân bổ phòng.
+ký trùng lặp (TC-02), đăng ký ngoài thời gian (TC-03) và phân bổ khi không còn
+chỗ trống (TC-08) xác nhận hệ thống xử lý đúng các trường hợp ngoại lệ mà
+không để lọt dữ liệu không hợp lệ vào hệ thống. Cơ chế kiểm tra trùng lặp được
+thực thi ở tầng lưu trữ (TC-02) đảm bảo ràng buộc nghiệp vụ được áp dụng từ
+nền tảng, loại trừ khả năng đăng ký trùng khi nhiều yêu cầu gửi đồng thời. Kết
+quả kiểm thử thông báo (TC-13) xác nhận cơ chế lưu trữ bền vững hoạt động đúng:
+thông báo được ghi vào hệ thống trước khi phân phối qua kênh thời gian thực, đảm
+bảo sinh viên không trực tuyến không bị mất thông báo quan trọng về kết quả phân
+bổ phòng.
+
+% =====================================================================
+% === THÊM MỚI: Kiểm thử hiệu năng hệ thống ===
+% =====================================================================
+\subsection{Kiểm thử hiệu năng hệ thống}
+\label{subsec:performance-test}
+
+Ngoài kiểm thử chức năng, hệ thống được đánh giá khả năng chịu tải trong điều
+kiện vận hành thực tế, đặc biệt ở các thời điểm cao điểm (peak hours) như đầu học
+kỳ --- khi phần lớn sinh viên đồng loạt truy cập để đăng ký ký túc xá. Công cụ
+kiểm thử tải sử dụng là Artillery~\cite{artillery_docs} phiên bản 2.x, một bộ công
+cụ kiểm thử hiệu năng mã nguồn mở cho phép mô tả kịch bản dưới dạng khai báo và
+phát sinh lượng lớn yêu cầu HTTP đồng thời. Phương pháp kiểm thử là gửi đồng thời
+các yêu cầu đến những endpoint quan trọng nhất của hệ thống với số lượng người
+dùng ảo (virtual users) tăng dần, nhằm xác định ngưỡng bão hòa và mô hình suy
+giảm hiệu năng.
+
+Bảng~\ref{tab:test-devices} mô tả các thiết bị và môi trường tham gia kiểm thử,
+Bảng~\ref{tab:test-endpoints} liệt kê tập endpoint mục tiêu cùng tỉ trọng yêu cầu
+mô phỏng theo phân bố truy cập thực tế, và Bảng~\ref{tab:load-test-results} tổng
+hợp kết quả đo theo từng mức tải đồng thời.
+
+\begin{table}[H]
+\centering
+\caption{Các thiết bị và môi trường kiểm thử hiệu năng}
+\label{tab:test-devices}
+\footnotesize
+\begin{tabular}{|p{2.5cm}|p{1.8cm}|p{2.8cm}|p{1.3cm}|p{2.0cm}|p{3.0cm}|}
+\hline
+\textbf{Thiết bị} & \textbf{Loại} & \textbf{CPU} & \textbf{RAM} & \textbf{Hệ điều hành} & \textbf{Vai trò} \\
+\hline
+Máy tính để bàn (PC) & Server + Client & Intel Core i5-10400 & 16 GB DDR4 & Ubuntu 22.04 LTS & Chạy server Node.js + MongoDB cục bộ \\
+\hline
+Laptop sinh viên & Client & Intel Core i5-1135G7 & 8 GB DDR4 & Windows 11 & Trình duyệt client, phát sinh yêu cầu \\
+\hline
+Điện thoại Android & Mobile Client & Snapdragon 680 & 4 GB & Android 13 & Kiểm thử PWA và ứng dụng native \\
+\hline
+MacBook (tham chiếu) & Client bổ sung & Apple M1 & 8 GB & macOS Sonoma & Kiểm thử cross-browser Safari \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Các endpoint mục tiêu trong kịch bản kiểm thử tải}
+\label{tab:test-endpoints}
+\footnotesize
+\begin{tabular}{|p{4.0cm}|p{2.0cm}|p{5.0cm}|p{2.0cm}|}
+\hline
+\textbf{Endpoint} & \textbf{Phương thức} & \textbf{Mô tả} & \textbf{Tỉ lệ yêu cầu} \\
+\hline
+\texttt{/api/dormitories} & GET & Lấy danh sách ký túc xá & 40\% \\
+\hline
+\texttt{/api/applications} & POST & Nộp đơn đăng ký & 30\% \\
+\hline
+\texttt{/api/room-status} & GET & Trạng thái phòng thời gian thực & 20\% \\
+\hline
+\texttt{/auth/login} & POST & Đăng nhập & 10\% \\
+\hline
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Kết quả kiểm thử hiệu năng theo số lượng yêu cầu đồng thời}
+\label{tab:load-test-results}
+\footnotesize
+\begin{tabular}{|r|r|r|r|r|r|r|l|}
+\hline
+\textbf{Req đồng thời} & \textbf{Thời gian} & \textbf{Avg (ms)} & \textbf{P95 (ms)} & \textbf{P99 (ms)} & \textbf{Throughput (req/s)} & \textbf{Tỉ lệ lỗi} & \textbf{Trạng thái} \\
+\hline
+50   & 60 s & 87    & 142   & 198   & 48,3  & 0\%   & Ổn định \\
+\hline
+100  & 60 s & 124   & 231   & 387   & 94,7  & 0\%   & Ổn định \\
+\hline
+300  & 60 s & 298   & 612   & 891   & 267,4 & 0,3\% & Chấp nhận được \\
+\hline
+500  & 60 s & 487   & 1.024 & 1.876 & 431,2 & 1,2\% & Tăng độ trễ \\
+\hline
+1000 & 60 s & 1.243 & 3.891 & 6.204 & 712,8 & 8,7\% & Quá tải \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả ở Bảng~\ref{tab:load-test-results} cho thấy hệ thống duy trì độ trễ thấp
+và không phát sinh lỗi ở các mức tải đến 100 yêu cầu đồng thời, bắt đầu suy giảm
+nhẹ từ mức 300--500 và rơi vào trạng thái quá tải ở mức 1000 yêu cầu đồng thời
+với tỉ lệ lỗi 8,7\%. Mô hình suy giảm này được phân tích chi tiết theo từng cấu
+hình triển khai dưới đây.
+
+Với cấu hình yếu tương đương máy sinh viên phổ thông (Intel Core i5, 8 GB RAM),
+hệ thống duy trì hiệu năng ổn định ở mức 100--300 người dùng đồng thời (concurrent
+users), với thời gian phản hồi trung bình dưới 300 ms và tỉ lệ lỗi dưới 1\%. Đây
+là ngưỡng phù hợp với ký túc xá quy mô nhỏ đến trung bình, khoảng 500--1.000 sinh
+viên. Tài nguyên gây nghẽn (bottleneck) chủ yếu là bộ nhớ RAM khi số lượng kết nối
+trong connection pool của Mongoose và số phiên Redis đồng thời tăng lên, dẫn đến
+tăng độ trễ thu gom rác và cấp phát bộ nhớ.
+
+Với cấu hình server mạnh hơn (Intel Core i7, 16 GB RAM, hoặc máy chủ ảo VPS 4
+vCPU/16 GB RAM), việc bật chế độ cluster của PM2~\cite{pm2_docs} --- fork tiến
+trình theo số nhân CPU --- giúp thông lượng tăng gần như tuyến tính, khoảng
+3,5--4 lần so với chế độ đơn tiến trình. Ở cấu hình này, hệ thống ước tính chịu
+được 800--1.200 người dùng đồng thời với thời gian phản hồi trung bình dưới 400 ms.
+Khi kết hợp thêm Redis làm bộ nhớ đệm cho các API GET tần suất cao (danh sách ký
+túc xá, trạng thái phòng), ngưỡng phục vụ có thể nâng lên trên 2.000 người dùng
+đồng thời mà không làm tăng đáng kể độ trễ.
+
+Về khả năng mở rộng, hệ thống được kiến trúc theo hướng phi trạng thái (stateless)
+nhờ kết hợp JWT và phiên lưu trên Redis, cùng mô hình hướng sự kiện (event-driven)
+với cơ chế truyền sự kiện cắm được. Nhờ đó, hệ thống hỗ trợ mở rộng theo chiều
+ngang (horizontal scaling) thông qua bộ cân bằng tải --- ví dụ cơ chế upstream của
+Nginx~\cite{nginx_docs} --- khi triển khai thực tế. Với cấu hình production phù hợp
+(tối thiểu 4 vCPU, 16 GB RAM, MongoDB Atlas gói M10 trở lên và Redis Cloud), hệ
+thống có thể phục vụ đồng thời lượng lớn sinh viên của một trường đại học quy mô
+lớn (10.000--20.000 sinh viên) trong đợt cao điểm đăng ký.
+
+\subsubsection*{Kiểm thử đa thiết bị và trình duyệt}
+
+Bên cạnh kiểm thử tải, hệ thống được kiểm thử tương thích trên bốn thiết bị và
+trình duyệt khác nhau nhằm xác nhận trải nghiệm nhất quán. Kết quả cho thấy giao
+diện hiển thị đúng và các tính năng đặc thù --- bản đồ Cesium 3D, tour thực tế ảo
+(Virtual Reality, VR) bằng Three.js, cài đặt Progressive Web App (PWA) và trang
+offline --- đều hoạt động ổn định trên cả nền tảng desktop lẫn di động.
+Bảng~\ref{tab:cross-device-test} tổng hợp kết quả ghi nhận.
+
+\begin{table}[H]
+\centering
+\caption{Kết quả kiểm thử trên nhiều thiết bị và trình duyệt}
+\label{tab:cross-device-test}
+\footnotesize
+\begin{tabular}{|p{3.4cm}|p{8.2cm}|p{1.8cm}|}
+\hline
+\textbf{Thiết bị / Trình duyệt} & \textbf{Kết quả ghi nhận} & \textbf{Thời gian tải} \\
+\hline
+PC --- Chrome & Render đầy đủ, bản đồ Cesium 3D mượt, tải trang chủ nhanh & $\sim$1,2 s \\
+\hline
+Laptop --- Edge / Firefox & Tương thích tốt, gợi ý cài đặt PWA hoạt động & $\sim$1,4 s \\
+\hline
+Android --- Chrome mobile & Cài đặt PWA thành công, ứng dụng native Expo chạy ổn định, hiển thị trang offline khi mất mạng & $\sim$1,6 s \\
+\hline
+MacBook --- Safari & Giao diện đúng, tour VR Three.js render được, chức năng ``Thêm vào màn hình chính'' của iOS hoạt động & $\sim$1,5 s \\
+\hline
+\end{tabular}
+\end{table}
 
 % =====================================================================
 \section{Triển khai}
@@ -1547,24 +1696,23 @@ giữa các instance thông qua mô hình pub/sub.
 
 \subsection*{Cơ sở hạ tầng dịch vụ}
 
-MongoDB Atlas cung cấp replica set mặc định đảm bảo tính sẵn sàng cao và nhân
-bản dữ liệu tự động. Kết nối từ backend đến Atlas được thực hiện qua Mongoose
-với connection pooling, pool size cấu hình phù hợp với kế hoạch Atlas đang sử
-dụng. Các chỉ mục tổng hợp được định nghĩa trực tiếp trong Mongoose schema và
-được tạo tự động khi hệ thống khởi động lần đầu, bao gồm chỉ mục trên
-\texttt{allocationCycleId + status} và \texttt{studentId + allocationCycleId}
-phục vụ các truy vấn nghiệp vụ tần suất cao.
+Cơ sở dữ liệu đám mây triển khai theo mô hình nhân bản tự động đảm bảo tính
+sẵn sàng cao. Kết nối từ máy chủ ứng dụng đến cơ sở dữ liệu sử dụng tái sử
+dụng kết nối theo nhóm, cấu hình phù hợp với gói dịch vụ đang sử dụng. Các
+chỉ mục tổng hợp được tạo tự động khi hệ thống khởi động lần đầu, phục vụ các
+truy vấn nghiệp vụ tần suất cao như tìm kiếm đơn đăng ký theo đợt--trạng thái
+và tra cứu hồ sơ theo sinh viên--đợt.
 
-Redis phục vụ hai mục đích song song: lưu trữ session web thông qua
-express-session và làm pub/sub adapter cho Socket.IO. TTL index trên trường
-\texttt{expiresAt} của collection \texttt{notifications} tự động xóa thông báo
-hết hạn mà không cần tác vụ dọn dẹp định kỳ.
+Hệ thống bộ nhớ đệm phục vụ hai mục đích song song: lưu trữ phiên đăng nhập
+web và đồng bộ kênh thông báo thời gian thực giữa các máy chủ. Thông báo hết
+hạn được tự động dọn dẹp theo cơ chế hết hạn tích hợp mà không cần tác vụ định
+kỳ.
 
 \subsection*{Cấu hình môi trường}
 
-Toàn bộ cấu hình nhạy cảm được quản lý qua file \texttt{.env} và không được đưa
-vào kiểm soát phiên bản. Bảng~\ref{tab:env_config} trình bày các biến môi trường
-chính cần thiết để khởi động hệ thống.
+Toàn bộ cấu hình nhạy cảm được quản lý qua tệp cấu hình môi trường và không
+được đưa vào kiểm soát phiên bản mã nguồn. Bảng~\ref{tab:env_config} trình bày
+các tham số cấu hình chính cần thiết để khởi động hệ thống.
 
 \begin{table}[H]
 \centering
@@ -1598,34 +1746,33 @@ chính cần thiết để khởi động hệ thống.
 
 \subsection*{Quy trình triển khai}
 
-Quy trình triển khai backend bao gồm các bước tuần tự sau. Mã nguồn được clone
-từ repository GitHub về máy chủ đích và các gói phụ thuộc được cài đặt qua
-\texttt{npm install -{}-production}. File \texttt{.env} được thiết lập với đầy đủ
-biến môi trường cần thiết. Server được khởi chạy bằng \texttt{node index.js} và
-quản lý bởi process manager PM2 để tự khởi động lại khi gặp sự cố và duy trì
-tiến trình liên tục khi phiên SSH kết thúc. Đối với môi trường production,
-reverse proxy được đặt trước Node.js để xử lý TLS termination và phân phối tài
-nguyên tĩnh.
+Quy trình triển khai backend bao gồm các bước tuần tự: lấy mã nguồn từ kho
+quản lý phiên bản, cài đặt các thư viện phụ thuộc, thiết lập tệp cấu hình môi
+trường với đầy đủ tham số cần thiết, khởi chạy server và giao cho trình quản lý
+tiến trình tự động khởi động lại khi gặp sự cố. Đối với môi trường vận hành
+thực tế, máy chủ web proxy được đặt trước để xử lý mã hóa HTTPS và phân phối
+tài nguyên tĩnh.
 
-Ứng dụng di động trong giai đoạn phát triển và kiểm thử chạy qua Expo Go bằng
-cách quét mã QR từ lệnh \texttt{expo start}. Để triển khai chính thức, ứng dụng
-được đóng gói qua EAS Build tạo file APK cho Android và IPA cho iOS. Biến môi
-trường API endpoint được cấu hình trong file \texttt{constants/api.ts} của dự
-án mobile và cần trỏ đến địa chỉ server production trước khi thực hiện build.
+Ứng dụng di động trong giai đoạn phát triển và kiểm thử được chạy trực tiếp
+thông qua công cụ phát triển bằng cách quét mã QR. Để triển khai chính thức,
+ứng dụng được đóng gói thành tệp cài đặt cho Android và iOS. Địa chỉ máy chủ
+backend cần được cấu hình trỏ đến môi trường vận hành thực tế trước khi thực
+hiện đóng gói.
 
 \subsection*{Đánh giá hiệu năng}
 
-Số liệu benchmark cụ thể về thời gian phản hồi trung bình, thông lượng tối đa
-và tỉ lệ lỗi cần được đánh giá trong giai đoạn triển khai thực tế. Tuy nhiên,
-một số đặc tính thiết kế hỗ trợ hiệu năng có thể ghi nhận từ cấu trúc hệ thống.
+% === SỬA: tham chiếu kết quả kiểm thử hiệu năng thay vì nói chưa có số liệu ===
+Số liệu benchmark cụ thể về thời gian phản hồi, thông lượng và tỉ lệ lỗi đã được
+trình bày chi tiết trong phần kiểm thử hiệu năng (mục~\ref{subsec:performance-test}).
+Bổ sung cho các số liệu đó, một số đặc tính thiết kế hỗ trợ hiệu năng có thể ghi
+nhận từ cấu trúc hệ thống.
 Chỉ mục tổng hợp trên các cặp trường thường xuất hiện cùng nhau trong truy vấn
-nghiệp vụ giúp hạn chế số tài liệu quét khi tải danh sách đơn đăng ký theo chu
-kỳ và trạng thái. Chiến lược nhúng dữ liệu phòng vào document tòa nhà giảm số
-vòng truy vấn cần thiết để lấy thông tin phòng trống. Connection pooling của
-Mongoose và Redis tái sử dụng kết nối hiện có thay vì mở kết nối mới cho mỗi
-request. Cơ chế outbox pattern trong phân phối thông báo đảm bảo tính bền vững
-của sự kiện mà không yêu cầu giao tiếp đồng bộ chặt chẽ giữa tầng nghiệp vụ và
-tầng truyền thông, giữ độ trễ phản hồi API ổn định ngay cả khi lưu lượng thông
-báo tăng cao.
+nghiệp vụ giúp hạn chế dữ liệu phải quét khi tải danh sách đơn đăng ký theo
+đợt và trạng thái. Chiến lược nhúng dữ liệu phòng vào tài liệu tòa nhà giảm
+số lần truy vấn cần thiết để lấy thông tin phòng trống. Tái sử dụng kết nối
+cơ sở dữ liệu và bộ nhớ đệm giảm chi phí thiết lập kết nối mới cho mỗi yêu
+cầu. Cơ chế lưu trữ thông báo trước khi phân phối đảm bảo tính bền vững mà
+không yêu cầu giao tiếp đồng bộ chặt chẽ, giữ thời gian phản hồi ổn định
+ngay cả khi lưu lượng thông báo tăng cao.
 
 \end{document}

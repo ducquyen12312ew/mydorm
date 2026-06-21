@@ -3,7 +3,11 @@ const router = express.Router();
 const { isAdmin } = require('../../middleware/auth');
 const EnrollmentPlan = require('../../schemas/EnrollmentPlanSchema');
 const HistoricalEnrollment = require('../../schemas/HistoricalEnrollmentSchema');
+const DemandForecast = require('../../schemas/DemandForecastSchema');
 const RoomTransfer = require('../../schemas/RoomTransferSchema');
+const AllocationCycle = require('../../schemas/AllocationCycleSchema');
+const { DormitoryCollection } = require('../../config/config');
+const { getDormCapacity } = require('../../utils/capacityHelper');
 
 /**
  * Thống kê đơn đổi phòng theo năm + dự kiến cho năm mới (Task 4).
@@ -58,16 +62,26 @@ const HUST_PROGRAMS = [
   { code: 'INTL_EM', name: 'Quản trị Kỹ thuật (Quốc tế)', faculty: 'Quốc tế', type: 'international', defaultQuota: 50 }
 ];
 
-// List all plans
+// List all plans (+ forecast data for the merged tab)
 router.get('/admin/enrollment-planning', isAdmin, async (req, res) => {
   try {
-    const plans = await EnrollmentPlan.find({}).sort({ createdAt: -1 }).lean();
-    const transferStats = await getTransferStats();
+    const [plans, transferStats, forecasts, historical] = await Promise.all([
+      EnrollmentPlan.find({}).sort({ createdAt: -1 }).lean(),
+      getTransferStats(),
+      DemandForecast.find({}).sort({ academicYear: -1 }).lean().catch(() => []),
+      HistoricalEnrollment.find({}).sort({ academicYear: -1 }).lean().catch(() => [])
+    ]);
+    const latestForecast = forecasts[0] || null;
+    const dormCapacity = await getDormCapacity(DormitoryCollection).catch(() => 1450);
     res.render('admin/enrollment-planning/index', {
       user: { name: req.session.adminName, role: req.session.adminRole },
       activeNav: 'enrollmentplanning',
       plans,
-      transferStats
+      transferStats,
+      forecasts,
+      historical,
+      latestForecast,
+      dormCapacity
     });
   } catch (err) {
     console.error('[EnrollmentPlanning] list error:', err);
@@ -135,11 +149,16 @@ router.get('/admin/enrollment-planning/:id', isAdmin, async (req, res) => {
   try {
     const plan = await EnrollmentPlan.findById(req.params.id).lean();
     if (!plan) return res.status(404).send('Not found');
+    const activeCycle = await AllocationCycle.findOne({
+      academicYear: plan.academicYear,
+      status: { $in: ['PENDING', 'RUNNING'] }
+    }).lean().catch(() => null);
     res.render('admin/enrollment-planning/detail', {
       user: { name: req.session.adminName, role: req.session.adminRole },
       activeNav: 'enrollmentplanning',
       plan,
-      programs: HUST_PROGRAMS
+      programs: HUST_PROGRAMS,
+      activeCycle: activeCycle || null
     });
   } catch (err) {
     console.error('[EnrollmentPlanning] detail error:', err);
@@ -229,6 +248,59 @@ router.post('/admin/enrollment-planning/:id/copy', isAdmin, async (req, res) => 
     res.json({ success: true, id: newPlan._id });
   } catch (err) {
     console.error('[EnrollmentPlanning] copy error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Open registration for students
+router.post('/admin/enrollment-planning/:id/open-registration', isAdmin, async (req, res) => {
+  try {
+    const plan = await EnrollmentPlan.findById(req.params.id).lean();
+    if (!plan) return res.status(404).json({ error: 'Không tìm thấy kế hoạch' });
+    if (plan.status !== 'approved') return res.status(400).json({ error: 'Chỉ kế hoạch đã duyệt mới được mở đăng ký' });
+
+    const existing = await AllocationCycle.findOne({
+      academicYear: plan.academicYear,
+      status: { $in: ['PENDING', 'RUNNING'] }
+    });
+    if (existing) return res.status(400).json({ error: 'Đã có chu kỳ đăng ký đang mở cho năm học này' });
+
+    const now = new Date();
+    const end = new Date(now.getTime() + 30 * 86400000);
+    const cycle = new AllocationCycle({
+      academicYear: plan.academicYear,
+      name: 'Main Registration',
+      status: 'RUNNING',
+      registrationStart: now,
+      registrationEnd: end,
+      allocationDate: end,
+      createdBy: req.session.adminId,
+      notes: `Mở từ kế hoạch tuyển sinh: ${plan.planName}`
+    });
+    await cycle.save();
+    res.json({ success: true, cycleId: cycle._id, message: 'Đã mở đăng ký phòng cho sinh viên' });
+  } catch (err) {
+    console.error('[EnrollmentPlanning] open-registration error:', err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Close registration
+router.post('/admin/enrollment-planning/:id/close-registration', isAdmin, async (req, res) => {
+  try {
+    const plan = await EnrollmentPlan.findById(req.params.id).lean();
+    if (!plan) return res.status(404).json({ error: 'Không tìm thấy kế hoạch' });
+    const cycle = await AllocationCycle.findOne({
+      academicYear: plan.academicYear,
+      status: { $in: ['PENDING', 'RUNNING'] }
+    });
+    if (!cycle) return res.status(400).json({ error: 'Không có chu kỳ đăng ký đang mở' });
+    cycle.status = 'CANCELLED';
+    cycle.notes = (cycle.notes || '') + ' | Đóng thủ công bởi admin';
+    await cycle.save();
+    res.json({ success: true, message: 'Đã đóng đăng ký phòng' });
+  } catch (err) {
+    console.error('[EnrollmentPlanning] close-registration error:', err);
     res.status(500).json({ error: err.message });
   }
 });

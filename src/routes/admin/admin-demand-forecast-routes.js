@@ -36,26 +36,9 @@ function toScenarioOutput(sc, capacity) {
   };
 }
 
-// Main forecast dashboard
-router.get('/admin/demand-forecast', isAdmin, async (req, res) => {
-  try {
-    const forecasts = await DemandForecast.find({}).sort({ academicYear: -1 }).lean();
-    const historical = await HistoricalEnrollment.find({}).sort({ academicYear: -1 }).lean();
-    const latestForecast = forecasts[0] || null;
-    const dormCapacity = await getDormCapacity(DormitoryCollection);
-
-    res.render('admin/demand-forecast/index', {
-      user: { name: req.session.adminName, role: req.session.adminRole },
-      activeNav: 'demandforecast',
-      forecasts,
-      historical,
-      latestForecast,
-      dormCapacity
-    });
-  } catch (err) {
-    console.error('[DemandForecast] dashboard error:', err);
-    res.status(500).send('Server error');
-  }
+// Main forecast dashboard — merged into enrollment-planning page
+router.get('/admin/demand-forecast', isAdmin, (req, res) => {
+  res.redirect(301, '/admin/enrollment-planning?tab=forecast');
 });
 
 // Generate a forecast for an academic year

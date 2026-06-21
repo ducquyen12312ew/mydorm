@@ -6,6 +6,7 @@ const {
   requireQuotaViewer,
   requireQuotaAdmin
 } = require('../../middleware/requireQuotaAdmin');
+const { DormitoryCollection } = require('../../config/config');
 
 router.get('/admin/quotas', requireQuotaViewer, quotaAdminController.renderQuotaList);
 router.get('/admin/quotas/leadership/dashboard', requireQuotaViewer, quotaAdminController.renderLeadershipDashboard);
@@ -23,5 +24,33 @@ router.post('/admin/quotas/:id/notifications/plan', requireQuotaAdmin, quotaAdmi
 router.post('/admin/quotas/:id/notifications/:batchId/send', requireQuotaAdmin, quotaAdminController.sendNotificationBatch);
 router.get('/admin/quotas/:id/preview', requireQuotaViewer, quotaAdminController.renderPreviewPage);
 router.get('/admin/quotas/:id/dashboard', requireQuotaViewer, quotaAdminController.renderDashboardPage);
+
+// GET: Compute current capacity from dormitory data
+router.get('/api/admin/capacity/current', requireQuotaViewer, async (req, res) => {
+  try {
+    const dorms = await DormitoryCollection.find({ isDeleted: { $ne: true } }).lean();
+    let totalBeds = 0, totalRooms = 0;
+    for (const d of dorms) {
+      for (const floor of (d.floors || [])) {
+        for (const room of (floor.rooms || [])) {
+          totalRooms++;
+          totalBeds += room.maxCapacity || 0;
+        }
+      }
+    }
+    res.json({ success: true, totalBeds, totalRooms, dormCount: dorms.length });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
+  }
+});
+
+// DELETE: Delete a quota (not allowed if published/active)
+router.delete('/admin/quotas/:id', requireQuotaAdmin, quotaAdminController.deleteQuota);
+
+// POST: Archive a published quota
+router.post('/admin/quotas/:id/archive', requireQuotaAdmin, quotaAdminController.archiveQuota);
+
+// POST: Reactivate an archived quota
+router.post('/admin/quotas/:id/reactivate', requireQuotaAdmin, quotaAdminController.reactivateQuota);
 
 module.exports = router;

@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hồ sơ sinh viên</title>
@@ -280,71 +283,65 @@
 
         .profile-card.with-padding { padding: 2rem; }
 
-        /* Cover / banner */
-        .profile-cover {
-            height: 140px;
-            background:
-                radial-gradient(circle at 18% 20%, rgba(255, 255, 255, 0.22), transparent 40%),
-                radial-gradient(circle at 85% 0%, rgba(33, 61, 84, 0.35), transparent 45%),
-                linear-gradient(135deg, var(--primary-color), var(--primary-strong));
-            position: relative;
-        }
-
-        .profile-cover::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-image: radial-gradient(rgba(255,255,255,0.16) 1px, transparent 1px);
-            background-size: 18px 18px;
-            opacity: 0.5;
-        }
-
+        /* Profile header strip+body */
         .profile-header {
-            display: flex;
-            align-items: flex-end;
-            gap: 1.5rem;
-            padding: 0 2rem 1.75rem;
-            margin-top: -55px;
-            position: relative;
-            z-index: 1;
-            flex-wrap: wrap;
+            overflow: hidden;
         }
-
-        .profile-avatar-large {
-            width: 112px;
-            height: 112px;
+        .profile-header-strip {
+            height: 8px;
+            background: var(--primary-color);
+        }
+        .profile-header-body {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            padding: 1.5rem 2rem;
+        }
+        .profile-avatar {
+            width: 72px;
+            height: 72px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-strong));
+            background: var(--primary-color);
             color: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.8rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            border: 5px solid #fff;
-            box-shadow: 0 10px 24px rgba(157, 95, 56, 0.32);
             flex-shrink: 0;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
         }
-
-        .profile-info { padding-bottom: 0.35rem; }
-
-        .profile-info h2 {
-            font-size: 1.9rem;
+        .profile-avatar img {
+            width: 100%; height: 100%; object-fit: cover;
+            border-radius: 50%; position: absolute; inset: 0;
+        }
+        .avatar-upload-overlay {
+            position: absolute; inset: 0; border-radius: 50%;
+            background: rgba(0,0,0,.45); display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 2px;
+            opacity: 0; transition: opacity .2s; font-size: .65rem;
+            font-weight: 600; color: #fff; line-height: 1.2;
+        }
+        .avatar-upload-overlay i { font-size: .9rem; }
+        .profile-avatar:hover .avatar-upload-overlay { opacity: 1; }
+        #avatarFileInput { display: none; }
+        .profile-name {
+            font-size: 1.5rem;
             font-weight: 800;
             color: var(--text-color);
-            margin-bottom: 0.35rem;
-            letter-spacing: -0.01em;
+            margin: 0 0 0.4rem;
         }
-
-        .profile-id-pill {
+        .profile-id-badge {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
+            gap: 0.4rem;
             background: var(--primary-soft);
             color: var(--primary-strong);
             font-weight: 700;
-            font-size: 0.92rem;
-            padding: 0.35rem 0.9rem;
+            font-size: 0.88rem;
+            padding: 0.3rem 0.8rem;
             border-radius: 999px;
         }
 
@@ -353,7 +350,8 @@
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 1rem;
-            padding: 0 2rem 2rem;
+            padding: 1.25rem 2rem 2rem;
+            border-top: 1px solid var(--border-color);
         }
 
         .stat-card {
@@ -828,26 +826,6 @@
 <body class="student-shell-page">
     <%- include('navbar', { currentPage: 'profile', user: user, student: student }) %>
 
-    <section class="student-page-hero">
-        <div class="student-page-badge"><i class="fas fa-user-circle"></i> <span data-i18n="profile.title">Hồ sơ sinh viên</span></div>
-        <h1 class="student-page-title" data-i18n="profile.title">Hồ sơ sinh viên</h1>
-        <p class="student-page-subtitle" data-i18n="profile.pageSubtitle">Trang hồ sơ được đưa về cùng ngôn ngữ thị giác với trang chủ: mở đầu gọn, nhấn các khối thông tin quan trọng và làm rõ những mục cần cập nhật thường xuyên.</p>
-        <div class="student-page-meta">
-            <div class="student-page-meta-card">
-                <strong data-i18n="profile.personalInfo">Thông tin cá nhân</strong>
-                <span data-i18n="profile.personalInfoDesc">Cập nhật email, số điện thoại và các thông tin học tập đang dùng cho hồ sơ ký túc xá.</span>
-            </div>
-            <div class="student-page-meta-card">
-                <strong data-i18n="profile.residenceInfo">Thông tin cư trú</strong>
-                <span data-i18n="profile.residenceInfoDesc">Theo dõi ký túc xá, phòng ở và các thay đổi liên quan ngay trong cùng một trang.</span>
-            </div>
-            <div class="student-page-meta-card">
-                <strong data-i18n="profile.recentHistory">Lịch sử gần đây</strong>
-                <span data-i18n="profile.recentHistoryDesc">Kiểm tra nhanh các hồ sơ đã nộp và các cập nhật mới nhất.</span>
-            </div>
-        </div>
-    </section>
-
     <!-- Main Content -->
     <div class="main-content">
         <h1 class="page-title" data-i18n="profile.title">Hồ sơ sinh viên</h1>
@@ -860,12 +838,18 @@
         <div id="content" style="display: none;">
             <!-- Profile Card -->
             <div class="profile-card">
-                <div class="profile-cover"></div>
                 <div class="profile-header">
-                    <div class="profile-avatar-large" id="profileAvatar">U</div>
-                    <div class="profile-info">
-                        <h2 id="profileName">Tên sinh viên</h2>
-                        <span class="profile-id-pill"><i class="fas fa-id-badge"></i> <span data-i18n="profile.studentIdLabel">Mã SV</span>: <span id="profileStudentId">-</span></span>
+                    <div class="profile-header-strip"></div>
+                    <div class="profile-header-body">
+                        <div class="profile-avatar" id="profileAvatar" onclick="document.getElementById('avatarFileInput').click()" title="Đổi ảnh đại diện">
+                            U
+                            <div class="avatar-upload-overlay"><i class="fas fa-camera"></i>Đổi ảnh</div>
+                        </div>
+                        <input type="file" id="avatarFileInput" accept="image/*" onchange="uploadAvatar(this)">
+                        <div>
+                            <h2 class="profile-name" id="profileName">Tên sinh viên</h2>
+                            <span class="profile-id-badge"><i class="fas fa-id-badge"></i> Mã SV: <span id="profileStudentId">-</span></span>
+                        </div>
                     </div>
                 </div>
 
@@ -1058,23 +1042,6 @@
         </div>
     </div>
 
-    <section class="student-accent-grid">
-        <article class="student-accent-card">
-            <i class="fas fa-id-card"></i>
-            <h3>Hồ sơ gọn hơn</h3>
-            <p>Các khối nội dung được neo trong bối cảnh rõ ràng thay vì bắt đầu đột ngột như trước.</p>
-        </article>
-        <article class="student-accent-card">
-            <i class="fas fa-shield-heart"></i>
-            <h3>Dễ kiểm tra thông tin</h3>
-            <p>Những dữ liệu cần cho đăng ký và bảo trì được gom vào cùng trải nghiệm thống nhất.</p>
-        </article>
-        <article class="student-accent-card">
-            <i class="fas fa-clock-rotate-left"></i>
-            <h3>Theo dõi nhanh hơn</h3>
-            <p>Các phần lịch sử và trạng thái nổi bật hơn, giảm cảm giác trang bị trống ở đầu màn hình.</p>
-        </article>
-    </section>
 
     <script>
         let studentData = null;
@@ -1125,7 +1092,15 @@
 
             if (profileName) profileName.textContent = name;
             if (profileStudentId) profileStudentId.textContent = studentId;
-            if (profileAvatar) profileAvatar.textContent = name.charAt(0).toUpperCase();
+            if (profileAvatar) {
+                if (studentData.avatar) {
+                    let img = profileAvatar.querySelector('img');
+                    if (!img) { img = document.createElement('img'); profileAvatar.insertBefore(img, profileAvatar.firstChild); }
+                    img.src = studentData.avatar;
+                } else {
+                    profileAvatar.childNodes[0] && (profileAvatar.childNodes[0].nodeValue = name.charAt(0).toUpperCase());
+                }
+            }
             if (profileEmail) profileEmail.textContent = studentData.email || '-';
             if (profilePhone) profilePhone.textContent = studentData.phone || '-';
             if (profileMajor) profileMajor.textContent = studentData.major || '-';
@@ -1291,6 +1266,31 @@
 
         // Load on page load
         window.onload = loadStudentProfile;
+
+        // Avatar upload
+        async function uploadAvatar(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const avatarEl = document.getElementById('profileAvatar');
+                let img = avatarEl.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    avatarEl.insertBefore(img, avatarEl.firstChild);
+                }
+                img.src = e.target.result;
+                avatarEl.childNodes[0].nodeValue && (avatarEl.childNodes[0].nodeValue = '');
+            };
+            reader.readAsDataURL(file);
+            const fd = new FormData();
+            fd.append('avatar', file);
+            try {
+                const r = await fetch('/api/student/avatar', { method: 'POST', body: fd });
+                if (!r.ok) console.warn('Avatar upload failed:', r.status);
+            } catch (e) { /* non-fatal */ }
+            input.value = '';
+        }
 
         // Load 2FA status
         async function load2FAStatus() {

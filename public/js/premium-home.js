@@ -1,42 +1,134 @@
 (function () {
-    /* Suppress MapLibre fill-extrusion null-height warning (OSM buildings without height data) */
-    var _origWarn = console.warn;
-    console.warn = function () {
-        var m = arguments[0];
-        if (typeof m === 'string' && m.indexOf('Expected value to be of type number') !== -1) return;
-        _origWarn.apply(console, arguments);
-    };
 
     /* ── State ── */
-    var _map = null;
+    var _leafletMap = null;
+    var _leafletMarkers = []; // { marker, data, el, lat, lng }
     var _mapDorms = [];
-    var _dormMarkers = [];   // { marker, data, el }
     var _activeDormId = null;
     var _activeMarkerEl = null;
     var _userMarker = null;
     var _satOn = false;
-    var _routeAnimId = null;
+    var _routePolyline = null;
+    var _gateMarker = null;
+    var _satLayer = null;
+    var _baseLayer = null;
     var _fallbackIdx = 0;
 
     /* ── Map constants ── */
     var HUST_LNG = 105.843220;
     var HUST_LAT = 21.007119;
 
-    /* Static KTX positions relative to HUST (~70m/min walk)
-       1°lat≈111km | 1°lng≈103.6km at lat 21° */
-    var DORM_MAP_CONFIG = {
-        'A1': { lat: 21.009347, lng: 105.840832, minutes: 5  },   /* NW */
-        'B2': { lat: 21.003999, lng: 105.846564, minutes: 7  },   /* SE */
-        'C3': { lat: 21.003553, lng: 105.839398, minutes: 8  },   /* SW */
-        'D4': { lat: 21.011132, lng: 105.847520, minutes: 9  },   /* NE */
-        'E5': { lat: 21.013425, lng: 105.843220, minutes: 10 },   /* N  */
-        'F6': { lat: 21.001443, lng: 105.843220, minutes: 9  }    /* S  */
+    /* Hardcoded dorm coordinates [lat, lng] — override DB values */
+    var DORM_COORDS = {
+        'KTX E5 - Bách Khoa': [21.010077, 105.840734],
+        'KTX A1 - Bách Khoa': [21.011219, 105.847086],
+        'KTX D4 - Bách Khoa': [21.007078, 105.846018],
+        'KTX B2 - Bách Khoa': [21.005068, 105.840691],
+        'KTX C3 - Bách Khoa': [21.005919, 105.840906],
+        'KTX G7 - Bách Khoa': [21.005666, 105.846147],
+        'KTX F6 - Bách Khoa': [21.006739, 105.845944],
+    };
+
+    var GATES = {
+        parabol:      [21.00748,  105.843121],
+        tranDaiNghia: [21.00558,  105.845383],
+    };
+
+    var GATE_NAMES = {
+        parabol:      'Cổng Parabol ĐHBK',
+        tranDaiNghia: 'Cổng Trần Đại Nghĩa ĐHBK',
+    };
+
+    var STATIC_ROUTES = {
+        'KTX E5 - Bách Khoa': {
+            gate: 'parabol',
+            waypoints: [
+                [21.010077, 105.840734],
+                [21.009781, 105.841196],
+                [21.007528, 105.841279],
+                [21.00748,  105.843121],
+            ],
+        },
+        'KTX A1 - Bách Khoa': {
+            gate: 'parabol',
+            waypoints: [
+                [21.011219, 105.847086],
+                [21.011103, 105.847098],
+                [21.011036, 105.846728],
+                [21.011085, 105.846533],
+                [21.011197, 105.846516],
+                [21.011218, 105.846393],
+                [21.011247, 105.84638],
+                [21.011348, 105.845922],
+                [21.010852, 105.845823],
+                [21.009822, 105.845608],
+                [21.009056, 105.845952],
+                [21.008099, 105.846073],
+                [21.007845, 105.846096],
+                [21.007631, 105.844187],
+                [21.007557, 105.843211],
+                [21.00748,  105.843121],
+            ],
+        },
+        'KTX D4 - Bách Khoa': {
+            gate: 'tranDaiNghia',
+            waypoints: [
+                [21.007078, 105.846018],
+                [21.007068, 105.8461],
+                [21.006668, 105.846207],
+                [21.006647, 105.845746],
+                [21.006301, 105.845769],
+                [21.006102, 105.845652],
+                [21.00558,  105.845383],
+            ],
+        },
+        'KTX B2 - Bách Khoa': {
+            gate: 'parabol',
+            waypoints: [
+                [21.005068, 105.840691],
+                [21.005068, 105.840767],
+                [21.005156, 105.840755],
+                [21.005149, 105.841179],
+                [21.006921, 105.841198],
+                [21.006932, 105.841625],
+                [21.007496, 105.841701],
+                [21.007549, 105.843047],
+                [21.00748,  105.843121],
+            ],
+        },
+        'KTX C3 - Bách Khoa': {
+            gate: 'parabol',
+            waypoints: [
+                [21.005954, 105.840883],
+                [21.005964, 105.841753],
+                [21.00691,  105.841825],
+                [21.007193, 105.842649],
+                [21.00748,  105.843121],
+            ],
+        },
+        'KTX G7 - Bách Khoa': {
+            gate: 'tranDaiNghia',
+            waypoints: [
+                [21.005666, 105.846147],
+                [21.00558,  105.845383],
+            ],
+        },
+        'KTX F6 - Bách Khoa': {
+            gate: 'tranDaiNghia',
+            waypoints: [
+                [21.006739, 105.845944],
+                [21.006657, 105.845764],
+                [21.00627,  105.845768],
+                [21.006108, 105.845622],
+                [21.00558,  105.845383],
+            ],
+        },
     };
 
     var FALLBACK_POS = [
-        { lat: 21.008500, lng: 105.841800, minutes: 6 },
-        { lat: 21.005200, lng: 105.845800, minutes: 8 },
-        { lat: 21.010100, lng: 105.844200, minutes: 7 }
+        { lat: 21.008500, lng: 105.841800 },
+        { lat: 21.005200, lng: 105.845800 },
+        { lat: 21.010100, lng: 105.844200 },
     ];
 
     var DEFAULT_AMENITIES = [
@@ -200,9 +292,48 @@
         var roomPrev = document.getElementById('roomPrev');
         var roomNext = document.getElementById('roomNext');
         if (!roomGrid) return {};
-        var dist = function () { return window.innerWidth < 576 ? 300 : window.innerWidth < 920 ? 340 : 404; };
-        if (roomPrev) roomPrev.addEventListener('click', function () { roomGrid.scrollBy({ left: -dist(), behavior: 'smooth' }); });
-        if (roomNext) roomNext.addEventListener('click', function () { roomGrid.scrollBy({ left: dist(), behavior: 'smooth' }); });
+
+        var offset = 0;
+
+        function cardStep() {
+            var card = roomGrid.querySelector('.room-card');
+            var gap = 24;
+            return card ? card.offsetWidth + gap : (window.innerWidth < 576 ? 336 : window.innerWidth < 920 ? 376 : 524);
+        }
+
+        function maxNegOffset() {
+            var container = roomGrid.parentElement;
+            if (!container) return 0;
+            return Math.max(0, roomGrid.scrollWidth - container.offsetWidth);
+        }
+
+        function applyOffset() {
+            roomGrid.style.transform = 'translateX(' + offset + 'px)';
+        }
+
+        if (roomPrev) roomPrev.addEventListener('click', function () {
+            offset = Math.min(0, offset + cardStep());
+            applyOffset();
+        });
+        if (roomNext) roomNext.addEventListener('click', function () {
+            offset = Math.max(-maxNegOffset(), offset - cardStep());
+            applyOffset();
+        });
+
+        function updateSliderBtns() {
+            var cards = roomGrid.querySelectorAll('.room-card');
+            var hide = cards.length <= 3;
+            if (roomPrev) roomPrev.style.display = hide ? 'none' : '';
+            if (roomNext) roomNext.style.display = hide ? 'none' : '';
+            /* reset position on re-render */
+            offset = 0;
+            applyOffset();
+        }
+
+        var observer = new MutationObserver(updateSliderBtns);
+        observer.observe(roomGrid, { childList: true, subtree: false });
+        updateSliderBtns();
+
         return { roomGrid: roomGrid };
     }
 
@@ -217,17 +348,47 @@
        MAP HELPERS
     ═══════════════════════════════════════════════════════ */
 
-    /* Extract code like 'A1', 'B2' from dorm name */
+    /* Extract code like 'A1', 'B2' from dorm name (used for amenities/reviews lookup) */
     function getDormCode(name) {
         if (!name) return null;
         var m = (String(name)).toUpperCase().match(/([A-Z]\d+)/);
         return m ? m[1] : null;
     }
 
-    /* Get static config for a dorm */
-    function getDormCfg(dorm) {
-        var code = getDormCode(dorm.name || '');
-        return code ? (DORM_MAP_CONFIG[code] || null) : null;
+    /* Resolve [lat, lng] for a dorm: hardcoded DORM_COORDS override DB values */
+    function getDormPos(dorm) {
+        var name = dorm.name || '';
+        if (DORM_COORDS[name]) {
+            return { lat: DORM_COORDS[name][0], lng: DORM_COORDS[name][1] };
+        }
+        if (dorm.location && Array.isArray(dorm.location.coordinates) && dorm.location.coordinates.length >= 2) {
+            return { lat: dorm.location.coordinates[1], lng: dorm.location.coordinates[0] };
+        }
+        if (typeof dorm.latitude === 'number' && isFinite(dorm.latitude)) {
+            return { lat: dorm.latitude, lng: dorm.longitude };
+        }
+        return null;
+    }
+
+    function haversineMeters(lat1, lng1, lat2, lng2) {
+        var R = 6371000;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLng = (lng2 - lng1) * Math.PI / 180;
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    function calcWalkMinutes(dormName) {
+        var route = STATIC_ROUTES[dormName];
+        if (!route || !route.waypoints || route.waypoints.length < 2) return 0;
+        var totalM = 0;
+        for (var i = 0; i < route.waypoints.length - 1; i++) {
+            var w1 = route.waypoints[i], w2 = route.waypoints[i + 1];
+            totalM += haversineMeters(w1[0], w1[1], w2[0], w2[1]);
+        }
+        return Math.max(1, Math.ceil(totalM / 70));
     }
 
     function getAmenitiesForDorm(dorm) {
@@ -241,8 +402,7 @@
     }
 
     /* Create pill-style marker */
-    function createDormMarkerEl(dorm, cfg) {
-        var minutes = cfg ? cfg.minutes : 0;
+    function createDormMarkerEl(dorm, minutes) {
         var el = document.createElement('div');
         el.className = 'map-dorm-pill';
         el.setAttribute('data-dorm-id', String(dorm._id || ''));
@@ -256,241 +416,141 @@
     }
 
     /* Manage active / dimmed states across all markers */
-    function setActiveMarker(el) {
-        _dormMarkers.forEach(function (m) {
-            m.el.classList.remove('active', 'dimmed');
+    function setActiveMarker(clickedMarker) {
+        _leafletMarkers.forEach(function (m) {
+            var el = m.marker.getElement ? m.marker.getElement() : null;
+            if (el) {
+                var pill = el.querySelector('.map-dorm-pill');
+                if (pill) { pill.classList.remove('active', 'dimmed'); }
+            }
         });
-        if (el) {
-            el.classList.add('active');
-            _dormMarkers.forEach(function (m) {
-                if (m.el !== el) m.el.classList.add('dimmed');
-            });
-        }
-        _activeMarkerEl = el || null;
+        _leafletMarkers.forEach(function (m) {
+            var el = m.marker.getElement ? m.marker.getElement() : null;
+            if (!el) return;
+            var pill = el.querySelector('.map-dorm-pill');
+            if (!pill) return;
+            if (m.marker === clickedMarker) pill.classList.add('active');
+            else pill.classList.add('dimmed');
+        });
+        _activeMarkerEl = clickedMarker || null;
     }
 
     /* ═══════════════════════════════════════════════════════
-       ROUTE — real walking route via OSRM (openstreetmap routing)
+       ROUTE — static polylines (Leaflet)
     ═══════════════════════════════════════════════════════ */
-    function fetchAndDrawRoute(fromLng, fromLat) {
+    function drawStaticRoute(dormName) {
         clearRoute();
-        if (!_map) return;
+        if (!_leafletMap) return;
+        var route = STATIC_ROUTES[dormName];
+        if (!route || !route.waypoints || !route.waypoints.length) return;
 
-        /* Show loading in panel subtitle while fetching */
-        var subEl = document.getElementById('dpSubtitle');
-        if (subEl && subEl.textContent === '') subEl.textContent = 'Đang tính đường đi bộ...';
+        var latlngs = route.waypoints.map(function (wp) { return [wp[0], wp[1]]; });
+        _routePolyline = L.polyline(latlngs, {
+            color: '#C8102E', weight: 4, opacity: 0.85
+        }).addTo(_leafletMap);
 
-        var url = 'https://router.project-osrm.org/route/v1/foot/' +
-                  fromLng + ',' + fromLat + ';' + HUST_LNG + ',' + HUST_LAT +
-                  '?overview=full&geometries=geojson';
-
-        fetch(url)
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-                if (data.code !== 'Ok' || !data.routes || !data.routes.length) {
-                    _drawRouteFallback(fromLng, fromLat);
-                    return;
-                }
-                var route = data.routes[0];
-                var coords = route.geometry.coordinates; /* [[lng,lat], ...] */
-                var distM = Math.round(route.distance);
-                var timeMin = Math.ceil(route.duration / 60);
-
-                _animateRouteCoords(coords);
-
-                /* Update sidebar subtitle + badges */
-                var distStr = distM < 1000 ? distM + 'm' : (distM / 1000).toFixed(1) + 'km';
-                if (subEl) subEl.textContent = timeMin + ' phút đi bộ đến HUST';
-                var badgesEl = document.getElementById('dpCoverBadges');
-                if (badgesEl) {
-                    badgesEl.innerHTML =
-                        '<span class="dp-cover-badge">' + timeMin + ' phút đi bộ</span>' +
-                        '<span class="dp-cover-badge">' + distStr + ' từ HUST</span>';
-                }
-            })
-            .catch(function () { _drawRouteFallback(fromLng, fromLat); });
-    }
-
-    function _drawRouteFallback(fromLng, fromLat) {
-        /* Bezier curve fallback when OSRM is unavailable */
-        var STEPS = 80;
-        var coords = [];
-        var midLng = (fromLng + HUST_LNG) / 2 + (fromLat - HUST_LAT) * 0.10;
-        var midLat = (fromLat + HUST_LAT) / 2 + (HUST_LNG - fromLng) * 0.10;
-        for (var i = 0; i <= STEPS; i++) {
-            var t = i / STEPS; var u = 1 - t;
-            coords.push([
-                u * u * fromLng + 2 * u * t * midLng + t * t * HUST_LNG,
-                u * u * fromLat + 2 * u * t * midLat + t * t * HUST_LAT
-            ]);
+        var gateKey = route.gate;
+        var gateLatLng = GATES[gateKey];
+        if (gateLatLng) {
+            _gateMarker = L.marker([gateLatLng[0], gateLatLng[1]])
+                .bindPopup('<div style="font-size:11px;font-weight:700">' +
+                           escapeHtml(GATE_NAMES[gateKey] || gateKey) + '</div>')
+                .addTo(_leafletMap)
+                .openPopup();
         }
-        _animateRouteCoords(coords);
-    }
-
-    function _animateRouteCoords(coords) {
-        if (!_map) return;
-        var STEP_CHUNK = 3;
-        _map.addSource('dorm-route', {
-            type: 'geojson',
-            data: { type: 'Feature', geometry: { type: 'LineString', coordinates: [] } }
-        });
-        _map.addLayer({
-            id: 'dorm-route-glow', type: 'line', source: 'dorm-route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#E74C5B', 'line-width': 10, 'line-opacity': 0.12, 'line-blur': 6 }
-        });
-        _map.addLayer({
-            id: 'dorm-route-line', type: 'line', source: 'dorm-route',
-            layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#E74C5B', 'line-width': 3, 'line-opacity': 0.92 }
-        });
-        var step = 0;
-        var src = _map.getSource('dorm-route');
-        function animate() {
-            if (!src || step >= coords.length) { _routeAnimId = null; return; }
-            step = Math.min(step + STEP_CHUNK, coords.length);
-            src.setData({ type: 'Feature', geometry: { type: 'LineString', coordinates: coords.slice(0, step) } });
-            _routeAnimId = requestAnimationFrame(animate);
-        }
-        _routeAnimId = requestAnimationFrame(animate);
     }
 
     function clearRoute() {
-        if (_routeAnimId) { cancelAnimationFrame(_routeAnimId); _routeAnimId = null; }
-        if (!_map) return;
-        try {
-            if (_map.getLayer('dorm-route-line')) _map.removeLayer('dorm-route-line');
-            if (_map.getLayer('dorm-route-glow')) _map.removeLayer('dorm-route-glow');
-            if (_map.getSource('dorm-route')) _map.removeSource('dorm-route');
-        } catch (e) { /* style may already be gone */ }
+        if (_routePolyline && _leafletMap) { _leafletMap.removeLayer(_routePolyline); _routePolyline = null; }
+        if (_gateMarker && _leafletMap) { _leafletMap.removeLayer(_gateMarker); _gateMarker = null; }
     }
 
     /* ═══════════════════════════════════════════════════════
-       MAP SETUP
+       MAP SETUP (Leaflet)
     ═══════════════════════════════════════════════════════ */
     function setupMap(dormitories) {
         var mapEl = document.getElementById('dormitory-map');
-        if (!mapEl || !window.maplibregl) return;
-
+        if (!mapEl || !window.L) return;
         _mapDorms = dormitories;
 
-        /* Pre-fetch style and strip fill-extrusion layers so the MapLibre worker
-           never receives them — eliminates null-height console warnings from OSM
-           buildings that lack height data */
-        fetch('https://tiles.openfreemap.org/styles/liberty')
-            .then(function (r) { return r.json(); })
-            .then(function (style) {
-                style.layers = (style.layers || []).filter(function (l) { return l.type !== 'fill-extrusion'; });
-                _createMap(style, dormitories);
-            })
-            .catch(function () {
-                _createMap('https://tiles.openfreemap.org/styles/liberty', dormitories);
-            });
-    }
-
-    function _createMap(style, dormitories) {
-        _map = new maplibregl.Map({
-            container: 'dormitory-map',
-            style: style,
-            center: [HUST_LNG, HUST_LAT],
-            zoom: 14,
-            attributionControl: false
-        });
-        /* Suppress "Image X could not be loaded" warnings for unused sprite icons */
-        _map.on('styleimagemissing', function (e) {
-            if (!_map.hasImage(e.id)) {
-                _map.addImage(e.id, { width: 1, height: 1, data: new Uint8Array(4) });
-            }
+        _baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
         });
 
-        _map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+        _leafletMap = L.map('dormitory-map', { zoomControl: false })
+            .setView([HUST_LAT, HUST_LNG], 16);
 
-        var _mapReadyCalled = false;
-        function onMapReady() {
-            if (_mapReadyCalled) return;
-            _mapReadyCalled = true;
-            addHustMarker();
-            addDormsToMap(dormitories);
-            setupMapControls();
-            setupMapSearch();
-            bindDormPanelEvents();
-        }
-        _map.on('load', onMapReady);
-        setTimeout(function () { onMapReady(); }, 5000);
+        _baseLayer.addTo(_leafletMap);
+
+        addHustMarker();
+        addDormsToMap(dormitories);
+        setupMapControls();
+        setupMapSearch();
+        bindDormPanelEvents();
     }
 
     /* HUST university marker */
     function addHustMarker() {
-        var el = document.createElement('div');
-        el.className = 'map-hust-pin';
-        el.innerHTML = '<img src="/image/university.png" width="36" height="36" alt="HUST" onerror="this.style.display=\'none\'">';
-        el.title = 'Đại học Bách Khoa Hà Nội';
-        new maplibregl.Marker({ element: el })
-            .setLngLat([HUST_LNG, HUST_LAT])
-            .setPopup(new maplibregl.Popup({ offset: 26, maxWidth: '280px' }).setHTML(
-                '<div class="mlgl-popup"><strong>Đại học Bách Khoa Hà Nội</strong>' +
-                '<p>Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>' +
-                '<a href="https://hust.edu.vn" target="_blank" rel="noopener">hust.edu.vn ↗</a></div>'
-            ))
-            .addTo(_map);
+        var icon = L.divIcon({
+            className: 'map-hust-pin',
+            html: '<img src="/image/university.png" width="36" height="36" alt="HUST" onerror="this.style.display=\'none\'">',
+            iconSize: [36, 36],
+            iconAnchor: [18, 36]
+        });
+        L.marker([HUST_LAT, HUST_LNG], { icon: icon })
+            .bindPopup('<div class="mlgl-popup"><strong>Đại học Bách Khoa Hà Nội</strong><p>Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p><a href="https://hust.edu.vn" target="_blank" rel="noopener">hust.edu.vn ↗</a></div>')
+            .addTo(_leafletMap);
     }
 
-    /* Dormitory markers with new pill design */
+    /* Dormitory markers with pill design */
     function addDormsToMap(dorms) {
+        clearMarkers();
         _fallbackIdx = 0;
+        var bounds = [[HUST_LAT, HUST_LNG]];
 
         dorms.forEach(function (dorm) {
-            var cfg = getDormCfg(dorm);
+            var pos = getDormPos(dorm);
             var lat, lng;
-
-            if (cfg) {
-                lat = cfg.lat; lng = cfg.lng;
-            } else {
-                if (dorm.location && Array.isArray(dorm.location.coordinates) && dorm.location.coordinates.length >= 2) {
-                    lng = dorm.location.coordinates[0]; lat = dorm.location.coordinates[1];
-                } else {
-                    lat = dorm.latitude; lng = dorm.longitude;
-                }
-                if (typeof lat !== 'number' || !isFinite(lat) || typeof lng !== 'number' || !isFinite(lng)) {
-                    var fb = FALLBACK_POS[_fallbackIdx % FALLBACK_POS.length];
-                    lat = fb.lat; lng = fb.lng; _fallbackIdx++;
-                }
+            if (pos) { lat = pos.lat; lng = pos.lng; }
+            else {
+                var fb = FALLBACK_POS[_fallbackIdx % FALLBACK_POS.length];
+                lat = fb.lat; lng = fb.lng; _fallbackIdx++;
             }
 
-            var el = createDormMarkerEl(dorm, cfg);
-            /* Capture loop variables */
-            var dormLat = lat, dormLng = lng;
+            var dormName = dorm.name || '';
+            var minutes = calcWalkMinutes(dormName);
+            var elDiv = createDormMarkerEl(dorm, minutes);
 
-            el.addEventListener('click', function (e) {
-                e.stopPropagation();
-                setActiveMarker(el);
-                fetchAndDrawRoute(dormLng, dormLat);
-                openDormPanel(dorm._id, dorm);
-                _map.flyTo({ center: [dormLng, dormLat], zoom: 15.5, speed: 1.0 });
+            var icon = L.divIcon({
+                className: '',
+                html: elDiv.outerHTML,
+                iconSize: null,
+                iconAnchor: [0, 0]
             });
 
-            var marker = new maplibregl.Marker({ element: el })
-                .setLngLat([lng, lat])
-                .addTo(_map);
+            var marker = L.marker([lat, lng], { icon: icon }).addTo(_leafletMap);
+            (function (dormRef, dormLat, dormLng, markerRef) {
+                markerRef.on('click', function () {
+                    setActiveMarker(markerRef);
+                    drawStaticRoute(dormRef.name || '');
+                    openDormPanel(dormRef._id, dormRef);
+                    _leafletMap.setView([dormLat, dormLng], 17, { animate: true });
+                });
+            }(dorm, lat, lng, marker));
 
-            _dormMarkers.push({ marker: marker, data: dorm, el: el });
+            _leafletMarkers.push({ marker: marker, data: dorm, el: elDiv, lat: lat, lng: lng });
+            bounds.push([lat, lng]);
         });
 
-        /* Fit bounds: include HUST + all dorm positions */
-        if (_dormMarkers.length > 0) {
-            var lngs = _dormMarkers.map(function (m) { return m.marker.getLngLat().lng; }).concat([HUST_LNG]);
-            var lats = _dormMarkers.map(function (m) { return m.marker.getLngLat().lat; }).concat([HUST_LAT]);
-            _map.fitBounds(
-                [[Math.min.apply(null, lngs), Math.min.apply(null, lats)],
-                 [Math.max.apply(null, lngs), Math.max.apply(null, lats)]],
-                { padding: { top: 80, bottom: 80, left: 80, right: 80 }, maxZoom: 14.5 }
-            );
+        if (bounds.length > 1) {
+            _leafletMap.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 });
         }
     }
 
     function clearMarkers() {
-        _dormMarkers.forEach(function (m) { m.marker.remove(); });
-        _dormMarkers = [];
+        _leafletMarkers.forEach(function (m) { if (_leafletMap) _leafletMap.removeLayer(m.marker); });
+        _leafletMarkers = [];
         _activeMarkerEl = null;
     }
 
@@ -505,14 +565,11 @@
                     function (pos) {
                         locateBtn.classList.remove('mc-btn--loading');
                         var lat = pos.coords.latitude, lng = pos.coords.longitude;
-                        _map.flyTo({ center: [lng, lat], zoom: 16, speed: 1.1 });
-                        if (_userMarker) _userMarker.remove();
-                        var uel = document.createElement('div');
-                        uel.className = 'map-user-pin';
-                        _userMarker = new maplibregl.Marker({ element: uel })
-                            .setLngLat([lng, lat])
-                            .setPopup(new maplibregl.Popup({ offset: 16 }).setHTML('<strong>Vị trí của bạn</strong>'))
-                            .addTo(_map);
+                        _leafletMap.setView([lat, lng], 16, { animate: true });
+                        if (_userMarker) _leafletMap.removeLayer(_userMarker);
+                        _userMarker = L.circleMarker([lat, lng], {
+                            radius: 8, fillColor: '#3b82f6', color: '#fff', weight: 2, fillOpacity: 1
+                        }).bindPopup('<strong>Vị trí của bạn</strong>').addTo(_leafletMap).openPopup();
                     },
                     function () { locateBtn.classList.remove('mc-btn--loading'); }
                 );
@@ -520,40 +577,33 @@
         }
 
         var zoomIn = document.getElementById('mapZoomIn');
-        if (zoomIn) zoomIn.addEventListener('click', function () { _map && _map.zoomIn(); });
+        if (zoomIn) zoomIn.addEventListener('click', function () { _leafletMap && _leafletMap.zoomIn(); });
         var zoomOut = document.getElementById('mapZoomOut');
-        if (zoomOut) zoomOut.addEventListener('click', function () { _map && _map.zoomOut(); });
+        if (zoomOut) zoomOut.addEventListener('click', function () { _leafletMap && _leafletMap.zoomOut(); });
 
         var resetBtn = document.getElementById('mapResetView');
         if (resetBtn) resetBtn.addEventListener('click', function () {
-            if (!_map) return;
-            closeDormPanel();
-            _map.flyTo({ center: [HUST_LNG, HUST_LAT], zoom: 14, speed: 1.0 });
+            if (!_leafletMap) return;
+            _leafletMap.setView([HUST_LAT, HUST_LNG], 16, { animate: true });
         });
 
+        /* Satellite toggle — swap tile layer */
         var satBtn = document.getElementById('mapSatellite');
         if (satBtn) {
             satBtn.addEventListener('click', function () {
-                if (!_map) return;
                 _satOn = !_satOn;
-                clearRoute();
-                var nextStyleUrl = _satOn
-                    ? 'https://tiles.openfreemap.org/styles/positron'
-                    : 'https://tiles.openfreemap.org/styles/liberty';
+                if (_satOn) {
+                    if (_baseLayer) _leafletMap.removeLayer(_baseLayer);
+                    if (!_satLayer) _satLayer = L.tileLayer(
+                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+                        { maxZoom: 19, attribution: 'Tiles © Esri' }
+                    );
+                    _satLayer.addTo(_leafletMap);
+                } else {
+                    if (_satLayer) _leafletMap.removeLayer(_satLayer);
+                    if (_baseLayer) _baseLayer.addTo(_leafletMap);
+                }
                 satBtn.classList.toggle('mc-btn--active', _satOn);
-                satBtn.title = _satOn ? 'Chế độ đường phố' : 'Chế độ nhạt';
-                fetch(nextStyleUrl)
-                    .then(function (r) { return r.json(); })
-                    .then(function (style) {
-                        style.layers = (style.layers || []).filter(function (l) { return l.type !== 'fill-extrusion'; });
-                        _map.setStyle(style);
-                    })
-                    .catch(function () { _map.setStyle(nextStyleUrl); });
-                _map.once('styledata', function () {
-                    clearMarkers();
-                    addHustMarker();
-                    addDormsToMap(_mapDorms);
-                });
             });
         }
     }
@@ -579,12 +629,12 @@
             }
 
             resultsEl.innerHTML = matches.slice(0, 6).map(function (d) {
-                var cfg = getDormCfg(d);
-                var mins = cfg ? cfg.minutes + ' phút' : '';
+                var mins = calcWalkMinutes(d.name || '');
+                var minsStr = mins > 0 ? mins + ' phút' : '';
                 return '<div class="msr-item" data-id="' + escapeHtml(String(d._id || '')) + '">' +
                     '<i class="fas fa-building msr-icon"></i>' +
                     '<div><div class="msr-name">' + escapeHtml(d.name || '') + '</div>' +
-                    '<div class="msr-addr">' + (mins ? mins + ' đi bộ · ' : '') + escapeHtml((d.address || '').slice(0, 50)) + '</div></div>' +
+                    '<div class="msr-addr">' + (minsStr ? minsStr + ' đi bộ · ' : '') + escapeHtml((d.address || '').slice(0, 50)) + '</div></div>' +
                     '</div>';
             }).join('');
             resultsEl.style.display = 'block';
@@ -595,23 +645,11 @@
                     var dorm = _mapDorms.find(function (d) { return String(d._id) === id; });
                     if (!dorm) return;
 
-                    var cfg = getDormCfg(dorm);
-                    var lat, lng;
-                    if (cfg) { lat = cfg.lat; lng = cfg.lng; }
-                    else if (dorm.location && dorm.location.coordinates && dorm.location.coordinates.length >= 2) {
-                        lng = dorm.location.coordinates[0]; lat = dorm.location.coordinates[1];
-                    } else { lat = dorm.latitude; lng = dorm.longitude; }
+                    var pos = getDormPos(dorm);
+                    if (pos) _leafletMap.setView([pos.lat, pos.lng], 17, { animate: true });
 
-                    if (typeof lat === 'number' && isFinite(lat)) {
-                        _map.flyTo({ center: [lng, lat], zoom: 15.5, speed: 1.1 });
-                    }
-
-                    /* Activate corresponding marker */
-                    var dm = _dormMarkers.find(function (m) { return String(m.data._id) === id; });
-                    if (dm && typeof lat === 'number' && isFinite(lat)) {
-                        setActiveMarker(dm.el);
-                        fetchAndDrawRoute(lng, lat);
-                    }
+                    var dm = _leafletMarkers.find(function (m) { return String(m.data._id) === id; });
+                    if (dm) { setActiveMarker(dm.marker); drawStaticRoute(dorm.name || ''); }
 
                     openDormPanel(dorm._id, dorm);
                     input.value = dorm.name || '';
@@ -676,8 +714,7 @@
     function renderDormPanel(dorm) {
         if (!dorm) return;
 
-        var cfg = getDormCfg(dorm);
-        var minutes = cfg ? cfg.minutes : 0;
+        var minutes = calcWalkMinutes(dorm.name || '');
 
         /* Cover image */
         var coverImg = document.getElementById('dpCoverImg');
@@ -699,7 +736,7 @@
         var displayName = rawName.toLowerCase().includes('bách khoa') ? rawName : rawName + ' - Bách Khoa';
         if (nameEl) nameEl.textContent = displayName;
 
-        /* Subtitle: reset to show static time; OSRM will update it after route fetch */
+        /* Subtitle */
         var subEl = document.getElementById('dpSubtitle');
         if (subEl) {
             subEl.textContent = minutes > 0
@@ -707,7 +744,7 @@
                 : 'Ký túc xá Đại học Bách Khoa Hà Nội';
         }
 
-        /* Cover badges: reset — will be updated by fetchAndDrawRoute */
+        /* Cover badges */
         var badgesEl = document.getElementById('dpCoverBadges');
         if (badgesEl) {
             badgesEl.innerHTML = minutes > 0
@@ -1211,13 +1248,9 @@
 
             /* KTX entities with branded markers */
             _mapDorms.forEach(function (d) {
-                var cfg = getDormCfg(d);
-                var lat, lng;
-                if (cfg) { lat = cfg.lat; lng = cfg.lng; }
-                else if (d.location && Array.isArray(d.location.coordinates) && d.location.coordinates.length >= 2) {
-                    lng = d.location.coordinates[0]; lat = d.location.coordinates[1];
-                } else { lat = d.latitude; lng = d.longitude; }
-                if (!lat || !lng || !isFinite(lat) || !isFinite(lng)) return;
+                var pos = getDormPos(d);
+                if (!pos) return;
+                var lat = pos.lat, lng = pos.lng;
 
                 var code = getDormCode(d.name || '') || 'K';
                 var entity = _cesiumViewer.entities.add({
@@ -1286,7 +1319,7 @@
         var card = document.getElementById('cesiumInfoCard');
         if (!card) return;
 
-        var cfg = getDormCfg(dorm);
+        var minutes = calcWalkMinutes(dorm.name || '');
         var nameEl  = document.getElementById('cesiumInfoName');
         var metaEl  = document.getElementById('cesiumInfoMeta');
         var imgEl   = document.getElementById('cesiumInfoImg');
@@ -1296,7 +1329,7 @@
 
         if (nameEl) nameEl.textContent = dorm.name || 'Ký túc xá';
         if (metaEl) {
-            var mins = cfg ? cfg.minutes : 0;
+            var mins = minutes;
             metaEl.textContent = mins > 0
                 ? mins + ' phút đi bộ · Đại học Bách Khoa Hà Nội'
                 : 'Đại học Bách Khoa Hà Nội';

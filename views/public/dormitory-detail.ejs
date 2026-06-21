@@ -1,13 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Chi tiết ký túc xá — eDorm</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <link rel="stylesheet" href="/css/premium-home.css">
     <style>
         /* ─── ROOT & RESET ──────────────────────────────── */
@@ -1400,31 +1402,45 @@
         function initDormMap() {
             if (window._dormMapInited) return;
             window._dormMapInited = true;
-            const lat = window._dormMapLat, lng = window._dormMapLng;
-            const map = L.map('dormDetailMap').setView([lat, lng], 16);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap © CARTO',
-                subdomains: 'abcd',
-                maxZoom: 20
-            }).addTo(map);
-            L.marker([lat, lng]).addTo(map).bindPopup(`<b>${window._dormMapName}</b>`).openPopup();
+            const lat  = window._dormMapLat  || 21.0045;
+            const lng  = window._dormMapLng  || 105.8412;
+            const name = window._dormMapName || 'Ký túc xá';
+            const mapEl = document.getElementById('dormDetailMap');
+            if (!mapEl) return;
+
+            function doInit() {
+                const map = new maplibregl.Map({
+                    container: 'dormDetailMap',
+                    style: 'https://tiles.openfreemap.org/styles/bright',
+                    center: [lng, lat],
+                    zoom: 16
+                });
+                new maplibregl.Marker()
+                    .setLngLat([lng, lat])
+                    .setPopup(new maplibregl.Popup().setHTML('<b>' + name + '</b>'))
+                    .addTo(map)
+                    .togglePopup();
+            }
+
+            if (window.maplibregl) {
+                doInit();
+            } else {
+                const link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+                document.head.appendChild(link);
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+                script.onload = doInit;
+                document.head.appendChild(script);
+            }
         }
 
         function initMapWhenVisible() {
             const mapEl = document.getElementById('dormDetailMap');
             if (!mapEl) return;
             const observer = new IntersectionObserver(([entry]) => {
-                if (entry.isIntersecting) {
-                    observer.disconnect();
-                    if (!window.L) {
-                        const s = document.createElement('script');
-                        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
-                        s.onload = initDormMap;
-                        document.head.appendChild(s);
-                    } else {
-                        initDormMap();
-                    }
-                }
+                if (entry.isIntersecting) { observer.disconnect(); initDormMap(); }
             });
             observer.observe(mapEl);
         }

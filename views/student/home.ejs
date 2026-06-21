@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KTX HUST - Trang chủ sinh viên</title>
@@ -8,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="/css/premium-home.css" />
     <link rel="stylesheet" href="/css/student-premium-shell.css" />
     <%- include('../shared/pwa-head') %>
@@ -27,12 +30,12 @@
         <div class="hero-viewer-panel" id="heroViewerPanel">
             <div class="viewer-toolbar">
                 <select class="viewer-control" id="roomSwitch" aria-label="Chuyển không gian phòng"></select>
-                <button class="viewer-control button-control" id="viewerFocus" type="button">Bắt chuột</button>
-                <button class="viewer-control button-control" id="viewerReset" type="button">Reset góc nhìn</button>
-                <button class="viewer-control button-control" id="roomLeft" type="button"><i class="fas fa-arrow-left"></i> Trái</button>
-                <button class="viewer-control button-control" id="roomRight" type="button">Phải <i class="fas fa-arrow-right"></i></button>
-                <button class="viewer-control button-control" id="roomForward" type="button"><i class="fas fa-arrow-up"></i> Tiến</button>
-                <button class="viewer-control button-control" id="roomBackward" type="button"><i class="fas fa-arrow-down"></i> Lùi</button>
+                <button class="viewer-control button-control" id="viewerFocus" type="button"><span data-i18n="home.focus3D">Bắt chuột</span></button>
+                <button class="viewer-control button-control" id="viewerReset" type="button"><span data-i18n="home.reset3D">Reset góc nhìn</span></button>
+                <button class="viewer-control button-control" id="roomLeft" type="button"><i class="fas fa-arrow-left"></i> <span data-i18n="home.left">Trái</span></button>
+                <button class="viewer-control button-control" id="roomRight" type="button"><span data-i18n="home.right">Phải</span> <i class="fas fa-arrow-right"></i></button>
+                <button class="viewer-control button-control" id="roomForward" type="button"><i class="fas fa-arrow-up"></i> <span data-i18n="home.forward">Tiến</span></button>
+                <button class="viewer-control button-control" id="roomBackward" type="button"><i class="fas fa-arrow-down"></i> <span data-i18n="home.backward">Lùi</span></button>
                 <span class="viewer-control" id="sceneIndicator" aria-live="polite">Vị trí: Trung tâm</span>
             </div>
             <button class="hero-viewer-close" id="closeViewer" type="button" aria-label="Đóng chế độ xem 3D">
@@ -66,33 +69,12 @@
         </div>
     </section>
 
-    <section class="benefits-section">
-        <div class="container benefits-layout">
-            <div>
-                <p class="benefits-label">TIỆN ÍCH KÝ TÚC XÁ</p>
-                <h2 class="benefits-title">Vì sao nên chọn ký túc xá?</h2>
-                <p class="benefits-desc">Không gian sống cân bằng giữa học tập và sinh hoạt, tối ưu di chuyển trong khuôn viên và tạo trải nghiệm an toàn cho sinh viên.</p>
-                <div class="benefits-grid">
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text" data-i18n="home.wifiSpeed">Wifi tốc độ cao</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text" data-i18n="home.security247">An ninh 24/7</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text" data-i18n="home.studyRoom">Phòng tự học</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text" data-i18n="home.laundry">Khu giặt sấy</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text" data-i18n="home.nearSchool">Gần trường</span></article>
-                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text" data-i18n="home.greenSpace">Không gian xanh</span></article>
-                </div>
-            </div>
-            <div class="benefits-image-wrap">
-                <img class="benefits-image" src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg" alt="Không gian ký túc xá" />
-            </div>
-        </div>
-    </section>
-
     <section class="map-section" id="map-section">
         <div class="container">
             <div class="map-title-row">
                 <div>
-                    <h2 class="section-title map-title-left">Bản đồ ký túc xá</h2>
-                    <p class="section-subtitle map-sub-left">Click vào marker để xem chi tiết ký túc xá.</p>
+                    <h2 class="section-title map-title-left" data-i18n="home.mapTitle">Bản đồ ký túc xá</h2>
+                    <p class="section-subtitle map-sub-left" data-i18n="home.mapSub">Click vào marker để xem chi tiết ký túc xá.</p>
                 </div>
                 <button class="btn-explore-3d" id="open3DExplore" type="button">
                     <i class="fas fa-globe-asia"></i> Khám phá 3D
@@ -102,7 +84,7 @@
             <div class="map-frame">
                 <div class="map-searchbar">
                     <i class="fas fa-search map-search-icon"></i>
-                    <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Tìm ký túc xá theo tên..." autocomplete="off" />
+                    <input type="text" id="mapSearchInput" class="map-search-input" placeholder="Tìm ký túc xá theo tên..." data-i18n-placeholder="home.mapSearchPlaceholder" autocomplete="off" />
                     <div class="map-search-results" id="mapSearchResults"></div>
                 </div>
                 <div class="map-controls-panel">
@@ -135,20 +117,20 @@
                     <span class="dp-contact-val" id="dpPhone">—</span>
                 </div>
                 <div class="dp-section">
-                    <h4 class="dp-sec-title">Tiện ích</h4>
+                    <h4 class="dp-sec-title" data-i18n="home.amenities">Tiện ích</h4>
                     <div class="dp-amenity-list" id="dpAmenities"></div>
                 </div>
                 <div class="dp-section">
-                    <h4 class="dp-sec-title">Đánh giá từ sinh viên</h4>
-                    <div id="dpReviews"><p class="dp-no-review">Chưa có đánh giá</p></div>
+                    <h4 class="dp-sec-title" data-i18n="home.studentReviews">Đánh giá từ sinh viên</h4>
+                    <div id="dpReviews"><p class="dp-no-review" data-i18n="home.noReviews">Chưa có đánh giá</p></div>
                 </div>
             </div>
             <div class="dp-actions">
                 <a class="dp-btn dp-btn-primary" id="dpBtnRegister" href="/register">
-                    <i class="fas fa-edit"></i> Đăng ký phòng
+                    <i class="fas fa-edit"></i> <span data-i18n="home.registerRoom">Đăng ký phòng</span>
                 </a>
                 <a class="dp-btn dp-btn-sec" id="dpBtnView" href="#">
-                    <i class="fas fa-door-open"></i> Xem phòng
+                    <i class="fas fa-door-open"></i> <span data-i18n="home.viewRoom">Xem phòng</span>
                 </a>
             </div>
         </aside>
@@ -159,10 +141,10 @@
     <div class="cesium-overlay" id="cesiumOverlay" aria-hidden="true" role="dialog" aria-label="Bản đồ 3D KTX">
         <div class="cesium-toolbar">
             <span class="cesium-title">
-                <i class="fas fa-globe-asia"></i> Khám phá KTX 3D
+                <i class="fas fa-globe-asia"></i> <span data-i18n="home.cesiumTitle">Khám phá KTX 3D</span>
             </span>
             <div class="cesium-toolbar-right">
-                <span class="cesium-hint">Click vào marker để xem chi tiết</span>
+                <span class="cesium-hint" data-i18n="home.cesiumHint">Click vào marker để xem chi tiết</span>
                 <button class="cesium-close-btn" id="cesiumClose" aria-label="Đóng bản đồ 3D">
                     <i class="fas fa-times"></i>
                 </button>
@@ -172,7 +154,7 @@
         <div class="cesium-loading" id="cesiumLoading">
             <div class="cesium-loading-inner">
                 <div class="cesium-spinner"></div>
-                <p>Đang tải bản đồ 3D…</p>
+                <p data-i18n="home.cesiumLoading">Đang tải bản đồ 3D…</p>
             </div>
         </div>
         <div class="cesium-info-card" id="cesiumInfoCard" style="display:none">
@@ -189,10 +171,31 @@
         </div>
     </div>
 
+    <section class="benefits-section">
+        <div class="container benefits-layout">
+            <div>
+                <p class="benefits-label" data-i18n="home.benefitLabel">TIỆN ÍCH KÝ TÚC XÁ</p>
+                <h2 class="benefits-title" data-i18n="home.benefitTitle">Vì sao nên chọn ký túc xá?</h2>
+                <p class="benefits-desc" data-i18n="home.benefitDesc">Không gian sống cân bằng giữa học tập và sinh hoạt, tối ưu di chuyển trong khuôn viên và tạo trải nghiệm an toàn cho sinh viên.</p>
+                <div class="benefits-grid">
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-wifi"></i></span><span class="benefit-text" data-i18n="home.wifiSpeed">Wifi tốc độ cao</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-shield-alt"></i></span><span class="benefit-text" data-i18n="home.security247">An ninh 24/7</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-book-open"></i></span><span class="benefit-text" data-i18n="home.studyRoom">Phòng tự học</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-soap"></i></span><span class="benefit-text" data-i18n="home.laundry">Khu giặt sấy</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-location-dot"></i></span><span class="benefit-text" data-i18n="home.nearSchool">Gần trường</span></article>
+                    <article class="benefit-item"><span class="benefit-icon"><i class="fas fa-tree"></i></span><span class="benefit-text" data-i18n="home.greenSpace">Không gian xanh</span></article>
+                </div>
+            </div>
+            <div class="benefits-image-wrap">
+                <img class="benefits-image" src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg" alt="Không gian ký túc xá" />
+            </div>
+        </div>
+    </section>
+
     <%- include('../shared/footer') %>
 
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-    <script src="/js/premium-home.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="/js/premium-home.js?v=8"></script>
     <%- include('../shared/pwa-scripts') %>
 </body>
 </html>

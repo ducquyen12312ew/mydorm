@@ -431,13 +431,15 @@ router.post('/admin/applications/:id/approve', isAdmin, validateObjectId, async 
         const student = await StudentCollection.findOne({ studentId: appDoc.studentId });
         if (student) {
             student.registrationStatus = 'approved';
+            if (appDoc.dormitoryId) student.dormitoryId = appDoc.dormitoryId;
+            if (appDoc.roomNumber) student.roomNumber = appDoc.roomNumber;
             await student.save();
         }
-        
+
         // Ghi log hoạt động
-        await ActivityLogCollection.create({ 
-            userId: req.session.userId || null, 
-            action: 'application_approved', 
+        await ActivityLogCollection.create({
+            userId: req.session.userId || null,
+            action: 'application_approved',
             description: `Admin approved application for ${appDoc.fullName} (${appDoc.studentId})`,
             details: { 
                 applicationId: appDoc._id,

@@ -7,7 +7,8 @@
   const PAGE_TITLES = {
     dashboard:'Dashboard', dormitories:'Ký túc xá', students:'Sinh viên',
     applications:'Hồ sơ đăng ký', violations:'Vi phạm', maintenance:'Bảo trì',
-    allocation:'Phân bổ', logs:'Nhật ký', quotas:'Quota', academic:'Học vụ', analytics:'Analytics',
+    logs:'Nhật ký', quotas:'Quota', academic:'Học vụ',
+    registrationperiod:'Đợt đăng ký KTX',
   };
   const pageTitle = PAGE_TITLES[navActive] || '';
 %>
@@ -190,10 +191,10 @@ body.sb-collapsed{padding-left:56px;}
          data-tip="Dashboard">
         <i class="fas fa-chart-line"></i><span class="sb-text">Dashboard</span>
       </a>
-      <a href="/admin/master-dashboard"
-         class="sb-item <%=navActive==='analytics'?'active':''%>"
-         data-tip="Analytics">
-        <i class="fas fa-layer-group"></i><span class="sb-text">Analytics</span>
+      <a href="/admin/registration-period"
+         class="sb-item <%=navActive==='registrationperiod'?'active':''%>"
+         data-tip="Đợt đăng ký KTX">
+        <i class="fas fa-calendar-check"></i><span class="sb-text">Đợt đăng ký KTX</span>
       </a>
     </div>
 
@@ -232,27 +233,6 @@ body.sb-collapsed{padding-left:56px;}
          data-tip="Vi phạm">
         <i class="fas fa-shield-alt"></i><span class="sb-text">Vi phạm</span>
       </a>
-      <a href="/admin/allocation/policies"
-         class="sb-item <%=navActive==='allocation'?'active':''%>"
-         data-tip="Phân bổ">
-        <i class="fas fa-sitemap"></i><span class="sb-text">Phân bổ</span>
-      </a>
-    </div>
-
-    <div class="sb-div"></div>
-
-    <div class="sb-group">
-      <div class="sb-label">Kế hoạch & Dự báo</div>
-      <a href="/admin/enrollment-planning"
-         class="sb-item <%=navActive==='enrollmentplanning'?'active':''%>"
-         data-tip="Kế hoạch tuyển sinh">
-        <i class="fas fa-graduation-cap"></i><span class="sb-text">Kế hoạch tuyển sinh</span>
-      </a>
-      <a href="/admin/demand-forecast"
-         class="sb-item <%=navActive==='demandforecast'?'active':''%>"
-         data-tip="Dự báo nhu cầu KTX">
-        <i class="fas fa-chart-line"></i><span class="sb-text">Dự báo nhu cầu</span>
-      </a>
     </div>
 
     <div class="sb-div"></div>
@@ -271,12 +251,11 @@ body.sb-collapsed{padding-left:56px;}
     <% if (navUsername === 'admintest') { %>
     <div class="sb-div"></div>
     <div class="sb-group">
-      <div class="sb-label">Sandbox</div>
+      <div class="sb-label">Công cụ</div>
       <a href="/admin/simulation"
          class="sb-item <%=navActive==='simulation'?'active':''%>"
-         data-tip="Allocation Simulation"
-         style="<%=navActive==='simulation'?'':'color:#7C3AED;'%>">
-        <i class="fas fa-flask"></i><span class="sb-text">Allocation Simulation</span>
+         data-tip="Phân phòng tự động">
+        <i class="fas fa-layer-group"></i><span class="sb-text">Phân phòng tự động</span>
       </a>
     </div>
     <% } %>

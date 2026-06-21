@@ -1,15 +1,17 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>eDorm – Ký túc xá Bách Khoa</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-    <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="/css/premium-home.css" />
     <script src="/js/i18n.js"></script>
     <%- include('../shared/pwa-head') %>
@@ -104,7 +106,7 @@
         </div>
     </section>
 
-    <!-- ── BẢN ĐỒ (moved: after rooms, before benefits) ── -->
+    <!-- ── BAN DO ── -->
     <section class="map-section" id="map-section">
         <div class="container">
             <p class="map-eyebrow" data-i18n="home.mapLabel">KHÁM PHÁ KHUÔN VIÊN</p>
@@ -178,7 +180,7 @@
         <div class="dorm-panel-backdrop" id="dormPanelBackdrop"></div>
     </section>
 
-    <!-- ── TIỆN ÍCH (benefits – stays here) ── -->
+    <!-- ── TIỆN ÍCH ── -->
     <section class="benefits-section">
         <div class="container benefits-layout">
             <div>
@@ -237,25 +239,8 @@
         </div>
     </div>
 
-    <script>
-    /* Intercept MapLibre worker Blob creation to inject console.warn suppression.
-       MapLibre's worker runs in a separate JS context — this is the only way to
-       silence the "Expected value to be of type number" warnings from OSM buildings
-       without height data, since main-thread console.warn overrides can't reach workers. */
-    (function () {
-        var _Blob = window.Blob;
-        window.Blob = function (parts, opts) {
-            if (opts && opts.type === 'text/javascript' && parts && parts.length > 0 && typeof parts[0] === 'string' && parts[0].indexOf('sharedModule') !== -1) {
-                var suppress = '(function(){var _cw=self.console.warn;self.console.warn=function(){var m=arguments[0];if(typeof m==="string"&&m.indexOf("Expected value to be of type number")!==-1)return;_cw.apply(self.console,arguments);};})();';
-                parts = [suppress + parts[0]].concat(Array.prototype.slice.call(parts, 1));
-            }
-            return new _Blob(parts, opts);
-        };
-        window.Blob.prototype = _Blob.prototype;
-    })();
-    </script>
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-    <script src="/js/premium-home.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <script src="/js/premium-home.js?v=8"></script>
     <script>
     /* Language dropdown — hover group: keep open while cursor is on trigger OR submenu */
     (function() {

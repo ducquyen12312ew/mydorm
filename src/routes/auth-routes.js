@@ -520,7 +520,7 @@ router.get('/profile', isAuthenticated, async (req, res) => {
             dormitory = await DormitoryCollection.findById(student.dormitoryId);
             if (dormitory && student.roomNumber) {
                 for (const floor of dormitory.floors) {
-                    const foundRoom = floor.rooms.find(r => r.roomNumber === student.roomNumber);
+                    const foundRoom = floor.rooms.find(r => String(r.roomNumber) === String(student.roomNumber));
                     if (foundRoom) { room = foundRoom; break; }
                 }
             }

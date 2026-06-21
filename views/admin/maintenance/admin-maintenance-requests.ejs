@@ -1,6 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Bảo trì - Admin</title>
@@ -335,68 +338,6 @@
         let currentPage = 1;
         let currentFilters = {};
 
-        // Demo data shown if API chưa có dữ liệu hoặc lỗi
-        const sampleRequests = [
-            {
-                _id: 'demo-1',
-                requestNumber: 'MT-2401',
-                type: 'electrical',
-                title: 'Cháy bóng đèn hành lang tầng 3',
-                dormitoryName: 'KTX A1',
-                roomNumber: 'Hành lang tầng 3',
-                floorNumber: 3,
-                reportedBy: { name: 'Nguyễn Văn A', studentId: '20200001' },
-                priority: 'medium',
-                status: 'submitted',
-                reportedAt: new Date().toISOString()
-            },
-            {
-                _id: 'demo-2',
-                requestNumber: 'MT-2402',
-                type: 'plumbing',
-                title: 'Rò rỉ nước tại phòng 203',
-                dormitoryName: 'KTX B2',
-                roomNumber: '203',
-                floorNumber: 2,
-                reportedBy: { name: 'Trần Thị B', studentId: '20201234' },
-                priority: 'high',
-                status: 'in_progress',
-                reportedAt: new Date(Date.now() - 86400000).toISOString()
-            },
-            {
-                _id: 'demo-3',
-                requestNumber: 'MT-2403',
-                type: 'internet',
-                title: 'Wi-Fi chập chờn khu B1',
-                dormitoryName: 'KTX B1',
-                roomNumber: 'Tầng 5',
-                floorNumber: 5,
-                reportedBy: { name: 'Lê C', studentId: '20209999' },
-                priority: 'urgent',
-                status: 'cancelled',
-                reportedAt: new Date(Date.now() - 2 * 86400000).toISOString()
-            },
-            {
-                _id: 'demo-4',
-                requestNumber: 'MT-2404',
-                type: 'furniture',
-                title: 'Bàn học gãy chân phòng 402',
-                dormitoryName: 'KTX C',
-                roomNumber: '402',
-                floorNumber: 4,
-                reportedBy: { name: 'Phạm D', studentId: '20208888' },
-                priority: 'low',
-                status: 'completed',
-                reportedAt: new Date(Date.now() - 5 * 86400000).toISOString()
-            }
-        ];
-
-        const sampleStats = {
-            submitted: 1,
-            in_progress: 1,
-            completed: 1,
-            cancelled: 1
-        };
 
         async function loadRequests() {
             currentFilters = {
@@ -418,15 +359,16 @@
                 }
                 const data = await response.json();
 
-                if (data.success && Array.isArray(data.requests) && data.requests.length > 0) {
+                if (data.success && Array.isArray(data.requests)) {
                     renderTable(data.requests);
                     renderPagination(data.pagination);
                 } else {
-                    renderSampleData();
+                    renderTable([]);
+                    renderPagination({ pages: 1, page: 1 });
                 }
             } catch (error) {
                 console.error('Error:', error);
-                renderSampleData();
+                renderTable([]);
             }
         }
 
@@ -440,12 +382,10 @@
                         acc[item._id] = item.count;
                         return acc;
                     }, {});
-
                     applyStats(statusMap);
                 }
             } catch (error) {
                 console.error('Error loading stats:', error);
-                applyStats(sampleStats);
             }
         }
 
@@ -498,12 +438,6 @@
             }
 
             nav.innerHTML = html;
-        }
-
-        function renderSampleData() {
-            renderTable(sampleRequests);
-            renderPagination({ pages: 1, page: 1 });
-            applyStats(sampleStats);
         }
 
         function changePage(page) {

@@ -1,297 +1,596 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="shortcut icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thông báo - KTX HUST</title>
+    <title>Thông báo – eDorm</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/student-premium-shell.css">
     <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-        --red:     #C8102E;
-        --red-l:   #FFF1F3;
-        --green:   #059669;
-        --green-l: #ECFDF5;
-        --blue:    #4F46E5;
-        --blue-l:  #EEF2FF;
-        --amber:   #D97706;
-        --amber-l: #FFFBEB;
-        --bg:      #F4F6FB;
-        --surface: #FFFFFF;
-        --border:  #EEF0F5;
-        --t1:      #111827;
-        --t2:      #6B7280;
-        --t3:      #9CA3AF;
-        --r16:     16px;
-        --r10:     10px;
-        --sh1:     0 2px 12px rgba(0,0,0,.06);
-        --sh2:     0 6px 28px rgba(0,0,0,.09);
+        --brand:    #c08157;
+        --brand-s:  #9d5f38;
+        --brand-l:  #f6ece2;
+        --red:      #C8102E;
+        --red-l:    #FFF1F3;
+        --green:    #059669;
+        --green-l:  #ECFDF5;
+        --blue:     #4F46E5;
+        --blue-l:   #EEF2FF;
+        --amber:    #D97706;
+        --amber-l:  #FFFBEB;
+        --bg:       #F4F6FB;
+        --surface:  #FFFFFF;
+        --border:   #EEF0F5;
+        --t1:       #111827;
+        --t2:       #6B7280;
+        --t3:       #9CA3AF;
+        --r16:      16px;
+        --sh1:      0 2px 12px rgba(0,0,0,.06);
+        --sh2:      0 8px 32px rgba(0,0,0,.11);
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--t1); }
+
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:translateY(0) } }
+    @keyframes shimmer  { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
+    @keyframes modalIn  { from { opacity:0; transform:translateY(18px) scale(.98) } to { opacity:1; transform:none } }
+
+    /* ── LAYOUT ── */
+    .notif-wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 5rem;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 1.5rem;
+        align-items: start;
     }
 
-    body { font-family:'Inter','Segoe UI',sans-serif; background:var(--bg); color:var(--t1); }
+    /* ── SIDEBAR ── */
+    .notif-sb {
+        background: var(--surface);
+        border-radius: var(--r16);
+        border: 1.5px solid var(--border);
+        box-shadow: var(--sh1);
+        padding: 1.25rem 0;
+        position: sticky;
+        top: 88px;
+        animation: fadeUp .4s cubic-bezier(.22,1,.36,1) both;
+    }
+    .sb-title {
+        font-size: .72rem; font-weight: 800; letter-spacing: .1em;
+        text-transform: uppercase; color: var(--t3);
+        padding: 0 1.1rem .75rem; border-bottom: 1px solid var(--border);
+        margin-bottom: .5rem;
+    }
+    .sf-item {
+        display: flex; align-items: center; gap: .7rem;
+        width: 100%; padding: .62rem 1.1rem;
+        background: none; border: none; cursor: pointer;
+        font-size: .86rem; font-weight: 600; color: var(--t2);
+        text-align: left; border-radius: 0;
+        transition: background .15s, color .15s;
+        position: relative;
+    }
+    .sf-item:hover { background: var(--brand-l); color: var(--brand-s); }
+    .sf-item.active {
+        background: var(--brand-l); color: var(--brand);
+        font-weight: 700;
+    }
+    .sf-item.active::before {
+        content: ''; position: absolute; left: 0; top: 20%; bottom: 20%;
+        width: 3px; border-radius: 0 3px 3px 0;
+        background: var(--brand);
+    }
+    .sf-item i { width: 16px; text-align: center; font-size: .85rem; opacity: .8; }
+    .sf-badge {
+        margin-left: auto; font-size: .65rem; font-weight: 800;
+        padding: .14rem .45rem; border-radius: 999px;
+        background: var(--brand-l); color: var(--brand-s);
+        min-width: 20px; text-align: center;
+    }
+    .sf-badge.red { background: var(--red-l); color: var(--red); }
+    .sb-divider { height: 1px; background: var(--border); margin: .6rem 1.1rem; }
+    .sb-mark-all {
+        display: flex; align-items: center; gap: .55rem;
+        width: 100%; padding: .62rem 1.1rem;
+        background: none; border: none; cursor: pointer;
+        font-size: .82rem; font-weight: 600; color: var(--t2);
+        text-align: left; transition: background .15s, color .15s;
+        margin-top: .3rem;
+    }
+    .sb-mark-all:hover { background: var(--green-l); color: var(--green); }
+    .sb-mark-all i { width: 16px; text-align: center; font-size: .82rem; }
 
-    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
-    @keyframes spin   { to{transform:rotate(360deg)} }
-    @keyframes shimmer { 0%{background-position:-400% 0} 100%{background-position:400% 0} }
+    /* ── MAIN ── */
+    .notif-main { animation: fadeUp .4s .06s cubic-bezier(.22,1,.36,1) both; }
 
-    .au1{animation:fadeUp .45s cubic-bezier(.22,1,.36,1) both}
-    .au2{animation:fadeUp .45s .07s cubic-bezier(.22,1,.36,1) both}
+    .notif-main-hd {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1.1rem; flex-wrap: wrap; gap: .5rem;
+    }
+    .notif-main-title {
+        font-size: 1.15rem; font-weight: 900; color: var(--t1);
+        letter-spacing: -.02em; display: flex; align-items: center; gap: .5rem;
+    }
+    .notif-count-badge {
+        font-size: .68rem; font-weight: 800; padding: .2rem .55rem;
+        border-radius: 999px; background: var(--brand); color: #fff;
+    }
+    .notif-sort {
+        font-size: .78rem; color: var(--t3); font-weight: 500;
+    }
 
-    /* PAGE */
-    .notif-page { max-width:760px; margin:0 auto; padding:1.75rem 1.25rem 5rem; }
+    /* ── NOTIFICATION LIST ── */
+    .notif-list { display: flex; flex-direction: column; gap: .6rem; }
 
-    /* HEADER */
-    .notif-pg-hd { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; margin-bottom:1.5rem; }
-    .notif-pg-title { font-size:1.25rem; font-weight:900; color:var(--t1); letter-spacing:-.02em; display:flex; align-items:center; gap:.6rem; }
-    .notif-pg-title .badge-count { font-size:.72rem; font-weight:700; padding:.22rem .6rem; border-radius:999px; background:var(--red); color:#fff; }
-    .mark-all-btn { display:inline-flex; align-items:center; gap:.4rem; padding:.42rem 1rem; border-radius:8px; background:var(--surface); border:1.5px solid var(--border); color:var(--t2); font-size:.78rem; font-weight:700; cursor:pointer; transition:background .15s, border-color .15s, color .15s; }
-    .mark-all-btn:hover { background:var(--green-l); border-color:var(--green); color:var(--green); }
-
-    /* FILTER TABS */
-    .filter-tabs { display:flex; gap:.5rem; margin-bottom:1.25rem; flex-wrap:wrap; }
-    .ftab { padding:.38rem .9rem; border-radius:999px; font-size:.76rem; font-weight:600; cursor:pointer; border:1.5px solid var(--border); background:var(--surface); color:var(--t2); transition:background .15s, border-color .15s, color .15s; user-select:none; }
-    .ftab.active { background:var(--t1); border-color:var(--t1); color:#fff; }
-    .ftab:hover:not(.active) { border-color:var(--t2); color:var(--t1); }
-
-    /* NOTIFICATION LIST */
-    .notif-list { display:flex; flex-direction:column; gap:.65rem; }
-
-    /* NOTIFICATION ITEM */
     .notif-item {
-        background:var(--surface); border-radius:var(--r16);
-        border:1.5px solid var(--border); padding:1.1rem 1.25rem;
-        display:flex; align-items:flex-start; gap:1rem;
-        cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.04);
-        transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s;
-        position:relative;
+        background: var(--surface); border-radius: var(--r16);
+        border: 1.5px solid var(--border);
+        padding: 1.05rem 1.2rem;
+        display: flex; align-items: flex-start; gap: .9rem;
+        cursor: pointer; box-shadow: 0 1px 4px rgba(0,0,0,.04);
+        transition: transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s, border-color .2s;
+        position: relative;
     }
-    .notif-item:hover { transform:translateY(-2px); box-shadow:var(--sh2); border-color:transparent; }
-    .notif-item.unread { border-left:3px solid var(--red); background:#FEFCFD; }
-    .notif-item.unread .notif-item-title { color:var(--t1); }
+    .notif-item:hover { transform: translateY(-2px); box-shadow: var(--sh2); border-color: transparent; }
+    .notif-item.unread { border-left: 3px solid var(--brand); }
     .notif-unread-dot {
-        position:absolute; top:1.1rem; right:1.25rem;
-        width:7px; height:7px; border-radius:50%; background:var(--red);
+        position: absolute; top: 1rem; right: 1.1rem;
+        width: 8px; height: 8px; border-radius: 50%; background: var(--brand);
+        box-shadow: 0 0 0 2px var(--brand-l);
     }
+
     .ni-icon {
-        width:40px; height:40px; border-radius:12px; flex-shrink:0;
-        display:flex; align-items:center; justify-content:center; font-size:.9rem;
+        width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; font-size: .88rem;
     }
-    .ic-green  { background:var(--green-l); color:var(--green); }
-    .ic-blue   { background:var(--blue-l);  color:var(--blue);  }
-    .ic-amber  { background:var(--amber-l); color:var(--amber); }
-    .ic-red    { background:var(--red-l);   color:var(--red);   }
-    .ic-gray   { background:#F3F4F6; color:#6B7280; }
-    .notif-item-title { font-size:.88rem; font-weight:700; color:var(--t1); margin-bottom:.3rem; }
-    .notif-item-msg   { font-size:.78rem; color:var(--t2); line-height:1.55; margin-bottom:.4rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .notif-item-time  { font-size:.7rem; color:var(--t3); font-weight:500; }
-    .notif-item-type  { display:inline-flex; align-items:center; gap:.25rem; font-size:.65rem; font-weight:700; padding:.15rem .5rem; border-radius:6px; background:var(--bg); color:var(--t3); margin-left:.5rem; }
+    .ic-brand  { background: var(--brand-l);  color: var(--brand-s); }
+    .ic-green  { background: var(--green-l);  color: var(--green); }
+    .ic-blue   { background: var(--blue-l);   color: var(--blue); }
+    .ic-amber  { background: var(--amber-l);  color: var(--amber); }
+    .ic-red    { background: var(--red-l);    color: var(--red); }
+    .ic-gray   { background: #F3F4F6;         color: #6B7280; }
 
-    /* EMPTY STATE */
-    .notif-empty { text-align:center; padding:4rem 2rem; }
-    .notif-empty-icon { width:72px; height:72px; border-radius:50%; background:var(--surface); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; margin:0 auto 1.25rem; font-size:1.8rem; color:var(--t3); }
-    .notif-empty-title { font-size:1.1rem; font-weight:800; margin-bottom:.5rem; }
-    .notif-empty-sub   { font-size:.84rem; color:var(--t2); }
+    .ni-body { flex: 1; min-width: 0; }
+    .ni-title {
+        font-size: .88rem; font-weight: 700; color: var(--t1);
+        margin-bottom: .28rem; line-height: 1.35;
+    }
+    .ni-msg {
+        font-size: .78rem; color: var(--t2); line-height: 1.55;
+        margin-bottom: .4rem;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .ni-footer { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+    .ni-time  { font-size: .7rem; color: var(--t3); font-weight: 500; }
+    .ni-badge {
+        display: inline-flex; align-items: center; gap: .22rem;
+        font-size: .64rem; font-weight: 700; padding: .15rem .48rem;
+        border-radius: 6px; background: var(--bg); color: var(--t3);
+    }
 
-    /* SKELETON */
-    .skel-item { background:var(--surface); border-radius:var(--r16); border:1.5px solid var(--border); padding:1.1rem 1.25rem; display:flex; gap:1rem; }
-    .skel-ico  { width:40px; height:40px; border-radius:12px; flex-shrink:0; background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%); background-size:400% 100%; animation:shimmer 1.6s infinite; }
-    .skel-body { flex:1; }
-    .skel-line { height:12px; border-radius:6px; background:linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%); background-size:400% 100%; animation:shimmer 1.6s infinite; margin-bottom:.6rem; }
-    .skel-line.short { width:40%; }
-    .skel-line.medium { width:65%; }
+    /* ── EMPTY ── */
+    .notif-empty {
+        text-align: center; padding: 4rem 2rem;
+        background: var(--surface); border-radius: var(--r16);
+        border: 1.5px solid var(--border);
+    }
+    .notif-empty-icon {
+        width: 68px; height: 68px; border-radius: 50%;
+        background: var(--bg); border: 2px solid var(--border);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 1rem; font-size: 1.7rem; color: var(--t3);
+    }
+    .notif-empty h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: .4rem; }
+    .notif-empty p  { font-size: .84rem; color: var(--t2); }
 
-    @media(max-width:600px) {
-        .notif-page { padding:1.1rem .9rem 4rem; }
-        .notif-pg-title { font-size:1.1rem; }
+    /* ── SKELETON ── */
+    .skel-item {
+        background: var(--surface); border-radius: var(--r16);
+        border: 1.5px solid var(--border); padding: 1.05rem 1.2rem;
+        display: flex; gap: .9rem;
+    }
+    .skel-ico  { width: 42px; height: 42px; border-radius: 12px; flex-shrink: 0; }
+    .skel-body { flex: 1; }
+    .skel-line { height: 11px; border-radius: 6px; margin-bottom: .55rem; }
+    .skel-ico, .skel-line {
+        background: linear-gradient(90deg,#F3F4F6 25%,#E5E7EB 50%,#F3F4F6 75%);
+        background-size: 400% 100%; animation: shimmer 1.6s infinite;
+    }
+    .skel-line.w80 { width: 80%; }
+    .skel-line.w55 { width: 55%; }
+    .skel-line.w35 { width: 35%; }
+
+    /* ── MODAL ── */
+    .nmodal-overlay {
+        display: none; position: fixed; inset: 0; z-index: 9000;
+        background: rgba(10,14,26,.5); backdrop-filter: blur(3px);
+        align-items: center; justify-content: center; padding: 1rem;
+    }
+    .nmodal-overlay.open { display: flex; }
+    .nmodal {
+        background: var(--surface); border-radius: 20px;
+        box-shadow: 0 28px 64px rgba(0,0,0,.22);
+        width: min(580px, 100%); max-height: 88vh;
+        display: flex; flex-direction: column;
+        animation: modalIn .32s cubic-bezier(.22,1,.36,1) both;
+    }
+    .nmodal-head {
+        padding: 1.3rem 1.5rem 1rem;
+        border-bottom: 1px solid var(--border);
+        display: flex; align-items: flex-start; gap: 1rem;
+        flex-shrink: 0;
+    }
+    .nmodal-icon {
+        width: 48px; height: 48px; border-radius: 14px; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+    }
+    .nmodal-meta { flex: 1; min-width: 0; }
+    .nmodal-title { font-size: 1.05rem; font-weight: 800; color: var(--t1); line-height: 1.3; margin-bottom: .3rem; }
+    .nmodal-sub { font-size: .75rem; color: var(--t3); font-weight: 500; display: flex; align-items: center; gap: .5rem; }
+    .nmodal-close {
+        width: 34px; height: 34px; border-radius: 50%;
+        background: var(--bg); border: 1.5px solid var(--border);
+        color: var(--t2); font-size: .9rem; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; transition: background .15s, color .15s;
+    }
+    .nmodal-close:hover { background: var(--red-l); color: var(--red); border-color: var(--red-l); }
+    .nmodal-body {
+        padding: 1.25rem 1.5rem 1.5rem; overflow-y: auto;
+        flex: 1;
+    }
+    .nmodal-content {
+        font-size: .92rem; color: var(--t2); line-height: 1.72;
+        white-space: pre-wrap; word-break: break-word;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 720px) {
+        .notif-wrap {
+            grid-template-columns: 1fr;
+            padding: 1rem .9rem 4rem;
+        }
+        .notif-sb {
+            position: static;
+            padding: .75rem 0;
+        }
+        .sb-title { display: none; }
+        .sb-divider { display: none; }
+        /* Horizontal pill row on mobile */
+        .notif-sb-inner {
+            display: flex; overflow-x: auto; gap: .4rem;
+            padding: 0 .9rem;
+            scrollbar-width: none;
+        }
+        .notif-sb-inner::-webkit-scrollbar { display: none; }
+        .sf-item {
+            flex-shrink: 0; border-radius: 999px;
+            padding: .38rem .9rem; white-space: nowrap;
+            border: 1.5px solid var(--border); font-size: .76rem;
+        }
+        .sf-item.active::before { display: none; }
+        .sf-item.active { background: var(--brand); color: #fff; border-color: var(--brand); }
+        .sf-item.active .sf-badge { background: rgba(255,255,255,.25); color: #fff; }
+        .sb-mark-all { display: none; }
     }
     </style>
 </head>
 <body class="student-shell-page">
 <%- include('navbar', { currentPage: 'notifications', user: user, student: student }) %>
 
-<div class="notif-page">
+<div class="notif-wrap">
 
-    <!-- PAGE HEADER -->
-    <div class="notif-pg-hd au1">
-        <div class="notif-pg-title">
-            <i class="fa-regular fa-bell" style="color:var(--red);font-size:1.1rem"></i>
-            <span data-i18n="notif.title">Thông báo</span>
-            <span class="badge-count" id="unreadBadge" style="display:none">0</span>
+    <!-- ── SIDEBAR ── -->
+    <aside class="notif-sb" id="notifSb">
+        <div class="sb-title">Lọc thông báo</div>
+
+        <!-- wrapped for mobile scroll -->
+        <div class="notif-sb-inner">
+            <button class="sf-item active" data-filter="all">
+                <i class="fa-solid fa-inbox"></i>
+                Tất cả
+                <span class="sf-badge" id="badge-all">—</span>
+            </button>
+            <button class="sf-item" data-filter="unread">
+                <i class="fa-solid fa-circle-dot"></i>
+                Chưa đọc
+                <span class="sf-badge red" id="badge-unread" style="display:none">0</span>
+            </button>
+            <button class="sf-item" data-filter="system">
+                <i class="fa-solid fa-circle-info"></i>
+                Hệ thống
+                <span class="sf-badge" id="badge-system" style="display:none">0</span>
+            </button>
+            <button class="sf-item" data-filter="warning">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                Khuyến cáo
+                <span class="sf-badge" id="badge-warning" style="display:none">0</span>
+            </button>
         </div>
-        <button class="mark-all-btn" id="markAllBtn">
-            <i class="fa-solid fa-check-double"></i> <span data-i18n="notif.markAllRead">Đánh dấu đã đọc tất cả</span>
+
+        <div class="sb-divider"></div>
+        <button class="sb-mark-all" id="markAllBtn">
+            <i class="fa-solid fa-check-double"></i>
+            Đánh dấu tất cả đã đọc
         </button>
-    </div>
+    </aside>
 
-    <!-- FILTER TABS -->
-    <div class="filter-tabs au1" id="filterTabs">
-        <span class="ftab active" data-filter="all" data-i18n="notif.filterAll">Tất cả</span>
-        <span class="ftab" data-filter="unread" data-i18n="notif.filterUnread">Chưa đọc</span>
-        <span class="ftab" data-filter="allocation" data-i18n="notif.filterAllocation">Phân phòng</span>
-        <span class="ftab" data-filter="maintenance" data-i18n="notif.filterMaintenance">Bảo trì</span>
-        <span class="ftab" data-filter="announcement" data-i18n="notif.filterAnnouncement">Thông báo</span>
-    </div>
-
-    <!-- NOTIFICATION LIST -->
-    <div class="notif-list au2" id="notifList">
-        <!-- Loading skeleton -->
-        <div class="skel-item">
-            <div class="skel-ico"></div>
-            <div class="skel-body">
-                <div class="skel-line medium"></div>
-                <div class="skel-line"></div>
-                <div class="skel-line short"></div>
+    <!-- ── MAIN CONTENT ── -->
+    <main class="notif-main">
+        <div class="notif-main-hd">
+            <div class="notif-main-title">
+                <i class="fa-regular fa-bell" style="color:var(--brand);font-size:1rem"></i>
+                <span id="mainTitle">Tất cả</span>
+                <span class="notif-count-badge" id="mainCountBadge" style="display:none">0</span>
             </div>
+            <!-- mobile mark-all -->
+            <button class="sf-item" id="markAllBtnMob"
+                style="border:1.5px solid var(--border);border-radius:8px;padding:.38rem .85rem;font-size:.76rem;display:none">
+                <i class="fa-solid fa-check-double"></i> Đánh dấu đã đọc
+            </button>
         </div>
-        <div class="skel-item">
-            <div class="skel-ico"></div>
-            <div class="skel-body">
-                <div class="skel-line medium"></div>
-                <div class="skel-line short"></div>
+
+        <!-- list -->
+        <div class="notif-list" id="notifList">
+            <div class="skel-item"><div class="skel-ico"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w55"></div><div class="skel-line w35"></div></div></div>
+            <div class="skel-item"><div class="skel-ico"></div><div class="skel-body"><div class="skel-line w55"></div><div class="skel-line w80"></div><div class="skel-line w35"></div></div></div>
+            <div class="skel-item"><div class="skel-ico"></div><div class="skel-body"><div class="skel-line w80"></div><div class="skel-line w35"></div></div></div>
+        </div>
+    </main>
+</div>
+
+<!-- ── MODAL ── -->
+<div class="nmodal-overlay" id="nmodalOverlay">
+    <div class="nmodal" id="nmodal">
+        <div class="nmodal-head">
+            <div class="nmodal-icon ic-brand" id="nmodalIcon"><i class="fa-solid fa-bell"></i></div>
+            <div class="nmodal-meta">
+                <div class="nmodal-title" id="nmodalTitle">Thông báo</div>
+                <div class="nmodal-sub">
+                    <span id="nmodalBadge"></span>
+                    <span>·</span>
+                    <span id="nmodalTime"></span>
+                </div>
             </div>
+            <button class="nmodal-close" id="nmodalClose" aria-label="Đóng"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="nmodal-body">
+            <div class="nmodal-content" id="nmodalContent"></div>
         </div>
     </div>
 </div>
 
 <script>
-const esc = t => t==null?'':String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-const dateFmt = ts => { if(!ts) return ''; const d=new Date(ts); return isNaN(d)?'':d.toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); };
-const relTime = ts => { if(!ts) return ''; const s=Math.floor((Date.now()-new Date(ts))/1000); if(s<60) return 'Vừa xong'; if(s<3600) return Math.floor(s/60)+' phút trước'; if(s<86400) return Math.floor(s/3600)+' giờ trước'; return dateFmt(ts); };
-
-const TYPE_ICON = {
-    allocation:'fa-house-chimney',room_assigned:'fa-door-open',
-    application:'fa-file-lines',announcement:'fa-bullhorn',
-    maintenance:'fa-screwdriver-wrench',violation:'fa-triangle-exclamation',
-    alert:'fa-bell',system:'fa-circle-info','2fa':'fa-shield-halved',
-    info:'fa-circle-info',
-};
-const TYPE_CLS = {
-    allocation:'ic-green',room_assigned:'ic-green',
-    application:'ic-blue',announcement:'ic-blue',
-    maintenance:'ic-amber',violation:'ic-red',
-    alert:'ic-amber',system:'ic-gray','2fa':'ic-blue',
-    info:'ic-blue',
-};
-const TYPE_LBL = {
-    allocation:'Phân phòng',room_assigned:'Phân phòng',application:'Đơn đăng ký',
-    announcement:'Thông báo',maintenance:'Bảo trì',violation:'Vi phạm',
-    alert:'Cảnh báo',system:'Hệ thống','2fa':'Bảo mật',info:'Thông tin',
+/* ── helpers ── */
+const esc = t => t == null ? '' : String(t).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+const relTime = ts => {
+    if (!ts) return '';
+    const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+    if (s < 60) return 'Vừa xong';
+    if (s < 3600) return Math.floor(s / 60) + ' phút trước';
+    if (s < 86400) return Math.floor(s / 3600) + ' giờ trước';
+    if (s < 604800) return Math.floor(s / 86400) + ' ngày trước';
+    return new Date(ts).toLocaleDateString('vi-VN', { day:'2-digit', month:'2-digit', year:'numeric' });
 };
 
+/* ── Type → icon/colour/label by schema fields ── */
+const CAT_ICON = {
+    allocation:'fa-house-chimney', registration:'fa-file-lines',
+    maintenance:'fa-screwdriver-wrench', violation:'fa-triangle-exclamation',
+    payment:'fa-money-bill', system:'fa-circle-info', announcement:'fa-bullhorn',
+};
+const TYPE_CLS = { success:'ic-green', warning:'ic-amber', error:'ic-red', info:'ic-blue' };
+const CAT_LBL = {
+    allocation:'Phân phòng', registration:'Đăng ký', maintenance:'Bảo trì',
+    violation:'Vi phạm', payment:'Thanh toán', system:'Hệ thống', announcement:'Thông báo',
+};
+const TYPE_LBL = { success:'Thành công', warning:'Cảnh báo', error:'Lỗi', info:'Thông tin' };
+
+function getIcon(n) { return CAT_ICON[n.category] || 'fa-bell'; }
+function getCls(n)  { return TYPE_CLS[n.type]     || 'ic-brand'; }
+function getLbl(n)  { return CAT_LBL[n.category]  || TYPE_LBL[n.type] || 'Thông báo'; }
+
+/* ── State ── */
 let allNotifs = [];
 let currentFilter = 'all';
 
+const FILTER_TITLE = { all:'Tất cả', unread:'Chưa đọc', system:'Hệ thống', warning:'Khuyến cáo' };
+
+/* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
     loadNotifications();
 
-    document.getElementById('markAllBtn').addEventListener('click', markAllRead);
-
-    document.getElementById('filterTabs').addEventListener('click', e => {
-        const tab = e.target.closest('.ftab');
-        if (!tab) return;
-        document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        currentFilter = tab.dataset.filter;
-        renderList();
+    /* Sidebar filter clicks */
+    document.querySelectorAll('.sf-item[data-filter]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentFilter = btn.dataset.filter;
+            document.querySelectorAll('.sf-item[data-filter]').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('mainTitle').textContent = FILTER_TITLE[currentFilter] || 'Thông báo';
+            renderList();
+        });
     });
+
+    /* Mark all read */
+    ['markAllBtn','markAllBtnMob'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('click', markAllRead);
+    });
+
+    /* Show mobile mark-all button on small screens */
+    const updateMobBtn = () => {
+        const mob = document.getElementById('markAllBtnMob');
+        if (mob) mob.style.display = window.innerWidth <= 720 ? '' : 'none';
+    };
+    updateMobBtn();
+    window.addEventListener('resize', updateMobBtn);
+
+    /* Modal close */
+    document.getElementById('nmodalClose').addEventListener('click', closeModal);
+    document.getElementById('nmodalOverlay').addEventListener('click', e => {
+        if (e.target === document.getElementById('nmodalOverlay')) closeModal();
+    });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 });
 
+/* ── Load ── */
 async function loadNotifications() {
     try {
-        const r = await fetch('/api/notifications?limit=50', { credentials:'include' });
-        if (!r.ok) throw new Error('HTTP '+r.status);
+        const r = await fetch('/api/notifications?limit=100', { credentials: 'include' });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
         const d = await r.json();
-        allNotifs = d.notifications || [];
-        updateUnreadBadge(d.unreadCount || allNotifs.filter(n => !n.read).length);
+        allNotifs = (d.notifications || []).map(n => ({
+            ...n,
+            isRead: n.isRead ?? n.read ?? false
+        }));
+        updateBadges();
         renderList();
     } catch(e) {
         document.getElementById('notifList').innerHTML = `
             <div class="notif-empty">
                 <div class="notif-empty-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
-                <div class="notif-empty-title">Không tải được thông báo</div>
-                <div class="notif-empty-sub">Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.</div>
+                <h3>Không tải được thông báo</h3>
+                <p>Đã xảy ra lỗi. Vui lòng thử lại.</p>
             </div>`;
     }
 }
 
-function filterNotifs() {
-    if (currentFilter === 'all') return allNotifs;
-    if (currentFilter === 'unread') return allNotifs.filter(n => !n.read);
-    return allNotifs.filter(n => n.type === currentFilter || (n.type||'').includes(currentFilter));
+/* ── Badges ── */
+function updateBadges() {
+    const total   = allNotifs.length;
+    const unread  = allNotifs.filter(n => !n.isRead).length;
+    const system  = allNotifs.filter(n => n.category === 'system').length;
+    const warning = allNotifs.filter(n => n.type === 'warning').length;
+
+    setBadge('badge-all',     total,   false);
+    setBadge('badge-unread',  unread,  true,  unread > 0);
+    setBadge('badge-system',  system,  false, system > 0);
+    setBadge('badge-warning', warning, false, warning > 0);
+
+    const mainBadge = document.getElementById('mainCountBadge');
+    const filtered = filterNotifs();
+    if (mainBadge) {
+        mainBadge.textContent = filtered.length;
+        mainBadge.style.display = filtered.length ? '' : 'none';
+    }
+}
+function setBadge(id, count, red, show = true) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = count > 99 ? '99+' : count;
+    el.style.display = (show && count > 0) ? '' : 'none';
+    if (red) el.classList.add('red'); else el.classList.remove('red');
 }
 
+/* ── Filter ── */
+function filterNotifs() {
+    if (currentFilter === 'all')     return allNotifs;
+    if (currentFilter === 'unread')  return allNotifs.filter(n => !n.isRead);
+    if (currentFilter === 'system')  return allNotifs.filter(n => n.category === 'system');
+    if (currentFilter === 'warning') return allNotifs.filter(n => n.type === 'warning');
+    return allNotifs;
+}
+
+/* ── Render list ── */
 function renderList() {
-    const list = document.getElementById('notifList');
+    const list     = document.getElementById('notifList');
     const filtered = filterNotifs();
+
     if (!filtered.length) {
         list.innerHTML = `
             <div class="notif-empty">
                 <div class="notif-empty-icon"><i class="fa-regular fa-bell-slash"></i></div>
-                <div class="notif-empty-title">${currentFilter==='unread'?'Không có thông báo chưa đọc':'Không có thông báo'}</div>
-                <div class="notif-empty-sub">Bạn đã cập nhật hết rồi!</div>
+                <h3>${currentFilter === 'unread' ? 'Không có thông báo chưa đọc' : 'Không có thông báo'}</h3>
+                <p>Bạn đã cập nhật hết rồi!</p>
             </div>`;
+        updateBadges();
         return;
     }
+
     list.innerHTML = filtered.map(n => {
-        const ic  = TYPE_ICON[n.type] || 'fa-circle-info';
-        const cls = TYPE_CLS[n.type]  || 'ic-gray';
-        const lbl = TYPE_LBL[n.type]  || 'Thông báo';
-        const isUnread = !n.read;
-        return `<div class="notif-item${isUnread?' unread':''}" data-id="${esc(n._id)}" data-read="${n.read?'1':'0'}">
-            ${isUnread?'<div class="notif-unread-dot"></div>':''}
-            <div class="ni-icon ${cls}"><i class="fa-solid ${ic}"></i></div>
-            <div style="flex:1;min-width:0">
-                <div class="notif-item-title">${esc(n.title||'Thông báo')}</div>
-                ${n.message?`<div class="notif-item-msg">${esc(n.message)}</div>`:''}
-                <div>
-                    <span class="notif-item-time">${relTime(n.createdAt)}</span>
-                    <span class="notif-item-type">${esc(lbl)}</span>
+        const icon = getIcon(n);
+        const cls  = getCls(n);
+        const lbl  = getLbl(n);
+        return `<div class="notif-item${n.isRead ? '' : ' unread'}" data-id="${esc(n._id)}" data-read="${n.isRead ? '1' : '0'}">
+            ${!n.isRead ? '<div class="notif-unread-dot"></div>' : ''}
+            <div class="ni-icon ${esc(cls)}"><i class="fa-solid ${esc(icon)}"></i></div>
+            <div class="ni-body">
+                <div class="ni-title">${esc(n.title || 'Thông báo')}</div>
+                ${n.message ? `<div class="ni-msg">${esc(n.message)}</div>` : ''}
+                <div class="ni-footer">
+                    <span class="ni-time">${relTime(n.createdAt)}</span>
+                    <span class="ni-badge"><i class="fa-solid ${esc(icon)}" style="font-size:.6rem"></i> ${esc(lbl)}</span>
                 </div>
             </div>
         </div>`;
     }).join('');
 
     list.querySelectorAll('.notif-item').forEach(el => {
-        el.addEventListener('click', () => markRead(el));
+        el.addEventListener('click', () => openModal(el.dataset.id));
     });
+
+    updateBadges();
 }
 
-async function markRead(el) {
-    const id = el.dataset.id;
-    if (el.dataset.read === '1') return;
-    el.dataset.read = '1';
-    el.classList.remove('unread');
-    const dot = el.querySelector('.notif-unread-dot');
-    if (dot) dot.remove();
-    const n = allNotifs.find(x => x._id === id || String(x._id) === id);
-    if (n) n.read = true;
-    updateUnreadBadge(allNotifs.filter(x => !x.read).length);
+/* ── Mark single read ── */
+async function markRead(id) {
+    const n = allNotifs.find(x => String(x._id) === id);
+    if (!n || n.isRead) return;
+    n.isRead = true;
+    /* optimistic UI */
+    const el = document.querySelector(`.notif-item[data-id="${id}"]`);
+    if (el) {
+        el.classList.remove('unread');
+        el.dataset.read = '1';
+        const dot = el.querySelector('.notif-unread-dot');
+        if (dot) dot.remove();
+    }
+    updateBadges();
     try {
-        await fetch('/api/notifications/'+id+'/read', { method:'POST', credentials:'include' });
+        await fetch('/api/notifications/' + id + '/read', { method: 'POST', credentials: 'include' });
     } catch(e) {}
 }
 
+/* ── Mark all read ── */
 async function markAllRead() {
-    const btn = document.getElementById('markAllBtn');
-    btn.disabled = true;
+    const btn  = document.getElementById('markAllBtn');
+    const btnM = document.getElementById('markAllBtnMob');
+    if (btn) btn.disabled = true;
+    if (btnM) btnM.disabled = true;
     try {
-        await fetch('/api/notifications/mark-all-read', { method:'POST', credentials:'include' });
-        allNotifs.forEach(n => n.read = true);
-        updateUnreadBadge(0);
+        await fetch('/api/notifications/mark-all-read', { method: 'POST', credentials: 'include' });
+        allNotifs.forEach(n => { n.isRead = true; });
         renderList();
     } catch(e) {}
-    btn.disabled = false;
+    if (btn) btn.disabled = false;
+    if (btnM) btnM.disabled = false;
 }
 
-function updateUnreadBadge(count) {
-    const el = document.getElementById('unreadBadge');
-    if (count > 0) { el.textContent = count > 99 ? '99+' : count; el.style.display = ''; }
-    else { el.style.display = 'none'; }
+/* ── Modal ── */
+function openModal(id) {
+    markRead(id);
+    const n = allNotifs.find(x => String(x._id) === id);
+    if (!n) return;
+
+    document.getElementById('nmodalIcon').className = `nmodal-icon ${getCls(n)}`;
+    document.getElementById('nmodalIcon').innerHTML = `<i class="fa-solid ${getIcon(n)}"></i>`;
+    document.getElementById('nmodalTitle').textContent   = n.title || 'Thông báo';
+    document.getElementById('nmodalBadge').textContent   = getLbl(n);
+    document.getElementById('nmodalTime').textContent    = relTime(n.createdAt);
+    document.getElementById('nmodalContent').textContent = n.message || '(Không có nội dung)';
+    document.getElementById('nmodalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+    document.getElementById('nmodalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
 }
 </script>
 </body>
