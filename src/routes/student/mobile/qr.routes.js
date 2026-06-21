@@ -21,7 +21,12 @@ const router = express.Router();
 
 const QR_SECRET = process.env.QR_SECRET || process.env.JWT_SECRET || 'fallback-qr-secret-change-me';
 const QR_TTL_SECONDS = 86400; // 24 hours
-const APP_BASE_URL = process.env.APP_BASE_URL || 'http://localhost:5000';
+
+function getBaseUrl(req) {
+  // APP_BASE_URL env var wins (set on Render dashboard if needed).
+  // Otherwise derive from the live request so localhost and prod both work.
+  return process.env.APP_BASE_URL || (req.protocol + '://' + req.get('host'));
+}
 
 function signPayload(payload) {
   const data = JSON.stringify(payload);
@@ -71,7 +76,7 @@ router.post('/mobile/qr/token', requireMobileJwt, async (req, res) => {
     };
 
     const token = signPayload(payload);
-    const verifyUrl = `${APP_BASE_URL}/verify/${token}`;
+    const verifyUrl = `${getBaseUrl(req)}/verify/${token}`;
 
     return res.json({
       success: true,

@@ -8,7 +8,10 @@ const RoomAllocationModel = require('../../schemas/RoomAllocationSchema');
 // ─── QR helpers (session-based endpoint) ─────────────────────────────────────
 const QR_SECRET = process.env.QR_SECRET || process.env.JWT_SECRET || 'fallback-qr-secret-change-me';
 const QR_TTL_SECONDS = 86400;
-const APP_BASE_URL = process.env.APP_BASE_URL || 'http://localhost:5000';
+
+function getBaseUrl(req) {
+  return process.env.APP_BASE_URL || (req.protocol + '://' + req.get('host'));
+}
 
 function _signQrPayload(payload) {
     const data = JSON.stringify(payload);
@@ -407,7 +410,7 @@ router.post('/api/student/qr/token', isAuthenticated, async (req, res) => {
         };
 
         const token = _signQrPayload(payload);
-        const verifyUrl = `${APP_BASE_URL}/verify/${token}`;
+        const verifyUrl = `${getBaseUrl(req)}/verify/${token}`;
 
         return res.json({
             success: true,
