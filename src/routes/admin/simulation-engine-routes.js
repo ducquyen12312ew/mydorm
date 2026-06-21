@@ -20,46 +20,49 @@ router.use('/admin/simulation/engine', isAdmin, isSimulationAdmin);
 router.get('/admin/simulation/engine', async (req, res) => {
   try {
     const wsStatus = await SimulationWorkspaceService.getWorkspaceStatus(req.session.userId);
-
-    if (!wsStatus.hasWorkspace) {
-      return res.redirect('/admin/simulation');
-    }
+    if (!wsStatus.hasWorkspace) return res.redirect('/admin/simulation');
 
     const wid = wsStatus.workspace._id;
+    let dist, latestRun, latestApplied, slowLoad = false;
 
-    // Auto cohort shift on every load (idempotent)
-    await SimulationEngineService.applyCohortShift(wid, SIM_ACADEMIC_YEAR);
-
-    // Get distribution; auto-seed year1 if none exist yet
-    let dist = await SimulationEngineService.getCohortDistribution(wid);
-    if (dist.year1 === 0) {
-      const year1Count = Math.floor(Math.random() * 101) + 280;
-      await SimulationEngineService.seedYear1Students(wid, year1Count, SIM_ENROLL_YEAR);
-      dist = await SimulationEngineService.getCohortDistribution(wid);
+    try {
+      const timeoutP = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('TIMEOUT')), 30000)
+      );
+      [dist, latestRun, latestApplied] = await Promise.race([
+        (async () => {
+          await SimulationEngineService.applyCohortShift(wid, SIM_ACADEMIC_YEAR);
+          let d = await SimulationEngineService.getCohortDistribution(wid);
+          if (d.year1 === 0) {
+            const year1Count = Math.floor(Math.random() * 101) + 280;
+            await SimulationEngineService.seedYear1Students(wid, year1Count, SIM_ENROLL_YEAR);
+            d = await SimulationEngineService.getCohortDistribution(wid);
+          }
+          const [lr, la] = await Promise.all([
+            SimulationEngineService.getLatestRun(wid),
+            SimulationResult.findOne({ workspaceId: wid, status: 'APPLIED' }).sort({ appliedAt: -1 }).lean()
+          ]);
+          return [d, lr, la];
+        })(),
+        timeoutP
+      ]);
+    } catch (e) {
+      if (e.message === 'TIMEOUT') {
+        slowLoad = true;
+        dist = { year1: 0, year2: 0, year3: 0, year4_plus: 0, year5plus: 0 };
+        latestRun = null;
+        latestApplied = null;
+      } else throw e;
     }
 
-    const [latestRun, latestApplied] = await Promise.all([
-      SimulationEngineService.getLatestRun(wid),
-      SimulationResult.findOne({ workspaceId: wid, status: 'APPLIED' }).sort({ appliedAt: -1 }).lean()
-    ]);
-
     res.render('admin/simulation/engine', {
-      user: {
-        name:       req.session.name,
-        role:       req.session.role,
-        username:   req.session.username,
-        isSuperAdmin: req.session.isSuperAdmin
-      },
+      user: { name: req.session.name, role: req.session.role, username: req.session.username, isSuperAdmin: req.session.isSuperAdmin },
       activeNav:    'simulation',
       workspace:    wsStatus.workspace,
       distribution: dist,
       latestRun:    latestRun || null,
-      simState: latestApplied ? {
-        applied:    true,
-        snapshotId: latestApplied.snapshotId,
-        appliedAt:  latestApplied.appliedAt,
-        stats:      latestApplied.stats
-      } : null
+      slowLoad,
+      simState: latestApplied ? { applied: true, snapshotId: latestApplied.snapshotId, appliedAt: latestApplied.appliedAt, stats: latestApplied.stats } : null
     });
   } catch (err) {
     logger.error('Engine page error', { error: err.message });
@@ -435,6 +438,82 @@ router.post('/api/simulation/engine/undo-demo', async (req, res) => {
   } catch (err) {
     logger.error('Undo demo error', { error: err.message });
     res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── POST /api/simulation/engine/adjust-cohort ─────────────────────────────────
+
+router.post('/api/simulation/engine/adjust-cohort', async (req, res) => {
+  try {
+    const wsStatus = await SimulationWorkspaceService.getWorkspaceStatus(req.session.userId);
+    if (!wsStatus.hasWorkspace) return res.status(400).json({ success: false, error: 'Chưa có workspace.' });
+    const wid = wsStatus.workspace._id;
+
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, parseInt(v) || 0));
+    const targets = {
+      year1:      clamp(req.body.year1,     0, 600),
+      year2:      clamp(req.body.year2,     0, 600),
+      year3:      clamp(req.body.year3,     0, 600),
+      year4_plus: clamp(req.body.year4plus, 0, 600),
+    };
+
+    const current = await SimulationEngineService.getCohortDistribution(wid);
+    const SimulationStudent = require('../../schemas/simulation/SimulationStudentSchema');
+
+    if (targets.year1 > (current.year1 || 0)) {
+      await SimulationEngineService.seedYear1Students(wid, targets.year1 - current.year1, SIM_ENROLL_YEAR);
+    } else if (targets.year1 < (current.year1 || 0)) {
+      const excess = await SimulationStudent.find({ workspaceId: wid, yearGroup: 'year1' })
+        .limit(current.year1 - targets.year1).select('_id').lean();
+      if (excess.length) await SimulationStudent.deleteMany({ _id: { $in: excess.map(e => e._id) } });
+    }
+
+    const ygConfig = [
+      { key: 'year2',      yg: 'year2',      enrollYear: SIM_ENROLL_YEAR - 1, yis: 2 },
+      { key: 'year3',      yg: 'year3',      enrollYear: SIM_ENROLL_YEAR - 2, yis: 3 },
+      { key: 'year4_plus', yg: 'year4_plus', enrollYear: SIM_ENROLL_YEAR - 3, yis: 4 },
+    ];
+
+    for (const cfg of ygConfig) {
+      const curr   = current[cfg.key] || 0;
+      const target = targets[cfg.key];
+      if (target > curr) {
+        const docs = Array.from({ length: target - curr }, (_, i) => ({
+          workspaceId:    wid,
+          name:           `SV Mô phỏng ${cfg.yg} ${curr + i + 1}`,
+          studentId:      `${cfg.enrollYear}SIM${String(curr + i).padStart(4, '0')}`,
+          gender:         i % 2 === 0 ? 'male' : 'female',
+          yearGroup:      cfg.yg,
+          yearInSchool:   cfg.yis,
+          enrollmentYear: cfg.enrollYear,
+          priorityScore:  Math.floor(Math.random() * 50) + 20,
+          isNewYear1:     false,
+          isSimulated:    true,
+        }));
+        await SimulationStudent.insertMany(docs, { ordered: false });
+      } else if (target < curr) {
+        const excess = await SimulationStudent.find({ workspaceId: wid, yearGroup: cfg.yg })
+          .limit(curr - target).select('_id').lean();
+        if (excess.length) await SimulationStudent.deleteMany({ _id: { $in: excess.map(e => e._id) } });
+      }
+    }
+
+    const dist = await SimulationEngineService.getCohortDistribution(wid);
+    res.json({ success: true, distribution: dist });
+  } catch (err) {
+    logger.error('Adjust cohort error', { error: err.message });
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// ── GET /api/simulation/workspace/status (polling) ───────────────────────────
+
+router.get('/api/simulation/workspace/status', isAdmin, isSimulationAdmin, async (req, res) => {
+  try {
+    const wsStatus = await SimulationWorkspaceService.getWorkspaceStatus(req.session.userId);
+    res.json({ success: true, status: wsStatus.hasWorkspace ? 'ACTIVE' : 'NONE' });
+  } catch (err) {
+    res.json({ success: true, status: 'NONE' });
   }
 });
 

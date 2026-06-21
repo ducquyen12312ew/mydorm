@@ -62,7 +62,13 @@ class SimulationWorkspaceService {
     });
 
     try {
-      const summary = await this._cloneProductionData(workspace._id);
+      const cloneTimeout = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Quá thời gian khởi tạo (60 giây). Vui lòng thử lại.')), 60000)
+      );
+      const summary = await Promise.race([
+        this._cloneProductionData(workspace._id),
+        cloneTimeout
+      ]);
 
       workspace.status = 'ACTIVE';
       workspace.snapshotSummary = summary;

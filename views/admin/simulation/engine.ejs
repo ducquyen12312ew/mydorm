@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
@@ -6,7 +6,7 @@
     <link rel="apple-touch-icon" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-  <title>Simulation Engine — eDorm</title>
+  <title>Công cụ phân bổ thử nghiệm — eDorm</title>
   <%- include('../navbar', { user, activeNav: 'simulation' }) %>
   <style>
 /* ── Layout ─────────────────────────────────────────────────────────────── */
@@ -27,14 +27,6 @@
 .panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
 .panel-hd h3{font-size:14px;font-weight:700;color:#111827;margin:0;display:flex;align-items:center;gap:7px;}
 .panel-hd .panel-sub{font-size:12px;color:#6B7280;}
-
-/* ── Cohort grid ─────────────────────────────────────────────────────────── */
-.cohort-simple{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:4px 0 8px;}
-.cohort-cell{text-align:center;padding:14px 8px;background:#fff;border:1px solid #E5E7EB;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-.cohort-cell .c-label{font-size:11px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
-.cohort-cell .c-count{font-size:26px;font-weight:700;color:#111827;line-height:1.1;}
-.cohort-cell .c-sub{font-size:11px;color:#9CA3AF;margin-top:2px;}
-.cohort-cell.exit .c-count{color:#9CA3AF;}
 
 /* ── Form elements ───────────────────────────────────────────────────────── */
 .form-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
@@ -117,15 +109,10 @@
 
 /* ── Year-group stats ────────────────────────────────────────────────────── */
 .yg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
-.yg-card{border-radius:10px;padding:14px 16px;border:1px solid #E5E7EB;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-.yg-card .yg-title{font-size:12px;font-weight:700;margin-bottom:10px;}
+.yg-card{border-radius:10px;padding:14px 16px;border:1px solid #E5E7EB;border-left:3px solid #E5E7EB;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
+.yg-card .yg-title{font-size:12px;font-weight:700;margin-bottom:10px;color:#374151;}
 .yg-card .yg-stat{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #F3F4F6;}
 .yg-card .yg-stat:last-child{border:none;font-weight:700;}
-.yg-yr1  {border-left:3px solid #3B82F6;}.yg-yr1  .yg-title{color:#3B82F6;}
-.yg-yr2  {border-left:3px solid #10B981;}.yg-yr2  .yg-title{color:#10B981;}
-.yg-yr3  {border-left:3px solid #8B5CF6;}.yg-yr3  .yg-title{color:#8B5CF6;}
-.yg-yr4p {border-left:3px solid #F59E0B;}.yg-yr4p .yg-title{color:#F59E0B;}
-.yg-yr5p {border-left:3px solid #9CA3AF;}.yg-yr5p .yg-title{color:#9CA3AF;}
 
 /* ── Progress bar ────────────────────────────────────────────────────────── */
 .prog-bar{height:8px;background:#F3F4F6;border-radius:99px;overflow:hidden;margin-top:6px;}
@@ -189,6 +176,14 @@
 .modal-close{background:none;border:none;font-size:18px;color:#9CA3AF;cursor:pointer;padding:0;}
 .modal-body{display:flex;flex-direction:column;gap:12px;}
 .modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+
+/* ── Adjust cohort collapsible ───────────────────────────────────────────── */
+details.adj-panel summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;padding:8px 0;user-select:none;}
+details.adj-panel summary::-webkit-details-marker{display:none;}
+details.adj-panel summary::before{content:'▶';font-size:10px;color:#9CA3AF;transition:transform .15s;}
+details.adj-panel[open] summary::before{transform:rotate(90deg);}
+.adj-input{width:80px;border:1px solid #D1D5DB;border-radius:6px;padding:5px 8px;font-size:13px;text-align:center;}
+.adj-input:focus{outline:none;border-color:#C8102E;}
   </style>
 </head>
 <body>
@@ -201,63 +196,108 @@
   <!-- Header -->
   <div class="eng-head">
     <div>
-      <h2><i class="fas fa-cogs" style="color:#C8102E;margin-right:6px;"></i>Mô phỏng Phân bổ Phòng</h2>
+      <h2><i class="fas fa-cogs" style="color:#C8102E;margin-right:6px;"></i>Công cụ phân bổ thử nghiệm</h2>
       <p>Thiết lập tiêu chí và chạy mô phỏng phân bổ phòng ở KTX</p>
     </div>
+    <a href="/admin/simulation" style="font-size:12px;color:#6B7280;text-decoration:none;">
+      <i class="fas fa-arrow-left"></i> Không gian làm việc
+    </a>
   </div>
 
-  <!-- ══ STEP 1: COHORT DISPLAY + OPTIONAL YEAR-1 SEED ══════════════════════ -->
+  <!-- Slow-load warning banner -->
+  <% if (typeof slowLoad !== 'undefined' && slowLoad) { %>
+  <div style="background:#FEF3C7;border:1px solid #F59E0B;border-radius:10px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;gap:10px;">
+    <i class="fas fa-exclamation-triangle" style="color:#D97706;"></i>
+    <span style="font-size:13px;color:#92400E;">Dữ liệu mất quá 30 giây để tải — hiển thị trạng thái rỗng. Tải lại trang để thử lại.</span>
+    <button class="btn btn-secondary" style="margin-left:auto;padding:5px 12px;font-size:12px;" onclick="location.reload()">Tải lại</button>
+  </div>
+  <% } %>
+
+  <!-- ══ STEP 1: COHORT DATA ═══════════════════════════════════════════════════ -->
   <div class="panel">
     <div class="panel-hd">
       <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">1.</span> Chuẩn bị dữ liệu</h3>
       <span class="panel-sub">Phân loại khóa tự động — Năm học 2026-2027</span>
     </div>
 
-    <!-- Cohort visualization — simple grid (Task 2) -->
-    <div class="cohort-simple">
-      <div class="cohort-cell">
-        <div class="c-label">Năm 1</div>
-        <div class="c-count" id="cnt-y1"><%= distribution.year1 %></div>
-        <div class="c-sub">sinh viên</div>
-      </div>
-      <div class="cohort-cell">
-        <div class="c-label">Năm 2</div>
-        <div class="c-count" id="cnt-y2"><%= distribution.year2 %></div>
-        <div class="c-sub">sinh viên</div>
-      </div>
-      <div class="cohort-cell">
-        <div class="c-label">Năm 3</div>
-        <div class="c-count" id="cnt-y3"><%= distribution.year3 %></div>
-        <div class="c-sub">sinh viên</div>
-      </div>
-      <div class="cohort-cell">
-        <div class="c-label">Năm 4+</div>
-        <div class="c-count" id="cnt-y4"><%= distribution.year4_plus %></div>
-        <div class="c-sub">sinh viên</div>
-      </div>
-      <div class="cohort-cell exit">
-        <div class="c-label">Ra KTX</div>
-        <div class="c-count" id="cnt-y5"><%= distribution.year5plus %></div>
-        <div class="c-sub">sinh viên</div>
-      </div>
+    <!-- Clean cohort table -->
+    <div class="tbl-wrap" style="margin-bottom:16px;">
+      <table class="data-table">
+        <thead>
+          <tr><th>Khóa</th><th>Số sinh viên</th><th>Ghi chú</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:600;">Năm 1</td>
+            <td><span id="cnt-y1" style="font-weight:700;color:#111827;"><%= distribution.year1 %></span></td>
+            <td style="color:#6B7280;">Sinh viên mới tự động tạo</td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Năm 2</td>
+            <td><span id="cnt-y2" style="font-weight:700;color:#111827;"><%= distribution.year2 %></span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Năm 3</td>
+            <td><span id="cnt-y3" style="font-weight:700;color:#111827;"><%= distribution.year3 %></span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td style="font-weight:600;">Năm 4+</td>
+            <td><span id="cnt-y4" style="font-weight:700;color:#111827;"><%= distribution.year4_plus %></span></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td style="color:#9CA3AF;">Năm 5+ (Ra KTX)</td>
+            <td><span id="cnt-y5" style="color:#9CA3AF;"><%= distribution.year5plus %></span></td>
+            <td style="color:#9CA3AF;">Bị loại tự động</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
-    <div style="height:1px;background:#F3F4F6;margin:16px 0;"></div>
-
-    <div class="form-row">
-      <div class="form-group">
-        <label>Thêm sinh viên Năm 1 mới</label>
-        <input type="number" id="year1Count" value="333" min="50" max="500"
-               placeholder="Mặc định: tự động"/>
-      </div>
-      <div class="form-group" style="justify-content:flex-end;">
-        <button class="btn btn-indigo" onclick="reseedYear1()">
-          <i class="fas fa-user-plus"></i> Thêm Năm 1 mới
+    <!-- Collapsible: Điều chỉnh số lượng sinh viên -->
+    <details class="adj-panel">
+      <summary><i class="fas fa-sliders-h" style="color:#6B7280;font-size:12px;"></i> Chuẩn bị dữ liệu mô phỏng</summary>
+      <div style="margin-top:14px;">
+        <p style="font-size:12px;color:#6B7280;margin:0 0 12px;">Nhập số lượng mục tiêu cho từng khóa. Hệ thống sẽ thêm hoặc bớt sinh viên mô phỏng tương ứng.</p>
+        <div class="tbl-wrap" style="max-width:460px;">
+          <table class="data-table">
+            <thead>
+              <tr><th>Khóa</th><th>Hiện tại</th><th>Mục tiêu</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-weight:600;">Năm 1</td>
+                <td><span id="adj-curr-y1"><%= distribution.year1 %></span></td>
+                <td><input class="adj-input" type="number" id="adj-y1" value="<%= distribution.year1 %>" min="0" max="600"/></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;">Năm 2</td>
+                <td><span id="adj-curr-y2"><%= distribution.year2 %></span></td>
+                <td><input class="adj-input" type="number" id="adj-y2" value="<%= distribution.year2 %>" min="0" max="600"/></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;">Năm 3</td>
+                <td><span id="adj-curr-y3"><%= distribution.year3 %></span></td>
+                <td><input class="adj-input" type="number" id="adj-y3" value="<%= distribution.year3 %>" min="0" max="600"/></td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;">Năm 4+</td>
+                <td><span id="adj-curr-y4"><%= distribution.year4_plus %></span></td>
+                <td><input class="adj-input" type="number" id="adj-y4" value="<%= distribution.year4_plus %>" min="0" max="600"/></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button class="btn btn-secondary" style="margin-top:12px;" onclick="adjustCohort()">
+          <i class="fas fa-sync-alt"></i> Cập nhật số lượng
         </button>
       </div>
-    </div>
-    <p style="font-size:12px;color:#9CA3AF;margin:0;">
-      Cohort shift đã được áp dụng tự động khi tải trang.
+    </details>
+
+    <p style="font-size:12px;color:#9CA3AF;margin:12px 0 0;">
+      Phân loại khóa học được áp dụng tự động khi tải trang.
     </p>
   </div>
 
@@ -349,10 +389,10 @@
       <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">3.</span> Chạy mô phỏng</h3>
     </div>
     <p style="font-size:13px;color:#6B7280;margin:0 0 16px;">
-      Engine sẽ tính điểm ưu tiên toàn bộ sinh viên, xếp hạng, rồi phân phòng tuần tự theo thứ tự điểm.
+      Hệ thống tính điểm ưu tiên toàn bộ sinh viên, xếp hạng, rồi phân phòng tuần tự theo thứ tự điểm.
       Kết quả hiển thị bên dưới để xem xét trước khi áp dụng.
     </p>
-    <button class="btn btn-primary" onclick="runSimulation()" id="btnRun">
+    <button class="btn btn-danger" onclick="runSimulation()" id="btnRun">
       <i class="fas fa-play" style="font-size:11px;"></i> Bắt đầu mô phỏng
     </button>
   </div>
@@ -365,7 +405,6 @@
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="panel-sub" id="runInfo">
             <% if (latestRun) { %>
-              <span style="display:none;font-size:11px;color:#9CA3AF;font-family:monospace;"><%= latestRun.runId %></span>
               <%= new Date(latestRun.runAt).toLocaleString('vi-VN') %>
             <% } %>
           </span>
@@ -376,7 +415,7 @@
       <div class="metric-grid" id="metricGrid">
         <% if (latestRun) { const s = latestRun.summary; %>
         <div class="metric-card">
-          <div class="lbl">Tổng SV trong Queue</div>
+          <div class="lbl">Tổng SV trong hàng đợi</div>
           <div class="val"><%= s.totalStudentsInQueue.toLocaleString() %></div>
           <div class="sub">Đã đăng ký mô phỏng</div>
         </div>
@@ -396,12 +435,12 @@
           <div class="sub"><%= s.totalRooms %> phòng</div>
         </div>
         <div class="metric-card">
-          <div class="lbl">Occupancy trước</div>
+          <div class="lbl">Tỷ lệ lấp đầy trước</div>
           <div class="val"><%= s.occupancyRateBefore %>%</div>
-          <div class="sub">Trước khi sim</div>
+          <div class="sub">Trước khi mô phỏng</div>
         </div>
         <div class="metric-card">
-          <div class="lbl">Fill Rate</div>
+          <div class="lbl">Tỷ lệ lấp đầy</div>
           <div class="val"><%= s.fillRate %>%</div>
           <div class="sub">Giường trống đã lấp</div>
         </div>
@@ -413,7 +452,7 @@
         <button class="tab-btn active" onclick="switchTab('byYearGroup',this)">Theo Khóa</button>
         <button class="tab-btn" onclick="switchTab('accepted',this)">Được Nhận</button>
         <button class="tab-btn" onclick="switchTab('rejected',this)">Bị Loại</button>
-        <button class="tab-btn" onclick="switchTab('heatmap',this)">Heatmap Phòng</button>
+        <button class="tab-btn" onclick="switchTab('heatmap',this)">Phân bổ Phòng</button>
       </div>
 
       <!-- Tab: By Year Group -->
@@ -421,11 +460,10 @@
         <div class="yg-grid" id="ygGrid">
           <% if (latestRun && latestRun.byYearGroup) {
             const ygLabels = { year1:'Năm 1', year2:'Năm 2', year3:'Năm 3', year4_plus:'Năm 4+', year5plus:'Năm 5+ (Ra KTX)' };
-            const ygCls   = { year1:'yg-yr1', year2:'yg-yr2', year3:'yg-yr3', year4_plus:'yg-yr4p', year5plus:'yg-yr5p' };
             Object.entries(latestRun.byYearGroup).forEach(([yg, stat]) => {
               if (!stat.total && yg === 'year5plus') return;
           %>
-          <div class="yg-card <%= ygCls[yg] %>">
+          <div class="yg-card">
             <div class="yg-title"><%= ygLabels[yg] || yg %></div>
             <div class="yg-stat"><span>Đăng ký</span><span><%= stat.total %></span></div>
             <div class="yg-stat"><span>Được nhận</span><span style="color:#16A34A;font-weight:700;"><%= stat.allocated %></span></div>
@@ -544,7 +582,7 @@
       <div class="tab-panel" id="tab-heatmap">
         <div class="hm-legend">
           <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#DCFCE7;border:1px solid #BBF7D0;"></div>Trống (0%)</div>
-          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#FEF9C3;border:1px solid #FDE68A;"></div>Còn chỗ (<60%)</div>
+          <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#FEF9C3;border:1px solid #FDE68A;"></div>Còn chỗ (&lt;60%)</div>
           <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#FED7AA;border:1px solid #FDBA74;"></div>Gần đầy (60–99%)</div>
           <div class="hm-leg-item"><div class="hm-leg-dot" style="background:#FEE2E2;border:1px solid #FECACA;"></div>Đầy (100%)</div>
         </div>
@@ -620,11 +658,11 @@
           <b><%= latestRun.summary.allocated %></b> sinh viên được nhận &nbsp;|&nbsp;
           Năm học: <b>2026-2027</b>
         </div>
-        <button class="btn btn-primary" id="btnApply" onclick="applyToReal()">
+        <button class="btn btn-danger" id="btnApply" onclick="applyToReal()">
           <i class="fas fa-check-circle"></i> Xác nhận &amp; Lưu kết quả
         </button>
         <button class="btn btn-secondary" onclick="downloadReport()">
-          <i class="fas fa-file-download"></i> Export Report
+          <i class="fas fa-file-download"></i> Xuất báo cáo
         </button>
       </div>
       <!-- Success banner (shown after apply on this page visit) -->
@@ -645,6 +683,11 @@
 
   </div>
   <% } %>
+
+  <!-- Workspace ID footnote -->
+  <p style="font-size:11px;color:#D1D5DB;margin-top:24px;font-family:monospace;">
+    Không gian làm việc: <%= workspace._id %>
+  </p>
 
 </div><!-- /eng-wrap -->
 
@@ -751,20 +794,24 @@ function switchTab(name, btn) {
   document.getElementById('tab-' + name).classList.add('active');
 }
 
-// ── Reseed Year 1 (manual, on demand) ────────────────────────────────────────
-async function reseedYear1() {
-  const count = parseInt(document.getElementById('year1Count').value) || 333;
-  spin(true, `Đang thêm ${count} sinh viên Năm 1...`);
+// ── Adjust cohort ─────────────────────────────────────────────────────────────
+async function adjustCohort() {
+  const year1    = parseInt(document.getElementById('adj-y1').value) || 0;
+  const year2    = parseInt(document.getElementById('adj-y2').value) || 0;
+  const year3    = parseInt(document.getElementById('adj-y3').value) || 0;
+  const year4plus = parseInt(document.getElementById('adj-y4').value) || 0;
+
+  spin(true, 'Đang điều chỉnh dữ liệu...');
   try {
-    const res = await fetch('/api/simulation/engine/seed-year1', {
+    const res = await fetch('/api/simulation/engine/adjust-cohort', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ count, enrollmentYear: 2026, simAcademicYear: '2026-2027' })
+      body: JSON.stringify({ year1, year2, year3, year4plus })
     });
     const data = await res.json();
     spin(false);
     if (!data.success) return toast('Lỗi: ' + data.error, 'err');
-    toast(`Đã thêm ${data.seeded} SV Năm 1`, 'ok');
+    toast('Đã cập nhật số lượng sinh viên', 'ok');
     updateCohortDisplay(data.distribution);
   } catch(e) { spin(false); toast('Lỗi kết nối', 'err'); }
 }
@@ -777,9 +824,16 @@ function updateCohortDisplay(dist) {
     const el = document.getElementById(id);
     if (el) el.textContent = val || 0;
   });
+  // Sync adjust-panel "current" column
+  const adjMap = { 'adj-curr-y1': dist.year1, 'adj-curr-y2': dist.year2,
+                   'adj-curr-y3': dist.year3,  'adj-curr-y4': dist.year4_plus };
+  Object.entries(adjMap).forEach(([id, val]) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val || 0;
+  });
 }
 
-// ── Current run ID (from server) ─────────────────────────────────────────────
+// ── Current run ID ────────────────────────────────────────────────────────────
 const CURRENT_RUN_ID = '<%= latestRun ? latestRun.runId : "" %>';
 let currentSnapshotId = null;
 
@@ -828,7 +882,7 @@ async function submitMoveRoom() {
   } catch(e) { spin(false); toast('Lỗi kết nối', 'err'); }
 }
 
-// ── Remove student (move to waitlist) ────────────────────────────────────────
+// ── Remove student ────────────────────────────────────────────────────────────
 async function removeStudent(simStudentId) {
   if (!confirm('Loại sinh viên này khỏi danh sách được nhận và chuyển sang danh sách chờ?')) return;
   spin(true, 'Đang xử lý...');
@@ -846,7 +900,7 @@ async function removeStudent(simStudentId) {
   } catch(e) { spin(false); toast('Lỗi kết nối', 'err'); }
 }
 
-// ── Promote student (from waitlist to allocated) ──────────────────────────────
+// ── Promote student ───────────────────────────────────────────────────────────
 async function submitPromote() {
   const simStudentId = document.getElementById('promoteSimStudentId').value;
   const dormName     = document.getElementById('promoteDormName').value.trim();
@@ -872,7 +926,7 @@ async function submitPromote() {
 
 // ── Apply to Real Allocation ──────────────────────────────────────────────────
 async function applyToReal() {
-  if (!CURRENT_RUN_ID) return toast('Chưa có simulation run', 'err');
+  if (!CURRENT_RUN_ID) return toast('Chưa có kết quả mô phỏng', 'err');
   if (!confirm('Xác nhận áp dụng kết quả mô phỏng?')) return;
 
   const btn = document.getElementById('btnApply');
@@ -893,7 +947,6 @@ async function applyToReal() {
     currentSnapshotId = data.snapshotId;
     toast(data.message || 'Đã lưu kết quả mô phỏng', 'ok');
 
-    // Show success banner
     const banner = document.getElementById('applySuccessBanner');
     if (banner) {
       banner.style.display = 'block';
@@ -941,7 +994,7 @@ async function runSimulation() {
   };
 
   document.getElementById('btnRun').disabled = true;
-  spin(true, 'Đang chạy Allocation Preview...');
+  spin(true, 'Đang chạy mô phỏng phân bổ...');
   try {
     const res = await fetch('/api/simulation/engine/run', {
       method: 'POST',

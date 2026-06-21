@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
@@ -13,14 +13,6 @@
     .sim-header { margin-bottom: 28px; }
     .sim-header h2 { font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 6px; }
     .sim-header p  { font-size: 14px; color: #6B7280; margin: 0; }
-
-    .sandbox-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA;
-      font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
-      margin-bottom: 12px;
-    }
-    .sandbox-badge i { font-size: 11px; }
 
     .ws-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 16px; margin-bottom: 28px; }
     .ws-card {
@@ -58,6 +50,7 @@
       display: inline-flex; align-items: center; gap: 8px;
       padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600;
       border: none; cursor: pointer; transition: background .15s, transform .1s;
+      text-decoration: none;
     }
     .btn-sim:active { transform: scale(.97); }
     .btn-primary { background: #C8102E; color: #fff; }
@@ -105,7 +98,10 @@
     #spinnerOverlay.show { display: flex; }
     .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .8s linear infinite; }
     .spinner-label { color: #fff; font-size: 15px; font-weight: 600; }
+    .spinner-sub   { color: rgba(255,255,255,.7); font-size: 13px; }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    .ws-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 16px; border-top: 1px solid #F3F4F6; }
   </style>
 </head>
 <body>
@@ -113,6 +109,7 @@
 <div id="spinnerOverlay">
   <div class="spinner"></div>
   <div class="spinner-label" id="spinnerLabel">Đang xử lý...</div>
+  <div class="spinner-sub" id="spinnerSub"></div>
 </div>
 <div class="toast-container" id="toastContainer"></div>
 
@@ -175,7 +172,7 @@
     <div class="ws-card">
       <div class="label">Đăng ký mô phỏng</div>
       <div class="value"><%= workspaceStatus.liveCounts.regCount.toLocaleString() %></div>
-      <div class="sub">Sinh viên trong queue</div>
+      <div class="sub">Sinh viên trong hàng đợi</div>
     </div>
     <div class="ws-card">
       <div class="label">Chính sách</div>
@@ -189,14 +186,14 @@
   <div class="action-row">
     <% if (!workspaceStatus.hasWorkspace) { %>
     <button class="btn-sim btn-primary" onclick="initWorkspace()">
-      <i class="fas fa-play"></i> Khởi tạo Workspace
+      <i class="fas fa-play"></i> Khởi tạo không gian làm việc
     </button>
     <% } else { %>
-    <a href="/admin/simulation/engine" class="btn-sim btn-primary" style="text-decoration:none;">
+    <a href="/admin/simulation/engine" class="btn-sim btn-primary" style="color:#fff;">
       <i class="fas fa-bolt"></i> Mở công cụ phân bổ
     </a>
     <button class="btn-sim btn-warning" onclick="resetWorkspace()">
-      <i class="fas fa-redo"></i> Làm mới dữ liệu
+      <i class="fas fa-redo"></i> Đặt lại &amp; Tải dữ liệu mới
     </button>
     <button class="btn-sim btn-secondary" onclick="refreshStatus()">
       <i class="fas fa-sync"></i> Làm mới
@@ -207,7 +204,7 @@
   <!-- Workspace Detail -->
   <% if (workspaceStatus.hasWorkspace) { %>
   <div class="section-panel">
-    <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Thông tin Workspace</h3>
+    <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Thông tin Không gian làm việc</h3>
     <div class="info-grid">
       <div>
         <div class="info-row">
@@ -219,7 +216,7 @@
           </span>
         </div>
         <div class="info-row">
-          <span class="info-label">Clone lúc</span>
+          <span class="info-label">Khởi tạo lúc</span>
           <span class="info-value" id="clonedAt"><%= new Date(workspaceStatus.workspace.clonedAt).toLocaleString('vi-VN') %></span>
         </div>
         <div class="info-row">
@@ -234,13 +231,23 @@
         </div>
       </div>
     </div>
+
+    <!-- Workspace action buttons -->
+    <div class="ws-actions">
+      <a href="/admin/simulation/engine" class="btn-sim btn-secondary" style="font-size:13px;padding:8px 16px;color:#374151;">
+        <i class="fas fa-cogs"></i> Phân phòng lại
+      </a>
+      <button id="undoBtn" class="btn-sim btn-secondary" style="font-size:13px;padding:8px 16px;display:none;" onclick="undoAllocation()">
+        <i class="fas fa-undo" style="color:#DC2626;"></i> Hoàn tác phân phòng
+      </button>
+    </div>
   </div>
 
   <% } else { %>
   <div class="section-panel">
     <h3><i class="fas fa-info-circle" style="color:#3B82F6;margin-right:6px;"></i>Chưa khởi tạo</h3>
     <p style="color:#6B7280;font-size:14px;margin:0;">
-      Nhấn <strong>Khởi tạo</strong> để tải dữ liệu sinh viên, ký túc xá và chu kỳ phân bổ vào hệ thống.
+      Nhấn <strong>Khởi tạo không gian làm việc</strong> để tải dữ liệu sinh viên, ký túc xá và chu kỳ phân bổ vào hệ thống.
     </p>
   </div>
   <% } %>
@@ -248,12 +255,17 @@
 </div>
 
 <script>
-function showSpinner(label) {
+let _latestSnapshotId = null;
+let _pollInterval     = null;
+
+function showSpinner(label, sub) {
   document.getElementById('spinnerLabel').textContent = label || 'Đang xử lý...';
+  document.getElementById('spinnerSub').textContent   = sub || '';
   document.getElementById('spinnerOverlay').classList.add('show');
 }
 function hideSpinner() {
   document.getElementById('spinnerOverlay').classList.remove('show');
+  if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
 }
 function toast(msg, type = 'info') {
   const c = document.getElementById('toastContainer');
@@ -261,56 +273,118 @@ function toast(msg, type = 'info') {
   t.className = `toast ${type}`;
   t.textContent = msg;
   c.appendChild(t);
-  setTimeout(() => t.remove(), 4000);
+  setTimeout(() => t.remove(), 4500);
+}
+
+// ── Poll until workspace is ACTIVE, then redirect ─────────────────────────────
+function pollForActive() {
+  let attempts = 0;
+  _pollInterval = setInterval(async () => {
+    attempts++;
+    try {
+      const r = await fetch('/api/simulation/workspace/status');
+      const d = await r.json();
+      if (d.status === 'ACTIVE') {
+        clearInterval(_pollInterval); _pollInterval = null;
+        hideSpinner();
+        toast('Khởi tạo thành công! Đang chuyển trang...', 'success');
+        setTimeout(() => window.location.href = '/admin/simulation/engine', 900);
+      }
+    } catch(e) {}
+    if (attempts >= 40) {
+      clearInterval(_pollInterval); _pollInterval = null;
+      hideSpinner();
+      toast('Quá thời gian chờ. Tải lại trang để kiểm tra.', 'error');
+    }
+  }, 3000);
 }
 
 async function initWorkspace() {
-  showSpinner('Đang khởi tạo...');
+  if (!confirm('Khởi tạo không gian làm việc? Quá trình này mất khoảng 20–40 giây.')) return;
+  showSpinner('Đang khởi tạo không gian làm việc...', 'Vui lòng chờ (~30 giây)');
+  pollForActive();
   try {
-    const res = await fetch('/api/simulation/workspace/init', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const res  = await fetch('/api/simulation/workspace/init', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();
+    if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
     hideSpinner();
     if (data.success) {
-      toast('Workspace khởi tạo thành công! Đang tải lại...', 'success');
-      setTimeout(() => location.reload(), 1200);
+      toast('Khởi tạo thành công! Đang chuyển trang...', 'success');
+      setTimeout(() => window.location.href = '/admin/simulation/engine', 900);
     } else {
       toast('Lỗi: ' + data.error, 'error');
     }
   } catch (e) {
+    if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
     hideSpinner();
     toast('Lỗi kết nối server', 'error');
   }
 }
 
 async function resetWorkspace() {
-  if (!confirm('Làm mới sẽ xóa dữ liệu hiện tại và tải lại. Tiếp tục?')) return;
-  showSpinner('Đang làm mới dữ liệu...');
+  if (!confirm('Đặt lại & Tải dữ liệu mới sẽ xóa dữ liệu hiện tại và tải lại từ đầu. Tiếp tục?')) return;
+  showSpinner('Đang tải dữ liệu mới...', 'Vui lòng chờ (~30 giây)');
+  pollForActive();
   try {
-    const res = await fetch('/api/simulation/workspace/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const res  = await fetch('/api/simulation/workspace/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' } });
     const data = await res.json();
+    if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
     hideSpinner();
     if (data.success) {
-      toast('Workspace đã được reset thành công! Đang tải lại...', 'success');
-      setTimeout(() => location.reload(), 1200);
+      toast('Đã tải dữ liệu mới! Đang chuyển trang...', 'success');
+      setTimeout(() => window.location.href = '/admin/simulation/engine', 900);
     } else {
       toast('Lỗi: ' + data.error, 'error');
     }
   } catch (e) {
+    if (_pollInterval) { clearInterval(_pollInterval); _pollInterval = null; }
     hideSpinner();
     toast('Lỗi kết nối server', 'error');
   }
 }
 
 async function refreshStatus() {
-  showSpinner('Đang cập nhật...');
-  try {
-    await new Promise(r => setTimeout(r, 400));
-    hideSpinner();
-    location.reload();
-  } catch(e) {
-    hideSpinner();
-  }
+  showSpinner('Đang cập nhật...', '');
+  await new Promise(r => setTimeout(r, 300));
+  hideSpinner();
+  location.reload();
 }
+
+// ── Fetch latest snapshot on page load (to enable undo button) ────────────────
+async function checkSnapshot() {
+  try {
+    const res  = await fetch('/api/simulation/engine/snapshot');
+    const data = await res.json();
+    if (data.success && data.snapshot && data.snapshot.status === 'APPLIED') {
+      _latestSnapshotId = data.snapshot.snapshotId;
+      const btn = document.getElementById('undoBtn');
+      if (btn) btn.style.display = 'inline-flex';
+    }
+  } catch(e) {}
+}
+
+async function undoAllocation() {
+  const snapshotId = _latestSnapshotId;
+  if (!snapshotId) return toast('Không có kết quả để hoàn tác', 'error');
+  if (!confirm('Hoàn tác phân phòng? Dữ liệu thật sẽ được khôi phục về trước khi áp dụng.')) return;
+
+  showSpinner('Đang hoàn tác phân phòng...', '');
+  try {
+    const res  = await fetch(`/api/simulation/engine/undo/${snapshotId}`, { method: 'POST' });
+    const data = await res.json();
+    hideSpinner();
+    if (!data.success) return toast('Lỗi: ' + data.error, 'error');
+    toast('Đã hoàn tác — dữ liệu thật đã được khôi phục', 'success');
+    _latestSnapshotId = null;
+    const btn = document.getElementById('undoBtn');
+    if (btn) btn.style.display = 'none';
+  } catch(e) { hideSpinner(); toast('Lỗi kết nối', 'error'); }
+}
+
+// Check snapshot on load if workspace is active
+<% if (workspaceStatus.hasWorkspace) { %>
+checkSnapshot();
+<% } %>
 </script>
 </body>
 </html>
