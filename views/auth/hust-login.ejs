@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập — HUST Student Services</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/hust-login.css">
+    <%- include('../shared/pwa-head') %>
+</head>
+<body class="hust-auth-page">
+<div class="hust-shell">
+
+    <!-- ══ LEFT: HUST Brand Panel ══════════════════════════════════ -->
+    <div class="hust-brand-panel" aria-hidden="true">
+        <div class="hust-brand-bg"></div>
+        <div class="hust-brand-overlay"></div>
+
+        <!-- MS badge top-right -->
+        <div class="hust-ms-badge">
+            <svg width="16" height="16" viewBox="0 0 23 23" aria-hidden="true">
+                <path fill="#f25022" d="M1 1h10v10H1z"/>
+                <path fill="#00a4ef" d="M12 1h10v10H12z"/>
+                <path fill="#7fba00" d="M1 12h10v10H1z"/>
+                <path fill="#ffb900" d="M12 12h10v10H12z"/>
+            </svg>
+            <span>Microsoft Entra ID</span>
+        </div>
+
+        <div class="hust-brand-content">
+            <div class="hust-brand-logos">
+                <img src="https://res.cloudinary.com/dysgt8t4d/image/upload/v1781114107/logo_edorm2_au54b2.png"
+                     alt="eDorm" class="edorm-logo-img">
+                <div class="hust-brand-sep"></div>
+                <img src="https://upload.wikimedia.org/wikipedia/vi/c/c7/Logo_BKH%C3%A0N%E1%BB%99i.png"
+                     alt="HUST" class="hust-logo-img"
+                     onerror="this.style.display='none'">
+            </div>
+            <h2 class="hust-brand-title">HUST Student<br>Services</h2>
+            <p class="hust-brand-subtitle">Hệ thống quản lý ký túc xá<br>Đại học Bách Khoa Hà Nội</p>
+            <div class="hust-brand-stats">
+                <div class="hust-stat">
+                    <span class="hust-stat-number">7</span>
+                    <span class="hust-stat-label">Ký túc xá</span>
+                </div>
+                <div class="hust-stat">
+                    <span class="hust-stat-number">1,450</span>
+                    <span class="hust-stat-label">Sinh viên</span>
+                </div>
+                <div class="hust-stat">
+                    <span class="hust-stat-number">265</span>
+                    <span class="hust-stat-label">Phòng</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ RIGHT: Form Panel ════════════════════════════════════════ -->
+    <div class="hust-form-panel">
+        <div class="ms-card" role="main">
+
+            <!-- ── STEP 1: Email ──────────────────────────────────── -->
+            <div class="ms-step" id="step-email">
+                <div class="ms-header">
+                    <svg width="21" height="21" viewBox="0 0 23 23" aria-hidden="true">
+                        <path fill="#f25022" d="M1 1h10v10H1z"/>
+                        <path fill="#00a4ef" d="M12 1h10v10H12z"/>
+                        <path fill="#7fba00" d="M1 12h10v10H1z"/>
+                        <path fill="#ffb900" d="M12 12h10v10H12z"/>
+                    </svg>
+                    <span class="ms-brand-label">Microsoft</span>
+                </div>
+
+                <div style="margin-bottom:6px">
+                    <span class="ms-hust-chip">
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden="true">
+                            <circle cx="5" cy="5" r="5" fill="#C8102E"/>
+                        </svg>
+                        HUST Student Portal
+                    </span>
+                </div>
+
+                <h1 class="ms-title">Đăng nhập</h1>
+                <p class="ms-sub">để tiếp tục đến <strong>eDorm Student Portal</strong></p>
+
+                <div id="emailError" class="ms-error-box" hidden>
+                    <svg class="ms-error-icon" width="14" height="14" viewBox="0 0 16 16" fill="#a4262c" aria-hidden="true">
+                        <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 110-2 1 1 0 010 2z"/>
+                    </svg>
+                    <span id="emailErrorText"></span>
+                </div>
+
+                <div class="ms-field-group">
+                    <label class="ms-field-label" for="emailInput">Email, MSSV hoặc tài khoản trường</label>
+                    <input
+                        type="email"
+                        id="emailInput"
+                        class="ms-field"
+                        placeholder="MSSV@sis.hust.edu.vn"
+                        autocomplete="email"
+                        autocapitalize="none"
+                        spellcheck="false"
+                        autofocus
+                    >
+                </div>
+
+                <p class="ms-signup-link">
+                    Không có tài khoản? <a href="/signup" class="ms-link">Tạo tài khoản</a>
+                </p>
+
+                <div class="ms-actions">
+                    <a href="/login" class="ms-btn-back">Tùy chọn đăng nhập</a>
+                    <button type="button" class="ms-btn-next" id="emailNextBtn">
+                        Tiếp theo
+                        <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                            <path d="M6.22 3.22a.75.75 0 011.06 0l4.25 4.25a.75.75 0 010 1.06l-4.25 4.25a.75.75 0 01-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 010-1.06z"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="ms-divider"></div>
+                <div class="ms-footer-links">
+                    <a href="/login">Đăng nhập bằng MSSV</a>
+                    <a href="/auth/google">Đăng nhập bằng Google</a>
+                    <a href="/forgot-password">Quên mật khẩu?</a>
+                </div>
+            </div>
+
+            <!-- ── STEP 2: Password ──────────────────────────────── -->
+            <div class="ms-step" id="step-password" hidden>
+                <div class="ms-header">
+                    <svg width="21" height="21" viewBox="0 0 23 23" aria-hidden="true">
+                        <path fill="#f25022" d="M1 1h10v10H1z"/>
+                        <path fill="#00a4ef" d="M12 1h10v10H12z"/>
+                        <path fill="#7fba00" d="M1 12h10v10H1z"/>
+                        <path fill="#ffb900" d="M12 12h10v10H12z"/>
+                    </svg>
+                    <span class="ms-brand-label">Microsoft</span>
+                </div>
+
+                <button type="button" class="ms-user-chip" id="userChip" onclick="backToEmail()" title="Sửa email">
+                    <div class="ms-avatar-sm" id="emailAvatar">?</div>
+                    <span class="ms-chip-email" id="emailDisplay">email</span>
+                    <svg width="10" height="10" viewBox="0 0 16 16" fill="#0078d4" aria-hidden="true">
+                        <path d="M11.013 1.427a1.75 1.75 0 012.474 2.474L6.253 11.13l-4 1 1-4 7.76-6.703zM2 14.5h12a.75.75 0 000-1.5H2a.75.75 0 000 1.5z"/>
+                    </svg>
+                </button>
+
+                <h1 class="ms-title">Nhập mật khẩu</h1>
+
+                <div id="passwordError" class="ms-error-box" hidden>
+                    <svg class="ms-error-icon" width="14" height="14" viewBox="0 0 16 16" fill="#a4262c" aria-hidden="true">
+                        <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 3a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 018 4zm0 8a1 1 0 110-2 1 1 0 010 2z"/>
+                    </svg>
+                    <span id="passwordErrorText"></span>
+                </div>
+
+                <div class="ms-field-group">
+                    <label class="ms-field-label" for="passwordInput">Mật khẩu</label>
+                    <div class="ms-pw-wrap">
+                        <input
+                            type="password"
+                            id="passwordInput"
+                            class="ms-field"
+                            autocomplete="current-password"
+                        >
+                        <button type="button" id="togglePw" class="ms-pw-toggle" aria-label="Hiện mật khẩu">Hiện</button>
+                    </div>
+                </div>
+
+                <div class="ms-pw-links">
+                    <a href="/forgot-password" class="ms-link">Quên mật khẩu?</a>
+                </div>
+
+                <div class="ms-remember-row">
+                    <label class="ms-check">
+                        <input type="checkbox" id="staySignedIn">
+                        <span>Duy trì đăng nhập</span>
+                    </label>
+                    <a href="#" class="ms-link" style="font-size:0.78rem; color:#605e5c" title="Ghi nhớ phiên đăng nhập trong 30 ngày">Tìm hiểu thêm</a>
+                </div>
+
+                <div class="ms-actions">
+                    <button type="button" class="ms-btn-back" onclick="backToEmail()">Quay lại</button>
+                    <button type="button" class="ms-btn-next" id="signInBtn">
+                        <span id="signInBtnText">Đăng nhập</span>
+                        <span id="signInSpinner" style="display:none">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                            </svg>
+                        </span>
+                    </button>
+                </div>
+
+                <div class="ms-divider"></div>
+                <div class="ms-footer-links">
+                    <a href="#">Điều khoản sử dụng</a>
+                    <a href="#">Quyền riêng tư</a>
+                    <a href="/login">Đăng nhập MSSV</a>
+                </div>
+            </div>
+
+            <!-- ── STEP 3: Loading ───────────────────────────────── -->
+            <div class="ms-step" id="step-loading" hidden>
+                <div class="ms-loading-content">
+                    <div class="ms-spinner" role="status" aria-label="Đang xử lý"></div>
+                    <h2 class="ms-loading-title">Đang đăng nhập...</h2>
+                    <div class="ms-loading-steps" aria-live="polite">
+                        <div class="ms-load-item" id="ls1">
+                            <span class="ms-load-dot" aria-hidden="true"></span>
+                            <span>Xác minh tài khoản...</span>
+                        </div>
+                        <div class="ms-load-item" id="ls2">
+                            <span class="ms-load-dot" aria-hidden="true"></span>
+                            <span>Kiểm tra danh tính sinh viên...</span>
+                        </div>
+                        <div class="ms-load-item" id="ls3">
+                            <span class="ms-load-dot" aria-hidden="true"></span>
+                            <span>Kết nối với Thư mục Sinh viên HUST...</span>
+                        </div>
+                        <div class="ms-load-item" id="ls4">
+                            <span class="ms-load-dot" aria-hidden="true"></span>
+                            <span>Đang đăng nhập vào eDorm Portal...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── STEP 4: Success ──────────────────────────────── -->
+            <div class="ms-step" id="step-success" hidden>
+                <div class="ms-success-content">
+                    <div class="ms-success-icon" role="img" aria-label="Đăng nhập thành công">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#107c10" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </div>
+
+                    <div class="ms-profile-card" id="profileCard">
+                        <div class="ms-profile-avatar" id="successAvatar">?</div>
+                        <div class="ms-profile-info">
+                            <div class="ms-profile-name" id="successName">Tên sinh viên</div>
+                            <div class="ms-profile-meta" id="successMeta"></div>
+                            <div class="ms-profile-badge">
+                                <span class="ms-active-badge">● Sinh viên đang học</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 class="ms-success-heading">Đăng nhập thành công</h2>
+                    <p class="ms-redirect-text">Đang chuyển hướng đến eDorm Portal...</p>
+
+                    <div class="ms-progress-track">
+                        <div class="ms-progress-fill" id="successProgress"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /.ms-card -->
+    </div><!-- /.hust-form-panel -->
+
+</div><!-- /.hust-shell -->
+
+<script>
+(function () {
+    'use strict';
+
+    // ── Avatar color palette (Microsoft style) ──
+    var avatarPalette = [
+        '#0078d4','#0099bc','#00b7c3','#008272','#107c10',
+        '#498205','#8764b8','#9b4f96','#ca5010','#c43e1c',
+        '#e3008c','#bf1077','#4f6bed','#2d7d9a'
+    ];
+
+    function avatarColor(name) {
+        var code = 0;
+        for (var i = 0; i < (name || '').length; i++) code += name.charCodeAt(i);
+        return avatarPalette[code % avatarPalette.length];
+    }
+
+    function initials(name) {
+        var parts = (name || '?').trim().split(/\s+/);
+        if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+        return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+    }
+
+    // ── Step management ──
+    function showStep(id) {
+        document.querySelectorAll('.ms-step').forEach(function (s) { s.hidden = true; });
+        var el = document.getElementById(id);
+        if (el) el.hidden = false;
+    }
+
+    function showError(boxId, textId, msg) {
+        document.getElementById(textId).textContent = msg;
+        document.getElementById(boxId).hidden = false;
+    }
+
+    function hideError(boxId) {
+        document.getElementById(boxId).hidden = true;
+    }
+
+    // ── Step 1: Email Next ──
+    var emailInput    = document.getElementById('emailInput');
+    var emailNextBtn  = document.getElementById('emailNextBtn');
+
+    emailNextBtn.addEventListener('click', goToPassword);
+    emailInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') goToPassword();
+    });
+
+    function goToPassword() {
+        var email = emailInput.value.trim().toLowerCase();
+        hideError('emailError');
+
+        if (!email) {
+            showError('emailError', 'emailErrorText', 'Vui lòng nhập email hoặc MSSV của bạn.');
+            emailInput.focus();
+            return;
+        }
+
+        // If it looks like just MSSV digits, append domain
+        if (/^\d{8}$/.test(email)) {
+            email = email + '@sis.hust.edu.vn';
+            emailInput.value = email;
+        }
+
+        if (!email.endsWith('@sis.hust.edu.vn')) {
+            showError('emailError', 'emailErrorText',
+                'Tài khoản này không được nhận dạng. Vui lòng sử dụng email HUST (@sis.hust.edu.vn).');
+            emailInput.select();
+            return;
+        }
+
+        // Populate step 2 user chip
+        var color = avatarColor(email);
+        var av = document.getElementById('emailAvatar');
+        av.textContent = email.charAt(0).toUpperCase();
+        av.style.background = color;
+        document.getElementById('emailDisplay').textContent = email;
+
+        showStep('step-password');
+        setTimeout(function () { document.getElementById('passwordInput').focus(); }, 80);
+    }
+
+    // ── Back to email ──
+    window.backToEmail = function () {
+        hideError('passwordError');
+        showStep('step-email');
+        setTimeout(function () { emailInput.focus(); }, 80);
+    };
+
+    // ── Password show/hide toggle ──
+    var togglePw = document.getElementById('togglePw');
+    var pwInput  = document.getElementById('passwordInput');
+    togglePw.addEventListener('click', function () {
+        var showing = pwInput.type === 'text';
+        pwInput.type = showing ? 'password' : 'text';
+        togglePw.textContent = showing ? 'Hiện' : 'Ẩn';
+    });
+
+    // ── Sign in ──
+    var signInBtn = document.getElementById('signInBtn');
+    signInBtn.addEventListener('click', doSignIn);
+    pwInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') doSignIn();
+    });
+
+    function setSignInLoading(on) {
+        signInBtn.disabled = on;
+        document.getElementById('signInBtnText').style.display = on ? 'none' : 'inline';
+        document.getElementById('signInSpinner').style.display = on ? 'inline' : 'none';
+    }
+
+    function doSignIn() {
+        var email    = (emailInput.value || '').trim().toLowerCase();
+        var password = pwInput.value;
+        var remember = document.getElementById('staySignedIn').checked;
+        hideError('passwordError');
+
+        if (!password) {
+            showError('passwordError', 'passwordErrorText', 'Vui lòng nhập mật khẩu.');
+            pwInput.focus();
+            return;
+        }
+
+        setSignInLoading(true);
+
+        fetch('/api/auth/hust-verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ email: email, password: password, remember: remember })
+        })
+        .then(function (res) { return res.json().then(function (d) { return { ok: res.ok, data: d }; }); })
+        .then(function (result) {
+            setSignInLoading(false);
+
+            if (result.data.requires2FA) {
+                window.location.href = result.data.redirectUrl || '/2fa-login';
+                return;
+            }
+
+            if (!result.ok) {
+                showError('passwordError', 'passwordErrorText',
+                    result.data.error || 'Đăng nhập thất bại. Vui lòng thử lại.');
+                pwInput.select();
+                pwInput.focus();
+                return;
+            }
+
+            // Success — run loading sequence then show profile
+            var student = result.data.student;
+            var redirectUrl = result.data.redirectUrl || '/';
+
+            showStep('step-loading');
+            runLoadingSequence(function () {
+                showSuccessStep(student, redirectUrl);
+            });
+        })
+        .catch(function () {
+            setSignInLoading(false);
+            showError('passwordError', 'passwordErrorText',
+                'Lỗi kết nối. Vui lòng kiểm tra mạng và thử lại.');
+        });
+    }
+
+    // ── Loading sequence ──
+    function runLoadingSequence(callback) {
+        var steps = ['ls1', 'ls2', 'ls3', 'ls4'];
+        var delay = 0;
+        steps.forEach(function (id, i) {
+            setTimeout(function () {
+                var el = document.getElementById(id);
+                el.classList.add('active');
+
+                // Mark previous as done
+                if (i > 0) {
+                    document.getElementById(steps[i - 1]).classList.add('done');
+                    document.getElementById(steps[i - 1]).classList.remove('active');
+                }
+
+                if (i === steps.length - 1) {
+                    setTimeout(function () {
+                        el.classList.add('done');
+                        el.classList.remove('active');
+                        setTimeout(callback, 400);
+                    }, 650);
+                }
+            }, delay);
+            delay += 700;
+        });
+    }
+
+    // ── Success step ──
+    function showSuccessStep(student, redirectUrl) {
+        var name    = student.name || 'Sinh viên HUST';
+        var mssv    = student.studentId ? student.studentId : '';
+        var faculty = student.faculty || '';
+        var color   = avatarColor(name);
+
+        var av = document.getElementById('successAvatar');
+        av.textContent = initials(name);
+        av.style.background = color;
+
+        document.getElementById('successName').textContent = name;
+
+        var meta = [];
+        if (mssv) meta.push(mssv);
+        if (faculty) meta.push(faculty);
+        document.getElementById('successMeta').textContent = meta.join(' · ');
+
+        showStep('step-success');
+
+        // Animate progress bar
+        setTimeout(function () {
+            document.getElementById('successProgress').style.width = '100%';
+        }, 80);
+
+        // Redirect
+        setTimeout(function () {
+            window.location.href = redirectUrl;
+        }, 2400);
+    }
+})();
+</script>
+
+<%- include('../shared/pwa-scripts') %>
+</body>
+</html>

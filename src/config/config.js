@@ -44,13 +44,11 @@ const StudentSchema = new mongoose.Schema({
     },
     studentId: {
         type: String,
-        trim: true,
-        sparse: true
+        trim: true
     },
     email: {
         type: String,
-        trim: true,
-        sparse: true
+        trim: true
     },
     phone: {
         type: String,
@@ -163,6 +161,12 @@ const StudentSchema = new mongoose.Schema({
         type: [{ type: mongoose.Schema.Types.ObjectId }],
         default: []
     },
+    // Email verification OTP (for manual/Gmail signup)
+    emailVerificationOTP: { type: String, default: null },
+    emailVerificationExpires: { type: Date, default: null },
+    verificationAttempts: { type: Number, default: 0 },
+    otpLastSentAt: { type: Date, default: null },
+    lastLoginAt: { type: Date, default: null },
     createdAt: {
         type: Date,
         default: Date.now

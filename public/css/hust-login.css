@@ -1,0 +1,724 @@
+/* ============================================================
+   HUST Login — Microsoft Entra ID / Fluent Design 2025
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body.hust-auth-page {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+    background: #f2f2f2;
+    color: #201a17;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ── Layout ─────────────────────────────────────── */
+.hust-shell {
+    display: grid;
+    grid-template-columns: 45fr 55fr;
+    min-height: 100vh;
+}
+
+/* ── Left: HUST Brand Panel ─────────────────────── */
+.hust-brand-panel {
+    position: relative;
+    background: #0a1628;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 60px 56px;
+}
+
+.hust-brand-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://res.cloudinary.com/dysgt8t4d/image/upload/v1773728947/e798a5fcd468c4914b9d4fa0a0d1d20f_vwlgof.jpg');
+    background-size: cover;
+    background-position: center;
+    z-index: 0;
+}
+
+.hust-brand-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        180deg,
+        rgba(10, 22, 40, 0.45) 0%,
+        rgba(10, 22, 40, 0.72) 60%,
+        rgba(10, 22, 40, 0.92) 100%
+    );
+    z-index: 1;
+}
+
+.hust-brand-content {
+    position: relative;
+    z-index: 2;
+    color: #fff;
+}
+
+.hust-brand-logos {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 40px;
+}
+
+.hust-logo-img {
+    height: 44px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.9;
+}
+
+.edorm-logo-img {
+    height: 36px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.85;
+}
+
+.hust-brand-sep {
+    width: 1px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.hust-brand-title {
+    margin: 0 0 12px;
+    font-size: clamp(2rem, 2.8vw, 2.6rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    color: #fff;
+}
+
+.hust-brand-subtitle {
+    margin: 0 0 48px;
+    font-size: 0.98rem;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.6;
+}
+
+.hust-brand-stats {
+    display: flex;
+    gap: 32px;
+}
+
+.hust-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.hust-stat-number {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1;
+}
+
+.hust-stat-label {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Microsoft logo on brand panel */
+.hust-ms-badge {
+    position: absolute;
+    top: 32px;
+    right: 32px;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 14px;
+}
+
+.hust-ms-badge svg { flex-shrink: 0; }
+.hust-ms-badge span {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* ── Right: Form Panel ──────────────────────────── */
+.hust-form-panel {
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    min-height: 100vh;
+}
+
+.ms-card {
+    width: min(440px, 100%);
+    animation: ms-fade-in 0.3s ease;
+}
+
+@keyframes ms-fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Microsoft header ─────────────────────────── */
+.ms-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+}
+
+.ms-brand-label {
+    font-size: 1.02rem;
+    font-weight: 600;
+    font-family: 'Segoe UI', sans-serif;
+    color: #201a17;
+}
+
+.ms-hust-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: #fff5f5;
+    border: 1px solid rgba(200, 16, 46, 0.2);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #C8102E;
+    margin-bottom: 8px;
+}
+
+/* ── Step titles ─────────────────────────────── */
+.ms-title {
+    margin: 0 0 8px;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #201a17;
+    font-family: 'Segoe UI', sans-serif;
+    line-height: 1.25;
+}
+
+.ms-sub {
+    margin: 0 0 28px;
+    font-size: 0.9rem;
+    color: #605e5c;
+    line-height: 1.5;
+}
+
+/* ── Error box ────────────────────────────────── */
+.ms-error-box {
+    background: #fde7e9;
+    border: 1px solid #d13438;
+    border-left: 3px solid #d13438;
+    border-radius: 4px;
+    padding: 10px 14px;
+    color: #a4262c;
+    font-size: 0.88rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.ms-error-box[hidden] { display: none; }
+
+.ms-error-icon { flex-shrink: 0; margin-top: 1px; }
+
+/* ── Input fields ────────────────────────────── */
+.ms-field-group {
+    margin-bottom: 24px;
+}
+
+.ms-field-label {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #201a17;
+    margin-bottom: 6px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-field {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #8a8886;
+    border-radius: 2px;
+    padding: 0 12px;
+    font-size: 0.95rem;
+    color: #201a17;
+    background: #fff;
+    outline: none;
+    font-family: 'Segoe UI', 'Inter', sans-serif;
+    transition: border-color 0.12s;
+    box-sizing: border-box;
+    display: block;
+}
+
+.ms-field:focus {
+    border-color: #0078d4;
+    border-width: 2px;
+}
+
+.ms-field::placeholder { color: #a19f9d; }
+
+.ms-pw-wrap {
+    position: relative;
+}
+
+.ms-pw-wrap .ms-field {
+    padding-right: 64px;
+}
+
+.ms-pw-toggle {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    padding: 0 12px;
+    background: transparent;
+    border: none;
+    color: #0078d4;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-pw-toggle:hover { text-decoration: underline; }
+
+/* ── Links ───────────────────────────────────── */
+.ms-link {
+    color: #0078d4;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-link:hover { text-decoration: underline; }
+
+.ms-pw-links {
+    margin-bottom: 20px;
+}
+
+/* ── Remember row ────────────────────────────── */
+.ms-remember-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+}
+
+.ms-check {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.88rem;
+    color: #201a17;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-check input[type=checkbox] {
+    accent-color: #0078d4;
+    width: 16px;
+    height: 16px;
+}
+
+/* ── Action buttons ──────────────────────────── */
+.ms-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.ms-btn-back {
+    background: transparent;
+    border: none;
+    color: #0078d4;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px 12px;
+    border-radius: 2px;
+    font-family: 'Segoe UI', sans-serif;
+    text-decoration: none;
+    transition: background 0.12s;
+}
+
+.ms-btn-back:hover { background: #f3f2f1; }
+
+.ms-btn-next {
+    background: #0078d4;
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    padding: 10px 24px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Segoe UI', sans-serif;
+    transition: background 0.12s;
+    min-width: 100px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.ms-btn-next:hover { background: #106ebe; }
+.ms-btn-next:active { background: #005a9e; }
+
+.ms-btn-next:disabled {
+    background: #c7c7c7;
+    cursor: not-allowed;
+}
+
+/* ── Divider & footer links ──────────────────── */
+.ms-divider {
+    height: 1px;
+    background: #e1dfdd;
+    margin: 24px 0;
+}
+
+.ms-signup-link {
+    font-size: 0.88rem;
+    color: #605e5c;
+    font-family: 'Segoe UI', sans-serif;
+    margin-bottom: 20px;
+}
+
+.ms-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 0.78rem;
+}
+
+.ms-footer-links a {
+    color: #605e5c;
+    text-decoration: none;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-footer-links a:hover { color: #0078d4; }
+
+/* ── User chip (step 2) ──────────────────────── */
+.ms-user-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    cursor: pointer;
+    border: 1px solid #e1dfdd;
+    border-radius: 20px;
+    padding: 6px 14px 6px 6px;
+    width: fit-content;
+    transition: background 0.12s;
+}
+
+.ms-user-chip:hover { background: #f3f2f1; }
+
+.ms-avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.ms-chip-email {
+    font-size: 0.85rem;
+    color: #201a17;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-chip-edit {
+    font-size: 0.78rem;
+    color: #0078d4;
+    margin-left: 4px;
+}
+
+/* ── Loading step ────────────────────────────── */
+.ms-loading-content {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.ms-spinner {
+    width: 44px;
+    height: 44px;
+    border: 3px solid #e1dfdd;
+    border-top-color: #0078d4;
+    border-radius: 50%;
+    animation: ms-spin 0.9s linear infinite;
+    margin: 0 auto 28px;
+}
+
+@keyframes ms-spin {
+    to { transform: rotate(360deg); }
+}
+
+.ms-loading-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #201a17;
+    margin: 0 0 28px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-loading-steps {
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 0 8px;
+}
+
+.ms-load-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: #605e5c;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.35s ease, transform 0.35s ease;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-load-item.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.ms-load-item.done {
+    color: #107c10;
+}
+
+.ms-load-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #c7c7c7;
+    flex-shrink: 0;
+    transition: background 0.3s;
+}
+
+.ms-load-item.active .ms-load-dot { background: #0078d4; animation: ms-pulse 1s ease infinite; }
+.ms-load-item.done .ms-load-dot { background: #107c10; animation: none; }
+
+@keyframes ms-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.8); }
+}
+
+/* ── Success step ────────────────────────────── */
+.ms-success-content {
+    text-align: center;
+    padding: 16px 0;
+}
+
+.ms-success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #dff6dd;
+    border: 2px solid #107c10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    animation: ms-pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes ms-pop-in {
+    from { transform: scale(0); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+}
+
+.ms-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: #f8f7f6;
+    border: 1px solid #e1dfdd;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin: 0 0 20px;
+    text-align: left;
+}
+
+.ms-profile-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.ms-profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ms-profile-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: #201a17;
+    margin-bottom: 3px;
+    font-family: 'Segoe UI', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ms-profile-meta {
+    font-size: 0.82rem;
+    color: #605e5c;
+    font-family: 'Segoe UI', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ms-profile-badge {
+    margin-top: 6px;
+}
+
+.ms-active-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #107c10;
+    background: #dff6dd;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-success-heading {
+    font-size: 1.35rem;
+    font-weight: 600;
+    color: #201a17;
+    margin: 0 0 6px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-redirect-text {
+    font-size: 0.88rem;
+    color: #605e5c;
+    margin: 0 0 20px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.ms-progress-track {
+    height: 3px;
+    background: #e1dfdd;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.ms-progress-fill {
+    height: 100%;
+    background: #0078d4;
+    width: 0;
+    border-radius: 2px;
+    transition: width 2.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* ── Page footer ─────────────────────────────── */
+.hust-form-footer {
+    margin-top: 48px;
+    text-align: center;
+}
+
+/* ── Animations ──────────────────────────────── */
+.ms-step {
+    animation: ms-step-in 0.25s ease;
+}
+
+@keyframes ms-step-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Responsive ──────────────────────────────── */
+@media (max-width: 900px) {
+    .hust-shell { grid-template-columns: 1fr; }
+    .hust-brand-panel { display: none; }
+    .hust-form-panel {
+        background: #f2f2f2;
+        padding: 32px 16px;
+    }
+    .ms-card {
+        background: #fff;
+        border-radius: 4px;
+        padding: 32px 28px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+}
+
+@media (max-width: 480px) {
+    .hust-form-panel { padding: 0; background: #fff; }
+    .ms-card { border-radius: 0; padding: 28px 20px; box-shadow: none; }
+    .ms-title { font-size: 1.45rem; }
+}
+
+/* ── Dark mode (inherit from system preference) ── */
+@media (prefers-color-scheme: dark) {
+    body.hust-auth-page { background: #1b1a19; }
+    .hust-form-panel { background: #292827; }
+    .ms-card { background: #292827; }
+    .ms-title, .ms-brand-label { color: #f3ebe6; }
+    .ms-sub { color: #a19f9d; }
+    .ms-field {
+        background: #3b3a39;
+        border-color: #605e5c;
+        color: #f3ebe6;
+    }
+    .ms-field:focus { border-color: #4fa3f7; }
+    .ms-check { color: #f3ebe6; }
+    .ms-remember-row .ms-link { color: #4fa3f7; }
+    .ms-link { color: #4fa3f7; }
+    .ms-btn-back:hover { background: #3b3a39; }
+    .ms-divider { background: #3b3a39; }
+    .ms-signup-link { color: #a19f9d; }
+    .ms-footer-links a { color: #a19f9d; }
+    .ms-user-chip { border-color: #3b3a39; }
+    .ms-user-chip:hover { background: #3b3a39; }
+    .ms-chip-email { color: #f3ebe6; }
+    .ms-loading-title { color: #f3ebe6; }
+    .ms-load-item { color: #a19f9d; }
+    .ms-profile-card { background: #3b3a39; border-color: #484644; }
+    .ms-profile-name { color: #f3ebe6; }
+    .ms-profile-meta { color: #a19f9d; }
+    .ms-success-heading { color: #f3ebe6; }
+    .ms-redirect-text { color: #a19f9d; }
+    .ms-progress-track { background: #484644; }
+    .ms-error-box { background: #442726; border-color: #d13438; color: #f4abab; }
+}

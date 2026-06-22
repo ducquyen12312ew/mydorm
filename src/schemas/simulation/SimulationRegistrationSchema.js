@@ -4,8 +4,7 @@ const SimulationRegistrationSchema = new mongoose.Schema({
   workspaceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SimulationWorkspace',
-    required: true,
-    index: true
+    required: true
   },
   simCycleId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -20,7 +19,7 @@ const SimulationRegistrationSchema = new mongoose.Schema({
     index: true
   },
   sourceStudentId: { type: mongoose.Schema.Types.ObjectId },
-  academicYear: { type: String, required: true, index: true },
+  academicYear: { type: String, required: true },
   studentName: String,
   studentEmail: String,
   studentPhone: String,

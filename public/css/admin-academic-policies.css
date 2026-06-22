@@ -20,7 +20,7 @@
 }
 
 body {
-    font-family: 'Josefin Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     background: linear-gradient(180deg,#FBF8F3,#F5EFE7);
     color: var(--text-dark);
 }

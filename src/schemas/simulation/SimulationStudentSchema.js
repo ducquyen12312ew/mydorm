@@ -4,8 +4,7 @@ const SimulationStudentSchema = new mongoose.Schema({
   workspaceId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'SimulationWorkspace',
-    required: true,
-    index: true
+    required: true
   },
   // null for seeded Year-1 students (no real counterpart)
   sourceStudentId: {

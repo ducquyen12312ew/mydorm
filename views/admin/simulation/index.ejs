@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Phân bổ Phòng — eDorm</title>
   <%- include('../navbar', { user, activeNav: 'simulation' }) %>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ── Design tokens ──────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,12 +19,12 @@
       --success: #0E9F6E; --warning: #D9A22B; --info: #2563EB;
       --radius: 16px; --shadow: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
     }
-    body { font-family: 'Josefin Sans', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(180deg,#FBF8F3,#F5EFE7); min-height: 100vh; color: var(--text); }
+    body { font-family: 'Inter', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(180deg,#FBF8F3,#F5EFE7); min-height: 100vh; color: var(--text); }
 
     /* ── Layout ─────────────────────────────────────────────────── */
     .sim-wrap { max-width: 1100px; margin: 32px auto; padding: 0 24px 3rem; }
     .sim-header { margin-bottom: 1.75rem; }
-    .sim-header h2 { font-family: 'Josefin Sans', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); margin: 0 0 .3rem; }
+    .sim-header h2 { font-family: 'Inter', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); margin: 0 0 .3rem; }
     .sim-header p  { font-size: .82rem; color: var(--muted2); margin: 0; }
 
     /* ── Stat cards (ws-grid) ───────────────────────────────────── */
@@ -34,15 +34,27 @@
       padding: 1.25rem; box-shadow: var(--shadow);
     }
     .ws-card .label { font-size: .72rem; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
-    .ws-card .value { font-family: 'Josefin Sans', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .ws-card .value { font-family: 'Inter', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1; }
     .ws-card .sub   { font-size: .75rem; color: var(--muted2); margin-top: .2rem; }
 
-    /* ── Flow diagram card ──────────────────────────────────────── */
+    /* ── Flow diagram card (collapsible) ───────────────────────── */
     .flow-section {
       background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
-      padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
+      margin-bottom: 1.5rem; box-shadow: var(--shadow); overflow: hidden;
     }
-    .flow-section h3 { font-family: 'Josefin Sans', sans-serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 1.1rem; display: flex; align-items: center; gap: .4rem; }
+    .flow-toggle {
+      width: 100%; display: flex; align-items: center; justify-content: space-between;
+      padding: 1rem 1.75rem; background: none; border: none; cursor: pointer;
+      font-family: 'Inter', sans-serif; font-size: .9rem; font-weight: 600; color: var(--text);
+      transition: background .15s;
+    }
+    .flow-toggle:hover { background: #FAF5EE; }
+    .flow-toggle-left { display: flex; align-items: center; gap: .5rem; }
+    .flow-toggle-left i { color: var(--red); }
+    .flow-toggle-chevron { color: var(--muted2); font-size: .8rem; transition: transform .25s; }
+    .flow-toggle-chevron.open { transform: rotate(180deg); }
+    .flow-body { display: none; padding: 0 1.75rem 1.5rem; }
+    .flow-body.open { display: block; }
 
     .flow-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
     .flow-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 100px; }
@@ -84,7 +96,7 @@
       background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow);
     }
-    .section-panel h3 { font-family: 'Josefin Sans', sans-serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 .875rem; display: flex; align-items: center; gap: .4rem; }
+    .section-panel h3 { font-family: 'Inter', sans-serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 .875rem; display: flex; align-items: center; gap: .4rem; }
 
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
     .info-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; border-bottom: 1px solid var(--border); }
@@ -134,38 +146,45 @@
     <p>Thiết lập tiêu chí, chạy mô phỏng và xem trước kết quả phân bổ phòng ở KTX.</p>
   </div>
 
-  <!-- Flow Diagram -->
+  <!-- Flow Diagram (collapsible) -->
   <div class="flow-section">
-    <h3><i class="fas fa-route" style="color:#C8102E;margin-right:6px;"></i>Quy trình phân bổ</h3>
-    <div class="flow-steps">
-      <div class="flow-step">
-        <div class="icon prod"><i class="fas fa-database"></i></div>
-        <div class="name">Policy</div>
-        <div class="desc">Chính sách phân bổ</div>
-      </div>
-      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
-      <div class="flow-step">
-        <div class="icon reg"><i class="fas fa-clipboard-list"></i></div>
-        <div class="name">Registration</div>
-        <div class="desc">Sinh viên đăng ký</div>
-      </div>
-      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
-      <div class="flow-step">
-        <div class="icon policy"><i class="fas fa-star"></i></div>
-        <div class="name">Priority</div>
-        <div class="desc">Tính điểm ưu tiên</div>
-      </div>
-      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
-      <div class="flow-step">
-        <div class="icon clone"><i class="fas fa-layer-group"></i></div>
-        <div class="name">Allocation</div>
-        <div class="desc">Engine phân bổ</div>
-      </div>
-      <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
-      <div class="flow-step">
-        <div class="icon alloc"><i class="fas fa-bed"></i></div>
-        <div class="name">Room Assignment</div>
-        <div class="desc">Kết quả phân phòng</div>
+    <button class="flow-toggle" onclick="toggleFlow(this)">
+      <span class="flow-toggle-left">
+        <i class="fas fa-route"></i> Xem quy trình phân bổ
+      </span>
+      <i class="fas fa-chevron-down flow-toggle-chevron"></i>
+    </button>
+    <div class="flow-body">
+      <div class="flow-steps">
+        <div class="flow-step">
+          <div class="icon prod"><i class="fas fa-database"></i></div>
+          <div class="name">Chính sách</div>
+          <div class="desc">Tiêu chí phân bổ</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="icon reg"><i class="fas fa-clipboard-list"></i></div>
+          <div class="name">Đăng ký</div>
+          <div class="desc">Sinh viên nộp đơn</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="icon policy"><i class="fas fa-star"></i></div>
+          <div class="name">Chấm điểm</div>
+          <div class="desc">Tính điểm ưu tiên</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="icon clone"><i class="fas fa-layer-group"></i></div>
+          <div class="name">Phân bổ</div>
+          <div class="desc">Xử lý ghép phòng</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="icon alloc"><i class="fas fa-bed"></i></div>
+          <div class="name">Kết quả</div>
+          <div class="desc">Danh sách phân phòng</div>
+        </div>
       </div>
     </div>
   </div>
@@ -225,7 +244,7 @@
           <span class="info-label">Trạng thái</span>
           <span class="info-value">
             <span class="status-pill pill-active">
-              <span class="pill-dot"></span> ACTIVE
+              <span class="pill-dot"></span> Đang hoạt động
             </span>
           </span>
         </div>
@@ -269,6 +288,13 @@
 </div>
 
 <script>
+function toggleFlow(btn) {
+  const body = btn.nextElementSibling;
+  const chevron = btn.querySelector('.flow-toggle-chevron');
+  body.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
 let _latestSnapshotId = null;
 let _pollInterval     = null;
 

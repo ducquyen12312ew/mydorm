@@ -62,7 +62,7 @@ html,body{margin:0;padding:0;min-height:100vh;}
 .sb-item{
   display:flex;align-items:center;gap:10px;padding:8px 12px;
   border-radius:10px;color:#6B5F58;text-decoration:none;
-  font-family:'Josefin Sans',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   font-size:13px;font-weight:500;white-space:nowrap;
   transition:background .14s,color .14s;position:relative;margin-bottom:2px;
 }
@@ -90,7 +90,7 @@ html,body{margin:0;padding:0;min-height:100vh;}
   content:attr(data-tip);
   position:absolute;left:calc(100% + 10px);top:50%;transform:translateY(-50%);
   background:#2B2320;color:#FBF8F3;font-size:12px;font-weight:500;
-  font-family:'Josefin Sans',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   padding:5px 11px;border-radius:8px;white-space:nowrap;pointer-events:none;z-index:400;
   box-shadow:0 4px 16px rgba(43,35,32,.2);
 }
@@ -125,7 +125,7 @@ html,body{margin:0;padding:0;min-height:100vh;}
 .sb-usermenu a{
   display:flex;align-items:center;gap:10px;text-decoration:none;
   color:#6B5F58;padding:9px 16px;font-size:13px;
-  font-family:'Josefin Sans',system-ui,sans-serif;
+  font-family:'Inter',system-ui,sans-serif;
   transition:background .12s;
 }
 .sb-usermenu a:hover{background:#F5EFE7;}
@@ -147,7 +147,7 @@ html,body{margin:0;padding:0;min-height:100vh;}
 body.sb-collapsed .adm-topbar{left:58px;}
 
 .tb-title{
-  font-family:'Josefin Sans',sans-serif;
+  font-family:'Inter',sans-serif;
   font-size:1.05rem;font-weight:600;color:#2B2320;margin:0;
 }
 
@@ -156,7 +156,7 @@ body.sb-collapsed .adm-topbar{left:58px;}
 .tb-search{
   display:flex;align-items:center;gap:8px;
   background:rgba(255,255,255,.8);border:1px solid #E7DECF;border-radius:10px;
-  padding:6px 14px;font-size:13px;font-family:'Josefin Sans',system-ui,sans-serif;
+  padding:6px 14px;font-size:13px;font-family:'Inter',system-ui,sans-serif;
   color:#A89C8E;cursor:pointer;transition:border-color .15s,box-shadow .15s;
 }
 .tb-search:hover{border-color:#C8102E;box-shadow:0 0 0 3px rgba(200,16,46,.08);}
@@ -310,7 +310,7 @@ body.sb-collapsed{padding-left:58px;}
   <div class="sb-ft">
     <div class="sb-usermenu" id="sbUserMenu" role="menu">
       <div class="sb-usermenu-hd">
-        <div style="font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:13px;color:#2B2320;"><%= navUserName %></div>
+        <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:13px;color:#2B2320;"><%= navUserName %></div>
         <% if (navUser && navUser.isSuperAdmin) { %>
           <div style="font-size:11px;color:#A89C8E;margin-top:1px;">Giám đốc Ký túc xá</div>
         <% } else { %>

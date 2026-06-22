@@ -4,7 +4,7 @@
    Font: Josefin Sans
    ========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 :root {
     /* ── Primary (red) ── */
@@ -62,7 +62,7 @@ html { height: 100%; }
 
 body {
     background: var(--adm-bg-page);
-    font-family: 'Josefin Sans', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
     color: var(--adm-text);
     font-size: 14px;
     line-height: 1.55;
@@ -90,7 +90,7 @@ body {
 
 .page-header h1,
 .page-header .page-title {
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--adm-text);
@@ -159,7 +159,7 @@ body {
 }
 
 .stat-card .value {
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 2.1rem;
     font-weight: 600;
     color: var(--adm-text);
@@ -273,7 +273,7 @@ body {
     padding: 0.55rem 1.2rem;
     border-radius: 11px;
     border: none;
-    font-family: 'Josefin Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
@@ -366,7 +366,7 @@ select.filter-input {
     border: 1px solid #E7DECF;
     border-radius: 10px;
     font-size: 0.875rem;
-    font-family: 'Josefin Sans', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     color: var(--adm-text);
     background: #fff;
     transition: border-color 0.15s, box-shadow 0.15s;
@@ -507,7 +507,7 @@ select.filter-input:focus {
 .app-stat-card .icon { font-size: 1.4rem; margin-bottom: 0.4rem; }
 
 .app-stat-card .number {
-    font-family: 'Josefin Sans', sans-serif;
+    font-family: 'Inter', sans-serif;
     font-size: 1.85rem;
     font-weight: 600;
     line-height: 1;
@@ -539,7 +539,7 @@ select.filter-input:focus {
 .text-soft   { color: var(--adm-text-soft) !important; }
 .text-center { text-align: center; }
 .text-right  { text-align: right; }
-.font-serif  { font-family: 'Josefin Sans', sans-serif; }
+.font-serif  { font-family: 'Inter', sans-serif; }
 
 .divider {
     border: none;
@@ -555,7 +555,7 @@ select.filter-input:focus {
 }
 
 /* ── Shared footer (fv2) styles for admin pages ────────────── */
-.fv2 { background:#fff; border-top:1px solid #e8e4df; padding:0; font-family:'Josefin Sans',system-ui,sans-serif; }
+.fv2 { background:#fff; border-top:1px solid #e8e4df; padding:0; font-family:'Inter',system-ui,sans-serif; }
 .fv2-inner { max-width:1220px; margin:0 auto; padding:3rem 2rem 2.5rem; display:grid; grid-template-columns:repeat(5,1fr); gap:2.5rem; align-items:start; }
 .fv2-brand { display:flex; flex-direction:column; gap:.65rem; }
 .fv2-logo { height:40px; width:auto; object-fit:contain; }

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác minh Email | eDorm</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/auth-forms.css">
+    <%- include('../shared/pwa-head') %>
+    <style>
+        /* OTP Verification page overrides */
+        .otp-panel {
+            max-width: 440px;
+            width: 100%;
+            background: #fff;
+            border-radius: 20px;
+            padding: 44px 40px;
+            box-shadow: 0 30px 60px rgba(36, 27, 17, 0.14);
+            border: 1px solid rgba(232, 225, 217, 0.8);
+        }
+
+        .otp-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #C8102E, #e24d3a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+
+        .otp-icon svg { color: #fff; }
+
+        .otp-title {
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #201a17;
+            margin: 0 0 8px;
+            text-align: center;
+            letter-spacing: -0.02em;
+        }
+
+        .otp-subtitle {
+            color: #736660;
+            font-size: 0.92rem;
+            text-align: center;
+            line-height: 1.6;
+            margin: 0 0 32px;
+        }
+
+        .otp-email-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f9f7f4;
+            border: 1px solid #e8e1d9;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #201a17;
+            margin: 0 auto 24px;
+        }
+
+        /* 6-box OTP input */
+        .otp-boxes {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .otp-box {
+            width: 52px;
+            height: 60px;
+            border: 2px solid #e8e1d9;
+            border-radius: 12px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            text-align: center;
+            color: #201a17;
+            outline: none;
+            background: #fff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+            caret-color: transparent;
+            -moz-appearance: textfield;
+        }
+
+        .otp-box::-webkit-inner-spin-button,
+        .otp-box::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+        .otp-box:focus {
+            border-color: rgba(214, 45, 45, 0.7);
+            box-shadow: 0 0 0 4px rgba(214, 45, 45, 0.14);
+        }
+
+        .otp-box.filled {
+            border-color: rgba(214, 45, 45, 0.5);
+            background: #fff5f5;
+        }
+
+        .otp-box.error-state {
+            border-color: #d13438;
+            background: #fde7e9;
+            animation: otp-shake 0.35s ease;
+        }
+
+        @keyframes otp-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .otp-error-msg {
+            text-align: center;
+            font-size: 0.88rem;
+            color: #a4262c;
+            background: #fde7e9;
+            border: 1px solid rgba(209, 52, 56, 0.3);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .otp-error-msg.visible { display: block; }
+
+        .otp-success-msg {
+            text-align: center;
+            font-size: 0.88rem;
+            color: #18885c;
+            background: rgba(24, 136, 92, 0.08);
+            border: 1px solid rgba(24, 136, 92, 0.24);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .otp-success-msg.visible { display: block; }
+
+        .otp-submit-btn {
+            width: 100%;
+            height: 52px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #C8102E, #e24d3a);
+            color: #fff;
+            font-size: 0.98rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: transform 0.15s, box-shadow 0.15s;
+            margin-bottom: 20px;
+        }
+
+        .otp-submit-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(200, 16, 46, 0.28);
+        }
+
+        .otp-submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .otp-resend-row {
+            text-align: center;
+            font-size: 0.88rem;
+            color: #736660;
+            margin-bottom: 16px;
+        }
+
+        .otp-resend-btn {
+            background: none;
+            border: none;
+            color: #C8102E;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.88rem;
+            padding: 0;
+            font-family: inherit;
+        }
+
+        .otp-resend-btn:hover { text-decoration: underline; }
+        .otp-resend-btn:disabled { color: #9a8f84; cursor: default; }
+
+        .otp-countdown {
+            font-weight: 600;
+            color: #9a8f84;
+        }
+
+        .otp-footer-note {
+            text-align: center;
+            font-size: 0.82rem;
+            color: #9a8f84;
+        }
+
+        /* Spinner inside button */
+        .btn-spin {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            display: none;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Success overlay */
+        .otp-success-overlay {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .otp-success-overlay.visible { display: block; }
+
+        .otp-success-check {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: #dff6dd;
+            border: 2px solid #107c10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes pop-in {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+
+        .otp-success-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #201a17;
+            margin: 0 0 8px;
+        }
+
+        .otp-success-sub {
+            color: #736660;
+            font-size: 0.9rem;
+            margin: 0 0 24px;
+        }
+
+        @media (max-width: 480px) {
+            .otp-panel { padding: 32px 24px; border-radius: 16px; }
+            .otp-box { width: 44px; height: 52px; font-size: 1.35rem; }
+            .otp-boxes { gap: 7px; }
+        }
+    </style>
+</head>
+<body class="auth-page" style="background: var(--auth-bg);">
+<main style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;">
+
+    <div class="otp-panel">
+
+        <!-- Main OTP form -->
+        <div id="otpForm">
+            <div class="otp-icon">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                </svg>
+            </div>
+
+            <h1 class="otp-title">Xác minh email</h1>
+            <p class="otp-subtitle">Chúng tôi đã gửi mã OTP 6 chữ số đến địa chỉ email của bạn.</p>
+
+            <div style="text-align:center; margin-bottom:24px">
+                <span class="otp-email-badge">
+                    <svg width="13" height="13" viewBox="0 0 16 16" fill="#736660" aria-hidden="true">
+                        <path d="M.05 3.555A2 2 0 012 2h12a2 2 0 011.95 1.555L8 8.414.05 3.555zM0 4.697v7.104l5.803-3.558L0 4.697zM6.761 8.83l-6.57 4.027A2 2 0 002 14h12a2 2 0 001.808-1.144l-6.57-4.027L8 9.586l-1.239-.757zm3.436-.303L16 11.801V4.697l-5.803 3.83z"/>
+                    </svg>
+                    <%= email %>
+                </span>
+            </div>
+
+            <div class="otp-error-msg" id="otpErrorMsg"></div>
+            <div class="otp-success-msg" id="otpSuccessMsg"></div>
+
+            <!-- 6-box OTP input -->
+            <div class="otp-boxes" id="otpBoxes" role="group" aria-label="Nhập mã OTP 6 chữ số">
+                <input type="tel" maxlength="1" class="otp-box" aria-label="Chữ số 1" inputmode="numeric" pattern="[0-9]">
+                <input type="tel" maxlength="1" class="otp-box" aria-label="Chữ số 2" inputmode="numeric" pattern="[0-9]">
+                <input type="tel" maxlength="1" class="otp-box" aria-label="Chữ số 3" inputmode="numeric" pattern="[0-9]">
+                <input type="tel" maxlength="1" class="otp-box" aria-label="Chữ số 4" inputmode="numeric" pattern="[0-9]">
+                <input type="tel" maxlength="1" class="otp-box" aria-label="Chữ số 5" inputmode="numeric" pattern="[0-9]">
+                <input type="tel" maxlength="1" class="otp-box" aria-label="Chữ số 6" inputmode="numeric" pattern="[0-9]">
+            </div>
+
+            <button type="button" class="otp-submit-btn" id="verifyBtn" disabled>
+                <span class="btn-spin" id="verifySpin"></span>
+                <span id="verifyBtnText">Xác minh</span>
+            </button>
+
+            <div class="otp-resend-row">
+                Không nhận được mã?
+                <button type="button" class="otp-resend-btn" id="resendBtn" disabled>
+                    Gửi lại
+                    <span class="otp-countdown" id="countdown">(<span id="countdownSec">60</span>s)</span>
+                </button>
+            </div>
+
+            <p class="otp-footer-note">
+                <a href="/signup" style="color:var(--auth-primary); text-decoration:none; font-weight:600">← Quay lại đăng ký</a>
+            </p>
+        </div>
+
+        <!-- Success overlay (shown after OTP verified) -->
+        <div class="otp-success-overlay" id="successOverlay">
+            <div class="otp-success-check">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#107c10" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12"/>
+                </svg>
+            </div>
+            <h2 class="otp-success-title">Xác minh thành công!</h2>
+            <p class="otp-success-sub">Tài khoản của bạn đã được kích hoạt. Đang chuyển hướng...</p>
+        </div>
+
+    </div>
+</main>
+
+<script>
+(function () {
+    'use strict';
+
+    var boxes      = Array.from(document.querySelectorAll('.otp-box'));
+    var verifyBtn  = document.getElementById('verifyBtn');
+    var verifySpin = document.getElementById('verifySpin');
+    var verifyText = document.getElementById('verifyBtnText');
+    var resendBtn  = document.getElementById('resendBtn');
+    var countdownEl = document.getElementById('countdownSec');
+    var countdownWrap = document.getElementById('countdown');
+    var errorMsg   = document.getElementById('otpErrorMsg');
+    var successMsg = document.getElementById('otpSuccessMsg');
+
+    // ── OTP Box keyboard logic ──
+    boxes.forEach(function (box, idx) {
+        box.addEventListener('keydown', function (e) {
+            if (e.key === 'Backspace') {
+                if (box.value) {
+                    box.value = '';
+                    box.classList.remove('filled');
+                } else if (idx > 0) {
+                    boxes[idx - 1].value = '';
+                    boxes[idx - 1].classList.remove('filled');
+                    boxes[idx - 1].focus();
+                }
+                updateSubmitBtn();
+                e.preventDefault();
+            } else if (e.key === 'ArrowLeft' && idx > 0) {
+                boxes[idx - 1].focus();
+            } else if (e.key === 'ArrowRight' && idx < boxes.length - 1) {
+                boxes[idx + 1].focus();
+            }
+        });
+
+        box.addEventListener('input', function () {
+            var val = box.value.replace(/\D/g, '').slice(-1);
+            box.value = val;
+            if (val) {
+                box.classList.add('filled');
+                if (idx < boxes.length - 1) boxes[idx + 1].focus();
+            } else {
+                box.classList.remove('filled');
+            }
+            updateSubmitBtn();
+        });
+
+        // Handle paste on any box
+        box.addEventListener('paste', function (e) {
+            e.preventDefault();
+            var text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+            text.split('').slice(0, 6).forEach(function (ch, i) {
+                if (boxes[i]) {
+                    boxes[i].value = ch;
+                    boxes[i].classList.add('filled');
+                }
+            });
+            var focus = Math.min(text.length, boxes.length - 1);
+            boxes[focus].focus();
+            updateSubmitBtn();
+        });
+    });
+
+    function getOTPValue() {
+        return boxes.map(function (b) { return b.value; }).join('');
+    }
+
+    function updateSubmitBtn() {
+        verifyBtn.disabled = getOTPValue().length < 6;
+    }
+
+    function clearErrors() {
+        errorMsg.textContent = '';
+        errorMsg.classList.remove('visible');
+        boxes.forEach(function (b) { b.classList.remove('error-state'); });
+    }
+
+    function showError(msg) {
+        errorMsg.textContent = msg;
+        errorMsg.classList.add('visible');
+        successMsg.classList.remove('visible');
+        boxes.forEach(function (b) { b.classList.add('error-state'); });
+        setTimeout(function () {
+            boxes.forEach(function (b) { b.classList.remove('error-state'); });
+        }, 600);
+    }
+
+    // ── Submit OTP ──
+    verifyBtn.addEventListener('click', submitOTP);
+
+    function submitOTP() {
+        var otp = getOTPValue();
+        if (otp.length < 6) return;
+        clearErrors();
+
+        verifyBtn.disabled = true;
+        verifySpin.style.display = 'inline-block';
+        verifyText.textContent = 'Đang xác minh...';
+
+        fetch('/api/auth/verify-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ otp: otp })
+        })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (result) {
+            verifySpin.style.display = 'none';
+            verifyText.textContent = 'Xác minh';
+
+            if (!result.ok) {
+                showError(result.data.error || 'Mã OTP không đúng.');
+                verifyBtn.disabled = false;
+                // Clear boxes on expired
+                if (result.data.expired) {
+                    boxes.forEach(function (b) { b.value = ''; b.classList.remove('filled'); });
+                    boxes[0].focus();
+                }
+                return;
+            }
+
+            // Success
+            document.getElementById('otpForm').style.display = 'none';
+            document.getElementById('successOverlay').classList.add('visible');
+            setTimeout(function () {
+                window.location.href = result.data.redirectUrl || '/';
+            }, 2000);
+        })
+        .catch(function () {
+            verifySpin.style.display = 'none';
+            verifyText.textContent = 'Xác minh';
+            verifyBtn.disabled = false;
+            showError('Lỗi kết nối. Vui lòng thử lại.');
+        });
+    }
+
+    // ── Resend OTP countdown ──
+    var countdownVal = <%= cooldown || 60 %>;
+
+    function startCountdown(seconds) {
+        resendBtn.disabled = true;
+        countdownWrap.style.display = 'inline';
+
+        var timer = setInterval(function () {
+            seconds--;
+            countdownEl.textContent = seconds;
+            if (seconds <= 0) {
+                clearInterval(timer);
+                resendBtn.disabled = false;
+                countdownWrap.style.display = 'none';
+            }
+        }, 1000);
+    }
+
+    startCountdown(countdownVal);
+
+    resendBtn.addEventListener('click', function () {
+        clearErrors();
+        successMsg.classList.remove('visible');
+        resendBtn.disabled = true;
+        resendBtn.textContent = 'Đang gửi...';
+
+        fetch('/api/auth/send-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin'
+        })
+        .then(function (r) { return r.json().then(function (d) { return { ok: r.ok, data: d }; }); })
+        .then(function (result) {
+            resendBtn.textContent = 'Gửi lại';
+            countdownEl.textContent = '60';
+            countdownWrap.style.display = 'inline';
+
+            if (!result.ok) {
+                showError(result.data.error || 'Gửi OTP thất bại.');
+                resendBtn.disabled = false;
+                return;
+            }
+
+            successMsg.textContent = result.data.message || 'OTP đã gửi!';
+            successMsg.classList.add('visible');
+            boxes.forEach(function (b) { b.value = ''; b.classList.remove('filled'); });
+            boxes[0].focus();
+            startCountdown(60);
+        })
+        .catch(function () {
+            resendBtn.textContent = 'Gửi lại';
+            resendBtn.disabled = false;
+            showError('Lỗi kết nối. Vui lòng thử lại.');
+        });
+    });
+
+    // Auto-send OTP on page load
+    fetch('/api/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin'
+    }).catch(function () {});
+
+    // Focus first box
+    boxes[0].focus();
+})();
+</script>
+<%- include('../shared/pwa-scripts') %>
+</body>
+</html>

@@ -21,18 +21,16 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
         callbackURL: process.env.GOOGLE_CALLBACK_URL
             || (process.env.APP_URL ? `${process.env.APP_URL}/auth/google/callback` : 'http://localhost:5000/auth/google/callback'),
-        scope: ['profile', 'email'],
-        hostedDomain: ALLOWED_DOMAIN
+        scope: ['profile', 'email']
+        // No hostedDomain restriction — any Gmail is accepted
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             const email = profile.emails && profile.emails[0]
                 ? profile.emails[0].value.toLowerCase()
                 : null;
 
-            if (!email || !isAllowedEmail(email)) {
-                return done(null, false, {
-                    message: `Chỉ chấp nhận email @${ALLOWED_DOMAIN}. Email của bạn (${email || 'không rõ'}) không được phép.`
-                });
+            if (!email) {
+                return done(null, false, { message: 'Không lấy được email từ tài khoản Google.' });
             }
 
             let student = await StudentCollection.findOne({

@@ -8,7 +8,8 @@ const { logger, logSecurityEvent } = require('../config/logger');
 const { authLimiter, loginLimiter } = require('../middleware/security');
 const { isAuthenticated } = require('../middleware/auth');
 const passport = require('../config/passport');
-const { sendVerificationEmail, sendWelcomeEmail } = require('../services/emailService');
+const { sendVerificationEmail, sendWelcomeEmail, sendOTPEmail } = require('../services/emailService');
+const { generateOTP, hashOTP, verifyOTP, getExpiry, isExpired, canResend, secondsUntilResend, OTP_EXPIRY_MINUTES, OTP_MAX_ATTEMPTS } = require('../services/otpService');
 
 const ALLOWED_DOMAIN = 'sis.hust.edu.vn';
 const ALLOWED_EMAIL_SUFFIX = '@' + ALLOWED_DOMAIN;
@@ -33,7 +34,7 @@ router.get('/signup', (req, res) => res.render('auth/signup'));
 // ============================================
 
 router.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'], hostedDomain: ALLOWED_DOMAIN })
+    passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
 router.get('/auth/google/callback',
@@ -45,7 +46,7 @@ router.get('/auth/google/callback',
                 return res.redirect('/login');
             }
             if (!result) {
-                req.session.oauthError = (info && info.message) || `Chỉ chấp nhận email @${ALLOWED_DOMAIN}.`;
+                req.session.oauthError = (info && info.message) || 'Đăng nhập Google thất bại.';
                 return res.redirect('/login');
             }
             if (result.isNew) {
@@ -130,13 +131,6 @@ router.post('/auth/onboarding', authLimiter, async (req, res) => {
             oauthProvider: pending.oauthProvider,
             error: 'Vui lòng điền đầy đủ MSSV và họ tên.'
         });
-    }
-
-    // Validate @sis.hust.edu.vn
-    if (!pending.email.endsWith(ALLOWED_EMAIL_SUFFIX)) {
-        delete req.session.oauthPending;
-        req.session.oauthError = `Chỉ chấp nhận email @${ALLOWED_DOMAIN}.`;
-        return res.redirect('/login');
     }
 
     try {
@@ -276,15 +270,36 @@ router.post('/signup', authLimiter, async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
+        const needsEmailVerify = email && !email.toLowerCase().endsWith(ALLOWED_EMAIL_SUFFIX);
+
         const newStudent = await StudentCollection.create({
             username: resolvedUsername, password: hashedPassword, name: name.trim(), email, phone,
-            studentId: studentId.trim(), gender, faculty, academicYear, role: 'user'
+            studentId: studentId.trim(), gender, faculty, academicYear, role: 'user',
+            emailVerified: !needsEmailVerify
         });
+
+        if (needsEmailVerify) {
+            const otp = generateOTP();
+            const hashed = await hashOTP(otp);
+            await StudentCollection.findByIdAndUpdate(newStudent._id, {
+                emailVerificationOTP: hashed,
+                emailVerificationExpires: getExpiry(),
+                otpLastSentAt: new Date()
+            });
+            sendOTPEmail(email, name.trim(), otp, OTP_EXPIRY_MINUTES).catch(err =>
+                logger.warn('OTP email failed (non-fatal)', { error: err.message })
+            );
+            req.session.pendingVerifyId = newStudent._id;
+            req.session.pendingVerifyEmail = email;
+            logSecurityEvent(newStudent._id, 'REGISTER_PENDING_VERIFY', { ip: req.ip });
+            return res.redirect('/auth/verify-otp');
+        }
 
         req.session.userId = newStudent._id;
         req.session.name = newStudent.name;
         req.session.role = newStudent.role;
         req.session.studentId = newStudent.studentId;
+        req.session.username = newStudent.username;
 
         await sendNotificationOnEvent('welcome', newStudent._id, { name: newStudent.name }).catch(() => {});
         res.redirect('/');
@@ -475,6 +490,217 @@ router.post('/forgot-password', async (req, res) => {
     } catch (error) {
         logger.error('Error during forgot password', { error: error.message });
         res.render('auth/forgot-password', { error: 'Đã xảy ra lỗi. Vui lòng thử lại.' });
+    }
+});
+
+// ============================================
+// HUST SIMULATED LOGIN (Microsoft-style UI)
+// ============================================
+
+router.get('/hust-login', (req, res) => {
+    if (req.session.userId) {
+        return res.redirect(req.session.role === 'admin' ? '/admin/dormitories' : '/');
+    }
+    res.render('auth/hust-login');
+});
+
+// JSON endpoint — called by hust-login.ejs step 2 (password)
+router.post('/api/auth/hust-verify', loginLimiter, async (req, res) => {
+    try {
+        const { email, password, remember } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email và mật khẩu không được để trống.' });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+
+        // Accept MSSV@sis.hust.edu.vn — search by email OR username (manual accounts use MSSV as username)
+        const mssv = normalizedEmail.endsWith('@sis.hust.edu.vn')
+            ? normalizedEmail.split('@')[0]
+            : null;
+
+        const query = mssv
+            ? { $or: [{ email: normalizedEmail }, { username: normalizedEmail }, { username: mssv }, { studentId: mssv }] }
+            : { $or: [{ email: normalizedEmail }, { username: normalizedEmail }] };
+
+        const student = await StudentCollection.findOne(query);
+        if (!student) {
+            logSecurityEvent(null, 'LOGIN_HUST_FAILED', { email: normalizedEmail, reason: 'not_found', ip: req.ip });
+            return res.status(401).json({ error: 'Tài khoản không tồn tại trong hệ thống HUST.' });
+        }
+
+        if (!student.password) {
+            return res.status(401).json({ error: 'Tài khoản này không có mật khẩu. Vui lòng dùng Google để đăng nhập.' });
+        }
+
+        const valid = await bcrypt.compare(password, student.password);
+        if (!valid) {
+            logSecurityEvent(student._id, 'LOGIN_HUST_FAILED', { reason: 'wrong_password', ip: req.ip });
+            return res.status(401).json({ error: 'Mật khẩu không đúng. Vui lòng thử lại.' });
+        }
+
+        // Check 2FA
+        const TwoFactor = require('../schemas/TwoFactorSchema');
+        const tfRecord = await TwoFactor.findOne({ userId: student._id });
+        const twoFAEnabled = tfRecord && (tfRecord.totpEnabled || tfRecord.smsOtpEnabled);
+
+        if (twoFAEnabled) {
+            req.session.tempUserId = student._id;
+            req.session.tempName = student.name;
+            req.session.tempRole = student.role;
+            req.session.tempIsSuperAdmin = student.isSuperAdmin === true;
+            req.session.tempStudentId = student.studentId;
+            req.session.tempUsername = student.username;
+            req.session.tempRemember = remember;
+            logSecurityEvent(student._id, 'LOGIN_2FA_REQUIRED', { ip: req.ip });
+            return res.json({ requires2FA: true, redirectUrl: '/2fa-login' });
+        }
+
+        req.session.userId = student._id;
+        req.session.name = student.name;
+        req.session.role = student.role;
+        req.session.isSuperAdmin = student.isSuperAdmin === true;
+        req.session.studentId = student.studentId;
+        req.session.username = student.username;
+        if (remember) req.session.cookie.maxAge = 1000 * 60 * 60 * 24 * 30;
+
+        // Update lastLoginAt non-blocking
+        StudentCollection.findByIdAndUpdate(student._id, { lastLoginAt: new Date() }).catch(() => {});
+
+        await new Promise((resolve, reject) => req.session.save(err => err ? reject(err) : resolve()));
+        logSecurityEvent(student._id, 'LOGIN_HUST_SUCCESS', { ip: req.ip });
+
+        const redirectUrl = student.role === 'admin' ? '/admin/dormitories' : '/';
+        const facultyMap = {
+            'IT': 'Viện Công nghệ Thông tin & Truyền thông',
+            'ET': 'Trường Điện - Điện tử',
+            'ME': 'Trường Cơ khí',
+            'CE': 'Trường Hóa & Khoa học Sự sống',
+            'EECS': 'Khoa Kỹ thuật Điện và Máy tính',
+            'SEEE': 'Trường Điện - Điện tử'
+        };
+        const displayFaculty = facultyMap[student.faculty] || student.faculty || 'Đại học Bách Khoa Hà Nội';
+
+        return res.json({
+            success: true,
+            redirectUrl,
+            student: {
+                name: student.name,
+                studentId: student.studentId || '',
+                faculty: displayFaculty,
+                email: student.email || normalizedEmail,
+                avatar: null
+            }
+        });
+    } catch (err) {
+        logger.error('HUST login error', { error: err.message });
+        return res.status(500).json({ error: 'Lỗi hệ thống. Vui lòng thử lại.' });
+    }
+});
+
+// ============================================
+// OTP EMAIL VERIFICATION
+// ============================================
+
+router.get('/auth/verify-otp', (req, res) => {
+    const pendingId = req.session.pendingVerifyId;
+    if (!pendingId) return res.redirect('/signup');
+    res.render('auth/verify-otp', {
+        email: req.session.pendingVerifyEmail || '',
+        cooldown: 0
+    });
+});
+
+router.post('/api/auth/send-otp', authLimiter, async (req, res) => {
+    try {
+        const pendingId = req.session.pendingVerifyId;
+        if (!pendingId) return res.status(400).json({ error: 'Phiên đăng ký không hợp lệ.' });
+
+        const student = await StudentCollection.findById(pendingId);
+        if (!student) return res.status(404).json({ error: 'Tài khoản không tồn tại.' });
+        if (student.emailVerified) return res.status(400).json({ error: 'Email đã được xác minh.' });
+
+        if (!canResend(student.otpLastSentAt)) {
+            const secs = secondsUntilResend(student.otpLastSentAt);
+            return res.status(429).json({ error: `Vui lòng chờ ${secs} giây trước khi gửi lại.`, cooldown: secs });
+        }
+
+        const otp = generateOTP();
+        const hashed = await hashOTP(otp);
+        await StudentCollection.findByIdAndUpdate(pendingId, {
+            emailVerificationOTP: hashed,
+            emailVerificationExpires: getExpiry(),
+            verificationAttempts: 0,
+            otpLastSentAt: new Date()
+        });
+
+        await sendOTPEmail(student.email, student.name, otp, OTP_EXPIRY_MINUTES);
+        return res.json({ success: true, message: `OTP đã gửi đến ${student.email}` });
+    } catch (err) {
+        logger.error('Send OTP error', { error: err.message });
+        return res.status(500).json({ error: 'Lỗi gửi OTP. Vui lòng thử lại.' });
+    }
+});
+
+router.post('/api/auth/verify-otp', authLimiter, async (req, res) => {
+    try {
+        const pendingId = req.session.pendingVerifyId;
+        if (!pendingId) return res.status(400).json({ error: 'Phiên đăng ký không hợp lệ.' });
+
+        const { otp } = req.body;
+        if (!otp || String(otp).trim().length !== 6) {
+            return res.status(400).json({ error: 'Mã OTP không hợp lệ.' });
+        }
+
+        const student = await StudentCollection.findById(pendingId);
+        if (!student) return res.status(404).json({ error: 'Tài khoản không tồn tại.' });
+        if (student.emailVerified) {
+            return res.json({ success: true, redirectUrl: '/', alreadyVerified: true });
+        }
+
+        if (student.verificationAttempts >= OTP_MAX_ATTEMPTS) {
+            return res.status(429).json({ error: 'Quá nhiều lần thử sai. Vui lòng yêu cầu OTP mới.' });
+        }
+
+        if (isExpired(student.emailVerificationExpires)) {
+            return res.status(400).json({ error: 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.', expired: true });
+        }
+
+        const valid = await verifyOTP(otp, student.emailVerificationOTP);
+        if (!valid) {
+            await StudentCollection.findByIdAndUpdate(pendingId, { $inc: { verificationAttempts: 1 } });
+            const remaining = OTP_MAX_ATTEMPTS - (student.verificationAttempts + 1);
+            return res.status(401).json({
+                error: `Mã OTP không đúng. Còn ${remaining} lần thử.`,
+                attemptsRemaining: remaining
+            });
+        }
+
+        await StudentCollection.findByIdAndUpdate(pendingId, {
+            emailVerified: true,
+            emailVerificationOTP: null,
+            emailVerificationExpires: null,
+            verificationAttempts: 0
+        });
+
+        delete req.session.pendingVerifyId;
+        delete req.session.pendingVerifyEmail;
+
+        req.session.userId = student._id;
+        req.session.name = student.name;
+        req.session.role = student.role;
+        req.session.studentId = student.studentId;
+        req.session.username = student.username;
+
+        sendWelcomeEmail(student.email, student.name).catch(() => {});
+        sendNotificationOnEvent('welcome', student._id, { name: student.name }).catch(() => {});
+        logSecurityEvent(student._id, 'REGISTER_EMAIL_VERIFIED', { ip: req.ip });
+
+        await new Promise((resolve, reject) => req.session.save(err => err ? reject(err) : resolve()));
+        return res.json({ success: true, redirectUrl: '/' });
+    } catch (err) {
+        logger.error('Verify OTP error', { error: err.message });
+        return res.status(500).json({ error: 'Lỗi hệ thống. Vui lòng thử lại.' });
     }
 });
 

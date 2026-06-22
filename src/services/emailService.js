@@ -105,6 +105,18 @@ async function sendWelcomeEmail(to, name) {
     return sendEmail({ to, subject: 'Chào mừng đến KTX HUST!', html });
 }
 
+async function sendOTPEmail(to, name, otp, expiryMinutes = 10) {
+    const html = baseTemplate(`
+        <p>Xin chào <strong>${name || to}</strong>,</p>
+        <p>Bạn đã yêu cầu xác minh địa chỉ email để hoàn tất đăng ký tại hệ thống eDorm KTX HUST.</p>
+        <p>Mã xác minh OTP của bạn là:</p>
+        <div class="code">${otp}</div>
+        <p style="text-align:center; color:#736660; font-size:0.88rem">Mã có hiệu lực trong <strong>${expiryMinutes} phút</strong>. Không chia sẻ mã này với bất kỳ ai.</p>
+        <p>Nếu bạn không thực hiện yêu cầu này, hãy bỏ qua email.</p>
+    `);
+    return sendEmail({ to, subject: 'Mã xác minh OTP — eDorm KTX HUST', html });
+}
+
 async function sendPasswordResetEmail(to, name, token) {
     const appUrl = process.env.APP_URL || 'http://localhost:5000';
     const link = `${appUrl}/reset-password?token=${token}`;
@@ -117,4 +129,4 @@ async function sendPasswordResetEmail(to, name, token) {
     return sendEmail({ to, subject: 'Đặt lại mật khẩu KTX HUST', html });
 }
 
-module.exports = { sendEmail, sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail };
+module.exports = { sendEmail, sendVerificationEmail, sendWelcomeEmail, sendPasswordResetEmail, sendOTPEmail };

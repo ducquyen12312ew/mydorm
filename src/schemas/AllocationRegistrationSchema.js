@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const AllocationRegistrationSchema = new mongoose.Schema({
   academicYear: {
     type: String,
-    required: true,
-    index: true
+    required: true
   },
 
   allocationCycleId: {

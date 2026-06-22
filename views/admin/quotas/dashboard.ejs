@@ -10,27 +10,27 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;}
-    body{font-family:'Josefin Sans',system-ui,sans-serif;background:linear-gradient(180deg,#FBF8F3,#F5EFE7);min-height:100vh;margin:0;color:#2B2320;}
+    body{font-family:'Inter',system-ui,sans-serif;background:linear-gradient(180deg,#FBF8F3,#F5EFE7);min-height:100vh;margin:0;color:#2B2320;}
     body::before{content:'';position:fixed;inset:0;background:radial-gradient(1100px 560px at 88% -8%,rgba(225,29,42,.07),transparent 58%),radial-gradient(820px 480px at -8% 6%,rgba(185,138,42,.09),transparent 56%);pointer-events:none;z-index:0;}
     .container{max-width:1200px;margin:0 auto;padding:0 16px 24px;position:relative;z-index:1;}
     .header{display:flex;justify-content:space-between;align-items:center;margin:20px 0;}
-    .header h1{margin:0;font-family:'Josefin Sans',sans-serif;font-size:1.5rem;font-weight:600;color:#2B2320;}
+    .header h1{margin:0;font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:600;color:#2B2320;}
     .meta{color:#7C7166;font-size:.84rem;margin-top:4px;}
     .card{background:linear-gradient(180deg,#FFFFFF,#FCFAF6);border:1px solid #EFE8DF;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 1px 2px rgba(43,35,32,.04),0 20px 38px -26px rgba(43,35,32,.2);}
     .tabs{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0 12px;}
-    .tab{border-radius:11px;padding:8px 16px;text-decoration:none;font-size:.83rem;font-weight:700;font-family:'Josefin Sans',sans-serif;transition:all .15s;}
+    .tab{border-radius:11px;padding:8px 16px;text-decoration:none;font-size:.83rem;font-weight:700;font-family:'Inter',sans-serif;transition:all .15s;}
     .tab.active{background:linear-gradient(135deg,#E11D2A,#B20C26);color:#fff;box-shadow:0 4px 12px rgba(200,16,46,.25);}
     .tab.inactive{background:#fff;color:#7C7166;border:1.5px solid #E7DECF;}
     .tab.inactive:hover{background:#FBF8F3;border-color:#C8102E;color:#C8102E;}
     .kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
     .kpi{border:1px solid #EFE8DF;border-radius:12px;padding:16px;background:linear-gradient(180deg,#FFFFFF,#FCFAF6);}
     .kpi .label{font-size:.78rem;color:#A89C8E;font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
-    .kpi .value{font-family:'Josefin Sans',sans-serif;font-size:1.6rem;font-weight:700;margin-top:6px;color:#2B2320;}
-    h3{font-family:'Josefin Sans',sans-serif;font-weight:600;color:#2B2320;font-size:1.05rem;margin-bottom:14px;}
-    h4{font-family:'Josefin Sans',sans-serif;font-weight:600;color:#2B2320;font-size:.95rem;}
+    .kpi .value{font-family:'Inter',sans-serif;font-size:1.6rem;font-weight:700;margin-top:6px;color:#2B2320;}
+    h3{font-family:'Inter',sans-serif;font-weight:600;color:#2B2320;font-size:1.05rem;margin-bottom:14px;}
+    h4{font-family:'Inter',sans-serif;font-weight:600;color:#2B2320;font-size:.95rem;}
     table{width:100%;border-collapse:collapse;}
     th,td{padding:10px 12px;border-bottom:1px solid #F4EEE5;text-align:left;}
     th{background:#F7F1E8;font-size:.655rem;color:#9A8F84;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
@@ -41,7 +41,7 @@
     .status.under_quota{color:#2563EB;}
     .status.on_target{color:#0E9F6E;}
     .actions{display:flex;gap:8px;margin-top:12px;}
-    .btn{border:none;border-radius:11px;padding:9px 14px;cursor:pointer;text-decoration:none;font-size:.84rem;font-family:'Josefin Sans',sans-serif;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:6px;}
+    .btn{border:none;border-radius:11px;padding:9px 14px;cursor:pointer;text-decoration:none;font-size:.84rem;font-family:'Inter',sans-serif;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:6px;}
     .btn-primary{background:linear-gradient(135deg,#E11D2A,#B20C26);color:#fff;box-shadow:0 4px 12px rgba(200,16,46,.25);}
     .btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px);}
     .btn-secondary{background:#fff;color:#7C7166;border:1.5px solid #E7DECF;}
