@@ -8,84 +8,104 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Đợt đăng ký KTX — Admin</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #F8F9FA; color: #111827; }
-    .page-wrap { max-width: 1100px; margin: 28px auto; padding: 0 24px 48px; }
+    :root {
+      --red: #C8102E; --red-grad: linear-gradient(135deg,#E11D2A,#B20C26); --red-dark: #9E0C24;
+      --body-bg: linear-gradient(180deg,#FBF8F3,#F5EFE7);
+      --card-bg: linear-gradient(180deg,#FFFFFF,#FCFAF6);
+      --card-border: #EFE8DF;
+      --card-shadow: 0 1px 2px rgba(43,35,32,.04),0 20px 38px -26px rgba(43,35,32,.2);
+      --text: #2B2320; --muted: #7C7166; --muted2: #A89C8E;
+      --th-bg: #F7F1E8; --th-color: #9A8F84;
+      --row-alt: #FDFBF8; --row-border: #F4EEE5; --row-hover: #FAF5EE;
+    }
+
+    body { font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: var(--body-bg); color: var(--text); }
+    .page-wrap { max-width: 1100px; margin: 28px auto; padding: 0 24px 64px; }
 
     .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    .page-header h1 { font-size: 20px; font-weight: 700; color: #111827; }
-    .page-header h1 span { color: #C8102E; }
-    .page-header p { font-size: 13px; color: #6B7280; margin-top: 3px; }
+    .page-header h1 { font-family: 'Lora', Georgia, serif; font-size: 20px; font-weight: 700; color: var(--text); }
+    .page-header h1 span { color: var(--red); }
+    .page-header p { font-size: 13px; color: var(--muted); margin-top: 3px; }
 
-    .card { background: #fff; border: 1px solid #E5E7EB; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 20px; }
-    .card-hd { padding: 16px 20px; border-bottom: 1px solid #F3F4F6; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-    .card-title { font-size: 13px; font-weight: 700; color: #111827; display: flex; align-items: center; gap: 8px; }
-    .card-title i { color: #C8102E; }
+    /* Cards */
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 17px; box-shadow: var(--card-shadow); margin-bottom: 22px; }
+    .card-hd { padding: 15px 20px; border-bottom: 1px solid var(--card-border); display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .card-title { font-size: 10.5px; font-weight: 700; color: var(--th-color); text-transform: uppercase; letter-spacing: .08em; display: flex; align-items: center; gap: 8px; }
+    .card-title i { color: var(--red); }
     .card-body { padding: 20px; }
 
-    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: background .15s; }
-    .btn-red    { background: #C8102E; color: #fff; }
-    .btn-red:hover { background: #a50d24; }
-    .btn-outline { background: #fff; border: 1px solid #E5E7EB; color: #374151; }
-    .btn-outline:hover { border-color: #C8102E; color: #C8102E; }
-    .btn-sm { padding: 5px 12px; font-size: 12px; }
-    .btn-danger { background: #fff; border: 1px solid #FCA5A5; color: #DC2626; }
-    .btn-danger:hover { background: #FEF2F2; }
+    /* Buttons */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 11px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; text-decoration: none; transition: all .18s; font-family: 'Be Vietnam Pro', sans-serif; }
+    .btn-red  { background: var(--red-grad); color: #fff; box-shadow: 0 10px 24px -10px rgba(200,16,46,.65); }
+    .btn-red:hover { transform: translateY(-1px); box-shadow: 0 14px 28px -10px rgba(200,16,46,.75); }
+    .btn-outline { background: #fff; border: 1px solid #E7DECF; color: var(--text); }
+    .btn-outline:hover { background: #FBF8F3; border-color: #D4C9BC; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; border-radius: 9px; }
+    .btn-danger { background: #fff; border: 1px solid #F5C2C7; color: var(--red); }
+    .btn-danger:hover { background: #FCEDEF; border-color: var(--red); }
 
     /* Quota grid */
-    .quota-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .quota-card { background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; text-align: center; }
-    .quota-card .q-label { font-size: 11px; font-weight: 700; color: #9CA3AF; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 6px; }
-    .quota-card .q-slot  { font-size: 26px; font-weight: 800; color: #C8102E; }
-    .quota-card .q-pct   { font-size: 12px; color: #6B7280; margin-top: 2px; }
-    .quota-total { text-align: right; font-size: 13px; color: #6B7280; margin-top: 10px; }
-    .quota-total strong { color: #111827; font-size: 15px; }
+    .quota-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; }
+    .quota-card { background: var(--th-bg); border: 1px solid var(--card-border); border-radius: 13px; padding: 16px; text-align: center; }
+    .quota-card .q-label { font-size: 10.5px; font-weight: 700; color: var(--th-color); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+    .quota-card .q-slot  { font-family: 'Lora', Georgia, serif; font-size: 28px; font-weight: 700; color: var(--red); }
+    .quota-card .q-pct   { font-size: 12px; color: var(--muted); margin-top: 3px; }
+    .quota-total { text-align: right; font-size: 13px; color: var(--muted); margin-top: 12px; }
+    .quota-total strong { color: var(--text); font-family: 'Lora', Georgia, serif; font-size: 15px; }
 
-    /* Open form */
+    /* Form */
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .form-group { display: flex; flex-direction: column; gap: 5px; }
-    .form-group label { font-size: 12px; font-weight: 600; color: #374151; }
+    .form-group label { font-size: 12px; font-weight: 700; color: var(--text); }
     .form-group input, .form-group textarea, .form-group select {
-      padding: 8px 12px; border: 1px solid #E5E7EB; border-radius: 8px;
-      font-size: 13px; color: #111827; background: #fff; outline: none;
-      transition: border .15s;
+      padding: 8px 12px; border: 1px solid var(--card-border); border-radius: 10px;
+      font-size: 13px; color: var(--text); background: #fff; outline: none;
+      transition: border .18s; font-family: 'Be Vietnam Pro', sans-serif;
     }
-    .form-group input:focus, .form-group textarea:focus { border-color: #C8102E; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--red); box-shadow: 0 0 0 3px rgba(200,16,46,.08);
+    }
     .form-group textarea { resize: vertical; min-height: 60px; }
     .form-full { grid-column: 1 / -1; }
 
-    /* Table */
-    .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    .hist-table thead th { background: #F9FAFB; font-size: 11px; font-weight: 700; color: #6B7280; text-transform: uppercase; letter-spacing: .04em; padding: 10px 14px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    /* History table */
+    .hist-table { width: 100%; border-collapse: collapse; font-size: 13px; font-family: 'Be Vietnam Pro', sans-serif; }
+    .hist-table thead th { background: var(--th-bg); font-size: 10.5px; font-weight: 700; color: var(--th-color); text-transform: uppercase; letter-spacing: .07em; padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--row-border); }
     .hist-table thead th:last-child { text-align: right; }
-    .hist-table tbody td { padding: 12px 14px; border-bottom: 1px solid #F3F4F6; vertical-align: middle; }
+    .hist-table tbody td { padding: 12px 14px; border-bottom: 1px solid var(--row-border); vertical-align: middle; color: var(--text); }
+    .hist-table tbody tr:nth-child(even) td { background: var(--row-alt); }
     .hist-table tbody tr:last-child td { border-bottom: none; }
-    .hist-table tbody tr:hover td { background: #FAFAFA; }
+    .hist-table tbody tr:hover td { background: var(--row-hover); }
 
+    /* Badges */
     .badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .badge-running  { background: #D1FAE5; color: #065F46; }
-    .badge-pending  { background: #FEF3C7; color: #92400E; }
-    .badge-completed { background: #E0E7FF; color: #3730A3; }
-    .badge-cancelled { background: #F3F4F6; color: #6B7280; }
+    .badge-running   { background: #E4F6EF; color: #0E9F6E; border: 1px solid #A7DFC8; }
+    .badge-pending   { background: #FBF1DC; color: #B07D1A; border: 1px solid #EDD28A; }
+    .badge-completed { background: #E9F0FE; color: #2563EB; border: 1px solid #AABEF8; }
+    .badge-cancelled { background: #F4EFE8; color: #7C7166; border: 1px solid #E0D8CF; }
 
-    .empty-state { text-align: center; padding: 48px 24px; color: #9CA3AF; }
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--muted2); }
     .empty-state i { font-size: 36px; margin-bottom: 12px; display: block; }
     .empty-state p { font-size: 13px; }
 
     /* Modal overlay */
-    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 1000; align-items: center; justify-content: center; }
-    .modal-box { background: #fff; border-radius: 12px; padding: 24px; width: min(480px, 92vw); box-shadow: 0 20px 60px rgba(0,0,0,.18); }
-    .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 18px; color: #111827; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(43,35,32,.45); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-box { background: #fff; border-radius: 17px; padding: 26px; width: min(480px,92vw); box-shadow: 0 24px 60px rgba(43,35,32,.2); border-top: 3px solid var(--red); }
+    .modal-title { font-family: 'Lora', Georgia, serif; font-size: 16px; font-weight: 700; margin-bottom: 18px; color: var(--text); }
     .modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
     /* Alert */
-    .alert { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
-    .alert-success { background: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
-    .alert-error   { background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }
+    .alert { padding: 10px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 14px; display: none; }
+    .alert-success { background: #E4F6EF; color: #0E9F6E; border: 1px solid #A7DFC8; }
+    .alert-error   { background: #FCEDEF; color: var(--red); border: 1px solid #F5C2C7; }
 
     @media(max-width: 700px) {
-      .quota-grid { grid-template-columns: repeat(2, 1fr); }
+      .quota-grid { grid-template-columns: repeat(2,1fr); }
       .form-grid  { grid-template-columns: 1fr; }
     }
   </style>
@@ -416,5 +436,6 @@ document.getElementById('quotaModal').addEventListener('click', function(e) {
   if (e.target === this) closeQuotaModal();
 });
 </script>
+<%- include('footer') %>
 </body>
 </html>

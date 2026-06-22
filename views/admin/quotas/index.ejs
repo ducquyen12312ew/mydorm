@@ -8,34 +8,46 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Quota - Quản trị</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: radial-gradient(circle at top left, #fff8f1, #f3f6fb 45%); margin: 0; color: #1f2937; }
-    .container { max-width: 1240px; margin: 0 auto; padding: 0 18px 28px; }
-    .toolbar { display: flex; justify-content: space-between; align-items: center; margin: 18px 0; gap: 12px; background: linear-gradient(135deg, #ffffff, #fff6eb); border: 1px solid #f0dfcb; border-radius: 14px; padding: 16px; }
-    .toolbar h1 { margin: 0; font-size: 26px; color: #7c2d12; }
-    .toolbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn { border: none; border-radius: 8px; padding: 10px 14px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; }
-    .btn-primary { background: #b35a5a; color: #fff; }
-    .btn-secondary { background: #4b5563; color: #fff; }
-    .btn-warning { background: #9a3412; color: #fff; }
-    .btn-success { background: #7f4a4a; color: #fff; }
-    .btn-soft { background: #f7f1f1; color: #7f4a4a; border: 1px solid #e8d5d5; }
-    .message { padding: 12px 14px; border-radius: 8px; margin-bottom: 16px; }
-    .message.success { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
-    .message.error { background: #fef2f2; color: #991b1b; border: 1px solid #fca5a5; }
-    .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06); }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 12px; border-bottom: 1px solid #eef2f7; text-align: left; vertical-align: top; }
-    th { background: #f8f4ee; font-size: 13px; color: #6b3f24; }
-    .status { padding: 4px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
-    .status.draft { background: #ffedd5; color: #9a3412; }
-    .status.published { background: #f3e8e8; color: #7f4a4a; }
-    .quota-line { font-size: 13px; color: #4b5563; line-height: 1.5; }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
-    .small { font-size: 12px; color: #6b7280; }
-    details.advanced { margin-top: 10px; }
-    details.advanced summary { cursor: pointer; font-size: 13px; color: #7f4a4a; font-weight: 600; }
-    .advanced-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    *,*::before,*::after{box-sizing:border-box;}
+    body{font-family:'Be Vietnam Pro',system-ui,sans-serif;background:linear-gradient(180deg,#FBF8F3,#F5EFE7);min-height:100vh;margin:0;color:#2B2320;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(1100px 560px at 88% -8%,rgba(225,29,42,.07),transparent 58%),radial-gradient(820px 480px at -8% 6%,rgba(185,138,42,.09),transparent 56%);pointer-events:none;z-index:0;}
+    .container{max-width:1240px;margin:0 auto;padding:0 18px 28px;position:relative;z-index:1;}
+    .toolbar{display:flex;justify-content:space-between;align-items:center;margin:20px 0 16px;gap:12px;background:linear-gradient(180deg,#FFFFFF,#FCFAF6);border:1px solid #EFE8DF;border-radius:16px;padding:16px 20px;box-shadow:0 1px 2px rgba(43,35,32,.04),0 20px 38px -26px rgba(43,35,32,.2);}
+    .toolbar h1{margin:0;font-family:'Lora',serif;font-size:1.5rem;font-weight:600;color:#2B2320;}
+    .toolbar-actions{display:flex;gap:8px;flex-wrap:wrap;}
+    .btn{border:none;border-radius:11px;padding:9px 14px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;font-size:.84rem;font-family:'Be Vietnam Pro',sans-serif;font-weight:600;transition:all .18s;}
+    .btn-primary{background:linear-gradient(135deg,#E11D2A,#B20C26);color:#fff;box-shadow:0 4px 12px rgba(200,16,46,.25);}
+    .btn-primary:hover{filter:brightness(1.05);transform:translateY(-1px);}
+    .btn-secondary{background:#fff;color:#7C7166;border:1.5px solid #E7DECF;}
+    .btn-secondary:hover{background:#FBF8F3;border-color:#C8102E;color:#C8102E;}
+    .btn-warning{background:linear-gradient(135deg,#E8A320,#C8102E);color:#fff;box-shadow:0 4px 12px rgba(216,162,43,.25);}
+    .btn-warning:hover{filter:brightness(1.05);transform:translateY(-1px);}
+    .btn-success{background:linear-gradient(135deg,#12B981,#0E9F6E);color:#fff;box-shadow:0 4px 12px rgba(14,159,110,.25);}
+    .btn-success:hover{filter:brightness(1.05);transform:translateY(-1px);}
+    .btn-soft{background:#FBF8F3;color:#7C7166;border:1.5px solid #EFE8DF;}
+    .btn-soft:hover{background:#F7F1E8;border-color:#C8102E;color:#C8102E;}
+    .message{padding:12px 16px;border-radius:12px;margin-bottom:16px;font-size:.875rem;}
+    .message.success{background:#F7F1E8;color:#2B2320;border:1px solid #EFE8DF;}
+    .message.error{background:#FDE8EA;color:#9E0C24;border:1px solid #F4ABAF;}
+    .card{background:linear-gradient(180deg,#FFFFFF,#FCFAF6);border:1px solid #EFE8DF;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(43,35,32,.04),0 20px 38px -26px rgba(43,35,32,.2);}
+    table{width:100%;border-collapse:collapse;}
+    th,td{padding:11px 14px;border-bottom:1px solid #F4EEE5;text-align:left;vertical-align:top;}
+    th{background:#F7F1E8;font-size:.655rem;color:#9A8F84;font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+    tr:nth-child(even) td{background:#FDFBF8;}
+    tr:hover td{background:#FAF5EE;}
+    .status{padding:4px 10px;border-radius:999px;font-size:.73rem;font-weight:700;}
+    .status.draft{background:#FBF1DC;color:#D9A22B;}
+    .status.published{background:#FDE8EA;color:#C8102E;}
+    .quota-line{font-size:.82rem;color:#7C7166;line-height:1.6;}
+    .actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px;}
+    .small{font-size:.75rem;color:#A89C8E;margin-top:4px;}
+    details.advanced{margin-top:10px;}
+    details.advanced summary{cursor:pointer;font-size:.8rem;color:#C8102E;font-weight:600;}
+    .advanced-links{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
   </style>
 </head>
 <body>
@@ -212,5 +224,6 @@
       }
     }
   </script>
+  <%- include('../footer') %>
 </body>
 </html>

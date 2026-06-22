@@ -8,94 +8,88 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Phân bổ Phòng — eDorm</title>
   <%- include('../navbar', { user, activeNav: 'simulation' }) %>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ── Design tokens ──────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --red: #C8102E; --red-dark: #9E0D25;
-      --bg: #F5F6F8; --card: #FFFFFF;
-      --border: #EAECF0; --text: #2D3748; --muted: #9AA3AD;
-      --success: #6BAF95; --warning: #C8AA60; --info: #6B9FC8;
-      --radius: 12px; --shadow: 0 1px 6px rgba(0,0,0,.04);
+      --red: #C8102E; --red-dark: #9E0C24;
+      --bg: #FBF8F3; --card: #FFFFFF;
+      --border: #EFE8DF; --text: #2B2320; --muted: #7C7166; --muted2: #A89C8E;
+      --success: #0E9F6E; --warning: #D9A22B; --info: #2563EB;
+      --radius: 16px; --shadow: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
     }
-    body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    body { font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(180deg,#FBF8F3,#F5EFE7); min-height: 100vh; color: var(--text); }
 
     /* ── Layout ─────────────────────────────────────────────────── */
     .sim-wrap { max-width: 1100px; margin: 32px auto; padding: 0 24px 3rem; }
     .sim-header { margin-bottom: 1.75rem; }
-    .sim-header h2 { font-size: 1.35rem; font-weight: 700; color: var(--text); margin: 0 0 .3rem; }
-    .sim-header p  { font-size: .82rem; color: var(--muted); margin: 0; }
+    .sim-header h2 { font-family: 'Lora', Georgia, serif; font-size: 1.4rem; font-weight: 700; color: var(--text); margin: 0 0 .3rem; }
+    .sim-header p  { font-size: .82rem; color: var(--muted2); margin: 0; }
 
     /* ── Stat cards (ws-grid) ───────────────────────────────────── */
     .ws-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; margin-bottom: 1.5rem; }
     .ws-card {
-      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.25rem; box-shadow: var(--shadow);
     }
-    .ws-card .label { font-size: .72rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; margin-bottom: .3rem; }
-    .ws-card .value { font-size: 2rem; font-weight: 900; color: var(--text); line-height: 1; }
-    .ws-card .sub   { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+    .ws-card .label { font-size: .72rem; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
+    .ws-card .value { font-family: 'Lora', Georgia, serif; font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .ws-card .sub   { font-size: .75rem; color: var(--muted2); margin-top: .2rem; }
 
     /* ── Flow diagram card ──────────────────────────────────────── */
     .flow-section {
-      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
     }
-    .flow-section h3 { font-size: .95rem; font-weight: 700; color: var(--text); margin: 0 0 1.1rem; display: flex; align-items: center; gap: .4rem; }
+    .flow-section h3 { font-family: 'Lora', Georgia, serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 1.1rem; display: flex; align-items: center; gap: .4rem; }
 
     .flow-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
     .flow-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 100px; }
-    .flow-step .icon {
-      width: 44px; height: 44px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
-    }
-    .flow-step .icon.prod   { background: #EBF2F9; color: #5B91C8; }
-    .flow-step .icon.clone  { background: #EDF5F2; color: #5BA58A; }
-    .flow-step .icon.policy { background: #F7F3E8; color: #C9A84C; }
-    .flow-step .icon.reg    { background: #F0EBF9; color: #7B68C8; }
-    .flow-step .icon.alloc  { background: #F9ECEE; color: var(--red); }
+    .flow-step .icon { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+    .flow-step .icon.prod   { background: #E9F0FE; color: #2563EB; }
+    .flow-step .icon.clone  { background: #E4F6EF; color: #0E9F6E; }
+    .flow-step .icon.policy { background: #FBF1DC; color: #D9A22B; }
+    .flow-step .icon.reg    { background: #E9F0FE; color: #2563EB; }
+    .flow-step .icon.alloc  { background: #FCEDEF; color: var(--red); }
     .flow-step .name { font-size: .78rem; font-weight: 600; color: var(--text); text-align: center; }
-    .flow-step .desc { font-size: .7rem; color: var(--muted); text-align: center; }
-    .flow-arrow { color: var(--border); font-size: 1rem; padding: 0 8px; margin-bottom: 20px; }
+    .flow-step .desc { font-size: .7rem; color: var(--muted2); text-align: center; }
+    .flow-arrow { color: #D4C9BE; font-size: 1rem; padding: 0 8px; margin-bottom: 20px; }
 
     /* ── Action buttons ─────────────────────────────────────────── */
     .action-row { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
     .btn-sim {
       display: inline-flex; align-items: center; gap: .45rem;
-      padding: .55rem 1.1rem; border-radius: 8px; font-size: .85rem; font-weight: 600;
-      border: none; cursor: pointer; transition: background .15s, transform .1s;
-      text-decoration: none;
+      padding: .55rem 1.25rem; border-radius: 11px; font-size: .85rem; font-weight: 600;
+      border: none; cursor: pointer; transition: all .2s; text-decoration: none;
     }
     .btn-sim:active { transform: scale(.97); }
-    .btn-primary   { background: var(--red); color: #fff; }
-    .btn-primary:hover { background: var(--red-dark); }
-    .btn-secondary { background: var(--card); color: var(--text); border: 1px solid var(--border); }
-    .btn-secondary:hover { background: var(--bg); }
-    .btn-warning   { background: #FFF7ED; color: #C2410C; border: 1px solid #FED7AA; }
-    .btn-warning:hover { background: #FFEDD5; }
+    .btn-primary { background: linear-gradient(135deg,#E11D2A,#B20C26); color: #fff; box-shadow: 0 10px 24px -10px rgba(200,16,46,.65); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 28px -8px rgba(200,16,46,.7); }
+    .btn-secondary { background: #fff; color: var(--text); border: 1px solid #E7DECF; }
+    .btn-secondary:hover { background: #FBF8F3; }
+    .btn-warning { background: #FBF1DC; color: #8A5C0E; border: 1px solid #EDD28A; }
+    .btn-warning:hover { background: #F3E4BE; }
     .btn-sim:disabled { opacity: .5; cursor: not-allowed; }
 
     /* ── Status pills ───────────────────────────────────────────── */
-    .status-pill {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-size: .72rem; font-weight: 600; padding: .2rem .55rem; border-radius: 20px;
-    }
-    .pill-active { background: #EDF5F2; color: #2D6B52; border: 1px solid #AADBC8; }
-    .pill-init   { background: #F7F3E8; color: #7A6428; border: 1px solid #E5D7A0; }
-    .pill-none   { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+    .status-pill { display: inline-flex; align-items: center; gap: 5px; font-size: .72rem; font-weight: 600; padding: .2rem .55rem; border-radius: 20px; }
+    .pill-active { background: #E4F6EF; color: #076641; border: 1px solid #A7DFC8; }
+    .pill-init   { background: #FBF1DC; color: #8A5C0E; border: 1px solid #EDD28A; }
+    .pill-none   { background: #F5EFE7; color: var(--muted2); border: 1px solid var(--border); }
     .pill-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
 
     /* ── Section panels ─────────────────────────────────────────── */
     .section-panel {
-      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow);
     }
-    .section-panel h3 { font-size: .95rem; font-weight: 700; color: var(--text); margin: 0 0 .875rem; display: flex; align-items: center; gap: .4rem; }
+    .section-panel h3 { font-family: 'Lora', Georgia, serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 .875rem; display: flex; align-items: center; gap: .4rem; }
 
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
     .info-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; border-bottom: 1px solid var(--border); }
     .info-row:last-child { border-bottom: none; }
-    .info-label { font-size: .82rem; color: var(--muted); }
+    .info-label { font-size: .82rem; color: var(--muted2); }
     .info-value { font-size: .82rem; font-weight: 600; color: var(--text); }
 
     .ws-actions { display: flex; gap: .625rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
@@ -103,8 +97,8 @@
     /* ── Toast & Spinner ────────────────────────────────────────── */
     .toast-container { position: fixed; top: 72px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
     .toast {
-      background: #1F2937; color: #F9FAFB; padding: .75rem 1.1rem; border-radius: 10px;
-      font-size: .8rem; min-width: 240px; box-shadow: 0 4px 16px rgba(0,0,0,.18);
+      background: #2B2320; color: #FBF8F3; padding: .75rem 1.1rem; border-radius: 11px;
+      font-size: .8rem; min-width: 240px; box-shadow: 0 4px 16px rgba(43,35,32,.25);
       animation: slideIn .2s ease;
     }
     .toast.success { border-left: 4px solid var(--success); }
@@ -114,7 +108,7 @@
 
     #spinnerOverlay {
       display: none; position: fixed; inset: 0;
-      background: rgba(0,0,0,.35); z-index: 9000;
+      background: rgba(43,35,32,.45); z-index: 9000;
       align-items: center; justify-content: center; flex-direction: column; gap: 16px;
     }
     #spinnerOverlay.show { display: flex; }
@@ -406,5 +400,6 @@ async function undoAllocation() {
 checkSnapshot();
 <% } %>
 </script>
+<%- include('../footer') %>
 </body>
 </html>

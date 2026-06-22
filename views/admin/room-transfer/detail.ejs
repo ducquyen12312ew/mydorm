@@ -77,7 +77,7 @@
     .room-item .ri-meta { font-size:.78rem; color:var(--muted); }
     @media (max-width:768px) { .grid-2 { grid-template-columns:1fr; } }
   </style>
-</head>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Be Vietnam Pro",system-ui,sans-serif!important;background:linear-gradient(180deg,#FBF8F3,#F5EFE7)!important;color:#2B2320!important;}</style></head>
 <body>
 <%- include('../navbar', { activeNav: 'requests' }) %>
 <div class="admin-content">
@@ -345,5 +345,6 @@ document.querySelectorAll('.modal-overlay').forEach(m =>
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); })
 );
 </script>
+<%- include('../footer') %>
 </body>
 </html>

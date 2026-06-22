@@ -8,35 +8,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= dormitory.name %> — Admin</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary:   #C8102E;
-      --primary-dk:#A20D25;
-      --primary-bg:#FFF0F2;
-      --bg:        #F7F7F7;
-      --surface:   #FFFFFF;
-      --border:    #E5E7EB;
-      --text:      #111827;
-      --text-2:    #6B7280;
-      --text-3:    #9CA3AF;
-      --success:   #166534;
-      --success-bg:#DCFCE7;
-      --warning:   #D97706;
-      --warning-bg:#FFFBEB;
-      --danger:    #DC2626;
-      --danger-bg: #FEF2F2;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --radius:    8px;
-      --radius-sm: 6px;
+      --primary:    #C8102E;
+      --primary-dk: #9E0C24;
+      --primary-bg: #FFF0F2;
+      --border:     #EFE8DF;
+      --text:       #2B2320;
+      --text-2:     #7C7166;
+      --text-3:     #A89C8E;
+      --success:    #0E9F6E;
+      --success-bg: #E4F6EF;
+      --success-bd: #A7DFC8;
+      --warning:    #D9A22B;
+      --warning-bg: #FBF1DC;
+      --warning-bd: #EDD28A;
+      --danger:     #C8102E;
+      --danger-bg:  #FFF0F2;
+      --shadow-card: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
+      --radius-card: 16px;
+      --radius-sm:   10px;
+      --radius-btn:  11px;
     }
 
     body {
-      background: var(--bg);
-      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(180deg, #FBF8F3, #F5EFE7);
+      min-height: 100vh;
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
       color: var(--text);
       font-size: 14px;
       line-height: 1.5;
@@ -56,9 +58,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 0 16px;
+      padding: 20px 0 18px;
       border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
+      margin-bottom: 22px;
       gap: 12px;
       flex-wrap: wrap;
     }
@@ -80,7 +82,7 @@
     .breadcrumb a { color: var(--text-2); }
     .breadcrumb a:hover { color: var(--text); }
     .breadcrumb .sep { color: var(--text-3); }
-    .breadcrumb .current { color: var(--text); font-weight: 600; }
+    .breadcrumb .current { color: var(--text); font-weight: 700; font-family: 'Lora', serif; }
 
     .page-head-right { display: flex; gap: 8px; flex-wrap: wrap; }
 
@@ -89,55 +91,65 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 13px;
-      border-radius: var(--radius-sm);
+      padding: 7px 14px;
+      border-radius: var(--radius-btn);
       font-size: 13px;
-      font-weight: 500;
-      font-family: inherit;
+      font-weight: 600;
+      font-family: 'Be Vietnam Pro', inherit;
       cursor: pointer;
       border: 1px solid transparent;
-      transition: background 0.15s, box-shadow 0.15s;
+      transition: background 0.15s, box-shadow 0.15s, border-color 0.15s;
       white-space: nowrap;
     }
 
-    .btn-primary   { background: var(--primary); color: #fff; border-color: var(--primary); }
-    .btn-primary:hover { background: var(--primary-dk); border-color: var(--primary-dk); }
+    .btn-primary {
+      background: linear-gradient(135deg, #E11D2A, #B20C26);
+      color: #fff;
+      box-shadow: 0 10px 24px -10px rgba(200,16,46,.65);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #C8102E, #9E0C24);
+      box-shadow: 0 12px 28px -8px rgba(200,16,46,.75);
+    }
 
-    .btn-ghost  { background: var(--surface); color: var(--text-2); border-color: var(--border); }
-    .btn-ghost:hover { background: var(--bg); color: var(--text); }
+    .btn-ghost { background: #fff; color: var(--text-2); border-color: var(--border); }
+    .btn-ghost:hover { background: #FBF8F3; color: var(--text); border-color: #D9CFBF; }
 
     .btn-danger-ghost { background: transparent; color: var(--danger); border-color: transparent; }
-    .btn-danger-ghost:hover { background: var(--danger-bg); border-color: #FECACA; }
+    .btn-danger-ghost:hover { background: var(--danger-bg); border-color: #FECDD3; }
 
     /* ── KPI row ── */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      gap: 12px;
+      gap: 13px;
       margin-bottom: 24px;
     }
     @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 600px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
 
     .kpi-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #FFFFFF, #FCFAF6);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      box-shadow: var(--shadow-sm);
+      border-top: 3px solid #C8102E;
+      border-radius: var(--radius-card);
+      padding: 15px 18px;
+      box-shadow: var(--shadow-card);
     }
 
     .kpi-label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-3);
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #9A8F84;
       text-transform: uppercase;
       letter-spacing: 0.07em;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
+      font-family: 'Be Vietnam Pro', sans-serif;
     }
 
     .kpi-value {
-      font-size: 22px;
+      font-family: 'Lora', serif;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: -0.03em;
       color: var(--text);
@@ -146,65 +158,68 @@
 
     .kpi-value.accent { color: var(--primary); }
 
-    .kpi-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+    .kpi-sub { font-size: 11px; color: var(--text-3); margin-top: 4px; }
 
     /* ── Dormitory info card ── */
     .dorm-info-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #FFFFFF, #FCFAF6);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 18px 20px;
-      margin-bottom: 20px;
+      border-radius: var(--radius-card);
+      padding: 20px 22px;
+      margin-bottom: 22px;
       display: flex;
       gap: 20px;
       align-items: flex-start;
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-card);
       flex-wrap: wrap;
     }
 
     .dorm-info-img {
-      width: 100px;
-      height: 68px;
+      width: 110px;
+      height: 74px;
       object-fit: cover;
-      border-radius: 6px;
+      border-radius: 10px;
       flex-shrink: 0;
     }
 
     .dorm-info-img-placeholder {
-      width: 100px;
-      height: 68px;
-      background: var(--bg);
+      width: 110px;
+      height: 74px;
+      background: linear-gradient(135deg, #F7F1E8, #EFE8DF);
       border: 1px solid var(--border);
-      border-radius: 6px;
+      border-radius: 10px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--text-3);
-      font-size: 24px;
+      color: #C8B9A8;
+      font-size: 28px;
     }
 
     .dorm-info-meta { flex: 1; }
-    .dorm-info-meta h2 { font-size: 16px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
-    .dorm-info-meta p  { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+    .dorm-info-meta h2 {
+      font-family: 'Lora', serif;
+      font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.01em;
+    }
+    .dorm-info-meta p  { font-size: 12px; color: var(--text-2); margin-top: 5px; }
 
-    .dorm-info-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; }
+    .dorm-info-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 9px; }
 
     .tag {
-      padding: 2px 7px;
-      border-radius: 4px;
+      padding: 2px 8px;
+      border-radius: 5px;
       font-size: 11px;
       font-weight: 500;
       border: 1px solid transparent;
     }
-    .tag-school   { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
-    .tag-private  { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
-    .tag-basic    { background: #FFF0F2; color: var(--primary); border-color: #FECDD3; }
-    .tag-premium  { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
-    .tag-international { background: #FFFBEB; color: #92400E; border-color: #FDE68A; }
-    .tag-female   { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
-    .tag-male     { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
-    .tag-amenity  { background: #F3F4F6; color: var(--text-2); border-color: var(--border); }
+    .tag-school       { background: #F7F1E8; color: var(--text-2); border-color: var(--border); }
+    .tag-private      { background: #FBF1DC; color: #92400E; border-color: #EDD28A; }
+    .tag-basic        { background: var(--primary-bg); color: var(--primary); border-color: #FECDD3; }
+    .tag-premium      { background: #F7F1E8; color: #7C5C2E; border-color: #DCC9A8; }
+    .tag-international{ background: #FBF1DC; color: #7C4D10; border-color: #EDD28A; }
+    .tag-female       { background: #F7F1E8; color: var(--text-2); border-color: var(--border); }
+    .tag-male         { background: #F7F1E8; color: var(--text-2); border-color: var(--border); }
+    .tag-amenity      { background: #F7F1E8; color: var(--text-2); border-color: var(--border); }
 
     /* ── Floors section ── */
     .section-header {
@@ -215,7 +230,8 @@
     }
 
     .section-title {
-      font-size: 15px;
+      font-family: 'Lora', serif;
+      font-size: 16px;
       font-weight: 700;
       color: var(--text);
       display: flex;
@@ -226,25 +242,23 @@
     .section-title i { color: var(--primary); font-size: 13px; }
 
     /* ── Floor block ── */
-    .floor-block {
-      margin-bottom: 16px;
-    }
+    .floor-block { margin-bottom: 20px; }
 
     .floor-heading {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 12px;
-      background: #F9FAFB;
+      padding: 9px 14px;
+      background: #F7F1E8;
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text);
     }
 
-    .floor-heading i { color: var(--text-3); font-size: 11px; }
+    .floor-heading i { color: #9A8F84; font-size: 11px; }
     .floor-badge {
       margin-left: auto;
       font-size: 11px;
@@ -256,16 +270,22 @@
     .rooms-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 12px;
+      gap: 14px;
     }
 
     /* ── Room card ── */
     .room-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #FFFFFF, #FCFAF6);
       border: 1px solid var(--border);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
+      border-radius: 14px;
+      box-shadow: 0 1px 2px rgba(43,35,32,.04), 0 8px 18px -12px rgba(43,35,32,.15);
       overflow: hidden;
+      transition: box-shadow 0.15s, border-color 0.15s;
+    }
+
+    .room-card:hover {
+      box-shadow: 0 2px 6px rgba(43,35,32,.07), 0 14px 26px -10px rgba(43,35,32,.22);
+      border-color: #D9CFBF;
     }
 
     .room-card-head {
@@ -273,11 +293,13 @@
       align-items: center;
       justify-content: space-between;
       padding: 11px 14px 9px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #F1EAE0;
+      background: #F7F1E8;
     }
 
     .room-num {
-      font-size: 13px;
+      font-family: 'Lora', serif;
+      font-size: 14px;
       font-weight: 700;
       color: var(--text);
     }
@@ -291,16 +313,16 @@
     .room-occ-badge {
       font-size: 12px;
       font-weight: 600;
-      padding: 2px 8px;
+      padding: 2px 9px;
       border-radius: 99px;
     }
 
-    .occ-full    { background: #FFF0F2; color: var(--primary); }
-    .occ-most    { background: #FFFBEB; color: #D97706; }
-    .occ-part    { background: #F3F4F6; color: #6B7280; }
-    .occ-empty   { background: #F9FAFB; color: var(--text-3); }
+    .occ-full  { background: var(--primary-bg); color: var(--primary); border: 1px solid #FECDD3; }
+    .occ-most  { background: var(--warning-bg); color: var(--warning); border: 1px solid var(--warning-bd); }
+    .occ-part  { background: #F7F1E8; color: var(--text-2); border: 1px solid var(--border); }
+    .occ-empty { background: #FDFBF8; color: var(--text-3); border: 1px solid #EFE8DF; }
 
-    .room-card-body { padding: 10px 14px 12px; }
+    .room-card-body { padding: 11px 14px 13px; }
 
     /* mini progress */
     .room-prog {
@@ -313,7 +335,7 @@
     .room-prog-track {
       flex: 1;
       height: 4px;
-      background: var(--border);
+      background: #EFE8DF;
       border-radius: 99px;
       overflow: hidden;
     }
@@ -323,9 +345,9 @@
       border-radius: 99px;
     }
 
-    .room-prog-fill.occ-high   { background: var(--primary); }
-    .room-prog-fill.occ-mid    { background: #D97706; }
-    .room-prog-fill.occ-low    { background: #9CA3AF; }
+    .room-prog-fill.occ-high { background: linear-gradient(90deg, #E11D2A, #B20C26); }
+    .room-prog-fill.occ-mid  { background: linear-gradient(90deg, #D9A22B, #B8861F); }
+    .room-prog-fill.occ-low  { background: #C8B9A8; }
 
     .room-prog-label { font-size: 11px; color: var(--text-3); white-space: nowrap; }
 
@@ -337,18 +359,18 @@
       align-items: center;
       gap: 8px;
       padding: 5px 8px;
-      border-radius: 6px;
+      border-radius: 8px;
       transition: background 0.1s;
     }
 
-    .occupant-row:hover { background: #F9FAFB; }
+    .occupant-row:hover { background: #F7F1E8; }
 
     .occ-avatar {
       width: 26px;
       height: 26px;
       border-radius: 50%;
-      background: var(--primary-bg);
-      color: var(--primary);
+      background: linear-gradient(135deg, #E11D2A, #B20C26);
+      color: #fff;
       font-size: 10px;
       font-weight: 700;
       display: flex;
@@ -381,8 +403,8 @@
     /* room footer */
     .room-card-foot {
       padding: 8px 12px;
-      border-top: 1px solid var(--border);
-      background: #FAFAFA;
+      border-top: 1px solid #F1EAE0;
+      background: #FDFBF8;
       display: flex;
       gap: 6px;
     }
@@ -618,10 +640,10 @@
         </div>
         <% }); %>
       <% } else { %>
-      <div style="text-align:center;padding:48px 24px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);">
-        <i class="fas fa-layer-group" style="font-size:32px;color:var(--text-3);margin-bottom:10px;display:block;"></i>
-        <p style="color:var(--text-2);font-weight:500;">Chưa có tầng nào</p>
-        <p style="color:var(--text-3);font-size:12px;margin-top:4px;">Thêm tầng và phòng vào ký túc xá này.</p>
+      <div style="text-align:center;padding:48px 24px;background:linear-gradient(180deg,#FFFFFF,#FCFAF6);border:1px solid #EFE8DF;border-radius:16px;box-shadow:0 1px 2px rgba(43,35,32,.04),0 20px 38px -26px rgba(43,35,32,.2);">
+        <i class="fas fa-layer-group" style="font-size:32px;color:#C8B9A8;margin-bottom:10px;display:block;"></i>
+        <p style="color:#7C7166;font-weight:600;font-family:'Lora',serif;">Chưa có tầng nào</p>
+        <p style="color:#A89C8E;font-size:12px;margin-top:4px;">Thêm tầng và phòng vào ký túc xá này.</p>
       </div>
       <% } %>
     </div>
@@ -647,5 +669,7 @@
       window.location.href = '/admin/dormitories/' + dormId + '/rooms/' + floor + '/' + roomNum;
     }
   </script>
+
+<%- include('../footer') %>
 </body>
 </html>

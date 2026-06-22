@@ -8,32 +8,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= student.name %> — Hồ sơ cư dân</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --primary:   #C8102E;
-      --primary-dk:#A20D25;
-      --primary-bg:#FFF0F2;
-      --bg:        #F7F7F7;
-      --surface:   #FFFFFF;
-      --border:    #E5E7EB;
-      --text:      #111827;
-      --text-2:    #6B7280;
-      --text-3:    #9CA3AF;
-      --success:   #166534;
-      --success-bg:#DCFCE7;
-      --warning:   #D97706;
-      --warning-bg:#FFFBEB;
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-      --radius:    8px;
+      --primary:    #C8102E;
+      --primary-dk: #9E0C24;
+      --primary-bg: #FFF0F2;
+      --bg:         #F5EFE7;
+      --surface:    #FFFFFF;
+      --border:     #EFE8DF;
+      --text:       #2B2320;
+      --text-2:     #7C7166;
+      --text-3:     #A89C8E;
+      --success:    #0E9F6E;
+      --success-bg: #E4F6EF;
+      --success-bd: #A7DFC8;
+      --warning:    #D9A22B;
+      --warning-bg: #FBF1DC;
+      --shadow-card: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
+      --radius-card: 16px;
+      --radius-btn:  11px;
     }
 
     body {
-      background: var(--bg);
-      font-family: 'Inter', system-ui, sans-serif;
+      background: linear-gradient(180deg, #FBF8F3, #F5EFE7);
+      min-height: 100vh;
+      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
       color: var(--text);
       font-size: 14px;
       line-height: 1.5;
@@ -52,7 +55,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 18px 0 16px;
+      padding: 20px 0 18px;
       border-bottom: 1px solid var(--border);
       margin-bottom: 24px;
       gap: 12px;
@@ -76,51 +79,56 @@
       align-items: center;
       gap: 6px;
       padding: 8px 14px;
-      border-radius: var(--radius);
+      border-radius: var(--radius-btn);
       font-size: 13px;
       font-weight: 500;
       cursor: pointer;
       border: 1px solid var(--border);
-      background: var(--surface);
+      background: #fff;
       color: var(--text-2);
-      transition: background 0.15s, color 0.15s;
+      font-family: 'Be Vietnam Pro', inherit;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
-    .btn:hover { background: var(--bg); color: var(--text); }
+    .btn:hover { background: #FBF8F3; color: var(--text); border-color: #D9CFBF; }
 
     /* Profile header card */
     .profile-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #FFFFFF, #FCFAF6);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-card);
       padding: 24px;
       display: flex;
       gap: 20px;
       align-items: flex-start;
       margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
     }
 
     .profile-avatar {
       width: 72px;
       height: 72px;
       border-radius: 50%;
-      background: var(--primary-bg);
-      color: var(--primary);
+      background: linear-gradient(135deg, #E11D2A, #B20C26);
+      color: #fff;
       font-size: 26px;
       font-weight: 700;
+      font-family: 'Lora', serif;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      border: 2px solid var(--primary);
+      box-shadow: 0 6px 18px -6px rgba(200,16,46,.55);
     }
 
     .profile-meta { flex: 1; min-width: 0; }
 
     .profile-name {
+      font-family: 'Lora', serif;
       font-size: 20px;
       font-weight: 700;
       color: var(--text);
       margin-bottom: 4px;
+      letter-spacing: -0.01em;
     }
 
     .profile-id {
@@ -140,13 +148,13 @@
       font-size: 12px;
       font-weight: 500;
       border: 1px solid var(--border);
-      background: var(--bg);
+      background: #F7F1E8;
       color: var(--text-2);
     }
-    .tag-resident { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
-    .tag-male     { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
-    .tag-female   { background: #F3F4F6; color: #374151; border-color: #E5E7EB; }
-    .tag-faculty  { background: var(--primary-bg); color: var(--primary); border-color: #FCA5A5; }
+    .tag-resident { background: var(--success-bg); color: var(--success); border-color: var(--success-bd); }
+    .tag-male     { background: #F7F1E8; color: var(--text-2); border-color: var(--border); }
+    .tag-female   { background: #F7F1E8; color: var(--text-2); border-color: var(--border); }
+    .tag-faculty  { background: var(--primary-bg); color: var(--primary); border-color: #FECDD3; }
 
     /* Info grid */
     .info-grid {
@@ -159,21 +167,23 @@
     @media (max-width: 640px) { .info-grid { grid-template-columns: 1fr; } }
 
     .info-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #FFFFFF, #FCFAF6);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-card);
       padding: 20px;
+      box-shadow: var(--shadow-card);
     }
 
     .info-card-title {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
-      color: var(--text-3);
+      color: #9A8F84;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
+      font-family: 'Be Vietnam Pro', sans-serif;
     }
 
     .info-row {
@@ -205,25 +215,27 @@
 
     /* Room info card */
     .room-card {
-      background: var(--surface);
+      background: linear-gradient(180deg, #FFFFFF, #FCFAF6);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: var(--radius-card);
       padding: 20px;
       margin-bottom: 20px;
+      box-shadow: var(--shadow-card);
     }
 
     .room-card-title {
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
-      color: var(--text-3);
+      color: #9A8F84;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.07em;
       margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
       display: flex;
       align-items: center;
       gap: 6px;
+      font-family: 'Be Vietnam Pro', sans-serif;
     }
 
     .room-card-title i { color: var(--primary); }
@@ -237,13 +249,20 @@
     @media (max-width: 640px) { .room-detail-grid { grid-template-columns: 1fr 1fr; } }
 
     .room-stat {
-      background: var(--bg);
-      border-radius: 8px;
+      background: #F7F1E8;
+      border-radius: 10px;
       padding: 12px 14px;
+      border: 1px solid var(--border);
     }
 
-    .room-stat-label { font-size: 11px; color: var(--text-3); font-weight: 600; text-transform: uppercase; }
-    .room-stat-value { font-size: 16px; font-weight: 700; color: var(--text); margin-top: 2px; }
+    .room-stat-label {
+      font-size: 10.5px; color: #9A8F84; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .room-stat-value {
+      font-family: 'Lora', serif;
+      font-size: 18px; font-weight: 700; color: var(--text); margin-top: 3px;
+    }
 
     .no-room {
       text-align: center;
@@ -352,7 +371,7 @@
         </div>
         <div class="info-row">
           <div class="info-label">Điểm ưu tiên</div>
-          <div class="info-value" style="color: var(--primary); font-weight: 700;"><%= student.priorityScore || 0 %> điểm</div>
+          <div class="info-value" style="color: var(--primary); font-weight: 700; font-family: 'Lora', serif;"><%= student.priorityScore || 0 %> điểm</div>
         </div>
       </div>
     </div>
@@ -420,5 +439,7 @@
     </div>
 
   </div>
+
+<%- include('../footer') %>
 </body>
 </html>
