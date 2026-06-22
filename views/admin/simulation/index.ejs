@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="vi">
 <head>
     <link rel="icon" type="image/png" href="https://res.cloudinary.com/dysgt8t4d/image/upload/v1782017194/logoedorm_c33vj5_obiwxk.png">
@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Phân bổ Phòng — eDorm</title>
   <%- include('../navbar', { user, activeNav: 'simulation' }) %>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     /* ── Design tokens ──────────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -19,12 +19,12 @@
       --success: #0E9F6E; --warning: #D9A22B; --info: #2563EB;
       --radius: 16px; --shadow: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
     }
-    body { font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(180deg,#FBF8F3,#F5EFE7); min-height: 100vh; color: var(--text); }
+    body { font-family: 'Josefin Sans', 'Segoe UI', system-ui, sans-serif; background: linear-gradient(180deg,#FBF8F3,#F5EFE7); min-height: 100vh; color: var(--text); }
 
     /* ── Layout ─────────────────────────────────────────────────── */
     .sim-wrap { max-width: 1100px; margin: 32px auto; padding: 0 24px 3rem; }
     .sim-header { margin-bottom: 1.75rem; }
-    .sim-header h2 { font-family: 'Lora', Georgia, serif; font-size: 1.4rem; font-weight: 700; color: var(--text); margin: 0 0 .3rem; }
+    .sim-header h2 { font-family: 'Josefin Sans', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--text); margin: 0 0 .3rem; }
     .sim-header p  { font-size: .82rem; color: var(--muted2); margin: 0; }
 
     /* ── Stat cards (ws-grid) ───────────────────────────────────── */
@@ -34,7 +34,7 @@
       padding: 1.25rem; box-shadow: var(--shadow);
     }
     .ws-card .label { font-size: .72rem; font-weight: 600; color: var(--muted2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: .3rem; }
-    .ws-card .value { font-family: 'Lora', Georgia, serif; font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1; }
+    .ws-card .value { font-family: 'Josefin Sans', sans-serif; font-size: 2rem; font-weight: 700; color: var(--text); line-height: 1; }
     .ws-card .sub   { font-size: .75rem; color: var(--muted2); margin-top: .2rem; }
 
     /* ── Flow diagram card ──────────────────────────────────────── */
@@ -42,7 +42,7 @@
       background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.5rem 1.75rem; margin-bottom: 1.5rem; box-shadow: var(--shadow);
     }
-    .flow-section h3 { font-family: 'Lora', Georgia, serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 1.1rem; display: flex; align-items: center; gap: .4rem; }
+    .flow-section h3 { font-family: 'Josefin Sans', sans-serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 1.1rem; display: flex; align-items: center; gap: .4rem; }
 
     .flow-steps { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
     .flow-step { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 100px; }
@@ -84,7 +84,7 @@
       background: linear-gradient(180deg,#FFFFFF,#FCFAF6); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.5rem 1.75rem; margin-bottom: 1.25rem; box-shadow: var(--shadow);
     }
-    .section-panel h3 { font-family: 'Lora', Georgia, serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 .875rem; display: flex; align-items: center; gap: .4rem; }
+    .section-panel h3 { font-family: 'Josefin Sans', sans-serif; font-size: .95rem; font-weight: 600; color: var(--text); margin: 0 0 .875rem; display: flex; align-items: center; gap: .4rem; }
 
     .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 24px; }
     .info-row { display: flex; justify-content: space-between; align-items: center; padding: .45rem 0; border-bottom: 1px solid var(--border); }
@@ -400,6 +400,6 @@ async function undoAllocation() {
 checkSnapshot();
 <% } %>
 </script>
-<%- include('../footer') %>
+<%- include('../../shared/footer') %>
 </body>
 </html>

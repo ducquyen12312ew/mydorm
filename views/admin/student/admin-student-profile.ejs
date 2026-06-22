@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><%= student.name %> — Hồ sơ cư dân</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,7 +36,7 @@
     body {
       background: linear-gradient(180deg, #FBF8F3, #F5EFE7);
       min-height: 100vh;
-      font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+      font-family: 'Josefin Sans', system-ui, sans-serif;
       color: var(--text);
       font-size: 14px;
       line-height: 1.5;
@@ -86,7 +86,7 @@
       border: 1px solid var(--border);
       background: #fff;
       color: var(--text-2);
-      font-family: 'Be Vietnam Pro', inherit;
+      font-family: 'Josefin Sans', inherit;
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
     .btn:hover { background: #FBF8F3; color: var(--text); border-color: #D9CFBF; }
@@ -112,7 +112,7 @@
       color: #fff;
       font-size: 26px;
       font-weight: 700;
-      font-family: 'Lora', serif;
+      font-family: 'Josefin Sans', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -123,7 +123,7 @@
     .profile-meta { flex: 1; min-width: 0; }
 
     .profile-name {
-      font-family: 'Lora', serif;
+      font-family: 'Josefin Sans', sans-serif;
       font-size: 20px;
       font-weight: 700;
       color: var(--text);
@@ -183,7 +183,7 @@
       margin-bottom: 14px;
       padding-bottom: 10px;
       border-bottom: 1px solid var(--border);
-      font-family: 'Be Vietnam Pro', sans-serif;
+      font-family: 'Josefin Sans', sans-serif;
     }
 
     .info-row {
@@ -235,7 +235,7 @@
       display: flex;
       align-items: center;
       gap: 6px;
-      font-family: 'Be Vietnam Pro', sans-serif;
+      font-family: 'Josefin Sans', sans-serif;
     }
 
     .room-card-title i { color: var(--primary); }
@@ -260,7 +260,7 @@
       text-transform: uppercase; letter-spacing: 0.05em;
     }
     .room-stat-value {
-      font-family: 'Lora', serif;
+      font-family: 'Josefin Sans', sans-serif;
       font-size: 18px; font-weight: 700; color: var(--text); margin-top: 3px;
     }
 
@@ -371,7 +371,7 @@
         </div>
         <div class="info-row">
           <div class="info-label">Điểm ưu tiên</div>
-          <div class="info-value" style="color: var(--primary); font-weight: 700; font-family: 'Lora', serif;"><%= student.priorityScore || 0 %> điểm</div>
+          <div class="info-value" style="color: var(--primary); font-weight: 700; font-family: 'Josefin Sans', sans-serif;"><%= student.priorityScore || 0 %> điểm</div>
         </div>
       </div>
     </div>
@@ -440,6 +440,6 @@
 
   </div>
 
-<%- include('../footer') %>
+<%- include('../../shared/footer') %>
 </body>
 </html>

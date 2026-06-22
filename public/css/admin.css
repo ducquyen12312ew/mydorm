@@ -1,10 +1,10 @@
-/* ==========================================================
+﻿/* ==========================================================
    admin.css — warm-luxury design system
    Loaded via navbar.ejs so every admin page inherits it.
-   Font: Lora (headings/numbers) + Be Vietnam Pro (UI)
+   Font: Josefin Sans
    ========================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap');
 
 :root {
     /* ── Primary (red) ── */
@@ -58,14 +58,22 @@
 }
 
 /* ── Body / page base ─────────────────────────────────────── */
+html { height: 100%; }
+
 body {
     background: var(--adm-bg-page);
-    font-family: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Josefin Sans', 'Segoe UI', system-ui, sans-serif;
     color: var(--adm-text);
     font-size: 14px;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
+
+/* Shared footer always stays at bottom */
+.fv2 { margin-top: auto; }
 
 /* ── Page header ──────────────────────────────────────────── */
 .page-header {
@@ -82,7 +90,7 @@ body {
 
 .page-header h1,
 .page-header .page-title {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'Josefin Sans', sans-serif;
     font-size: 1.5rem;
     font-weight: 600;
     color: var(--adm-text);
@@ -151,7 +159,7 @@ body {
 }
 
 .stat-card .value {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'Josefin Sans', sans-serif;
     font-size: 2.1rem;
     font-weight: 600;
     color: var(--adm-text);
@@ -265,7 +273,7 @@ body {
     padding: 0.55rem 1.2rem;
     border-radius: 11px;
     border: none;
-    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-family: 'Josefin Sans', system-ui, sans-serif;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
@@ -358,7 +366,7 @@ select.filter-input {
     border: 1px solid #E7DECF;
     border-radius: 10px;
     font-size: 0.875rem;
-    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    font-family: 'Josefin Sans', system-ui, sans-serif;
     color: var(--adm-text);
     background: #fff;
     transition: border-color 0.15s, box-shadow 0.15s;
@@ -499,7 +507,7 @@ select.filter-input:focus {
 .app-stat-card .icon { font-size: 1.4rem; margin-bottom: 0.4rem; }
 
 .app-stat-card .number {
-    font-family: 'Lora', Georgia, serif;
+    font-family: 'Josefin Sans', sans-serif;
     font-size: 1.85rem;
     font-weight: 600;
     line-height: 1;
@@ -531,7 +539,7 @@ select.filter-input:focus {
 .text-soft   { color: var(--adm-text-soft) !important; }
 .text-center { text-align: center; }
 .text-right  { text-align: right; }
-.font-serif  { font-family: 'Lora', Georgia, serif; }
+.font-serif  { font-family: 'Josefin Sans', sans-serif; }
 
 .divider {
     border: none;
@@ -545,3 +553,47 @@ select.filter-input:focus {
     .stat-card .value { font-size: 1.75rem; }
     .admin-table th, .admin-table td { padding: 0.65rem 0.75rem; font-size: 0.82rem; }
 }
+
+/* ── Shared footer (fv2) styles for admin pages ────────────── */
+.fv2 { background:#fff; border-top:1px solid #e8e4df; padding:0; font-family:'Josefin Sans',system-ui,sans-serif; }
+.fv2-inner { max-width:1220px; margin:0 auto; padding:3rem 2rem 2.5rem; display:grid; grid-template-columns:repeat(5,1fr); gap:2.5rem; align-items:start; }
+.fv2-brand { display:flex; flex-direction:column; gap:.65rem; }
+.fv2-logo { height:40px; width:auto; object-fit:contain; }
+.fv2-copy { font-size:.82rem; color:#9ca3af; margin:0; }
+.fv2-tagline { font-size:.82rem; color:#6b7280; line-height:1.6; margin:0; }
+.fv2-tagline strong { font-weight:700; color:#374151; }
+.fv2-legal { display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:4px; }
+.fv2-legal span { font-size:.75rem; color:#9ca3af; cursor:pointer; transition:color .18s; }
+.fv2-legal span:hover { color:#6b7280; }
+.fv2-dot { color:#d1d5db !important; cursor:default !important; }
+.fv2-link-col { display:flex; flex-direction:column; gap:.55rem; min-width:100px; }
+.fv2-col-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#374151; margin-bottom:.4rem; }
+.fv2-link-list { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:.45rem; }
+.fv2-link-list li a, .fv2-link-list li span { font-size:.86rem; color:#6b7280; text-decoration:none; cursor:pointer; transition:color .18s; display:block; }
+.fv2-link-list li a:hover, .fv2-link-list li span:hover { color:#111827; }
+.fv2-social-col { display:flex; flex-direction:column; align-items:flex-start; gap:.75rem; }
+.fv2-social-label { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:#374151; margin:0 0 .15rem; }
+.fv2-social-wrap { position:relative; display:inline-flex; flex-direction:column; align-items:flex-start; }
+.fv2-icons-row { display:flex; align-items:center; gap:8px; position:relative; z-index:2; }
+.fv2-icon-btn { width:42px; height:42px; border-radius:50%; border:1.5px solid #e5e7eb; background:#fff; color:#4b5563; font-size:1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; text-decoration:none; transition:background .2s, color .2s, border-color .2s, transform .22s cubic-bezier(.34,1.56,.64,1), box-shadow .2s; }
+.fv2-icon-btn:hover { transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,.12); }
+.fv2-fb:hover { background:#1877f2; color:#fff; border-color:#1877f2; }
+.fv2-phone:hover { background:#E74C5B; color:#fff; border-color:#E74C5B; }
+.fv2-gmail:hover { background:#ea4335; color:#fff; border-color:#ea4335; }
+.fv2-icon-btn.active { background:#1f2937; color:#fff; border-color:#1f2937; }
+.fv2-side-panel { position:absolute; top:calc(100% + 10px); left:0; display:flex; align-items:center; gap:8px; background:#fff; border:1.5px solid #e5e7eb; border-radius:999px; padding:10px 16px; white-space:nowrap; box-shadow:0 6px 20px rgba(0,0,0,.12); pointer-events:none; opacity:0; transform:translateY(-8px); transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .22s; z-index:10; }
+.fv2-side-panel.open { transform:translateY(0); opacity:1; pointer-events:auto; }
+.fv2-contact-text { font-size:.84rem; font-weight:500; color:#111827; text-decoration:none; }
+a.fv2-contact-text:hover { text-decoration:underline; }
+.fv2-copy-btn { width:28px; height:28px; border-radius:50%; border:1px solid #e5e7eb; background:#f9fafb; color:#6b7280; font-size:.75rem; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .18s, color .18s, transform .18s; }
+.fv2-copy-btn:hover { background:#111827; color:#fff; transform:scale(1.12); }
+.fv2-bottom { border-top:1px solid #f3f4f6; padding:1rem 2rem; max-width:1220px; margin:0 auto; font-size:.78rem; color:#d1d5db; text-align:center; }
+.fv2-toast-container { position:fixed; bottom:28px; right:28px; z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
+.fv2-toast { background:#111827; color:#fff; font-size:.86rem; font-weight:500; padding:12px 20px; border-radius:12px; box-shadow:0 8px 28px rgba(0,0,0,.22); display:flex; align-items:center; gap:10px; animation:fv2-toast-in .32s cubic-bezier(.34,1.56,.64,1) forwards; }
+.fv2-toast.out { animation:fv2-toast-out .22s ease forwards; }
+.fv2-toast i { color:#4ade80; }
+@keyframes fv2-toast-in { from{opacity:0;transform:translateY(14px) scale(.95)} to{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes fv2-toast-out { from{opacity:1;transform:translateY(0) scale(1)} to{opacity:0;transform:translateY(8px) scale(.95)} }
+@media (max-width:1024px) { .fv2-inner { grid-template-columns:repeat(3,1fr); gap:2rem; } }
+@media (max-width:768px) { .fv2-inner { grid-template-columns:repeat(2,1fr); gap:1.5rem; padding:2.5rem 1.5rem 2rem; } .fv2-brand { grid-column:1/-1; } }
+@media (max-width:480px) { .fv2-inner { grid-template-columns:1fr; } .fv2-toast-container { right:16px; bottom:20px; } }

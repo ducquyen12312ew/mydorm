@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Phân Bổ - <%= academicYear %></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
         :root {
@@ -21,7 +21,7 @@
             --th-bg: #F7F1E8; --th-color: #9A8F84;
             --row-border: #F4EEE5; --row-alt: #FDFBF8; --row-hover: #FAF5EE;
         }
-        body { font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: var(--body-bg); color: var(--text); }
+        body { font-family: 'Josefin Sans', system-ui, sans-serif; background: var(--body-bg); color: var(--text); }
         .container { max-width: 1400px; margin: 0 auto; padding: 0 1.5rem 3rem; }
 
         .header {
@@ -30,7 +30,7 @@
             box-shadow: var(--shadow); margin-bottom: 1.25rem;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .header h1 { font-family: 'Lora', Georgia, serif; color: var(--text); font-size: 1.25rem; font-weight: 600; }
+        .header h1 { font-family: 'Josefin Sans', sans-serif; color: var(--text); font-size: 1.25rem; font-weight: 600; }
 
         .back-btn {
             padding: .45rem 1rem; background: #fff; color: var(--text);
@@ -50,7 +50,7 @@
         .filter-bar select {
             padding: .45rem .85rem; border: 1px solid var(--card-border);
             border-radius: 9px; font-size: .84rem; color: var(--text);
-            background: #fff; font-family: 'Be Vietnam Pro', sans-serif; cursor: pointer;
+            background: #fff; font-family: 'Josefin Sans', sans-serif; cursor: pointer;
         }
         .filter-bar select:focus { border-color: var(--red); outline: none; box-shadow: 0 0 0 3px rgba(200,16,46,.08); }
 
@@ -76,7 +76,7 @@
             background: var(--card-bg); border-radius: 17px;
             border: 1px solid var(--card-border); box-shadow: var(--shadow); overflow: hidden;
         }
-        .category-header { padding: 1rem 1.25rem; color: #fff; font-size: .95rem; font-weight: 700; font-family: 'Lora', Georgia, serif; }
+        .category-header { padding: 1rem 1.25rem; color: #fff; font-size: .95rem; font-weight: 700; font-family: 'Josefin Sans', sans-serif; }
         .category-header.year1    { background: linear-gradient(135deg,#E11D2A,#B20C26); }
         .category-header.year2_3  { background: linear-gradient(135deg,#C8102E,#8E0B22); }
         .category-header.year4_plus { background: linear-gradient(135deg,#7C7166,#5C534E); }
@@ -111,16 +111,16 @@
             box-shadow: var(--shadow); margin-bottom: 1.25rem;
         }
         .smart-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-        .smart-header h2 { font-family: 'Lora', Georgia, serif; font-size: 1.1rem; font-weight: 600; color: var(--text); }
+        .smart-header h2 { font-family: 'Josefin Sans', sans-serif; font-size: 1.1rem; font-weight: 600; color: var(--text); }
         .smart-controls { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
         .smart-controls label { font-size: .82rem; color: var(--muted); }
-        .smart-controls input { width: 90px; padding: .45rem .75rem; border: 1px solid var(--card-border); border-radius: 9px; font-size: .84rem; font-family: 'Be Vietnam Pro', sans-serif; }
+        .smart-controls input { width: 90px; padding: .45rem .75rem; border: 1px solid var(--card-border); border-radius: 9px; font-size: .84rem; font-family: 'Josefin Sans', sans-serif; }
         .smart-controls input:focus { border-color: var(--red); outline: none; }
 
         .btn-primary {
             background: var(--red-grad); color: #fff; border: none;
             border-radius: 11px; padding: .45rem 1rem; cursor: pointer;
-            font-size: .82rem; font-weight: 600; font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: .82rem; font-weight: 600; font-family: 'Josefin Sans', sans-serif;
             box-shadow: 0 8px 20px -8px rgba(200,16,46,.55);
             transition: all .18s;
         }
@@ -128,7 +128,7 @@
         .btn-accent {
             background: #fff; color: var(--text); border: 1px solid #E7DECF;
             border-radius: 11px; padding: .45rem 1rem; cursor: pointer;
-            font-size: .82rem; font-weight: 600; font-family: 'Be Vietnam Pro', sans-serif;
+            font-size: .82rem; font-weight: 600; font-family: 'Josefin Sans', sans-serif;
             transition: all .18s;
         }
         .btn-accent:hover { background: #FBF8F3; border-color: #D4C9BC; }
@@ -136,7 +136,7 @@
         .smart-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: .75rem; margin-bottom: 1rem; }
         .smart-stat { background: #FAF6F0; border: 1px solid var(--card-border); border-radius: 11px; padding: .875rem 1rem; }
         .smart-stat .label { font-size: 10.5px; color: var(--th-color); margin-bottom: .35rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 700; }
-        .smart-stat .value { font-family: 'Lora', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: var(--text); }
+        .smart-stat .value { font-family: 'Josefin Sans', sans-serif; font-size: 1.4rem; font-weight: 600; color: var(--text); }
 
         .smart-lists { display: grid; grid-template-columns: 1fr 1fr; gap: .875rem; }
         .smart-list { border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; background: #fff; }
@@ -447,6 +447,6 @@
             refreshApprovalDashboard();
         }
     </script>
-    <%- include('../footer') %>
+    <%- include('../../shared/footer') %>
 </body>
 </html>

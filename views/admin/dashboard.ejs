@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -22,7 +22,7 @@
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 1.75rem; flex-wrap: wrap; gap: .75rem;
         }
-        .dash-header h1 { font-family: 'Lora', Georgia, serif; font-size: 1.5rem; font-weight: 600; color: var(--adm-text); }
+        .dash-header h1 { font-family: 'Josefin Sans', sans-serif; font-size: 1.5rem; font-weight: 600; color: var(--adm-text); }
         .dash-header h1 span { color: var(--adm-primary); }
         .header-right { display: flex; align-items: center; gap: .75rem; }
         .refresh-btn {
@@ -58,7 +58,7 @@
         .kpi-icon.gold  { background: var(--adm-yellow-bg); color: var(--adm-yellow); }
         .kpi-body { flex: 1; min-width: 0; }
         .kpi-label { font-size: 10.5px; color: #9A8F84; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; margin-bottom: .3rem; }
-        .kpi-value { font-family: 'Lora', Georgia, serif; font-size: 2rem; font-weight: 600; line-height: 1; color: var(--adm-text); }
+        .kpi-value { font-family: 'Josefin Sans', sans-serif; font-size: 2rem; font-weight: 600; line-height: 1; color: var(--adm-text); }
         .kpi-sub   { font-size: .75rem; color: var(--adm-text-muted); margin-top: .25rem; }
         .kpi-trend { font-size: .75rem; font-weight: 600; }
         .kpi-trend.up   { color: var(--adm-green); }
@@ -73,7 +73,7 @@
         }
         .status-card:hover { box-shadow: var(--adm-shadow); transform: translateY(-1px); }
         .status-card .sc-label { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .10em; }
-        .status-card .sc-value { font-family: 'Lora', Georgia, serif; font-size: 1.75rem; font-weight: 600; line-height: 1; }
+        .status-card .sc-value { font-family: 'Josefin Sans', sans-serif; font-size: 1.75rem; font-weight: 600; line-height: 1; }
         .status-card.pending  .sc-label { color: var(--adm-yellow); }
         .status-card.pending  .sc-value { color: var(--adm-yellow); }
         .status-card.approved .sc-label, .status-card.allocated .sc-label { color: var(--adm-green); }
@@ -97,7 +97,7 @@
             padding: 1rem 1.4rem; display: flex; align-items: center; justify-content: space-between;
             border-bottom: 1px solid var(--adm-border); background: var(--adm-surface-raised);
         }
-        .section-head h2 { font-family: 'Lora', Georgia, serif; font-size: .95rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; color: var(--adm-text); }
+        .section-head h2 { font-family: 'Josefin Sans', sans-serif; font-size: .95rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; color: var(--adm-text); }
         .section-head a { font-size: .78rem; color: var(--adm-primary); text-decoration: none; font-weight: 600; }
         .section-head a:hover { text-decoration: underline; }
         .section-head select { font-size: .8rem; padding: .35rem .7rem; border: 1px solid var(--adm-border); border-radius: 8px; background: #fff; color: var(--adm-text); cursor: pointer; }
@@ -109,7 +109,7 @@
         .chart-legend .legend-item { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; font-size: .83rem; }
         .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
         .legend-label { color: var(--adm-text-soft); flex: 1; }
-        .legend-val   { font-family: 'Lora', Georgia, serif; font-weight: 600; color: var(--adm-text); }
+        .legend-val   { font-family: 'Josefin Sans', sans-serif; font-weight: 600; color: var(--adm-text); }
 
         /* RECENT REGISTRATIONS TABLE */
         .reg-table { width: 100%; border-collapse: collapse; }
@@ -136,7 +136,7 @@
         /* NOTIFICATION PANEL */
         .notif-panel { background: var(--adm-surface); border-radius: var(--adm-radius); box-shadow: var(--adm-shadow); border: 1px solid var(--adm-border); overflow: hidden; }
         .notif-head  { padding: 1rem 1.4rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--adm-border); background: var(--adm-surface-raised); }
-        .notif-head h2 { font-family: 'Lora', Georgia, serif; font-size: .95rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; color: var(--adm-text); }
+        .notif-head h2 { font-family: 'Josefin Sans', sans-serif; font-size: .95rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; color: var(--adm-text); }
         .notif-badge { background: var(--adm-primary-grad); color: #fff; font-size: .65rem; font-weight: 700; padding: .18rem .5rem; border-radius: 999px; min-width: 20px; text-align: center; }
         .notif-list  { max-height: 340px; overflow-y: auto; padding: .4rem 0; }
         .notif-item  { padding: .75rem 1.4rem; border-bottom: 1px solid var(--adm-border-soft); cursor: pointer; transition: background .15s; }
@@ -367,28 +367,6 @@
                     </div>
                 </div>
 
-                <!-- QUICK ACTIONS -->
-                <div class="section-card">
-                    <div class="section-head">
-                        <h2><i class="fa-solid fa-bolt" style="color:var(--red)"></i> Thao tác nhanh</h2>
-                    </div>
-                    <div class="section-body">
-                        <div class="qa-grid">
-                            <a href="/admin/allocation/dashboard" class="qa-btn qa-run">
-                                <i class="fa-solid fa-play"></i> Chạy phân bổ
-                            </a>
-                            <a href="/admin/applications" class="qa-btn">
-                                <i class="fa-solid fa-file-lines"></i> Xem đơn
-                            </a>
-                            <a href="/admin/master-dashboard" class="qa-btn">
-                                <i class="fa-solid fa-chart-line"></i> Báo cáo
-                            </a>
-                            <a href="/admin/master-dashboard/export" class="qa-btn">
-                                <i class="fa-solid fa-file-excel"></i> Xuất Excel
-                            </a>
-                        </div>
-                    </div>
-                </div>
 
             </div><!-- /right -->
 
@@ -542,7 +520,7 @@ function renderDormTable(data) {
 // ── RECENT REGISTRATIONS ─────────────────────────────────
 async function loadRecentRegs() {
     try {
-        const r = await fetch('/api/admin/recent-registrations?limit=15', { credentials: 'include' });
+        const r = await fetch('/api/admin/recent-registrations?limit=5', { credentials: 'include' });
         const d = await r.json();
         renderRegTable(d.registrations || []);
     } catch(e) {
@@ -658,6 +636,6 @@ function relTime(ts) {
     return `${day} ngày trước`;
 }
 </script>
-<%- include('footer') %>
+<%- include('../shared/footer') %>
 </body>
 </html>

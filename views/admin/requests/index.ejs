@@ -9,7 +9,7 @@
   <title>Yêu cầu — Admin KTX HUST</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -21,12 +21,12 @@
       --shadow: 0 1px 2px rgba(43,35,32,.04),0 20px 38px -26px rgba(43,35,32,.2);
       --radius: 16px;
     }
-    body { font-family: 'Be Vietnam Pro', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    body { font-family: 'Josefin Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); }
     .admin-content { min-height: 100vh; }
     .page-wrap { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
 
     .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1.5rem; flex-wrap: wrap; gap: .75rem; }
-    .page-header h1 { font-family: 'Lora', Georgia, serif; font-size: 1.3rem; font-weight: 600; }
+    .page-header h1 { font-family: 'Josefin Sans', sans-serif; font-size: 1.3rem; font-weight: 600; }
     .page-header h1 span { color: var(--red); }
     .header-actions { display: flex; gap: .5rem; align-items: center; }
 
@@ -34,7 +34,7 @@
     .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
     .stat-card { background: var(--card); border-radius: var(--radius); padding: 1.2rem 1.4rem; border: 1px solid var(--border); box-shadow: var(--shadow); border-top: 3px solid #A89C8E; }
     .stat-card .label { font-size: 10.5px; color: var(--th-color); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .3rem; }
-    .stat-card .value { font-family: 'Lora', Georgia, serif; font-size: 2rem; font-weight: 600; margin-top: .1rem; color: var(--text); }
+    .stat-card .value { font-family: 'Josefin Sans', sans-serif; font-size: 2rem; font-weight: 600; margin-top: .1rem; color: var(--text); }
     .stat-card.red  { border-top-color: #C8102E; } .stat-card.red .value { color: var(--red); }
     .stat-card.warn { border-top-color: #D9A22B; } .stat-card.warn .value { color: #D9A22B; }
     .stat-card.blue { border-top-color: #2563EB; } .stat-card.blue .value { color: #2563EB; }
@@ -257,6 +257,6 @@
 
 </div>
 </div>
-<%- include('../footer') %>
+<%- include('../../shared/footer') %>
 </body>
 </html>

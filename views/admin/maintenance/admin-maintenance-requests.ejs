@@ -10,7 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --red: #C8102E;
@@ -31,7 +31,7 @@
         }
 
         body {
-            font-family: 'Be Vietnam Pro', 'Segoe UI', sans-serif;
+            font-family: 'Josefin Sans', 'Segoe UI', sans-serif;
             background: var(--body-bg);
             color: var(--text);
             min-height: 100vh;
@@ -72,7 +72,7 @@
         .stat-card:nth-child(3) { border-top: 3px solid #0E9F6E; }
         .stat-card:nth-child(4) { border-top: 3px solid #A89C8E; }
         .stat-label { font-size: 10.5px; color: var(--th-color); text-transform: uppercase; letter-spacing: .08em; font-weight: 700; margin-bottom: 10px; }
-        .stat-value { font-family: 'Lora', Georgia, serif; font-size: 36px; font-weight: 700; color: var(--text); }
+        .stat-value { font-family: 'Josefin Sans', sans-serif; font-size: 36px; font-weight: 700; color: var(--text); }
         .stat-card:nth-child(1) .stat-value { color: #C8102E; }
         .stat-card:nth-child(2) .stat-value { color: #D9A22B; }
         .stat-card:nth-child(3) .stat-value { color: #0E9F6E; }
@@ -97,7 +97,7 @@
             font-size: 13px !important;
             box-shadow: none !important;
             transition: border-color .18s !important;
-            font-family: 'Be Vietnam Pro', sans-serif !important;
+            font-family: 'Josefin Sans', sans-serif !important;
         }
         .form-select:focus, .form-control:focus {
             border-color: var(--red) !important;
@@ -113,7 +113,7 @@
             box-shadow: var(--card-shadow);
             overflow: hidden;
         }
-        .table { margin-bottom: 0 !important; font-size: 13.5px !important; font-family: 'Be Vietnam Pro', sans-serif !important; }
+        .table { margin-bottom: 0 !important; font-size: 13.5px !important; font-family: 'Josefin Sans', sans-serif !important; }
         .table-light thead th, .table thead th {
             background: var(--th-bg) !important;
             color: var(--th-color) !important;
@@ -149,7 +149,7 @@
             display: flex; justify-content: space-between; align-items: center;
         }
         .page-header h1 {
-            font-family: 'Lora', Georgia, serif;
+            font-family: 'Josefin Sans', sans-serif;
             font-size: 1.3rem; font-weight: 700;
             color: var(--text); margin: 0;
             display: flex; align-items: center; gap: 14px;
@@ -167,7 +167,7 @@
         .btn-primary {
             background: var(--red-grad) !important; border: none !important;
             color: #fff !important; border-radius: 11px !important;
-            font-family: 'Be Vietnam Pro', sans-serif !important; font-weight: 600 !important;
+            font-family: 'Josefin Sans', sans-serif !important; font-weight: 600 !important;
             box-shadow: 0 10px 24px -10px rgba(200,16,46,.65) !important;
             transition: transform .18s, box-shadow .18s !important;
         }
@@ -185,7 +185,7 @@
         /* ── Modal ── */
         .modal-content { border-radius: 17px !important; border: 1px solid var(--card-border) !important; border-top: 3px solid var(--red) !important; box-shadow: 0 24px 60px rgba(43,35,32,.18) !important; }
         .modal-header { border-bottom: 1px solid var(--card-border) !important; padding: 18px 22px !important; background: linear-gradient(180deg,#fff,#FCFAF6) !important; }
-        .modal-title { font-family: 'Lora', Georgia, serif !important; font-weight: 700 !important; color: var(--text) !important; font-size: 1.05rem !important; }
+        .modal-title { font-family: 'Josefin Sans', sans-serif !important; font-weight: 700 !important; color: var(--text) !important; font-size: 1.05rem !important; }
         .modal-body { padding: 20px 22px !important; }
         .modal-footer { border-top: 1px solid var(--card-border) !important; padding: 14px 22px !important; }
         .form-label { font-size: 12.5px !important; font-weight: 700 !important; color: var(--text) !important; }
@@ -645,6 +645,6 @@
         loadRequests();
         loadStats();
     </script>
-    <%- include('../footer') %>
+    <%- include('../../shared/footer') %>
 </body>
 </html>

@@ -1,10 +1,10 @@
-:root {
+﻿:root {
     --primary-color: #C8102E;
     --primary-hover: #A20D25;
     --text-dark: #111827;
     --text-light: #6B7280;
-    --bg-light: #F7F7F7;
-    --border-color: #E5E7EB;
+    --bg-light: #FBF8F3;
+    --border-color: #EFE8DF;
     --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
     --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
     --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.10);
@@ -20,8 +20,8 @@
 }
 
 body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: #F7F7F7;
+    font-family: 'Josefin Sans', system-ui, sans-serif;
+    background: linear-gradient(180deg,#FBF8F3,#F5EFE7);
     color: var(--text-dark);
 }
 

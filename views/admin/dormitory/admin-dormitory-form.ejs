@@ -10,66 +10,125 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .admin-header {
-            background-color: #f8f9fa;
-            padding: 15px 0;
-            margin-bottom: 30px;
-        }
-        #map {
-            height: 400px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
+        *, *::before, *::after { box-sizing: border-box; }
+        body { font-family: 'Josefin Sans', system-ui, sans-serif !important; background: linear-gradient(180deg,#FBF8F3,#F5EFE7) !important; color: #2B2320 !important; }
+
+        /* Warm form section cards */
         .form-section {
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: linear-gradient(180deg,#FFFFFF,#FCFAF6);
+            border-radius: 16px;
+            border: 1px solid #EFE8DF;
+            box-shadow: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
+            padding: 1.5rem 1.75rem;
+            margin-bottom: 1.5rem;
         }
         .form-section-title {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #dee2e6;
-            color: #0d6efd;
+            margin-bottom: 1.25rem;
+            padding-bottom: .75rem;
+            border-bottom: 1px solid #EFE8DF;
+            color: #2B2320;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Josefin Sans', sans-serif;
+            display: flex; align-items: center; gap: .5rem;
         }
-        .room-card {
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            margin-bottom: 10px;
-        }
-        .room-card-header {
-            padding: 8px 10px;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #e0e0e0;
-            font-weight: 600;
-        }
-        .room-card-body {
-            padding: 10px;
-        }
-    </style>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet"><style>body{font-family:"Be Vietnam Pro",system-ui,sans-serif!important;background:linear-gradient(180deg,#FBF8F3,#F5EFE7)!important;color:#2B2320!important;}</style></head>
-<body>
-    <header class="admin-header">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h1>Quản lý Ký túc xá</h1>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <span class="me-3">Xin chào, <strong><%= user.name %></strong></span>
-                    <a href="/logout" class="btn btn-outline-secondary btn-sm">Đăng xuất</a>
-                </div>
-            </div>
-        </div>
-    </header>
+        .form-section-title i { color: #C8102E; }
 
-    <div class="container mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2><%= action === 'add' ? 'Thêm mới' : 'Cập nhật' %> Ký túc xá</h2>
-            <a href="/admin/dormitories" class="btn btn-outline-secondary">
-                <i class="fas fa-arrow-left me-1"></i> Quay lại
-            </a>
+        /* Override Bootstrap inputs with warm styles */
+        .form-control, .form-select {
+            border: 1.5px solid #EFE8DF !important;
+            border-radius: 10px !important;
+            font-family: 'Josefin Sans', sans-serif !important;
+            font-size: .9rem !important;
+            color: #2B2320 !important;
+            background: #fff !important;
+            padding: .6rem .9rem !important;
+            transition: border-color .15s, box-shadow .15s !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #C8102E !important;
+            box-shadow: 0 0 0 3px rgba(200,16,46,.08) !important;
+            outline: none !important;
+        }
+        .form-label {
+            font-size: .78rem !important;
+            font-weight: 700 !important;
+            color: #9A8F84 !important;
+            text-transform: uppercase !important;
+            letter-spacing: .06em !important;
+            margin-bottom: .4rem !important;
+        }
+        .form-text { font-size: .78rem !important; color: #A89C8E !important; }
+
+        /* Override Bootstrap buttons */
+        .btn { font-family: 'Josefin Sans', sans-serif !important; border-radius: 11px !important; font-weight: 600 !important; }
+        .btn-primary { background: linear-gradient(135deg,#E11D2A,#B20C26) !important; border: none !important; box-shadow: 0 4px 12px rgba(200,16,46,.3) !important; color: #fff !important; }
+        .btn-primary:hover { filter: brightness(1.05) !important; transform: translateY(-1px) !important; }
+        .btn-success { background: linear-gradient(135deg,#12B981,#0E9F6E) !important; border: none !important; box-shadow: 0 4px 12px rgba(14,159,110,.3) !important; color: #fff !important; }
+        .btn-success:hover { filter: brightness(1.05) !important; transform: translateY(-1px) !important; }
+        .btn-outline-secondary { background: #fff !important; border: 1.5px solid #E7DECF !important; color: #7C7166 !important; }
+        .btn-outline-secondary:hover { background: #FBF8F3 !important; border-color: #C8102E !important; color: #C8102E !important; }
+        .btn-danger { background: linear-gradient(135deg,#E11D2A,#B20C26) !important; border: none !important; color: #fff !important; }
+
+        /* Alert warm */
+        .alert-info { background: #E9F0FE !important; border-color: #AABEF8 !important; color: #1A4FBD !important; border-radius: 12px !important; }
+
+        /* Map */
+        #map { height: 400px; width: 100%; margin-bottom: 20px; border-radius: 12px; overflow: hidden; }
+
+        /* Media tabs */
+        .media-tab-btn {
+            padding: 6px 18px; border: 1.5px solid #EFE8DF; background: #fff;
+            border-radius: 11px; cursor: pointer; font-weight: 600; font-size: .85rem;
+            font-family: 'Josefin Sans', sans-serif; color: #7C7166; transition: all .15s;
+        }
+        .media-tab-btn.active { background: linear-gradient(135deg,#E11D2A,#B20C26); color: #fff; border-color: transparent; box-shadow: 0 4px 12px rgba(200,16,46,.25); }
+        .media-tab-panel { display: none; }
+        .media-tab-panel.active { display: block; }
+
+        /* Room cards */
+        .room-card { border: 1px solid #EFE8DF; border-radius: 12px; margin-bottom: 10px; background: #FBF8F3; overflow: hidden; }
+        .room-card-header { padding: 8px 14px; background: #F7F1E8; border-bottom: 1px solid #EFE8DF; font-weight: 600; font-size: .85rem; color: #2B2320; }
+        .room-card-body { padding: 12px 14px; }
+
+        /* Image thumbs */
+        .img-thumb { width: 90px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #EFE8DF; }
+        .img-item { display: inline-flex; flex-direction: column; align-items: center; gap: 4px; margin: 4px; position: relative; }
+        .img-item .cover-badge { font-size: .65rem; background: #0E9F6E; color: #fff; padding: 1px 6px; border-radius: 4px; }
+        .img-remove-btn { position: absolute; top: -6px; right: -6px; background: #C8102E; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; font-size: .7rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+        /* Page header card */
+        .pg-header {
+            background: linear-gradient(180deg,#FFFFFF,#FCFAF6);
+            border: 1px solid #EFE8DF;
+            border-radius: 16px;
+            box-shadow: 0 1px 2px rgba(43,35,32,.04), 0 20px 38px -26px rgba(43,35,32,.2);
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+        }
+        .pg-header h2 { margin: 0; font-size: 1.2rem; font-weight: 700; color: #2B2320; display: flex; align-items: center; gap: .6rem; }
+        .pg-header h2 i { color: #C8102E; }
+        .pg-header-actions { display: flex; gap: .75rem; }
+
+        .form-container { max-width: 1100px; margin: 0 auto; padding: 1.25rem 1.5rem 3rem; }
+    </style>
+</head>
+<body>
+    <%- include('../navbar', { activeNav: 'dormitories', user: user }) %>
+
+    <div class="form-container">
+        <div class="pg-header">
+            <h2><i class="fas fa-building"></i> <%= action === 'add' ? 'Thêm mới' : 'Cập nhật' %> Ký túc xá</h2>
+            <div class="pg-header-actions">
+                <a href="/admin/dormitories" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Quay lại
+                </a>
+            </div>
         </div>
         
         <% if (action === 'add') { %>
@@ -78,15 +137,6 @@
                 <strong>Lưu ý:</strong> Mỗi ký túc xá chỉ được tạo một lần duy nhất. Vui lòng kiểm tra thông tin cẩn thận trước khi tạo.
             </div>
         <% } %>
-        <style>
-        .media-tab-btn{padding:6px 18px;border:1.5px solid #dee2e6;background:#fff;border-radius:6px;cursor:pointer;font-weight:600;font-size:.85rem;}
-        .media-tab-btn.active{background:#0d6efd;color:#fff;border-color:#0d6efd;}
-        .media-tab-panel{display:none;}.media-tab-panel.active{display:block;}
-        .img-thumb{width:90px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #dee2e6;}
-        .img-item{display:inline-flex;flex-direction:column;align-items:center;gap:4px;margin:4px;position:relative;}
-        .img-item .cover-badge{font-size:.65rem;background:#198754;color:#fff;padding:1px 6px;border-radius:4px;}
-        .img-remove-btn{position:absolute;top:-6px;right:-6px;background:#dc3545;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
-        </style>
         
         <form id="dormitoryForm">
             <div class="form-section">
@@ -856,6 +906,6 @@
             });
         });
     </script>
-<%- include('../footer') %>
+<%- include('../../shared/footer') %>
 </body>
 </html>
