@@ -9,88 +9,101 @@
   <title>Công cụ phân bổ thử nghiệm — eDorm</title>
   <%- include('../navbar', { user, activeNav: 'simulation' }) %>
   <style>
+/* ── Design tokens ───────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --red: #C8102E; --red-dark: #9E0D25;
+  --bg: #F5F6F8; --card: #FFFFFF;
+  --border: #EAECF0; --text: #2D3748; --muted: #9AA3AD;
+  --success: #6BAF95; --warning: #C8AA60; --info: #6B9FC8;
+  --radius: 12px; --shadow: 0 1px 6px rgba(0,0,0,.04);
+}
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
 /* ── Layout ─────────────────────────────────────────────────────────────── */
-.eng-wrap{max-width:1200px;margin:28px auto;padding:0 24px;}
-.eng-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
-.eng-head h2{font-size:21px;font-weight:700;color:#111827;margin:0;}
-.eng-head p{font-size:13px;color:#6B7280;margin:0;}
+.eng-wrap{max-width:1200px;margin:28px auto;padding:0 24px 3rem;}
+.eng-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;flex-wrap:wrap;gap:12px;}
+.eng-head h2{font-size:1.35rem;font-weight:700;color:var(--text);margin:0;}
+.eng-head p{font-size:.82rem;color:var(--muted);margin:.2rem 0 0;}
 
 /* ── Summary cards ───────────────────────────────────────────────────────── */
-.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px;}
-.metric-card{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:16px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-.metric-card .lbl{font-size:11px;font-weight:600;color:#9CA3AF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-.metric-card .val{font-size:24px;font-weight:700;color:#111827;}
-.metric-card .sub{font-size:11px;color:#6B7280;margin-top:2px;}
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin-bottom:1.25rem;}
+.metric-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;box-shadow:var(--shadow);}
+.metric-card .lbl{font-size:.7rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.3rem;}
+.metric-card .val{font-size:1.5rem;font-weight:900;color:var(--text);line-height:1;}
+.metric-card .sub{font-size:.7rem;color:var(--muted);margin-top:.2rem;}
 
 /* ── Panel cards ─────────────────────────────────────────────────────────── */
-.panel{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:22px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-.panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
-.panel-hd h3{font-size:14px;font-weight:700;color:#111827;margin:0;display:flex;align-items:center;gap:7px;}
-.panel-hd .panel-sub{font-size:12px;color:#6B7280;}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.375rem 1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow);}
+.panel-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px;}
+.panel-hd h3{font-size:.9rem;font-weight:700;color:var(--text);margin:0;display:flex;align-items:center;gap:7px;}
+.panel-hd .panel-sub{font-size:.75rem;color:var(--muted);}
 
 /* ── Form elements ───────────────────────────────────────────────────────── */
 .form-row{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px;}
 .form-group{display:flex;flex-direction:column;gap:5px;min-width:140px;}
-.form-group label{font-size:12px;font-weight:600;color:#374151;}
+.form-group label{font-size:.75rem;font-weight:600;color:var(--text);}
 .form-group input,.form-group select{
-  border:1px solid #D1D5DB;border-radius:7px;padding:7px 10px;
-  font-size:13px;color:#111827;outline:none;
-  transition:border-color .15s;
+  border:1px solid var(--border);border-radius:7px;padding:7px 10px;
+  font-size:.82rem;color:var(--text);outline:none;
+  background:var(--card);transition:border-color .15s;
 }
-.form-group input:focus,.form-group select:focus{border-color:#C8102E;}
+.form-group input:focus,.form-group select:focus{border-color:var(--red);}
 
 /* ── Weight sliders ──────────────────────────────────────────────────────── */
-.weight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;}
+.weight-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;}
 .weight-row{display:flex;flex-direction:column;gap:5px;}
 .weight-label{display:flex;justify-content:space-between;align-items:center;}
-.weight-label span{font-size:12px;font-weight:600;color:#374151;}
-.weight-label .wval{font-size:13px;font-weight:700;color:#C8102E;min-width:32px;text-align:right;}
-.weight-row input[type=range]{width:100%;accent-color:#C8102E;cursor:pointer;}
-.weight-hint{font-size:11px;color:#9CA3AF;}
+.weight-label span{font-size:.78rem;font-weight:600;color:var(--text);}
+.weight-label .wval{font-size:.82rem;font-weight:700;color:var(--red);min-width:32px;text-align:right;}
+.weight-row input[type=range]{width:100%;accent-color:var(--red);cursor:pointer;}
+.weight-hint{font-size:.7rem;color:var(--muted);}
 
 /* ── Buttons ─────────────────────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:background .15s,transform .1s;}
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.55rem 1.1rem;border-radius:8px;font-size:.82rem;font-weight:600;border:none;cursor:pointer;transition:background .15s,transform .1s;}
 .btn:active{transform:scale(.97);}
 .btn:disabled{opacity:.5;cursor:not-allowed;}
-.btn-primary{background:#C8102E;color:#fff;}
-.btn-primary:hover:not(:disabled){background:#a50d24;}
-.btn-secondary{background:#fff;color:#374151;border:1px solid #D1D5DB;}
-.btn-secondary:hover:not(:disabled){background:#F9FAFB;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--red-dark);}
+.btn-secondary{background:var(--card);color:var(--text);border:1px solid var(--border);}
+.btn-secondary:hover:not(:disabled){background:var(--bg);}
 .btn-indigo{background:#4F46E5;color:#fff;}
 .btn-indigo:hover:not(:disabled){background:#4338CA;}
-.btn-green{background:#16A34A;color:#fff;}
-.btn-green:hover:not(:disabled){background:#15803D;}
+.btn-green{background:#5BA58A;color:#fff;}
+.btn-green:hover:not(:disabled){background:#4A8F78;}
+.btn-danger{background:var(--red);color:#fff;}
+.btn-danger:hover:not(:disabled){background:var(--red-dark);}
 
 /* ── Tabs ────────────────────────────────────────────────────────────────── */
-.tab-nav{display:flex;gap:0;border-bottom:2px solid #E5E7EB;margin-bottom:20px;overflow-x:auto;}
+.tab-nav{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:1.25rem;overflow-x:auto;}
 .tab-btn{
-  padding:9px 18px;font-size:13px;font-weight:600;color:#6B7280;
+  padding:.6rem 1.1rem;font-size:.82rem;font-weight:600;color:var(--muted);
   border:none;background:none;cursor:pointer;white-space:nowrap;
   border-bottom:2px solid transparent;margin-bottom:-2px;
   transition:color .15s;
 }
-.tab-btn:hover{color:#111827;}
-.tab-btn.active{color:#C8102E;border-bottom-color:#C8102E;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--red);border-bottom-color:var(--red);}
 .tab-panel{display:none;}
 .tab-panel.active{display:block;}
 
 /* ── Tables ──────────────────────────────────────────────────────────────── */
-.data-table{width:100%;border-collapse:collapse;font-size:13px;}
-.data-table th{background:#F9FAFB;font-size:11px;font-weight:700;color:#6B7280;text-transform:uppercase;letter-spacing:.05em;padding:8px 12px;text-align:left;border-bottom:1px solid #E5E7EB;}
-.data-table td{padding:9px 12px;border-bottom:1px solid #F3F4F6;color:#374151;vertical-align:middle;}
+.data-table{width:100%;border-collapse:collapse;font-size:.82rem;}
+.data-table th{background:var(--bg);font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:.5rem .75rem;text-align:left;border-bottom:1px solid var(--border);}
+.data-table td{padding:.6rem .75rem;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle;}
 .data-table tr:last-child td{border-bottom:none;}
-.data-table tr:hover td{background:#F9FAFB;}
-.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid #E5E7EB;}
+.data-table tr:hover td{background:var(--bg);}
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border);}
 
 /* ── Heatmap ─────────────────────────────────────────────────────────────── */
-.heatmap-dorm{margin-bottom:24px;}
-.heatmap-dorm-hd{font-size:14px;font-weight:700;color:#111827;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
-.heatmap-gender-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px;}
-.badge-male  {background:#EFF6FF;color:#1D4ED8;}
-.badge-female{background:#FDF4FF;color:#6D28D9;}
-.badge-mixed {background:#F0FDF4;color:#15803D;}
-.floor-wrap{margin-bottom:12px;}
-.floor-label{font-size:11px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.heatmap-dorm{margin-bottom:1.5rem;}
+.heatmap-dorm-hd{font-size:.88rem;font-weight:700;color:var(--text);margin-bottom:.75rem;display:flex;align-items:center;gap:10px;}
+.heatmap-gender-badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:99px;}
+.badge-male  {background:#EBF2F9;color:#5B91C8;}
+.badge-female{background:#F0EBF9;color:#7B68C8;}
+.badge-mixed {background:#EDF5F2;color:#5BA58A;}
+.floor-wrap{margin-bottom:.75rem;}
+.floor-label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:.4rem;}
 .rooms-row{display:flex;flex-wrap:wrap;gap:6px;}
 .room-cell{
   width:44px;height:44px;border-radius:6px;
@@ -100,90 +113,91 @@
   border:1.5px solid transparent;
 }
 .room-cell:hover{transform:scale(1.15);z-index:10;}
-.room-empty  {background:#DCFCE7;color:#15803D;border-color:#BBF7D0;}
-.room-partial{background:#FEF9C3;color:#854D0E;border-color:#FDE68A;}
-.room-high   {background:#FED7AA;color:#9A3412;border-color:#FDBA74;}
-.room-full   {background:#FEE2E2;color:#991B1B;border-color:#FECACA;}
+.room-empty  {background:#EDF5F2;color:#2D6B52;border-color:#AADBC8;}
+.room-partial{background:#F7F3E8;color:#7A6428;border-color:#E5D7A0;}
+.room-high   {background:#FCE8DB;color:#8B4513;border-color:#F0C0A0;}
+.room-full   {background:#F9ECEE;color:#7A2D36;border-color:#DFADAF;}
 .room-cell .r-num{font-size:9px;font-weight:600;}
 .room-cell .r-occ{font-size:9px;}
 
 /* ── Year-group stats ────────────────────────────────────────────────────── */
-.yg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;}
-.yg-card{border-radius:10px;padding:14px 16px;border:1px solid #E5E7EB;border-left:3px solid #E5E7EB;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-.yg-card .yg-title{font-size:12px;font-weight:700;margin-bottom:10px;color:#374151;}
-.yg-card .yg-stat{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #F3F4F6;}
+.yg-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem;}
+.yg-card{border-radius:var(--radius);padding:.875rem 1rem;border:1px solid var(--border);border-left:3px solid var(--border);background:var(--card);box-shadow:var(--shadow);}
+.yg-card--year1     {border-left-color:var(--success);}
+.yg-card--year2     {border-left-color:var(--warning);}
+.yg-card--year3     {border-left-color:var(--red);}
+.yg-card--year4_plus{border-left-color:var(--info);}
+.yg-card--year5plus {border-left-color:var(--muted);}
+.yg-card .yg-title{font-size:.75rem;font-weight:700;margin-bottom:.625rem;color:var(--text);}
+.yg-card .yg-stat{display:flex;justify-content:space-between;font-size:.75rem;padding:3px 0;border-bottom:1px solid var(--border);}
 .yg-card .yg-stat:last-child{border:none;font-weight:700;}
 
 /* ── Progress bar ────────────────────────────────────────────────────────── */
-.prog-bar{height:8px;background:#F3F4F6;border-radius:99px;overflow:hidden;margin-top:6px;}
+.prog-bar{height:6px;background:var(--border);border-radius:99px;overflow:hidden;margin-top:.4rem;}
 .prog-fill{height:100%;border-radius:99px;transition:width .4s ease;}
-.fill-green{background:#22C55E;}
-.fill-amber{background:#FBBF24;}
-.fill-red  {background:#EF4444;}
+.fill-green{background:var(--success);}
+.fill-amber{background:var(--warning);}
+.fill-red  {background:var(--red);}
 
-/* ── Priority score pill ──────────────────────────────────────────────────── */
-.score-pill{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:2px 8px;border-radius:99px;font-size:12px;font-weight:700;}
-.score-high  {background:#DCFCE7;color:#15803D;}
-.score-mid   {background:#FEF9C3;color:#854D0E;}
-.score-low   {background:#FEE2E2;color:#991B1B;}
+/* ── Priority score pill ─────────────────────────────────────────────────── */
+.score-pill{display:inline-flex;align-items:center;justify-content:center;min-width:36px;padding:2px 8px;border-radius:99px;font-size:.72rem;font-weight:700;}
+.score-high{background:#EDF5F2;color:#2D6B52;}
+.score-mid {background:#F7F3E8;color:#7A6428;}
+.score-low {background:#F9ECEE;color:#7A2D36;}
 
 /* ── Toast ───────────────────────────────────────────────────────────────── */
 .toast-box{position:fixed;top:70px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
-.toast{background:#1F2937;color:#F9FAFB;padding:11px 16px;border-radius:9px;font-size:13px;min-width:220px;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tslide .2s ease;}
-.toast.ok {border-left:4px solid #22C55E;}
-.toast.err{border-left:4px solid #EF4444;}
-.toast.inf{border-left:4px solid #3B82F6;}
+.toast{background:#1F2937;color:#F9FAFB;padding:.7rem 1rem;border-radius:9px;font-size:.8rem;min-width:220px;box-shadow:0 4px 16px rgba(0,0,0,.2);animation:tslide .2s ease;}
+.toast.ok {border-left:4px solid var(--success);}
+.toast.err{border-left:4px solid var(--red);}
+.toast.inf{border-left:4px solid var(--info);}
 @keyframes tslide{from{transform:translateX(16px);opacity:0}to{transform:translateX(0);opacity:1}}
 
 /* ── Spinner overlay ─────────────────────────────────────────────────────── */
 #spin{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:9000;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
 #spin.on{display:flex;}
 .spin-ring{width:42px;height:42px;border:4px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:rot .8s linear infinite;}
-.spin-lbl{color:#fff;font-size:14px;font-weight:600;}
+.spin-lbl{color:#fff;font-size:.88rem;font-weight:600;}
 @keyframes rot{to{transform:rotate(360deg)}}
 
-/* ── Legend ──────────────────────────────────────────────────────────────── */
-.hm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
-.hm-leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:#374151;}
+/* ── Heatmap legend ──────────────────────────────────────────────────────── */
+.hm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:.875rem;}
+.hm-leg-item{display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--text);}
 .hm-leg-dot{width:14px;height:14px;border-radius:3px;}
-
-/* Heatmap summary bar */
 .dorm-summary{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;}
-.dorm-stat{font-size:12px;color:#6B7280;}
-.dorm-stat b{color:#111827;font-weight:600;}
+.dorm-stat{font-size:.75rem;color:var(--muted);}
+.dorm-stat b{color:var(--text);font-weight:600;}
 
 /* ── Action buttons in table ─────────────────────────────────────────────── */
-.act-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:background .12s;}
-.act-move{background:#EFF6FF;color:#1D4ED8;}.act-move:hover{background:#DBEAFE;}
-.act-remove{background:#FFF1F2;color:#BE123C;}.act-remove:hover{background:#FFE4E6;}
-.act-promote{background:#F0FDF4;color:#15803D;}.act-promote:hover{background:#DCFCE7;}
+.act-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:5px;font-size:.7rem;font-weight:600;border:none;cursor:pointer;transition:background .12s;}
+.act-move   {background:#EBF2F9;color:#5B91C8;}.act-move:hover{background:#D8E8F5;}
+.act-remove {background:#F9ECEE;color:#7A2D36;}.act-remove:hover{background:#F0D8DB;}
+.act-promote{background:#EDF5F2;color:#2D6B52;}.act-promote:hover{background:#D8ECE6;}
 
-/* ── Apply/Undo panel ────────────────────────────────────────────────────── */
-.apply-panel{background:#fff;border:1px solid #E5E7EB;border-radius:10px;padding:22px 24px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);}
-.apply-panel h3{font-size:14px;font-weight:700;color:#111827;margin:0 0 8px;display:flex;align-items:center;gap:7px;}
-.apply-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;}
-.apply-stats{font-size:12px;color:#6B7280;background:#F9FAFB;border-radius:7px;padding:8px 12px;flex:1;min-width:200px;}
-.apply-stats b{color:#111827;}
-.btn-danger{background:#DC2626;color:#fff;}.btn-danger:hover:not(:disabled){background:#B91C1C;}
-.btn-amber{background:#D97706;color:#fff;}.btn-amber:hover:not(:disabled){background:#B45309;}
+/* ── Apply/Confirm panel ─────────────────────────────────────────────────── */
+.apply-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.375rem 1.5rem;margin-bottom:1.25rem;box-shadow:var(--shadow);}
+.apply-panel h3{font-size:.9rem;font-weight:700;color:var(--text);margin:0 0 .5rem;display:flex;align-items:center;gap:7px;}
+.apply-row{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-top:.875rem;}
+.apply-stats{font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:7px;padding:.5rem .75rem;flex:1;min-width:200px;}
+.apply-stats b{color:var(--text);}
 
 /* ── Modal ───────────────────────────────────────────────────────────────── */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:9500;align-items:center;justify-content:center;}
 .modal-overlay.on{display:flex;}
-.modal-box{background:#fff;border-radius:14px;padding:24px 28px;max-width:480px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.25);}
-.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.modal-hd h4{font-size:15px;font-weight:700;color:#111827;margin:0;}
-.modal-close{background:none;border:none;font-size:18px;color:#9CA3AF;cursor:pointer;padding:0;}
-.modal-body{display:flex;flex-direction:column;gap:12px;}
-.modal-foot{display:flex;justify-content:flex-end;gap:10px;margin-top:18px;}
+.modal-box{background:var(--card);border-radius:14px;padding:1.5rem 1.75rem;max-width:480px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.2);}
+.modal-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem;}
+.modal-hd h4{font-size:.95rem;font-weight:700;color:var(--text);margin:0;}
+.modal-close{background:none;border:none;font-size:18px;color:var(--muted);cursor:pointer;padding:0;}
+.modal-body{display:flex;flex-direction:column;gap:.75rem;}
+.modal-foot{display:flex;justify-content:flex-end;gap:.625rem;margin-top:1.1rem;}
 
-/* ── Adjust cohort collapsible ───────────────────────────────────────────── */
-details.adj-panel summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#374151;padding:8px 0;user-select:none;}
+/* ── Collapsible ─────────────────────────────────────────────────────────── */
+details.adj-panel summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;font-size:.82rem;font-weight:600;color:var(--text);padding:.5rem 0;user-select:none;}
 details.adj-panel summary::-webkit-details-marker{display:none;}
-details.adj-panel summary::before{content:'▶';font-size:10px;color:#9CA3AF;transition:transform .15s;}
+details.adj-panel summary::before{content:'▶';font-size:10px;color:var(--muted);transition:transform .15s;}
 details.adj-panel[open] summary::before{transform:rotate(90deg);}
-.adj-input{width:80px;border:1px solid #D1D5DB;border-radius:6px;padding:5px 8px;font-size:13px;text-align:center;}
-.adj-input:focus{outline:none;border-color:#C8102E;}
+.adj-input{width:80px;border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:.82rem;text-align:center;background:var(--card);color:var(--text);}
+.adj-input:focus{outline:none;border-color:var(--red);}
   </style>
 </head>
 <body>
@@ -199,7 +213,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
       <h2><i class="fas fa-cogs" style="color:#C8102E;margin-right:6px;"></i>Công cụ phân bổ thử nghiệm</h2>
       <p>Thiết lập tiêu chí và chạy mô phỏng phân bổ phòng ở KTX</p>
     </div>
-    <a href="/admin/simulation" style="font-size:12px;color:#6B7280;text-decoration:none;">
+    <a href="/admin/simulation" style="font-size:.78rem;color:var(--muted);text-decoration:none;display:flex;align-items:center;gap:.35rem;">
       <i class="fas fa-arrow-left"></i> Không gian làm việc
     </a>
   </div>
@@ -216,7 +230,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
   <!-- ══ STEP 1: COHORT DATA ═══════════════════════════════════════════════════ -->
   <div class="panel">
     <div class="panel-hd">
-      <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">1.</span> Chuẩn bị dữ liệu</h3>
+      <h3><span style="color:var(--red);font-weight:800;margin-right:4px;">1.</span> Chuẩn bị dữ liệu</h3>
       <span class="panel-sub">Phân loại khóa tự động — Năm học 2026-2027</span>
     </div>
 
@@ -229,28 +243,28 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
         <tbody>
           <tr>
             <td style="font-weight:600;">Năm 1</td>
-            <td><span id="cnt-y1" style="font-weight:700;color:#111827;"><%= distribution.year1 %></span></td>
-            <td style="color:#6B7280;">Sinh viên mới tự động tạo</td>
+            <td><span id="cnt-y1" style="font-weight:700;color:var(--text);"><%= distribution.year1 %></span></td>
+            <td style="color:var(--muted);">Sinh viên mới tự động tạo</td>
           </tr>
           <tr>
             <td style="font-weight:600;">Năm 2</td>
-            <td><span id="cnt-y2" style="font-weight:700;color:#111827;"><%= distribution.year2 %></span></td>
+            <td><span id="cnt-y2" style="font-weight:700;color:var(--text);"><%= distribution.year2 %></span></td>
             <td></td>
           </tr>
           <tr>
             <td style="font-weight:600;">Năm 3</td>
-            <td><span id="cnt-y3" style="font-weight:700;color:#111827;"><%= distribution.year3 %></span></td>
+            <td><span id="cnt-y3" style="font-weight:700;color:var(--text);"><%= distribution.year3 %></span></td>
             <td></td>
           </tr>
           <tr>
             <td style="font-weight:600;">Năm 4+</td>
-            <td><span id="cnt-y4" style="font-weight:700;color:#111827;"><%= distribution.year4_plus %></span></td>
+            <td><span id="cnt-y4" style="font-weight:700;color:var(--text);"><%= distribution.year4_plus %></span></td>
             <td></td>
           </tr>
           <tr>
-            <td style="color:#9CA3AF;">Năm 5+ (Ra KTX)</td>
-            <td><span id="cnt-y5" style="color:#9CA3AF;"><%= distribution.year5plus %></span></td>
-            <td style="color:#9CA3AF;">Bị loại tự động</td>
+            <td style="color:var(--muted);">Năm 5+ (Ra KTX)</td>
+            <td><span id="cnt-y5" style="color:var(--muted);"><%= distribution.year5plus %></span></td>
+            <td style="color:var(--muted);">Bị loại tự động</td>
           </tr>
         </tbody>
       </table>
@@ -258,9 +272,9 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
 
     <!-- Collapsible: Điều chỉnh số lượng sinh viên -->
     <details class="adj-panel">
-      <summary><i class="fas fa-sliders-h" style="color:#6B7280;font-size:12px;"></i> Chuẩn bị dữ liệu mô phỏng</summary>
-      <div style="margin-top:14px;">
-        <p style="font-size:12px;color:#6B7280;margin:0 0 12px;">Nhập số lượng mục tiêu cho từng khóa. Hệ thống sẽ thêm hoặc bớt sinh viên mô phỏng tương ứng.</p>
+      <summary><i class="fas fa-sliders-h" style="color:var(--muted);font-size:.75rem;"></i> Chuẩn bị dữ liệu mô phỏng</summary>
+      <div style="margin-top:.875rem;">
+        <p style="font-size:.75rem;color:var(--muted);margin:0 0 .75rem;">Nhập số lượng mục tiêu cho từng khóa. Hệ thống sẽ thêm hoặc bớt sinh viên mô phỏng tương ứng.</p>
         <div class="tbl-wrap" style="max-width:460px;">
           <table class="data-table">
             <thead>
@@ -296,7 +310,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
       </div>
     </details>
 
-    <p style="font-size:12px;color:#9CA3AF;margin:12px 0 0;">
+    <p style="font-size:.72rem;color:var(--muted);margin:.75rem 0 0;">
       Phân loại khóa học được áp dụng tự động khi tải trang.
     </p>
   </div>
@@ -304,7 +318,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
   <!-- ══ STEP 2: PRIORITY ENGINE CONFIG ════════════════════════════════════ -->
   <div class="panel">
     <div class="panel-hd">
-      <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">2.</span> Thiết lập tiêu chí ưu tiên</h3>
+      <h3><span style="color:var(--red);font-weight:800;margin-right:4px;">2.</span> Thiết lập tiêu chí ưu tiên</h3>
       <span class="panel-sub">Điều chỉnh trọng số cho từng tiêu chí ưu tiên</span>
     </div>
 
@@ -384,16 +398,16 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
   </div>
 
   <!-- ══ STEP 3: RUN ════════════════════════════════════════════════════════ -->
-  <div class="panel" style="border:1px solid #E5E7EB;">
+  <div class="panel">
     <div class="panel-hd">
-      <h3><span style="color:#C8102E;font-weight:800;margin-right:4px;">3.</span> Chạy mô phỏng</h3>
+      <h3><span style="color:var(--red);font-weight:800;margin-right:4px;">3.</span> Chạy mô phỏng</h3>
     </div>
-    <p style="font-size:13px;color:#6B7280;margin:0 0 16px;">
+    <p style="font-size:.82rem;color:var(--muted);margin:0 0 1rem;">
       Hệ thống tính điểm ưu tiên toàn bộ sinh viên, xếp hạng, rồi phân phòng tuần tự theo thứ tự điểm.
       Kết quả hiển thị bên dưới để xem xét trước khi áp dụng.
     </p>
     <button class="btn btn-danger" onclick="runSimulation()" id="btnRun">
-      <i class="fas fa-play" style="font-size:11px;"></i> Bắt đầu mô phỏng
+      <i class="fas fa-play"></i> Bắt đầu mô phỏng
     </button>
   </div>
 
@@ -401,7 +415,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
   <div id="resultsSection" style="display:<%= latestRun ? 'block' : 'none' %>;">
     <div class="panel">
       <div class="panel-hd">
-        <h3><i class="fas fa-chart-bar" style="color:#C8102E;"></i> Kết quả mô phỏng</h3>
+        <h3><i class="fas fa-chart-bar" style="color:var(--red);"></i> Kết quả mô phỏng</h3>
         <div style="display:flex;align-items:center;gap:10px;">
           <span class="panel-sub" id="runInfo">
             <% if (latestRun) { %>
@@ -421,12 +435,12 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
         </div>
         <div class="metric-card">
           <div class="lbl">Được phân phòng</div>
-          <div class="val" style="color:#16A34A;"><%= s.allocated.toLocaleString() %></div>
+          <div class="val" style="color:var(--success);"><%= s.allocated.toLocaleString() %></div>
           <div class="sub"><%= latestRun.byYearGroup?.year1?.allocated || 0 %> SV Năm 1</div>
         </div>
         <div class="metric-card">
           <div class="lbl">Danh sách chờ</div>
-          <div class="val" style="color:#C8102E;"><%= s.waitlisted.toLocaleString() %></div>
+          <div class="val" style="color:var(--red);"><%= s.waitlisted.toLocaleString() %></div>
           <div class="sub">Không đủ giường</div>
         </div>
         <div class="metric-card">
@@ -463,11 +477,11 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
             Object.entries(latestRun.byYearGroup).forEach(([yg, stat]) => {
               if (!stat.total && yg === 'year5plus') return;
           %>
-          <div class="yg-card">
+          <div class="yg-card yg-card--<%= yg %>">
             <div class="yg-title"><%= ygLabels[yg] || yg %></div>
             <div class="yg-stat"><span>Đăng ký</span><span><%= stat.total %></span></div>
-            <div class="yg-stat"><span>Được nhận</span><span style="color:#16A34A;font-weight:700;"><%= stat.allocated %></span></div>
-            <div class="yg-stat"><span>Chờ</span><span style="color:#D97706;"><%= stat.waitlisted %></span></div>
+            <div class="yg-stat"><span>Được nhận</span><span style="color:var(--success);font-weight:700;"><%= stat.allocated %></span></div>
+            <div class="yg-stat"><span>Chờ</span><span style="color:var(--warning);"><%= stat.waitlisted %></span></div>
             <div class="yg-stat"><span>Tỷ lệ nhận</span><span><%= stat.rate %>%</span></div>
             <div class="prog-bar">
               <div class="prog-fill <%= stat.rate >= 80 ? 'fill-green' : stat.rate >= 50 ? 'fill-amber' : 'fill-red' %>"
@@ -483,8 +497,8 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
         <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <input type="text" id="filterAccepted" placeholder="Tìm kiếm MSSV, tên..."
                  oninput="filterTable('acceptedTbl',this.value)"
-                 style="border:1px solid #D1D5DB;border-radius:7px;padding:6px 12px;font-size:13px;outline:none;min-width:200px;"/>
-          <span id="acceptedCount" style="font-size:12px;color:#6B7280;"></span>
+                 style="border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:.82rem;outline:none;min-width:200px;color:var(--text);background:var(--card);"/>
+          <span id="acceptedCount" style="font-size:.72rem;color:var(--muted);"></span>
         </div>
         <div class="tbl-wrap">
           <table class="data-table" id="acceptedTbl">
@@ -505,7 +519,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
                   const sid = String(s.simStudentId || '');
               %>
               <tr data-sid="<%= sid %>">
-                <td style="color:#9CA3AF;"><%= i+1 %></td>
+                <td style="color:var(--muted);"><%= i+1 %></td>
                 <td style="font-family:monospace;font-size:12px;"><%= s.studentId || '—' %></td>
                 <td style="font-weight:600;"><%= s.name %><% if(s.isNewYear1){%><span style="font-size:10px;background:#EFF6FF;color:#2563EB;padding:1px 5px;border-radius:4px;margin-left:5px;">Mới</span><%}%></td>
                 <td><%= ygLabel[s.yearGroup] || s.yearGroup %></td>
@@ -529,7 +543,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
           </table>
         </div>
         <% if (latestRun && latestRun.allocatedStudents && latestRun.allocatedStudents.length > 300) { %>
-        <p style="font-size:12px;color:#9CA3AF;margin-top:8px;">Hiển thị 300 / <%= latestRun.allocatedStudents.length %> sinh viên được nhận.</p>
+        <p style="font-size:.72rem;color:var(--muted);margin-top:.5rem;">Hiển thị 300 / <%= latestRun.allocatedStudents.length %> sinh viên được nhận.</p>
         <% } %>
       </div>
 
@@ -538,8 +552,8 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
         <div style="margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <input type="text" id="filterRejected" placeholder="Tìm kiếm MSSV, tên..."
                  oninput="filterTable('rejectedTbl',this.value)"
-                 style="border:1px solid #D1D5DB;border-radius:7px;padding:6px 12px;font-size:13px;outline:none;min-width:200px;"/>
-          <span id="rejectedCount" style="font-size:12px;color:#6B7280;"></span>
+                 style="border:1px solid var(--border);border-radius:7px;padding:6px 12px;font-size:.82rem;outline:none;min-width:200px;color:var(--text);background:var(--card);"/>
+          <span id="rejectedCount" style="font-size:.72rem;color:var(--muted);"></span>
         </div>
         <div class="tbl-wrap">
           <table class="data-table" id="rejectedTbl">
@@ -559,13 +573,13 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
                   const sid = String(s.simStudentId || '');
               %>
               <tr data-sid="<%= sid %>">
-                <td style="color:#9CA3AF;"><%= i+1 %></td>
+                <td style="color:var(--muted);"><%= i+1 %></td>
                 <td style="font-family:monospace;font-size:12px;"><%= s.studentId || '—' %></td>
                 <td style="font-weight:600;"><%= s.name %></td>
                 <td><%= ygLabel[s.yearGroup] || s.yearGroup %></td>
                 <td><%= genLabel[s.gender] || s.gender %></td>
                 <td><span class="score-pill <%= scCls %>"><%= sc %></span></td>
-                <td style="color:#DC2626;font-size:12px;"><%= s.reason %></td>
+                <td style="color:var(--red);font-size:.75rem;"><%= s.reason %></td>
                 <td>
                   <button class="act-btn act-promote" onclick="openPromoteModal('<%= sid %>','<%= s.name.replace(/'/g,'') %>')">
                     <i class="fas fa-arrow-up"></i> Phân phòng
@@ -593,12 +607,12 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
           %>
           <div class="heatmap-dorm">
             <div class="heatmap-dorm-hd">
-              <i class="fas fa-building" style="color:#6B7280;"></i>
+              <i class="fas fa-building" style="color:var(--muted);"></i>
               <%= dorm.dormName %>
               <span class="heatmap-gender-badge badge-<%= dorm.gender %>">
                 <%= dorm.gender === 'male' ? 'Nam' : dorm.gender === 'female' ? 'Nữ' : 'Hỗn hợp' %>
               </span>
-              <span style="font-size:12px;color:#6B7280;font-weight:400;">
+              <span style="font-size:.72rem;color:var(--muted);font-weight:400;">
                 <%= dorm.occupiedBeds %>/<%= dorm.totalBeds %> giường (<%= dorm.occupancyRate %>%)
               </span>
             </div>
@@ -634,25 +648,25 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
 
     <% if (simState && simState.applied) { %>
     <!-- Applied banner -->
-    <div id="appliedBanner" style="background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+    <div id="appliedBanner" style="background:#EDF5F2;border:1px solid #AADBC8;border-radius:var(--radius);padding:.75rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:10px;">
       <div style="display:flex;align-items:center;gap:.6rem;">
-        <i class="fas fa-check-circle" style="color:#16a34a;font-size:1rem;flex-shrink:0;"></i>
+        <i class="fas fa-check-circle" style="color:var(--success);font-size:1rem;flex-shrink:0;"></i>
         <div>
-          <strong style="color:#15803d;font-size:13px;">Đã áp dụng mô phỏng thành công</strong>
-          <span style="font-size:12px;color:#166534;margin-left:10px;">
+          <strong style="color:#2D6B52;font-size:.82rem;">Đã áp dụng mô phỏng thành công</strong>
+          <span style="font-size:.75rem;color:#3D7D62;margin-left:10px;">
             <strong id="savedCount"><%= simState.stats.allocated || 0 %></strong> sinh viên được lưu &nbsp;|&nbsp;
             Bỏ qua <strong id="skippedCount"><%= simState.stats.skippedYear1 || 0 %></strong> SV năm 1 mô phỏng
           </span>
         </div>
       </div>
-      <button onclick="undoSimulation()" style="padding:.35rem .9rem;border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+      <button onclick="undoSimulation()" style="padding:.35rem .9rem;border:1px solid var(--red);background:var(--card);color:var(--red);border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap;">
         <i class="fas fa-undo"></i> Hoàn tác
       </button>
     </div>
     <% } else { %>
     <!-- Confirm panel -->
     <div class="apply-panel" id="applyPanel">
-      <h3><i class="fas fa-check-double" style="color:#16A34A;"></i> Xác nhận kết quả</h3>
+      <h3><i class="fas fa-check-double" style="color:var(--success);"></i> Xác nhận kết quả</h3>
       <div class="apply-row">
         <div class="apply-stats" id="applyStatsBox">
           <b><%= latestRun.summary.allocated %></b> sinh viên được nhận &nbsp;|&nbsp;
@@ -666,14 +680,14 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
         </button>
       </div>
       <!-- Success banner (shown after apply on this page visit) -->
-      <div id="applySuccessBanner" style="display:none;margin-top:14px;background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:.75rem 1.25rem;">
+      <div id="applySuccessBanner" style="display:none;margin-top:.875rem;background:#EDF5F2;border:1px solid #AADBC8;border-radius:var(--radius);padding:.75rem 1.25rem;">
         <div style="display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;">
-          <i class="fas fa-check-circle" style="color:#16a34a;font-size:1rem;flex-shrink:0;"></i>
+          <i class="fas fa-check-circle" style="color:var(--success);font-size:1rem;flex-shrink:0;"></i>
           <div style="flex:1;">
-            <strong style="color:#15803d;font-size:13px;">Đã áp dụng mô phỏng thành công</strong>
-            <span style="font-size:12px;color:#166534;margin-left:8px;" id="snapshotInfo">—</span>
+            <strong style="color:#2D6B52;font-size:.82rem;">Đã áp dụng mô phỏng thành công</strong>
+            <span style="font-size:.75rem;color:#3D7D62;margin-left:8px;" id="snapshotInfo">—</span>
           </div>
-          <button onclick="undoSimulation()" style="padding:.35rem .9rem;border:1px solid #ef4444;background:#fff;color:#ef4444;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+          <button onclick="undoSimulation()" style="padding:.35rem .9rem;border:1px solid var(--red);background:var(--card);color:var(--red);border-radius:7px;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap;">
             <i class="fas fa-undo"></i> Hoàn tác
           </button>
         </div>
@@ -685,7 +699,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
   <% } %>
 
   <!-- Workspace ID footnote -->
-  <p style="font-size:11px;color:#D1D5DB;margin-top:24px;font-family:monospace;">
+  <p style="font-size:.7rem;color:var(--border);margin-top:1.5rem;font-family:monospace;">
     Không gian làm việc: <%= workspace._id %>
   </p>
 
@@ -699,7 +713,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
       <button class="modal-close" onclick="closeModal('moveModal')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:13px;color:#6B7280;margin:0;">Sinh viên: <strong id="moveStudentName">—</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin:0;">Sinh viên: <strong id="moveStudentName">—</strong></p>
       <input type="hidden" id="moveSimStudentId"/>
       <div class="form-group">
         <label>Tên tòa KTX</label>
@@ -729,7 +743,7 @@ details.adj-panel[open] summary::before{transform:rotate(90deg);}
       <button class="modal-close" onclick="closeModal('promoteModal')">✕</button>
     </div>
     <div class="modal-body">
-      <p style="font-size:13px;color:#6B7280;margin:0;">Sinh viên: <strong id="promoteStudentName">—</strong></p>
+      <p style="font-size:.82rem;color:var(--muted);margin:0;">Sinh viên: <strong id="promoteStudentName">—</strong></p>
       <input type="hidden" id="promoteSimStudentId"/>
       <div class="form-group">
         <label>Tên tòa KTX</label>
