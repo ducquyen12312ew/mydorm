@@ -21,6 +21,13 @@ const A1_GALLERY   = [
     'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175793/07-corner_uj6gfa.png',
     'https://res.cloudinary.com/dysgt8t4d/image/upload/v1781175796/06-door_f8hxgg.png',
 ];
+const A1_SNAPSHOTS = [
+    'https://res.cloudinary.com/dysgt8t4d/image/upload/v1782310006/SNAP5_j3ltct.png',
+    'https://res.cloudinary.com/dysgt8t4d/image/upload/v1782310006/SNAP4_cnyuki.png',
+    'https://res.cloudinary.com/dysgt8t4d/image/upload/v1782310006/SNAP3_fj0e9h.png',
+    'https://res.cloudinary.com/dysgt8t4d/image/upload/v1782310006/SNAP1_ijdbdt.png',
+    'https://res.cloudinary.com/dysgt8t4d/image/upload/v1782310006/SNAP2_z4i323.png',
+];
 
 async function run() {
     try {
@@ -47,6 +54,7 @@ async function run() {
                     imageUrl:   A1_THUMBNAIL,
                     coverImage: A1_THUMBNAIL,
                     images:     A1_GALLERY,
+                    snapshots:  A1_SNAPSHOTS,
                     videos:     [A1_VIDEO],
                     media: [
                         { type: 'image', url: A1_GALLERY[0], thumbnail: A1_THUMBNAIL,  title: 'KTX A1 - Mặt tiền' },
@@ -66,6 +74,8 @@ async function run() {
         console.log(`  video     : ${A1_VIDEO}`);
         console.log(`  gallery   : ${A1_GALLERY.length} ảnh`);
         A1_GALLERY.forEach((u, i) => console.log(`    [${i + 1}] ${u}`));
+        console.log(`  snapshots : ${A1_SNAPSHOTS.length} ảnh`);
+        A1_SNAPSHOTS.forEach((u, i) => console.log(`    [${i + 1}] ${u}`));
         process.exit(0);
     } catch (err) {
         console.error('[ERROR]', err.message);

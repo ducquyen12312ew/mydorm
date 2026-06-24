@@ -790,17 +790,17 @@ function createExHotspots() {
         /* Inner fill */
         grp.add(new THREE.Mesh(
             new THREE.CircleGeometry(0.20, 40),
-            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.15, side: THREE.DoubleSide, depthWrite: false })
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.05, side: THREE.DoubleSide, depthWrite: false })
         ));
         /* Main ring */
         grp.add(new THREE.Mesh(
             new THREE.RingGeometry(0.20, 0.28, 40),
-            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.80, side: THREE.DoubleSide, depthWrite: false })
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.10, side: THREE.DoubleSide, depthWrite: false })
         ));
         /* Outer glow */
         grp.add(new THREE.Mesh(
             new THREE.RingGeometry(0.30, 0.40, 40),
-            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.20, side: THREE.DoubleSide, depthWrite: false })
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.05, side: THREE.DoubleSide, depthWrite: false })
         ));
         /* Hit area */
         grp.add(new THREE.Mesh(
@@ -988,11 +988,11 @@ function tickExHotspots() {
         if (hs.hovered) anyCurr = true;
         hs.grp.scale.setScalar(pulse * (hs.hovered ? 1.28 : 1.0));
 
-        /* Opacity */
-        const baseO = [0.15, 0.80, 0.20];
+        /* Opacity — dim at rest (≈10%), bright on hover */
+        const baseO = [0.05, 0.10, 0.05];
         hs.grp.children.forEach((m, i) => {
             if (i >= 3) return;
-            m.material.opacity = hs.hovered ? Math.min(1, baseO[i] * 1.55) : baseO[i];
+            m.material.opacity = hs.hovered ? Math.min(1, baseO[i] * 8) : baseO[i];
         });
     });
 

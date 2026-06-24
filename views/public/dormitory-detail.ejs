@@ -410,6 +410,12 @@
             backdrop-filter: blur(8px);
             box-shadow: 0 0 0 0 rgba(255,255,255,.35);
             animation: pulse 2s infinite;
+            opacity: 0.1;
+            transition: opacity 0.2s ease;
+        }
+        .vr-hotspot:hover, .vr-hotspot:focus {
+            opacity: 0.85;
+            animation: none;
         }
         @keyframes pulse {
             0%   { box-shadow: 0 0 0 0 rgba(255,255,255,.35); }
@@ -508,6 +514,47 @@
             width: 36px; height: 36px;
             display: flex; align-items: center; justify-content: center;
         }
+
+        /* ─── IMAGE LIGHTBOX ─────────────────────────────── */
+        #imgLightbox {
+            display: none; position: fixed; inset: 0; z-index: 99998;
+            background: rgba(0,0,0,.93);
+            align-items: center; justify-content: center; flex-direction: column;
+        }
+        #imgLightbox.open { display: flex; }
+        .lb-img-wrap {
+            max-width: 92vw; max-height: 80vh;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .lb-img-wrap img {
+            max-width: 92vw; max-height: 80vh;
+            object-fit: contain; border-radius: 10px; display: block;
+            box-shadow: 0 20px 60px rgba(0,0,0,.6);
+        }
+        .lb-close {
+            position: fixed; top: 16px; right: 20px;
+            background: rgba(255,255,255,.14); border: none; color: #fff;
+            cursor: pointer; border-radius: 50%;
+            width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2; transition: background .2s;
+        }
+        .lb-close:hover { background: rgba(255,255,255,.28); }
+        .lb-nav {
+            position: fixed; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,.14); border: none; color: #fff;
+            cursor: pointer; width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2; transition: background .2s;
+        }
+        .lb-nav:hover { background: rgba(255,255,255,.3); }
+        .lb-prev { left: 16px; }
+        .lb-next { right: 16px; }
+        .lb-caption {
+            color: rgba(255,255,255,.85); font-size: .9rem; font-weight: 600;
+            margin-top: 14px; text-align: center;
+        }
+        .lb-counter { color: rgba(255,255,255,.45); font-size: .76rem; margin-top: 5px; }
 
         /* ─── AMENITIES ──────────────────────────────────── */
         .amenity-cloud { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -940,7 +987,7 @@
                                 <button class="tab-btn" data-filter="video" id="tabVideo" style="display:none">Video <span class="count" id="countVideo">0</span></button>
                                 <button class="tab-btn" data-filter="vr">VR <span class="count" id="countVr">0</span></button>
                                 <button class="tab-btn" data-filter="room">Ảnh phòng <span class="count" id="countRoom">0</span></button>
-                                <button class="tab-btn" data-filter="amenity">Tiện ích <span class="count" id="countAmenity">0</span></button>
+                                <button class="tab-btn" data-filter="snapshot" id="tabSnapshot" style="display:none">Snapshot <span class="count" id="countSnapshot">0</span></button>
                                 <button class="tab-btn" data-filter="community">Cộng đồng <span class="count" id="countCommunity">0</span></button>
                             </div>
                             <div class="gallery-grid" id="galleryGrid"></div>
@@ -1027,6 +1074,24 @@
         </div>
     </div>
 
+    <!-- Image Lightbox -->
+    <div id="imgLightbox">
+        <button class="lb-close" id="lbClose">
+            <i data-lucide="x" style="width:20px;height:20px"></i>
+        </button>
+        <button class="lb-nav lb-prev" id="lbPrev">
+            <i data-lucide="chevron-left" style="width:26px;height:26px"></i>
+        </button>
+        <div class="lb-img-wrap">
+            <img id="lbImg" src="" alt="">
+        </div>
+        <button class="lb-nav lb-next" id="lbNext">
+            <i data-lucide="chevron-right" style="width:26px;height:26px"></i>
+        </button>
+        <div class="lb-caption" id="lbCaption"></div>
+        <div class="lb-counter" id="lbCounter"></div>
+    </div>
+
     <!-- Lucide icons CDN -->
     <script src="https://unpkg.com/lucide@0.344.0/dist/umd/lucide.min.js"></script>
 
@@ -1037,6 +1102,59 @@
         function refreshIcons() {
             if (window.lucide) window.lucide.createIcons();
         }
+
+        /* ─────────────────────────────────────────────────────
+           IMAGE LIGHTBOX
+        ───────────────────────────────────────────────────── */
+        let lbImages = [];
+        let lbIdx    = 0;
+
+        function openLightbox(images, startIdx) {
+            lbImages = images;
+            lbIdx    = startIdx || 0;
+            updateLightboxView();
+            document.getElementById('imgLightbox').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('imgLightbox').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function updateLightboxView() {
+            const item = lbImages[lbIdx];
+            const src  = typeof item === 'string' ? item : (item.src || item);
+            const lbl  = typeof item === 'string' ? '' : (item.label || '');
+            document.getElementById('lbImg').src = src;
+            document.getElementById('lbCaption').textContent = lbl;
+            document.getElementById('lbCounter').textContent = `${lbIdx + 1} / ${lbImages.length}`;
+            const showNav = lbImages.length > 1;
+            document.getElementById('lbPrev').style.display = showNav ? 'flex' : 'none';
+            document.getElementById('lbNext').style.display = showNav ? 'flex' : 'none';
+        }
+
+        (function wireLightbox() {
+            function init() {
+                const lb   = document.getElementById('imgLightbox');
+                const cls  = document.getElementById('lbClose');
+                const prev = document.getElementById('lbPrev');
+                const next = document.getElementById('lbNext');
+                if (cls)  cls.addEventListener('click',  closeLightbox);
+                if (lb)   lb.addEventListener('click',   e => { if (e.target === lb) closeLightbox(); });
+                if (prev) prev.addEventListener('click',  e => { e.stopPropagation(); lbIdx = (lbIdx - 1 + lbImages.length) % lbImages.length; updateLightboxView(); });
+                if (next) next.addEventListener('click',  e => { e.stopPropagation(); lbIdx = (lbIdx + 1) % lbImages.length; updateLightboxView(); });
+                document.addEventListener('keydown', e => {
+                    const lbEl = document.getElementById('imgLightbox');
+                    if (!lbEl || !lbEl.classList.contains('open')) return;
+                    if (e.key === 'Escape')      closeLightbox();
+                    if (e.key === 'ArrowLeft')   { lbIdx = (lbIdx - 1 + lbImages.length) % lbImages.length; updateLightboxView(); }
+                    if (e.key === 'ArrowRight')  { lbIdx = (lbIdx + 1) % lbImages.length; updateLightboxView(); }
+                });
+            }
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
 
         /* ─────────────────────────────────────────────────────
            STATE
@@ -1190,9 +1308,19 @@
                 }
             }
 
-            // Snapshot card (coming soon)
-            const mcBgSnap = document.getElementById('mcBgSnapshot');
-            if (mcBgSnap) mcBgSnap.src = heroImages[2] || heroImages[1] || cover;
+            // Snapshot card
+            const snapshotUrls  = dormitoryData.snapshots || [];
+            const mcBgSnap      = document.getElementById('mcBgSnapshot');
+            if (mcBgSnap) mcBgSnap.src = snapshotUrls[0] || heroImages[2] || heroImages[1] || cover;
+            const mcSnapshotEl  = document.getElementById('mcSnapshot');
+            if (mcSnapshotEl && snapshotUrls.length > 0) {
+                const subEl = mcSnapshotEl.querySelector('.mc-sub');
+                if (subEl) subEl.remove();
+                mcSnapshotEl.style.cursor = 'pointer';
+                mcSnapshotEl.addEventListener('click', () => {
+                    openLightbox(snapshotUrls.map((src, i) => ({ src, label: `Snapshot #${i + 1}` })), 0);
+                });
+            }
 
             // VR card
             const mcBgVr = document.getElementById('mcBgVr');
@@ -1516,7 +1644,12 @@
                 }
             });
 
-            const hasImages = galleryItems.some(g => ['room','amenity','community'].includes(g.type));
+            const snapshotImgs = dormitoryData.snapshots || [];
+            snapshotImgs.forEach((src, i) => {
+                galleryItems.push({ id: `snap-${i}`, type: 'snapshot', src, label: `Snapshot #${i + 1}`, mediaType: 'image' });
+            });
+
+            const hasImages = galleryItems.some(g => ['room','snapshot','community'].includes(g.type));
             if (!hasImages) galleryItems.push({ id: 'placeholder', type: 'room', src: '/image/camp1.png', label: 'Ảnh phòng', mediaType: 'image' });
 
             const firstImgSrc = allImages[0] || '/image/camp1.png';
@@ -1529,17 +1662,19 @@
                 video:     galleryItems.filter(g => g.type === 'video').length,
                 vr:        galleryItems.filter(g => g.type === 'vr').length,
                 room:      galleryItems.filter(g => g.type === 'room').length,
-                amenity:   galleryItems.filter(g => g.type === 'amenity').length,
+                snapshot:  galleryItems.filter(g => g.type === 'snapshot').length,
                 community: galleryItems.filter(g => g.type === 'community').length
             };
-            document.getElementById('countAll').textContent       = counts.all;
-            document.getElementById('countVideo').textContent     = counts.video;
-            document.getElementById('countVr').textContent        = counts.vr;
-            document.getElementById('countRoom').textContent      = counts.room;
-            document.getElementById('countAmenity').textContent   = counts.amenity;
-            document.getElementById('countCommunity').textContent = counts.community;
-            const videoTab = document.getElementById('tabVideo');
-            if (videoTab) videoTab.style.display = counts.video > 0 ? '' : 'none';
+            document.getElementById('countAll').textContent        = counts.all;
+            document.getElementById('countVideo').textContent      = counts.video;
+            document.getElementById('countVr').textContent         = counts.vr;
+            document.getElementById('countRoom').textContent       = counts.room;
+            document.getElementById('countSnapshot').textContent   = counts.snapshot;
+            document.getElementById('countCommunity').textContent  = counts.community;
+            const videoTab    = document.getElementById('tabVideo');
+            if (videoTab)    videoTab.style.display    = counts.video    > 0 ? '' : 'none';
+            const snapshotTab = document.getElementById('tabSnapshot');
+            if (snapshotTab) snapshotTab.style.display = counts.snapshot > 0 ? '' : 'none';
         }
 
         function formatDuration(secs) {
@@ -1552,7 +1687,7 @@
             const grid = document.getElementById('galleryGrid');
             const filtered = currentGalleryFilter === 'all'
                 ? galleryItems : galleryItems.filter(g => g.type === currentGalleryFilter);
-            const chipLabel = { vr: 'VR Tour', room: 'Ảnh phòng', amenity: 'Tiện ích', community: 'Cộng đồng', video: 'Video' };
+            const chipLabel = { vr: 'VR Tour', room: 'Ảnh phòng', snapshot: 'Snapshot', community: 'Cộng đồng', video: 'Video' };
 
             grid.innerHTML = filtered.map((item, index) => {
                 const isLarge = index % 5 === 0;
@@ -1583,6 +1718,18 @@
                 el.addEventListener('click', () => {
                     const idx = parseInt(el.dataset.idx);
                     if (filtered[idx]) openVideoModal(filtered[idx]);
+                });
+            });
+
+            grid.querySelectorAll('.gallery-item:not(.video-item)').forEach(el => {
+                el.addEventListener('click', () => {
+                    const idx  = parseInt(el.dataset.idx);
+                    const item = filtered[idx];
+                    if (!item) return;
+                    if (item.type === 'vr') { scrollToSection('secVrTour'); return; }
+                    const imageItems = filtered.filter(g => g.type !== 'video');
+                    const imageIdx   = imageItems.findIndex(g => g === item);
+                    openLightbox(imageItems, imageIdx >= 0 ? imageIdx : 0);
                 });
             });
         }

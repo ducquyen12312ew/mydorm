@@ -294,7 +294,6 @@ Thời gian sẵn sàng & Ngay lập tức & Sau 1,2--1,8 giây (tải ngầm) \
 
 \subsubsection{Thuật toán tối ưu hóa mô hình 3D}
 
-\begin{minipage}{\linewidth}
 \paragraph{Mục tiêu.}
 Giảm kích thước file GLB từ mô hình gốc (hàng trăm MB) xuống mức chấp nhận
 được cho ứng dụng web (dưới 10~MB) mà không làm mất chất lượng hình ảnh cảm
@@ -337,7 +336,6 @@ $level \leftarrow 7$\;
 $Metrics \leftarrow \{size{:}\ OptimizedGLB.size,\ polygons{:}\ \text{CountPolygons}(OptimizedGLB)\}$\;
 \KwReturn $OptimizedGLB$, $Metrics$\;
 \end{algorithm}
-\end{minipage}
 
 \subsubsection{Thuật toán khởi tạo và điều phối module}
 
@@ -438,17 +436,19 @@ thử từng thứ một.
 
 \subsubsection{Vấn đề cần giải quyết}
 
+Trong quá trình trao đổi với cán bộ, tôi được biết một đợt phân bổ thủ công
+thường mất từ ba đến năm ngày làm việc --- gộp dữ liệu từ nhiều file Excel, lọc
+theo giới tính, kiểm tra quota từng nhóm năm, và in danh sách để trình ký. Và
+rất thường xuyên, vẫn có lỗi lọt qua: một phòng được gán cho cả nam lẫn nữ,
+hoặc nhóm năm nhất vượt quota vì tính sót một cột. Điều tệ hơn là sinh viên
+không có cách nào kiểm chứng tại sao mình lại không được phân phòng trong khi
+người khác được.
+
 Bài toán phân bổ phòng ký túc xá mang tính ràng buộc đa chiều: mỗi quyết định
 gán phòng phải đồng thời thỏa mãn bốn nhóm ràng buộc --- sức chứa phòng, đồng
 nhất giới tính, chỉ tiêu theo nhóm năm học (quota), và thứ tự ưu tiên theo
 chính sách nhà trường. Đặc biệt, số lượng đơn đăng ký thường vượt số chỗ ở
 khả dụng, đòi hỏi một cơ chế xếp hạng minh bạch và có thể giải trình.
-
-Thực trạng trước khi có hệ thống: quy trình phân bổ được thực hiện thủ công
-trên bảng tính điện tử, tiêu tốn nhiều ngày công tác và tiềm ẩn sai sót khi
-hợp nhất dữ liệu từ nhiều nguồn. Sinh viên không thể kiểm chứng tại sao mình
-được ưu tiên hơn hay kém hơn người khác, dẫn đến mất lòng tin và gia tăng
-khiếu nại.
 
 \subsubsection{Đối tượng hưởng lợi}
 
@@ -618,6 +618,13 @@ minh bạch đó mới là giá trị thực.
 
 \subsubsection{Vấn đề cần giải quyết}
 
+Câu hỏi tôi chưa dự kiến đến khi bắt đầu làm phần này đến từ một buổi demo:
+``Năm sau muốn tăng quota năm nhất từ 40\% lên 45\% thì làm thế nào?'' Nếu
+lúc đó tôi vẫn còn đang hard-code các tham số trong mã nguồn, câu trả lời sẽ
+là: ``Cần lập trình viên sửa code, deploy lại, có thể mất vài ngày.'' Đó là
+câu trả lời không ai muốn nghe. Chính từ câu hỏi đó mà tôi nhận ra phần cấu
+hình chính sách cần được thiết kế lại hoàn toàn.
+
 Chính sách phân bổ ký túc xá không cố định mà thay đổi mỗi năm học: tỷ lệ
 ưu tiên theo nhóm năm có thể điều chỉnh, tiêu chí xét duyệt có thể mở rộng,
 ngưỡng khoảng cách có thể thay đổi. Trong hệ thống với logic viết cứng trong
@@ -782,31 +789,29 @@ về ai có quyền thay đổi hệ thống mà không cần lập trình viên
 \label{sec:contrib_summary}
 % =====================================================================
 
-Chương 5 trình bày ba đóng góp kỹ thuật của hệ thống eDorm từ góc nhìn tư duy
-thiết kế và giải quyết vấn đề. Mỗi đóng góp được đặt trong bối cảnh vấn đề
-thực tế quan sát được, phân tích điểm khác biệt so với giải pháp hiện có, và
-đánh giá giá trị mang lại cho từng nhóm đối tượng.
+Nhìn lại ba đóng góp trong chương này, có một điểm chung mà tôi chỉ nhận ra
+khi đã hoàn thành cả ba: không cái nào xuất phát từ ý tưởng thiết kế trên giấy
+--- tất cả đều đến từ một lúc thất bại hoặc một câu hỏi tôi không trả lời được.
 
 \textbf{Đóng góp 1} --- trực quan hóa không gian phòng
-(mục~\ref{sec:contrib_visualization}) --- giải quyết bài toán sinh viên không
-thể đánh giá phòng ở trước khi đăng ký. Hành trình bốn giai đoạn từ ảnh tĩnh
-đến kiến trúc hai chế độ song song (Quick Tour 360° và Free Explore 3D), đặc
-biệt là quá trình tối ưu hóa mô hình 3D từ 200~MB về dưới 8~MB, phản ánh quá
-trình tinh chỉnh liên tục dựa trên những giới hạn thực tế gặp phải. Điểm đặc
-trưng là kết hợp có chủ ý hai công nghệ theo điểm mạnh của từng loại thiết bị,
-thay vì áp dụng một giải pháp đồng nhất.
+(mục~\ref{sec:contrib_visualization}) --- bắt đầu từ việc tôi chụp thêm ảnh
+và phát hiện ảnh tĩnh không bao giờ đủ, trải qua bốn vòng làm lại, và kết
+thúc ở kiến trúc hai chế độ song song (Quick Tour 360° và Free Explore 3D).
+Hành trình tối ưu hóa từ 200~MB về dưới 8~MB không chỉ là con số kỹ thuật
+--- đó là điều kiện để tính năng này thực sự dùng được với kết nối thực tế
+của sinh viên Việt Nam.
 
 \textbf{Đóng góp 2} --- phân bổ phòng tự động dựa trên quota
-(mục~\ref{sec:contrib_allocation}) --- chuyển hóa quy trình nhiều ngày thủ
-công thành tự động dưới 2 giây. Điểm cốt lõi là mô hình hai lớp quyết định
-tách biệt ràng buộc cứng (quota, giới tính, sức chứa) khỏi cơ chế xếp hạng
-(điểm ưu tiên), kết hợp với AuditLog đảm bảo tính minh bạch và khả năng giải
-trình cho từng sinh viên.
+(mục~\ref{sec:contrib_allocation}) --- hình thành sau khi tôi thử viết toàn
+bộ logic trong một hàm và nhận ra race condition khi test đồng thời. Mô hình
+hai lớp quyết định tách ràng buộc cứng (quota, giới tính, sức chứa) khỏi cơ
+chế xếp hạng (điểm ưu tiên) không phải là thiết kế sẵn có từ đầu --- nó là
+kết quả của việc debug một lỗi thực tế.
 
 \textbf{Đóng góp 3} --- kiến trúc phân bổ linh hoạt theo năm học
-(mục~\ref{sec:contrib_policy}) --- giải quyết bài toán dài hạn: làm sao chính
-sách phân bổ có thể thay đổi mỗi năm mà không cần sửa mã nguồn. Kiến trúc
-bốn lớp tách hoàn toàn cấu hình khỏi logic thực thi, kết hợp cơ chế kế thừa
-chính sách và module dự báo cohort shift để hỗ trợ lập kế hoạch chủ động.
+(mục~\ref{sec:contrib_policy}) --- đến từ câu hỏi của cán bộ trong một buổi
+demo: ``Năm sau muốn tăng quota thì làm thế nào?'' Kiến trúc bốn lớp tách cấu
+hình khỏi mã nguồn không phải để code đẹp hơn, mà là để trao quyền thay đổi
+cho đúng người --- cán bộ vận hành, không phải lập trình viên.
 
 \end{document}

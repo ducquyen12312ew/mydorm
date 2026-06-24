@@ -340,6 +340,10 @@ const DormitorySchema = new mongoose.Schema({
         type: [String],
         default: []
     },
+    snapshots: {
+        type: [String],
+        default: []
+    },
     videos: {
         type: [String],
         default: []

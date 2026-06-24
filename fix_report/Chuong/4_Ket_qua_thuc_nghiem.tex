@@ -387,13 +387,17 @@ Máy tính bảng & 768$\times$1024 -- 1024$\times$1366 & Grid 2 cột, navbar r
 \end{tabular}
 \end{table}
 
-Hai portal sử dụng bảng màu riêng phù hợp với tính chất công việc của từng
-nhóm người dùng. Portal sinh viên sử dụng tông màu tím--xanh cho các thành
-phần điều hướng và màu đỏ đặc trưng của nhà trường cho các chỉ số nổi bật.
-Portal quản trị viên dùng tông màu trung tính, tạo cảm giác trang trọng và
-chuyên nghiệp. Nhãn trạng thái nghiệp vụ được phân màu nhất quán xuyên suốt
-toàn hệ thống: xanh lá cho trạng thái đã phân bổ hoặc thành công, cam cho
-danh sách chờ hoặc cảnh báo, và đỏ cho từ chối hoặc lỗi.
+Hai portal sử dụng bảng màu thống nhất xoay quanh màu đỏ đặc trưng của Đại
+học Bách Khoa Hà Nội, nhưng được triển khai theo phong cách riêng phù hợp với
+từng nhóm người dùng. Portal sinh viên dùng màu đỏ làm tông chủ đạo cho thanh
+điều hướng, nút hành động chính và các chỉ số nổi bật, đặt trên nền kem ấm,
+tạo cảm giác thân thiện và dễ tiếp cận. Portal quản trị viên sử dụng cùng gam
+đỏ làm điểm nhấn nhưng đặt trên nền be ấm với tông nâu trầm, tạo cảm giác
+trang trọng phù hợp với công việc vận hành. Ứng dụng di động đồng bộ cùng màu
+đỏ làm màu điều hướng và hành động chính. Nhãn trạng thái nghiệp vụ được phân
+màu nhất quán xuyên suốt toàn hệ thống: xanh lá cho trạng thái đã phân bổ
+hoặc thành công, vàng đậm cho chờ xét duyệt hoặc cảnh báo, tím cho danh sách
+chờ, và đỏ cho từ chối hoặc lỗi.
 
 Phông chữ và thang cỡ chữ được chuẩn hóa nhất quán trên toàn bộ giao diện,
 đảm bảo khả năng đọc tốt ở mọi độ phân giải. Các thành phần giao diện tái
@@ -1534,20 +1538,56 @@ bổ phòng.
 \subsection{Kiểm thử hiệu năng hệ thống}
 \label{subsec:performance-test}
 
-Ngoài kiểm thử chức năng, hệ thống được đánh giá khả năng chịu tải trong điều
-kiện vận hành thực tế, đặc biệt ở các thời điểm cao điểm (peak hours) như đầu học
-kỳ --- khi phần lớn sinh viên đồng loạt truy cập để đăng ký ký túc xá. Công cụ
-kiểm thử tải sử dụng là Artillery~\cite{artillery_docs} phiên bản 2.x, một bộ công
-cụ kiểm thử hiệu năng mã nguồn mở cho phép mô tả kịch bản dưới dạng khai báo và
-phát sinh lượng lớn yêu cầu HTTP đồng thời. Phương pháp kiểm thử là gửi đồng thời
-các yêu cầu đến những endpoint quan trọng nhất của hệ thống với số lượng người
-dùng ảo (virtual users) tăng dần, nhằm xác định ngưỡng bão hòa và mô hình suy
-giảm hiệu năng.
+Kiểm thử hiệu năng không bắt đầu từ con số hàng trăm người dùng đồng thời ---
+đó là điều tôi học được sau khi thử thứ tự sai lần đầu. Câu hỏi thực sự cần trả
+lời là: \textit{hệ thống gãy ở đâu, và tại sao?} Để trả lời đúng, quá trình kiểm
+thử được tiến hành theo bốn bước leo thang từ nhỏ đến lớn.
+
+\textbf{Bước 1 --- 10 tài khoản trên một máy.}
+Điểm xuất phát là mở 10 tab trình duyệt trên cùng một laptop sinh viên (Intel
+Core i5, 8~GB RAM), mỗi tab đăng nhập bằng một tài khoản sinh viên khác nhau và
+đồng loạt thực hiện đăng ký ký túc xá. Không dùng công cụ tự động --- mọi thao
+tác là thủ công, quan sát log server và đo thời gian phản hồi qua Chrome DevTools.
+Ở mức 10 người dùng, hệ thống phản hồi mượt, trung bình dưới 100~ms, không phát
+sinh lỗi. Điều này xác nhận logic nghiệp vụ đúng đắn nhưng chưa nói lên điều gì
+về khả năng chịu tải.
+
+\textbf{Bước 2 --- 50 người dùng ảo từ một máy với Artillery.}
+Khi số lượng tài khoản vượt quá khả năng thao tác thủ công, Artillery được đưa
+vào --- công cụ kiểm thử tải mã nguồn mở phiên bản 2.x cho phép định nghĩa kịch
+bản đăng nhập và đăng ký dưới dạng khai báo YAML và phát sinh hàng chục yêu cầu
+HTTP đồng thời từ cùng một máy. Ở mức 50 người dùng ảo, thời gian phản hồi trung
+bình tăng lên khoảng 87~ms, không xuất hiện lỗi. Hệ thống xử lý ổn định --- nhưng
+vẫn là một nguồn gửi tải duy nhất, chưa phản ánh điều kiện thực tế khi sinh viên
+truy cập từ nhiều thiết bị và vị trí địa lý khác nhau.
+
+\textbf{Bước 3 --- 100 người dùng từ nhiều máy thật.}
+Bước tiếp theo là đưa thêm các thiết bị thật vào mạng LAN: laptop sinh viên
+(Windows 11) gửi một phần tải, máy tính để bàn (Ubuntu 22.04) vừa chạy server
+vừa gửi tải đồng thời, điện thoại Android kiểm thử phía ứng dụng di động. Mỗi
+thiết bị chạy một phần trong tổng số 100 người dùng ảo, phân tán nguồn yêu cầu
+để tái hiện sát hơn điều kiện vận hành thực tế --- tránh để một máy client trở
+thành nút thắt trước khi server thực sự bị đầy tải. Tham chiếu thêm MacBook
+chạy Safari để xác nhận tương thích trình duyệt. Ở mức 100 người dùng phân tán,
+hệ thống duy trì thời gian phản hồi trung bình 124~ms, tỉ lệ lỗi 0\%. Đây là
+tín hiệu tốt: hệ thống phân biệt được tải từ client đơn lẻ và tải thực sự từ
+nhiều nguồn.
+
+\textbf{Bước 4 --- 300 người dùng: kịch bản cao điểm đăng ký.}
+Mức tải 300 người dùng đồng thời là kịch bản quan trọng nhất --- tương đương tình
+huống một nhóm lớn sinh viên đồng loạt mở hệ thống ngay khi chu kỳ đăng ký mở,
+điều thường xảy ra vào đầu học kỳ. Đây là lần đầu hệ thống cho thấy dấu hiệu suy
+giảm có kiểm soát: thời gian phản hồi trung bình tăng lên 298~ms và xuất hiện
+tỉ lệ lỗi nhỏ 0,3\%. Không phải con số lý tưởng, nhưng là ngưỡng ``chấp nhận
+được'' --- hệ thống vẫn phục vụ được và tỉ lệ lỗi nằm trong giới hạn cho phép
+của hệ thống quản lý nội bộ. Khi đẩy tiếp lên 500 và 1000 người dùng, thời gian
+phản hồi và tỉ lệ lỗi tăng mạnh, xác định rõ ngưỡng bão hòa của cấu hình hiện
+tại.
 
 Bảng~\ref{tab:test-devices} mô tả các thiết bị và môi trường tham gia kiểm thử,
 Bảng~\ref{tab:test-endpoints} liệt kê tập endpoint mục tiêu cùng tỉ trọng yêu cầu
 mô phỏng theo phân bố truy cập thực tế, và Bảng~\ref{tab:load-test-results} tổng
-hợp kết quả đo theo từng mức tải đồng thời.
+hợp kết quả đo đầy đủ theo từng mức tải đồng thời.
 
 \begin{table}[H]
 \centering
@@ -1735,9 +1775,7 @@ các tham số cấu hình chính cần thiết để khởi động hệ thốn
 \hline
 \texttt{EMAIL\_USER / EMAIL\_PASS} & Thông tin xác thực tài khoản gửi email qua nodemailer \\
 \hline
-\texttt{TWILIO\_ACCOUNT\_SID / AUTH\_TOKEN} & Thông tin xác thực Twilio để gửi SMS OTP \\
-\hline
-\texttt{PORT} & Cổng HTTP server lắng nghe; mặc định 3000 \\
+\texttt{PORT} & Cổng HTTP server lắng nghe; mặc định 5000 \\
 \hline
 \texttt{NODE\_ENV} & Môi trường chạy: \texttt{development} hoặc \texttt{production} \\
 \hline
