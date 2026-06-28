@@ -1,0 +1,161 @@
+\documentclass[../DoAn.tex]{subfiles}
+
+\begin{document}
+\sloppy
+
+Bài toán quản lý ký túc xá không chỉ dừng lại ở việc số hóa các quy trình thủ công mà còn đòi hỏi giải quyết đồng thời nhiều yêu cầu về quản lý nghiệp vụ, phân bổ chỗ ở, khả năng mở rộng và trải nghiệm người dùng. Quá trình phân tích và triển khai cho thấy những hạn chế của phương thức quản lý truyền thống dựa trên bảng tính, từ việc xử lý phân bổ thiếu linh hoạt, khó điều chỉnh chính sách đến hạn chế trong việc cung cấp thông tin trực quan cho sinh viên.
+
+Xuất phát từ những yêu cầu đó, hệ thống được thiết kế theo hướng hỗ trợ toàn diện cho cả sinh viên và cán bộ quản lý, không chỉ tự động hóa quy trình mà còn nâng cao khả năng cấu hình, giám sát và ra quyết định. Chương này tổng kết các kết quả đạt được, đánh giá hệ thống trong tương quan với các giải pháp hiện có, phân tích những hạn chế còn tồn tại và đề xuất các hướng phát triển trong tương lai.
+
+
+\section{Kết luận}
+\label{section:6.1}
+
+Đề tài đã hoàn thành mục tiêu tổng quát đặt ra ở Chương~1: xây dựng một hệ thống phần mềm tích hợp phục vụ quản lý và phân bổ KTX, kết hợp engine phân bổ có khả năng cấu hình chính sách linh hoạt với các giao diện trên nền tảng web và di động. Bên cạnh việc số hóa quy trình quản lý, hệ thống còn bổ sung các chức năng như mô phỏng chính sách trước khi áp dụng, dự báo nhu cầu chỗ ở theo nhiều kịch bản và trực quan hóa không gian cư trú bằng công nghệ ba chiều.
+
+Trong quá trình thực hiện, có ba quyết định thiết kế được đánh giá là mang lại nhiều giá trị nhất. Thứ nhất là tích hợp môi trường sandbox vào lõi nghiệp vụ, cho phép mô phỏng và kiểm chứng kết quả phân bổ trước khi áp dụng thực tế. Thứ hai là tách hoàn toàn cấu hình chính sách khỏi mã nguồn, giúp cán bộ quản lý chủ động điều chỉnh mà không cần can thiệp vào chương trình. Thứ ba là duy trì giải pháp trực quan hóa 3D sau quá trình tối ưu mô hình, góp phần giúp sinh viên, đặc biệt là những người ở xa, có thể đánh giá phòng ở trực quan hơn trước khi đăng ký.
+
+
+\subsection{So sánh với các hệ thống tương tự}
+\label{subsection:6.1.1}
+
+Để định vị đóng góp của đề tài, hệ thống E-Dormitory được so sánh với hai nền tảng thương mại tiêu biểu là Scape~\cite{scape_housing} và University Living~\cite{university_living}, cùng mô hình quản lý KTX truyền thống đang được áp dụng tại nhiều trường đại học Việt Nam. Các nền tảng quốc tế có ưu thế về trải nghiệm người dùng và đặt phòng trực tuyến, nhưng chủ yếu phục vụ thị trường cho thuê nên chưa hỗ trợ bài toán phân bổ theo chính sách ưu tiên như tại các KTX đại học công lập. Bảng~\ref{tab:sosanh} trình bày kết quả đối chiếu theo chín tiêu chí cốt lõi.
+
+
+\begin{table}[H]
+\centering
+\caption{So sánh E-Dormitory với các hệ thống quản lý và đặt phòng ký túc xá tương tự}
+\label{tab:sosanh}
+\small
+\begin{tabular}{|p{5.4cm}|c|c|c|c|}
+\hline
+\textbf{Tiêu chí} & \textbf{E-Dormitory} & \textbf{Scape} & \textbf{Univ. Living} & \textbf{KTX VN} \\
+\hline
+Đăng ký trực tuyến đầu--cuối                & Có       & Có       & Có       & Không    \\
+\hline
+Phân bổ tự động theo điểm ưu tiên           & Có       & Không    & Không    & Không    \\
+\hline
+Môi trường sandbox (thử $\to$ rollback)     & Có       & Không    & Không    & Không    \\
+\hline
+Dự báo nhu cầu theo 4 kịch bản              & Có       & Không    & Không    & Không    \\
+\hline
+Tham quan ảo 3D phòng (VR tour)             & Có       & Một phần & Một phần & Không    \\
+\hline
+Trực quan hoá địa lý 3D                     & Có       & Không    & Không    & Không    \\
+\hline
+Ứng dụng di động và PWA                     & Có       & Có       & Có       & Không    \\
+\hline
+Thông báo đa kênh (email/SMS/realtime/push) & Có       & Một phần & Một phần & Một phần \\
+\hline
+Phù hợp chính sách phân bổ đại học Việt Nam & Có      & Không    & Không    & Một phần \\
+\hline
+\end{tabular}
+\end{table}
+
+Kết quả so sánh cho thấy sự khác biệt chủ yếu nằm ở mục tiêu của từng hệ thống. Scape và University Living hướng đến thị trường cho thuê nên tập trung vào trải nghiệm đặt phòng trực tuyến, không hỗ trợ phân bổ theo chính sách ưu tiên. Trong khi đó, mô hình quản lý KTX truyền thống tại Việt Nam đáp ứng các yêu cầu nghiệp vụ như tiêu chí ưu tiên, quota và ràng buộc giới tính, nhưng còn phụ thuộc nhiều vào bảng tính và quy trình thủ công, gây khó khăn cho việc kiểm chứng và truy vết.
+
+E-Dormitory kết hợp ưu điểm của cả hai hướng tiếp cận: kế thừa các chính sách phân bổ đặc thù của KTX đại học Việt Nam, đồng thời bổ sung nền tảng kỹ thuật hiện đại với các chức năng tự động hóa, mô phỏng, kiểm chứng và minh bạch hóa quá trình ra quyết định.
+
+
+\subsection{Những kết quả đã đạt được}
+\label{subsection:6.1.2}
+
+Xét trên nhóm nghiệp vụ cốt lõi, hệ thống đã hiện thực đầy đủ quy trình quản lý ký túc xá từ đăng ký, khai báo thông tin ưu tiên, nộp minh chứng điện tử, xét duyệt đến phân bổ phòng tự động và thông báo kết quả. Engine phân bổ hỗ trợ tính điểm ưu tiên theo nhiều tiêu chí, phân bổ theo quota từng nhóm năm học và bảo đảm các ràng buộc về giới tính. Hệ thống còn tích hợp môi trường mô phỏng (sandbox) cho phép kiểm thử phương án phân bổ trước khi áp dụng, đồng thời cung cấp chức năng dự báo nhu cầu và quản lý toàn bộ vòng đời cư trú của sinh viên.
+
+Xét trên nhóm trải nghiệm người dùng, hệ thống cung cấp giao diện web, ứng dụng di động và Progressive Web App (PWA), đáp ứng nhu cầu sử dụng trên nhiều nền tảng. Chức năng tham quan phòng và khuôn viên bằng công nghệ 3D giúp sinh viên có cái nhìn trực quan về không gian lưu trú trước khi đăng ký, trong khi các mô hình được tối ưu để bảo đảm khả năng sử dụng trên điều kiện mạng thực tế.
+
+Xét trên nhóm hạ tầng, hệ thống được xây dựng theo hướng hiện đại với cơ chế xác thực đa phương thức, thông báo thời gian thực, lưu trữ dữ liệu đa phương tiện và nhiều lớp bảo mật. Kiến trúc triển khai hỗ trợ đóng gói, tự động hóa quá trình triển khai và mở rộng theo chiều ngang. Kết quả kiểm thử cho thấy hệ thống vận hành ổn định ở mức khoảng 300 người dùng đồng thời trên cấu hình máy chủ phổ thông và sẵn sàng triển khai trong thực tế.
+
+\subsection{Hạn chế còn tồn tại}
+\label{subsection:6.1.3}
+
+Bên cạnh những kết quả đạt được, hệ thống vẫn còn một số hạn chế cần tiếp tục hoàn thiện.
+
+Module dự báo chưa hoàn thiện chức năng ước lượng số lượng sinh viên dự kiến rời KTX, do thiếu dữ liệu lịch sử đủ dài để xây dựng mô hình dự báo đáng tin cậy. Vì vậy, kết quả hiện chủ yếu phản ánh nhu cầu đăng ký mới và chưa đánh giá đầy đủ tỷ lệ lấp đầy trong các kỳ tiếp theo.
+
+Hệ thống chưa tích hợp các cổng thanh toán trực tuyến như VNPay hoặc MoMo, nên việc thu và đối soát phí nội trú vẫn được thực hiện theo quy trình thủ công. Ngoài ra, hệ thống cũng chưa kết nối trực tiếp với các hệ thống quản lý đào tạo (SIS, ERP), khiến một số dữ liệu như danh sách sinh viên hoặc kết quả học tập vẫn phải đồng bộ theo lô.
+
+Bên cạnh đó, chức năng hỗ trợ trao đổi trực tuyến giữa sinh viên và ban quản lý chưa được triển khai. Các yêu cầu phát sinh như giải đáp thắc mắc hoặc hỗ trợ xử lý hồ sơ vẫn phải thực hiện qua các kênh bên ngoài hệ thống, làm giảm tính liên thông của quy trình quản lý.
+
+
+\subsection{Bài học kinh nghiệm}
+\label{subsection:6.1.4}
+
+Quá trình thực hiện đề tài mang lại nhiều bài học quan trọng về phân tích nghiệp vụ, thiết kế kiến trúc và triển khai hệ thống trong thực tế.
+
+\textbf{Thứ nhất, cần hiểu đúng bài toán nghiệp vụ trước khi lựa chọn giải pháp kỹ thuật.} Việc xây dựng môi trường mô phỏng (sandbox) cho thấy nhiều nghiệp vụ, đặc biệt là phân bổ chỗ ở, không thể thực hiện trực tiếp trên dữ liệu thật do các quyết định sau khi công bố rất khó hoặc không thể đảo ngược. Thiết kế theo hướng mô phỏng và đánh giá trước khi áp dụng giúp giảm rủi ro, nâng cao độ tin cậy và hỗ trợ cán bộ kiểm chứng kết quả trước khi đưa vào vận hành.
+
+\textbf{Thứ hai, cấu hình cần được tách khỏi mã nguồn để tăng tính linh hoạt.} Việc đưa các tham số như quota, trọng số ưu tiên và ngưỡng cảnh báo vào giao diện quản trị cho phép cán bộ điều chỉnh chính sách theo từng năm học mà không cần thay đổi chương trình. Cách tiếp cận này giúp hệ thống thích ứng tốt hơn với các thay đổi về quy định và giảm đáng kể chi phí bảo trì.
+
+\textbf{Thứ ba, kiến trúc hệ thống cần được thiết kế theo hướng mở rộng ngay từ đầu.} Việc xây dựng các thành phần theo hướng độc lập và có khả năng thay thế, kết hợp cơ chế truyền sự kiện phân tán, giúp hệ thống dễ dàng mở rộng khi số lượng người dùng tăng lên mà không phải thay đổi logic nghiệp vụ. Điều này đặc biệt quan trọng đối với các hệ thống phục vụ nhiều người dùng trong các giai đoạn cao điểm.
+
+\textbf{Cuối cùng, kiểm thử cần được thực hiện ở nhiều mức độ.} Bên cạnh các kiểm thử đơn vị, việc xây dựng bộ dữ liệu seed đa dạng và thực hiện các kịch bản kiểm thử gần với điều kiện vận hành thực tế đã giúp phát hiện nhiều trường hợp biên mà unit test khó bao quát. Sự kết hợp giữa các phương pháp kiểm thử góp phần nâng cao độ ổn định và độ tin cậy của hệ thống trước khi triển khai.
+
+
+\section{Hướng phát triển}
+\label{section:6.2}
+
+Trên nền tảng đã xây dựng, hệ thống có nhiều dư địa để phát triển theo hai
+nhánh: hoàn thiện chiều sâu cho những chức năng đã hiện thực và mở rộng chiều
+rộng sang những năng lực hoàn toàn mới.
+
+\subsection{Hoàn thiện các chức năng hiện có}
+\label{subsection:6.2.1}
+
+Hướng hoàn thiện trước tiên là khép kín module dự báo bằng việc bổ sung phần
+ước lượng số lượng sinh viên dự kiến rời KTX khi đã tích luỹ đủ dữ liệu lịch
+sử từ ba năm trở lên, qua đó cho phép cân đối đồng thời cả dòng vào và dòng ra
+để dự báo tỷ lệ lấp đầy chính xác hơn. Tiếp theo, hệ thống cần tích hợp các
+cổng thanh toán phổ biến tại Việt Nam như VNPay, MoMo và ZaloPay để tự động hoá
+việc thu và đối soát phí KTX, thay thế hoàn toàn cho thao tác ghi nhận thủ công
+hiện nay. Về trải nghiệm trực quan, tính năng tham quan ảo có thể được nâng cấp
+lên chuẩn WebXR để hỗ trợ kính thực tế ảo, đồng thời bổ sung các điểm thông tin
+(hotspot) về nội thất và chú thích tiện ích ngay trong không gian ba chiều của
+phòng. Độ chính xác của dự báo cũng có thể được cải thiện bằng cách đưa thêm
+các biến đầu vào có ý nghĩa như tỷ lệ trúng tuyển từng năm và các xu hướng kinh
+tế -- xã hội. Một hướng hoàn thiện cụ thể khác là tích hợp xác minh tự động cho
+luồng kiểm duyệt minh chứng ưu tiên (priority claims) thông qua API của các đơn
+vị cấp giấy tờ liên quan --- hộ nghèo, xác nhận dân tộc thiểu số, giấy tờ học
+bổng --- thay vì để cán bộ phải duyệt thủ công từng hồ sơ. Điều này vừa giảm
+thời gian xét duyệt, vừa loại bỏ rủi ro giấy tờ giả mạo mà hệ thống hiện tại
+chưa kiểm chứng được tự động.
+
+\subsection{Các hướng phát triển mới}
+\label{subsection:6.2.2}
+
+Ở chiều mở rộng, hướng đi nền tảng nhất là xây dựng lớp API đồng bộ với hệ
+thống SIS và ERP của nhà trường, cho phép tự động cập nhật danh sách sinh viên,
+kết quả học tập và tình trạng học phí, qua đó loại bỏ hoàn toàn nhu cầu nhập
+liệu thủ công và bảo đảm dữ liệu luôn nhất quán với nguồn gốc. Engine phân bổ
+có thể được bổ sung năng lực trí tuệ nhân tạo và học máy (AI/ML), điển hình là
+bài toán ghép bạn cùng phòng (roommate matching) dựa trên sở thích và thói quen
+sinh hoạt nhằm nâng cao mức độ hài lòng về môi trường ở. Một bảng điều khiển
+phân tích kinh doanh thông minh (Business Intelligence --- BI) đa năm sẽ giúp
+ban quản lý quan sát bản đồ nhiệt phân bố địa lý của sinh viên, theo dõi xu
+hướng cư trú và xuất báo cáo tự động theo từng kỳ. Về hạ tầng, lộ trình mở
+rộng theo chiều ngang có thể được hoàn thiện trọn vẹn với điều phối bằng
+Kubernetes, phân mảnh dữ liệu trên MongoDB Atlas, cụm \texttt{Redis} và mạng
+phân phối nội dung (CDN) cho các mô hình ba chiều dung lượng lớn. Về thiết bị,
+hướng KTX thông minh gắn với Internet vạn vật (IoT) hứa hẹn mang lại những
+tiện ích thiết thực như nhận phòng tự động bằng mã QR hoặc NFC, theo dõi tiêu
+thụ điện nước theo từng phòng và cảnh báo sớm các bất thường trong vận hành.
+Cuối cùng, xây dựng module đánh giá mức độ hài lòng sau khi ở (post-stay
+feedback) với phân tích sentiment tự động sẽ cho phép dữ liệu phản hồi thực tế
+quay lại cải thiện thuật toán ghép phòng và dự báo nhu cầu --- tạo vòng lặp cải
+tiến liên tục thay vì chỉ thu thập dữ liệu một chiều rồi để đó.
+
+Khi nhìn lại toàn bộ hành trình từ ý tưởng ban đầu đến hệ thống đang chạy, điều
+tôi cảm nhận rõ nhất không phải là những con số kỹ thuật --- không phải 300
+người dùng đồng thời, không phải 25 lần nén mô hình 3D, không phải 2 giây phân
+bổ. Những con số đó là kết quả, không phải ý nghĩa.
+
+Điều đọng lại là từng khoảnh khắc cụ thể: một sinh viên từ Hà Tĩnh lần đầu
+tiên ``bước vào'' phòng ký túc xá trên trình duyệt trước khi đăng ký; một cán
+bộ tự điều chỉnh tỷ lệ quota năm mới trong vài phút mà không cần gọi lập trình
+viên; một sinh viên tra được đúng lý do tại sao mình đứng thứ 47 trong danh
+sách chờ. Phần mềm tốt không đến từ việc chọn đúng công nghệ --- mà đến từ
+việc hiểu đúng vấn đề của người dùng trước khi mở editor. Đó mới là điều tôi
+mang về từ đồ án này, và cũng là thứ không có trong bất kỳ tài liệu kỹ thuật
+nào.
+
+\end{document}

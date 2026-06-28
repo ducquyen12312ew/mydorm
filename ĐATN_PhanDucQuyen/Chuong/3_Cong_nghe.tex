@@ -1,0 +1,297 @@
+\documentclass[../DoAn.tex]{subfiles}
+\begin{document}
+\sloppy
+
+Chương này trình bày các công nghệ và kiến trúc được lựa chọn để xây dựng hệ
+thống quản lý ký túc xá, dựa trên yêu cầu cụ thể của bài toán: xử lý phân bổ
+phòng theo chu kỳ học kỳ, hỗ trợ đồng thời web lẫn di động, đảm bảo thông báo
+thời gian thực và duy trì nhất quán dữ liệu khi nhiều quản trị viên thao tác
+cùng lúc.
+
+% =====================================================================
+\section{Kiến trúc hệ thống}
+\label{sec:architecture}
+% =====================================================================
+
+Hệ thống được tổ chức theo kiến trúc phân lớp~\cite{fowler2002patterns}: backend
+chịu toàn bộ trách nhiệm xử lý nghiệp vụ và truy cập cơ sở dữ liệu, frontend
+hiển thị theo mô hình server-side rendering, và một nhóm script độc lập phục vụ
+các tác vụ hàng loạt như khởi tạo dữ liệu và migration.
+
+Kiến trúc này phù hợp với đặc điểm nghiệp vụ phân bổ phòng: mỗi đợt phân bổ
+cần đi qua nhiều bước theo thứ tự xác định --- kiểm tra điều kiện, tính điểm
+ưu tiên, ghi kết quả --- và không thể thực thi song song trên cùng tập sinh
+viên. Tách phần tính toán điểm ưu tiên ở tầng Service khỏi phần truy vấn dữ
+liệu ở tầng Model giúp kiểm soát và kiểm thử từng phần độc lập.
+
+Luồng xử lý chính: client gửi yêu cầu qua trình duyệt hoặc ứng dụng di động,
+server xác thực và cấp token hoặc session, tầng Service tính điểm ưu tiên và
+ghi kết quả vào cơ sở dữ liệu, sau đó phản hồi về client. Thông báo thời gian
+thực được đẩy đến sinh viên qua Socket.IO~\cite{socketio2024docs} ngay sau khi
+kết quả phân bổ được ghi nhận. Các tác vụ nặng như seed dữ liệu được tách hoàn
+toàn ra script riêng, không ảnh hưởng đến hiệu năng API chính.
+
+Một điểm quan trọng trong thiết kế là hệ thống lưu lại snapshot chính sách
+phân bổ tại thời điểm sinh viên nộp đơn, đảm bảo khi ban quản lý thay đổi
+tiêu chí sau đó, các đơn đã nộp vẫn được xét theo chính sách cũ --- đảm bảo
+tính công bằng và khả năng truy vết lý do phân bổ.
+
+% =====================================================================
+\section{Công nghệ backend}
+\label{sec:backend}
+% =====================================================================
+
+\subsection*{Runtime và framework}
+
+Backend được xây dựng trên Node.js~\cite{nodejs_docs} phiên bản 22 LTS với
+Express.js~\cite{expressjs_docs} 4.x. Node.js được chọn vì toàn bộ hệ thống
+dùng JavaScript cả hai phía, giúp tái sử dụng logic và giảm chi phí chuyển đổi
+ngôn ngữ. Vòng lặp sự kiện đơn luồng của Node.js phù hợp với đặc trưng
+I/O-bound của hệ thống --- phần lớn tải đến từ truy vấn cơ sở dữ liệu và giao
+tiếp mạng. Express.js được chọn vì tính tối giản, cho phép tổ chức route và
+middleware theo từng nhóm nghiệp vụ như chu kỳ phân bổ, quản lý vi phạm hay
+kế thừa chính sách.
+
+\subsection*{Cơ sở dữ liệu}
+
+Cơ sở dữ liệu sử dụng MongoDB Atlas~\cite{mongodb2024datamodel} kết nối qua
+Mongoose~\cite{mongoose_docs} 8.x. Mô hình document phù hợp với dữ liệu sinh
+viên và phòng ở có cấu trúc thay đổi theo từng học kỳ --- ví dụ, tiêu chí ưu
+tiên có thể bổ sung trường mới mà không cần migration phức tạp. Mongoose cung
+cấp schema validation tại tầng ứng dụng, pre-save hooks và phương thức truy
+vấn rõ ràng. Hệ thống định nghĩa hơn 19 schema trong thư mục
+\texttt{src/schemas/}, bao gồm: chu kỳ phân bổ, nhật ký kiểm toán, vi phạm
+nội quy, yêu cầu bảo trì, thông báo, khai báo ưu tiên, refresh token di động
+và hàng đợi outbox.
+
+\subsection*{Ghi log, giám sát và bảo mật}
+
+Winston~\cite{winston_docs} ghi log dạng JSON kèm metadata đầy đủ cho mọi thao
+tác quan trọng; mức log điều khiển qua biến môi trường \texttt{LOG\_LEVEL}.
+Sentry~\cite{sentry_docs} (\texttt{@sentry/node} 10.x) tự động thu thập error
+events và performance traces trong production. Thư viện
+\texttt{@opentelemetry/api}~\cite{opentelemetry_docs} cung cấp nền tảng quan
+sát theo chuẩn OpenTelemetry, cho phép gắn span và trace vào các luồng nghiệp
+vụ quan trọng.
+
+Về bảo mật tầng trung gian, Helmet~\cite{helmet_docs} 8.x thiết lập HTTP
+security headers, express-rate-limit~\cite{express_rate_limit} 8.x giới hạn
+số yêu cầu chống brute-force, và express-mongo-sanitize chặn NoSQL injection.
+Dữ liệu đầu vào được kiểm tra bằng express-validator~\cite{express_validator_docs}
+và Joi~\cite{joi_docs} tùy ngữ cảnh. Module \texttt{validateEnv.js} kiểm tra
+toàn bộ biến môi trường bắt buộc khi khởi động; nếu thiếu bất kỳ secret nào,
+ứng dụng thoát ngay với exit code 1.
+
+\subsection*{Lưu trữ, xuất dữ liệu và truyền sự kiện}
+
+Cloudinary~\cite{cloudinary_docs} kết hợp Multer~\cite{multer_docs} xử lý lưu
+trữ ảnh và tài liệu, đẩy thẳng lên cloud mà không lưu tạm trên đĩa máy chủ.
+ExcelJS~\cite{exceljs_docs} xuất kết quả phân bổ ra file \texttt{.xlsx};
+thư viện \texttt{qrcode}~\cite{qrcode_docs} sinh mã QR thẻ cư trú phía server.
+
+Cơ chế truyền sự kiện được thiết kế hoán đổi được giữa ba lựa chọn:
+in-process cục bộ (mặc định), Redis pub/sub~\cite{redis2024pubsub} và Apache
+Kafka~\cite{kafka_docs}, điều khiển qua biến môi trường
+\texttt{EVENT\_TRANSPORT}. Thiết kế cắm được này cho phép nâng cấp lên Kafka
+khi mở rộng quy mô mà không cần sửa mã nghiệp vụ.
+
+% =====================================================================
+\section{Công nghệ frontend}
+\label{sec:frontend}
+% =====================================================================
+
+Giao diện web được xây dựng theo kiến trúc đa trang dùng EJS~\cite{ejs_docs}
+làm template engine phía server, kết hợp HTML5, CSS3 thuần và
+Bootstrap~\cite{bootstrap_docs} 5.x. Biểu tượng sử dụng Font~Awesome~6.x~\cite{fontawesome_docs}
+nhúng qua CDN.
+
+EJS được chọn thay vì React hay Vue vì phần lớn trang cần render dữ liệu ngay
+tại server trước khi gửi về trình duyệt, đơn giản hóa đáng kể logic phía
+client với các biểu mẫu đăng ký nhiều bước và trang quản trị số lượng lớn bản
+ghi. Tính năng bản đồ vị trí ký túc xá dùng OpenStreetMap~\cite{openstreetmap_docs}
+qua phương pháp nhúng iframe, không cần thư viện JavaScript bổ sung và tương
+thích hoàn toàn với Content Security Policy của hệ thống.
+
+Hệ thống áp dụng nguyên tắc progressive enhancement: các trang cơ bản vẫn hoạt
+động khi JavaScript bị tắt, các tương tác nâng cao được bổ sung bằng các
+module JavaScript nhỏ tự viết.
+
+% =====================================================================
+\section{Xác thực và bảo mật}
+\label{sec:security}
+% =====================================================================
+
+Hệ thống áp dụng hai cơ chế xác thực song song. Web portal dùng session-based
+authentication qua \texttt{express-session}~\cite{express_session_docs}, lưu
+session ID trong cookie với thuộc tính \texttt{HttpOnly}, \texttt{SameSite=strict}
+và TTL 24 giờ. Mobile API dùng JWT~\cite{rfc7519} stateless với access token
+TTL 15 phút và refresh token TTL 30 ngày, ký bằng hai secret riêng, quản lý
+bằng \texttt{jsonwebtoken}~\cite{jsonwebtoken_docs}.
+
+Passport.js~\cite{passportjs_docs} 0.7.x làm tầng trừu tượng hóa xác thực.
+\texttt{LocalStrategy} xử lý đăng nhập bằng mật khẩu băm bcrypt~\cite{bcrypt_npm}
+6.x. \texttt{GoogleStrategy}~\cite{passport_google_docs} và
+\texttt{MicrosoftStrategy}~\cite{passport_microsoft_docs} theo chuẩn
+OAuth~2.0~\cite{rfc6749} cho phép đăng nhập bằng tài khoản tổ chức.
+
+Mã QR thẻ cư trú dùng HMAC-SHA256 ký payload chứa thông tin sinh viên và
+timestamp, TTL 24 giờ và rotate mỗi lần gọi API. Hệ thống phát hiện bất thường
+token: khi refresh token bị dùng lại từ thiết bị khác hoặc trùng \texttt{jti},
+cơ chế risk score được kích hoạt và có thể vô hiệu hóa toàn bộ phiên.
+
+Xác thực hai yếu tố được hiện thực bằng Speakeasy~\cite{speakeasy_npm} 2.x
+theo chuẩn TOTP~\cite{rfc6238}, bắt buộc với tài khoản quản trị và các thao
+tác nhạy cảm.
+
+% =====================================================================
+\section{Ứng dụng di động}
+\label{sec:mobile}
+% =====================================================================
+
+Ứng dụng di động được phát triển bằng React~Native~\cite{reactnative2024} 0.76
+kết hợp Expo~SDK~52~\cite{expo2024router}, viết hoàn toàn bằng
+TypeScript~\cite{typescript_docs}. React Native được chọn vì khả năng dùng
+chung phần lớn mã nguồn cho cả iOS và Android, giảm thời gian phát triển trong
+bối cảnh đồ án có giới hạn nhân lực. Expo Router~v4~\cite{expo2024router} dùng
+file-based routing dựa trên cấu trúc thư mục \texttt{app/}: \texttt{(tabs)/}
+cho màn hình tab chính, \texttt{(auth)/} cho luồng đăng nhập, và các thư mục
+riêng cho allocation, maintenance, room detail và violations.
+
+Về quản lý trạng thái, TanStack~Query~v5~\cite{tanstack_query_docs} đảm nhiệm
+server state (fetch, cache, background refetch, optimistic updates); Zustand~v5~\cite{zustand_docs}
+quản lý client state. HTTP communication dùng Axios~\cite{axios_docs} với
+interceptors tự động gắn JWT và xử lý refresh khi nhận 401. Kết nối realtime
+qua \texttt{socket.io-client}~\cite{socketio2024docs} cho phép nhận thông báo
+phân bổ tức thì. Token được lưu an toàn qua
+\texttt{expo-secure-store}~\cite{expo_secure_store_docs} (Keychain/Keystore).
+Mã QR thẻ cư trú hiển thị bằng
+\texttt{react-native-qrcode-svg}~\cite{rn_qrcode_docs}; Sentry React Native
+thu thập crash reports và performance traces.
+
+\subsection{Progressive Web App (PWA)}
+\label{subsec:pwa}
+
+Bên cạnh ứng dụng native, hệ thống bổ sung lớp Progressive Web
+App~\cite{webdev_pwa} trên web portal, dựa trên Service Worker và Web App
+Manifest~\cite{w3c_manifest}.
+
+Service Worker (\texttt{public/sw.js}) áp dụng chiến lược cache phân biệt theo
+loại tài nguyên: cache-first cho asset tĩnh, network-first cho HTML động.
+Khi mất mạng, phục vụ trang dự phòng \texttt{offline.html}; các yêu cầu nhạy
+cảm như đăng nhập, API và Socket.IO được cấu hình bỏ qua cache.
+
+Web App Manifest (\texttt{public/manifest.webmanifest}) khai báo chế độ hiển
+thị \texttt{standalone}, bộ icon kèm \texttt{maskable}, màu chủ đề và shortcut
+truy cập nhanh. Trên Android, hệ thống bắt sự kiện
+\texttt{beforeinstallprompt} để hiển thị banner gợi ý cài đặt; trên iOS Safari,
+hiển thị hướng dẫn thêm vào màn hình chính thủ công.
+
+\subsection{Đóng gói và triển khai ứng dụng}
+\label{subsec:mobile_deployment}
+
+Quá trình xây dựng và phân phối ứng dụng di động sử dụng
+Expo Application Services (EAS) Build~\cite{expo_eas_build}. Khác với
+Expo Go chỉ phục vụ mục đích phát triển và kiểm thử, EAS Build biên dịch
+ứng dụng trên hạ tầng đám mây, sinh ra các gói cài đặt độc lập phù hợp với
+từng nền tảng.
+
+Đối với Android, hệ thống được đóng gói dưới định dạng Android Package
+(\texttt{.apk}) phục vụ quá trình thử nghiệm và đánh giá nội bộ. Trong môi
+trường phát hành chính thức, EAS cũng hỗ trợ sinh Android App Bundle
+(\texttt{.aab}) --- định dạng được Google Play khuyến nghị nhằm tối ưu kích
+thước tải xuống và phân phối theo từng thiết bị~\cite{android_app_bundle}.
+Quá trình build sử dụng Gradle~\cite{gradle_docs} làm hệ thống tự động hóa
+biên dịch, quản lý dependency, tối ưu hóa mã nguồn và tạo gói cài đặt cuối
+cùng.
+
+Cấu hình build được khai báo trong tệp \texttt{eas.json} theo tài liệu của
+Expo~\cite{expo_eas_json}, cho phép định nghĩa nhiều profile như
+\texttt{development}, \texttt{preview} và \texttt{production}. Mỗi profile
+thiết lập riêng chế độ tối ưu hóa, biến môi trường và khóa ký số (signing
+key), nhờ đó cùng một mã nguồn có thể được sử dụng cho nhiều giai đoạn từ
+phát triển, kiểm thử đến triển khai.
+
+Việc sử dụng EAS Build giúp loại bỏ yêu cầu cài đặt Android SDK, Gradle và
+các công cụ biên dịch trên máy phát triển. Thay vào đó, toàn bộ quá trình
+biên dịch được thực hiện trên hạ tầng của Expo~\cite{expo_eas_build}, đảm bảo
+môi trường build đồng nhất, giảm sai khác giữa các máy phát triển và đơn giản
+hóa quy trình Continuous Integration/Continuous Deployment
+(CI/CD)~\cite{expo_ci_cd}.
+% =====================================================================
+\section{Hạ tầng và vận hành}
+\label{sec:infrastructure}
+% =====================================================================
+
+\subsection*{Container hóa và cache}
+
+Backend được đóng gói trong Docker~\cite{docker_docs} container dùng multi-stage
+build với base image \texttt{node:20-alpine}: stage đầu cài dependencies với
+\texttt{npm ci -{}-omit=dev}, stage hai chạy dưới non-root user \texttt{appuser}.
+Docker Compose phục vụ triển khai local với hai service: \texttt{app} (backend
+Node.js) và \texttt{redis} (Redis~7-alpine), khởi động tuần tự theo health
+check. MongoDB Atlas kết nối qua biến môi trường \texttt{MONGODB\_URI}.
+
+Redis~\cite{redis2024pubsub} 5.x phục vụ hai mục đích: lưu session qua
+\texttt{express-session} và cung cấp Socket.IO cluster adapter
+(\texttt{@socket.io/redis-adapter}~\cite{socketio2024docs}) cho broadcast nhất
+quán qua nhiều instance. Khi Redis không khả dụng, hệ thống fallback về chế
+độ local Socket.IO. Endpoint \texttt{GET /health} phục vụ Docker và load
+balancer kiểm tra trạng thái.
+
+\subsection*{Email, CI/CD và vận hành}
+
+Nodemailer~\cite{nodemailer_docs} 7.x gửi email qua SMTP (cấu hình
+\texttt{SMTP\_*}) phục vụ xác nhận đăng ký, thông báo phân bổ, OTP và đặt
+lại mật khẩu. Kênh thông báo chính vẫn là Socket.IO realtime và thông báo
+in-app.
+
+GitHub Actions~\cite{github_actions} CI pipeline chạy hai job song song:
+\texttt{backend} kiểm tra syntax JavaScript bằng \texttt{node -{}-check} và
+\texttt{mobile} chạy TypeScript type check bằng \texttt{npx tsc -{}-noEmit},
+kích hoạt trên mọi push và pull request. Trong production, PM2~\cite{pm2_docs}
+làm process manager với chế độ cluster tận dụng nhiều nhân CPU.
+
+% =====================================================================
+\section{Công nghệ trực quan hóa 3D}
+\label{sec:visualization}
+% =====================================================================
+
+Hệ thống cung cấp trực quan hóa không gian theo hai cấp độ: bản đồ địa lý ba
+chiều ở cấp toàn khu và tham quan thực tế ảo ở cấp từng phòng, hiện thực bằng
+CesiumJS và Three.js chạy trực tiếp trên trình duyệt qua WebGL.
+
+\subsection{CesiumJS --- Trực quan hóa địa lý 3D}
+\label{subsec:cesium}
+
+CesiumJS~\cite{cesiumjs} là thư viện JavaScript mã nguồn mở chuyên dựng địa
+cầu và bản đồ ba chiều trên nền WebGL. Hệ thống tích hợp CesiumJS vào tính
+năng ``Khám phá KTX 3D'' trên trang chủ, cho phép người dùng quan sát vị trí
+thực tế các khu ký túc xá trong không gian địa lý. Mỗi tòa nhà được biểu diễn
+bằng marker tương tác; khi chọn, hệ thống hiển thị thẻ thông tin kèm hình ảnh,
+mô tả và liên kết đến trang chi tiết. Người dùng có thể phóng to, xoay và
+nghiêng góc camera mượt mà trên cả máy tính lẫn di động.
+
+\subsection{Three.js --- Tour thực tế ảo phòng ký túc xá}
+\label{subsec:threejs}
+
+Three.js~\cite{threejs} là thư viện đồ họa 3D cấp cao trên nền WebGL, dùng để
+xây dựng tính năng tham quan phòng trước khi đăng ký. Mô hình phòng ở định
+dạng glTF/GLB~\cite{khronos_gltf} được nạp trực tiếp trong trình duyệt qua
+\texttt{GLTFLoader}. Tính năng cung cấp hai chế độ: tham quan có hướng dẫn
+di chuyển camera theo lộ trình định sẵn, và khám phá tự do cho phép điều khiển
+bằng chuột hoặc cảm ứng kèm xử lý va chạm cơ bản. Mô hình được nén bằng
+quantization và texture WEBP để phù hợp điều kiện kết nối di động.
+
+Tính năng này giải quyết hạn chế thực tế của các hệ thống hiện tại: sinh viên
+từ tỉnh xa không cần đến tận nơi xem phòng trước khi đăng ký, tour 3D giúp
+hình dung diện tích, bố trí nội thất và điều kiện sinh hoạt ngay từ trang web.
+
+% =====================================================================
+Chương 3 đã trình bày các lựa chọn công nghệ cùng lý do cụ thể: Node.js và
+MongoDB Atlas cho tính linh hoạt và hiệu năng I/O, Passport.js và JWT cho xác
+thực đa lớp, React Native kết hợp PWA cho khả năng tiếp cận đa thiết bị,
+Docker và GitHub Actions cho vận hành nhất quán, và CesiumJS cùng Three.js cho
+trải nghiệm trực quan hóa không gian. Các quyết định này tạo nền tảng cho
+chương 4 trình bày thiết kế chi tiết và kết quả kiểm thử.
+
+\end{document}
